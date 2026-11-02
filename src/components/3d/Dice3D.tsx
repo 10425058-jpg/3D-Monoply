@@ -136,6 +136,10 @@ const Die: React.FC<{
       wasRolling.current = false;
       landedAt.current = clock.getElapsedTime();
     }
+    if (landedAt.current === null) {
+      const rotationError = 1 - Math.abs(die.quaternion.dot(targetQuaternion));
+      if (Math.abs(die.position.y - 0.76) < 0.001 && rotationError < 0.0002) return;
+    }
     const landingElapsed = landedAt.current === null ? 1 : clock.getElapsedTime() - landedAt.current;
     const bounce = landedAt.current !== null && landingElapsed < 0.62
       ? Math.max(0, Math.sin(landingElapsed * 18) * Math.exp(-landingElapsed * 7.5))
