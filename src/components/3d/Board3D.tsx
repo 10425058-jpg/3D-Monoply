@@ -15,22 +15,18 @@ export const Board3D: React.FC = () => {
   return (
     <group>
       {/* Floating square plinth: layered toy-board sides with warm candy trim. */}
-      <mesh position={[0, -1.18, 0]} receiveShadow>
-        <RoundedBox args={[24.8, 0.62, 24.8]} radius={0.5} smoothness={6} />
+      <RoundedBox args={[24.8, 0.62, 24.8]} radius={0.5} smoothness={6} position={[0, -1.18, 0]} receiveShadow>
         <meshStandardMaterial color="#8b75bc" roughness={0.62} />
-      </mesh>
-      <mesh position={[0, -0.79, 0]} receiveShadow castShadow>
-        <RoundedBox args={[24.25, 0.32, 24.25]} radius={0.42} smoothness={6} />
+      </RoundedBox>
+      <RoundedBox args={[24.25, 0.32, 24.25]} radius={0.42} smoothness={6} position={[0, -0.79, 0]} receiveShadow castShadow>
         <meshStandardMaterial color="#e9a27a" metalness={0.22} roughness={0.42} />
-      </mesh>
-      <mesh position={[0, -0.59, 0]} receiveShadow>
-        <RoundedBox args={[23.9, 0.2, 23.9]} radius={0.38} smoothness={6} />
+      </RoundedBox>
+      <RoundedBox args={[23.9, 0.2, 23.9]} radius={0.38} smoothness={6} position={[0, -0.59, 0]} receiveShadow>
         <meshStandardMaterial color="#fff0d5" roughness={0.48} />
-      </mesh>
-      <mesh position={[0, -0.46, 0]}>
-        <RoundedBox args={[23.7, 0.08, 23.7]} radius={0.34} smoothness={6} />
+      </RoundedBox>
+      <RoundedBox args={[23.7, 0.08, 23.7]} radius={0.34} smoothness={6} position={[0, -0.46, 0]}>
         <meshStandardMaterial color="#f5c77c" metalness={0.46} roughness={0.28} />
-      </mesh>
+      </RoundedBox>
 
       {/* Compact card trays sit fully inside the lower blue inset, away from lane markings. */}
       <group position={[7.0, 0.36, 7.1]} rotation={[0, -0.14, 0]}>
