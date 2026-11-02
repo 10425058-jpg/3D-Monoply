@@ -273,7 +273,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     tick();
   };
 
-  const evaluateLandedSpace = () => {
+  const evaluateLandedSpace = (rentMultiplier = 1, rentOverride?: number) => {
     const state = get();
     const player = state.players[state.currentPlayerIndex];
     const space: BoardSpace = BOARD_SPACES[player.position];
@@ -364,7 +364,7 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     // Calculate and charge rent
     const diceTotal = state.dice[0] + state.dice[1];
-    const rent = get().calculateRent(space.id, diceTotal);
+    const rent = rentOverride ?? get().calculateRent(space.id, diceTotal) * rentMultiplier;
     const owner = state.players.find((p) => p.id === propState.ownerId)!;
 
     if (player.money >= rent) {
@@ -1067,7 +1067,9 @@ export const useGameStore = create<GameStore>((set, get) => {
           const target = pos >= 12 && pos < 28 ? 28 : 12;
           const steps = (target - pos + 40) % 40;
           set({ turnPhase: 'MOVING' });
-          stepMovePlayer(playerIndex, steps, evaluateLandedSpace);
+          stepMovePlayer(playerIndex, steps, () =>
+            evaluateLandedSpace(1, (state.dice[0] + state.dice[1]) * 10)
+          );
           break;
         }
         case 'nearest_railroad': {
@@ -1078,7 +1080,7 @@ export const useGameStore = create<GameStore>((set, get) => {
           else if (pos >= 25 && pos < 35) target = 35;
           const steps = (target - pos + 40) % 40;
           set({ turnPhase: 'MOVING' });
-          stepMovePlayer(playerIndex, steps, evaluateLandedSpace);
+          stepMovePlayer(playerIndex, steps, () => evaluateLandedSpace(2));
           break;
         }
         case 'repairs': {
