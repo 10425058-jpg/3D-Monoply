@@ -604,8 +604,8 @@ export const CenterCity3D: React.FC = () => {
         </mesh>
       </group>
       <group ref={boatRef} position={[1.7, 0.28, 4.75]}>
-        <mesh castShadow>
-          <coneGeometry args={[0.38, 0.95, 4]} rotation={[Math.PI / 2, 0, 0]} />
+        <mesh castShadow rotation={[Math.PI / 2, 0, 0]}>
+          <coneGeometry args={[0.38, 0.95, 4]} />
           <meshStandardMaterial color="#eee7d9" metalness={0.3} roughness={0.3} />
         </mesh>
         <mesh position={[0, 0.18, 0]} castShadow>
