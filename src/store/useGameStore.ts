@@ -273,7 +273,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     tick();
   };
 
-  const evaluateLandedSpace = () => {
+  const evaluateLandedSpace = (rentMultiplier = 1, rentOverride?: number) => {
     const state = get();
     const player = state.players[state.currentPlayerIndex];
     const space: BoardSpace = BOARD_SPACES[player.position];
@@ -364,7 +364,7 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     // Calculate and charge rent
     const diceTotal = state.dice[0] + state.dice[1];
-    const rent = get().calculateRent(space.id, diceTotal);
+    const rent = rentOverride ?? get().calculateRent(space.id, diceTotal) * rentMultiplier;
     const owner = state.players.find((p) => p.id === propState.ownerId)!;
 
     if (player.money >= rent) {
@@ -590,18 +590,26 @@ export const useGameStore = create<GameStore>((set, get) => {
 
           const nextJailTurns = activePlayer.jailTurns + 1;
           if (nextJailTurns >= 3) {
-            addLog(`${activePlayer.name} spent 3 turns in Jail, paid $50 bail, and moves ${total} spaces.`, 'alert');
-            set((s) => {
-              const players = [...s.players];
-              players[s.currentPlayerIndex] = {
-                ...players[s.currentPlayerIndex],
-                money: players[s.currentPlayerIndex].money - 50,
-                inJail: false,
-                jailTurns: 0,
-              };
-              return { players, turnPhase: 'MOVING' };
-            });
-            stepMovePlayer(currentState.currentPlayerIndex, total, evaluateLandedSpace);
+            if (activePlayer.money >= 50) {
+              addLog(`${activePlayer.name} spent 3 turns in Jail, paid $50 bail, and moves ${total} spaces.`, 'alert');
+              set((s) => {
+                const players = [...s.players];
+                players[s.currentPlayerIndex] = {
+                  ...players[s.currentPlayerIndex],
+                  money: players[s.currentPlayerIndex].money - 50,
+                  inJail: false,
+                  jailTurns: 0,
+                };
+                return { players, turnPhase: 'MOVING' };
+              });
+              stepMovePlayer(currentState.currentPlayerIndex, total, evaluateLandedSpace);
+            } else {
+              addLog(`${activePlayer.name} must raise $50 to leave Jail after the third failed roll.`, 'alert');
+              set({
+                pendingDebt: { amount: 50, creditorId: null, reason: 'Jail release after third failed roll' },
+                turnPhase: 'DEBT_RESOLUTION',
+              });
+            }
           } else {
             addLog(`${activePlayer.name} rolled ${d1} & ${d2} (no doubles) and stays in Jail (Turn ${nextJailTurns}/3).`, 'info');
             set((s) => {
@@ -920,14 +928,27 @@ export const useGameStore = create<GameStore>((set, get) => {
       if (!player || player.isAI || !space.price || !property || property.ownerId !== null) return;
 
       const purchasePrice = space.price ?? 0;
-      const bidders = state.players.filter((candidate) =>
+      const bidderPlayers = state.players.filter((candidate) =>
         candidate.id !== player.id && candidate.isAI && !candidate.isBankrupt
       );
-      const bids = bidders
+      const groupSpaces = BOARD_SPACES.filter((candidate) => candidate.colorGroup === space.colorGroup);
+      const ownsInGroup = (bidderId: number) => groupSpaces.filter((candidate) =>
+        state.properties[candidate.id]?.ownerId === bidderId
+      ).length;
+      const bids = bidderPlayers
         .map((bidder) => {
-          const reserve = Math.max(50, Math.round(purchasePrice * 0.35));
-          const maximum = Math.max(0, Math.min(bidder.money - 100, Math.round(purchasePrice * (0.55 + Math.random() * 0.5))));
-          const bid = maximum >= reserve ? Math.round((reserve + Math.random() * (maximum - reserve)) / 10) * 10 : 0;
+          const completesSet = groupSpaces.length > 0 && ownsInGroup(bidder.id) + 1 === groupSpaces.length;
+          const alreadyInvested = ownsInGroup(bidder.id) > 0;
+          const strategicMultiplier = completesSet ? 1.08 : alreadyInvested ? 0.82 : 0.62;
+          const reserve = Math.max(50, Math.round(purchasePrice * 0.28));
+          const cashReserve = Math.max(100, Math.min(350, Math.round(bidder.money * 0.2)));
+          const maximum = Math.max(0, Math.min(
+            bidder.money - cashReserve,
+            Math.round(purchasePrice * strategicMultiplier)
+          ));
+          const bid = maximum >= reserve
+            ? Math.round((reserve + Math.random() * (maximum - reserve)) / 10) * 10
+            : 0;
           return { bidder, bid };
         })
         .filter((entry) => entry.bid > 0)
@@ -1046,7 +1067,9 @@ export const useGameStore = create<GameStore>((set, get) => {
           const target = pos >= 12 && pos < 28 ? 28 : 12;
           const steps = (target - pos + 40) % 40;
           set({ turnPhase: 'MOVING' });
-          stepMovePlayer(playerIndex, steps, evaluateLandedSpace);
+          stepMovePlayer(playerIndex, steps, () =>
+            evaluateLandedSpace(1, (state.dice[0] + state.dice[1]) * 10)
+          );
           break;
         }
         case 'nearest_railroad': {
@@ -1057,7 +1080,7 @@ export const useGameStore = create<GameStore>((set, get) => {
           else if (pos >= 25 && pos < 35) target = 35;
           const steps = (target - pos + 40) % 40;
           set({ turnPhase: 'MOVING' });
-          stepMovePlayer(playerIndex, steps, evaluateLandedSpace);
+          stepMovePlayer(playerIndex, steps, () => evaluateLandedSpace(2));
           break;
         }
         case 'repairs': {
@@ -1306,19 +1329,37 @@ export const useGameStore = create<GameStore>((set, get) => {
       const player = state.players[state.currentPlayerIndex];
       if (!debt || player.money < debt.amount) return;
 
+      const jailRelease = debt.reason === 'Jail release after third failed roll';
+      const jailMoveTotal = state.dice[0] + state.dice[1];
+
       set((s) => {
         const players = s.players.map((p) => {
-          if (p.id === player.id) return { ...p, money: p.money - debt.amount };
+          if (p.id === player.id) {
+            return {
+              ...p,
+              money: p.money - debt.amount,
+              ...(jailRelease ? { inJail: false, jailTurns: 0 } : {}),
+            };
+          }
           if (debt.creditorId !== null && p.id === debt.creditorId) {
             return { ...p, money: p.money + debt.amount };
           }
           return p;
         });
-        return { players, pendingDebt: null, turnPhase: 'END_TURN' };
+        return {
+          players,
+          pendingDebt: null,
+          turnPhase: jailRelease ? 'MOVING' : 'END_TURN',
+        };
       });
 
       addLog(`${player.name} settled their ${debt.amount} debt (${debt.reason}).`, 'money');
-      if (BOARD_SPACES[player.position].type === 'railroad') openRailroadRaid(player.id);
+      if (jailRelease) {
+        addLog(`${player.name} is released from Jail and moves ${jailMoveTotal} spaces.`, 'info');
+        stepMovePlayer(state.currentPlayerIndex, jailMoveTotal, evaluateLandedSpace);
+      } else if (BOARD_SPACES[player.position].type === 'railroad') {
+        openRailroadRaid(player.id);
+      }
     },
 
     declareBankruptcy: () => {

@@ -151,6 +151,29 @@ const Building: React.FC<BuildingProps> = ({
         />
       </mesh>
 
+      {/* Architectural detailing: raised stone plinth, brass corner pilasters and a lit entrance. */}
+      <mesh position={[0, 0.105, 0]} castShadow receiveShadow>
+        <boxGeometry args={[width + 0.16, 0.15, depth + 0.16]} />
+        <meshStandardMaterial color="#263449" metalness={0.48} roughness={0.3} />
+      </mesh>
+      {[-1, 1].map((xSide) => [-1, 1].map((zSide) => (
+        <mesh
+          key={`corner-${xSide}-${zSide}`}
+          position={[xSide * (width / 2 + 0.018), height / 2 + 0.12, zSide * (depth / 2 + 0.018)]}
+          castShadow
+        >
+          <boxGeometry args={[0.055, Math.max(0.25, height - 0.12), 0.055]} />
+          <meshStandardMaterial color="#b9975d" metalness={0.82} roughness={0.22} />
+        </mesh>
+      )))}
+      <mesh position={[0, 0.31, depth / 2 + 0.025]} castShadow>
+        <boxGeometry args={[0.25, 0.42, 0.035]} />
+        <meshPhysicalMaterial color="#17283c" metalness={0.42} roughness={0.2} clearcoat={1} />
+      </mesh>
+      <mesh position={[0, 0.31, depth / 2 + 0.047]}>
+        <boxGeometry args={[0.13, 0.25, 0.012]} />
+        <meshStandardMaterial color="#e5c77e" metalness={0.75} roughness={0.2} emissive="#b58b45" emissiveIntensity={0.2} />
+      </mesh>
       <mesh position={[0, height + 0.035, 0]} castShadow>
         <boxGeometry args={[width + 0.12, 0.09, depth + 0.12]} />
         <meshStandardMaterial color="#9eafc2" metalness={0.72} roughness={0.23} />

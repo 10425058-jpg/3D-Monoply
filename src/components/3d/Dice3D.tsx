@@ -86,6 +86,8 @@ const Die: React.FC<{
 }> = ({ value, rolling, index, speed }) => {
   const dieRef = useRef<THREE.Group>(null);
   const pipsRef = useRef<THREE.InstancedMesh>(null);
+  const wasRolling = useRef(false);
+  const landedAt = useRef<number | null>(null);
 
   const pipTransforms = useMemo(
     () => PIP_POSITIONS.map((position) => position.clone()),
@@ -119,13 +121,27 @@ const Die: React.FC<{
     if (!die) return;
 
     if (rolling) {
+      wasRolling.current = true;
+      landedAt.current = null;
       const time = clock.getElapsedTime();
       die.position.y = 0.95 + Math.abs(Math.sin(time * 17 * speed + index * 1.7)) * 0.58;
       die.rotation.x += delta * speed * (7.2 + index * 0.8);
       die.rotation.y += delta * speed * (8.6 + index * 0.65);
       die.rotation.z += delta * speed * (6.4 + index * 0.45);
+      die.scale.setScalar(1 + Math.abs(Math.sin(time * 13 + index)) * 0.035);
       return;
     }
+
+    if (wasRolling.current) {
+      wasRolling.current = false;
+      landedAt.current = clock.getElapsedTime();
+    }
+    const landingElapsed = landedAt.current === null ? 1 : clock.getElapsedTime() - landedAt.current;
+    const bounce = landedAt.current !== null && landingElapsed < 0.62
+      ? Math.max(0, Math.sin(landingElapsed * 18) * Math.exp(-landingElapsed * 7.5))
+      : 0;
+    die.scale.set(1 + bounce * 0.1, 1 - bounce * 0.065, 1 + bounce * 0.1);
+    if (landingElapsed >= 0.62) landedAt.current = null;
 
     die.position.y = THREE.MathUtils.damp(die.position.y, 0.76, 10, delta);
     die.quaternion.slerp(targetQuaternion, 1 - Math.exp(-12 * delta));

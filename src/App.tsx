@@ -137,24 +137,59 @@ export const App: React.FC = () => {
 
     const timer = window.setTimeout(() => {
       switch (game.turnPhase) {
-        case 'PRE_ROLL':
-          if (!activePlayer.inJail && activePlayer.landmarkLevel < 5 &&
-              activePlayer.money >= game.landmarkUpgradeCost(activePlayer.id) + 350 &&
-              Math.random() < 0.3) {
-            game.upgradeLandmark();
+        case 'PRE_ROLL': {
+          if (!activePlayer.inJail) {
+            // Invest in the strongest available improvement before rolling.
+            const buildCandidates = BOARD_SPACES
+              .filter((space) => game.canBuildHouse(activePlayer.id, space.id))
+              .map((space) => {
+                const property = game.properties[space.id];
+                const currentRent = game.calculateRent(space.id, 7);
+                const nextRent = space.rent?.[Math.min(5, (property?.houses ?? 0) + 1)] ?? currentRent;
+                const cost = space.houseCost ?? 100;
+                return { space, cost, score: (nextRent - currentRent) / cost };
+              })
+              .sort((left, right) => right.score - left.score);
+            const bestBuild = buildCandidates[0];
+            if (bestBuild && activePlayer.money - bestBuild.cost >= Math.max(300, activePlayer.money * 0.24) && bestBuild.score >= 0.16) {
+              game.buildHouse(bestBuild.space.id);
+            }
+
+            if (activePlayer.landmarkLevel < 5 &&
+                activePlayer.money >= game.landmarkUpgradeCost(activePlayer.id) + 450 &&
+                Math.random() < 0.18) {
+              game.upgradeLandmark();
+            }
           }
+
           if (activePlayer.inJail && activePlayer.money >= 50 && activePlayer.jailTurns >= 2) {
             game.payJailBail();
-          } else if (activePlayer.inJail && activePlayer.getOutOfJailCards > 0) {
+          } else if (activePlayer.inJail && activePlayer.getOutOfJailCards > 0 && activePlayer.jailTurns >= 1) {
             game.useJailCard();
           } else {
             game.rollDice();
           }
           break;
+        }
         case 'LANDED_ACTION': {
           const space = BOARD_SPACES[activePlayer.position];
           const property = game.properties[space.id];
-          if (space.price && property?.ownerId === null && activePlayer.money >= space.price + 150) {
+          if (!space.price || !property || property.ownerId !== null) {
+            game.declineProperty();
+            break;
+          }
+
+          const sameGroup = BOARD_SPACES.filter((candidate) => candidate.colorGroup === space.colorGroup);
+          const ownedInGroup = sameGroup.filter((candidate) => game.properties[candidate.id]?.ownerId === activePlayer.id).length;
+          const completesSet = sameGroup.length > 0 && ownedInGroup + 1 === sameGroup.length;
+          const reserve = activePlayer.money < 650 ? 100 : activePlayer.money < 1100 ? 220 : 320;
+          const baseRent = space.rent?.[0] ?? (space.type === 'railroad' ? 25 : 18);
+          const rentalYield = baseRent / space.price;
+          const canCompleteSet = completesSet && activePlayer.money - space.price >= 75;
+          const canAffordStrategically = activePlayer.money - space.price >= reserve && rentalYield >= 0.065;
+          const canMakePremiumPurchase = activePlayer.money >= space.price * 1.7 && rentalYield >= 0.045;
+
+          if (canCompleteSet || canAffordStrategically || canMakePremiumPurchase) {
             game.buyCurrentProperty();
           } else {
             game.declineProperty();
@@ -164,10 +199,37 @@ export const App: React.FC = () => {
         case 'CARD_DRAWN':
           game.applyActiveCard();
           break;
-        case 'DEBT_RESOLUTION':
-          if (game.pendingDebt && activePlayer.money >= game.pendingDebt.amount) game.settlePendingDebt();
-          else game.declareBankruptcy();
+        case 'DEBT_RESOLUTION': {
+          if (!game.pendingDebt) break;
+          if (activePlayer.money >= game.pendingDebt.amount) {
+            game.settlePendingDebt();
+            break;
+          }
+
+          // The AI liquidates assets before declaring bankruptcy: buildings first,
+          // then mortgage-free properties that have no houses in their color group.
+          const sellableBuilding = BOARD_SPACES
+            .filter((space) => game.canSellHouse(activePlayer.id, space.id))
+            .sort((left, right) => (right.houseCost ?? 0) - (left.houseCost ?? 0))[0];
+          if (sellableBuilding) {
+            game.sellHouse(sellableBuilding.id);
+            break;
+          }
+
+          const mortgageCandidate = BOARD_SPACES.find((space) => {
+            const property = game.properties[space.id];
+            if (!space.mortgageValue || !property || property.ownerId !== activePlayer.id || property.isMortgaged) return false;
+            return !BOARD_SPACES
+              .filter((candidate) => candidate.colorGroup === space.colorGroup)
+              .some((candidate) => (game.properties[candidate.id]?.houses ?? 0) > 0);
+          });
+          if (mortgageCandidate) {
+            game.toggleMortgage(mortgageCandidate.id);
+          } else {
+            game.declareBankruptcy();
+          }
           break;
+        }
         case 'END_TURN':
           game.endTurn();
           break;

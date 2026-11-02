@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text } from '@react-three/drei';
+import { RoundedBox, Text } from '@react-three/drei';
 import { BOARD_SPACES, getSpaceTransform } from '../../data/boardData';
 import { useGameStore } from '../../store/useGameStore';
 
@@ -104,14 +104,19 @@ export const Board3D: React.FC = () => {
             position={[transform.position[0], isHovered ? 0.36 : isSelected ? 0.32 : 0.24, transform.position[2]]}
             rotation={[0, transform.rotationY, 0]}
           >
-            {/* Dark bevel below each tile */}
+            {/* Dark bevel and brass reveal make each space read as a separate crafted tile. */}
             <mesh position={[0, -0.055, 0]} castShadow>
-              <boxGeometry args={[transform.width - 0.025, 0.12, transform.depth - 0.025]} />
-              <meshStandardMaterial color="#253249" metalness={0.35} roughness={0.32} />
+              <RoundedBox args={[transform.width - 0.025, 0.12, transform.depth - 0.025]} radius={0.045} smoothness={3} />
+              <meshStandardMaterial color="#253249" metalness={0.46} roughness={0.25} />
+            </mesh>
+            <mesh position={[0, -0.006, 0]} castShadow>
+              <RoundedBox args={[transform.width - 0.045, 0.105, transform.depth - 0.045]} radius={0.04} smoothness={3} />
+              <meshPhysicalMaterial color="#c5a365" metalness={0.84} roughness={0.22} clearcoat={1} />
             </mesh>
 
-            {/* Porcelain tile surface */}
+            {/* Glossy porcelain top with a soft bevel and a warm enamel finish. */}
             <mesh
+              position={[0, 0.012, 0]}
               castShadow
               receiveShadow
               onClick={(event) => {
@@ -130,12 +135,13 @@ export const Board3D: React.FC = () => {
                 document.body.style.cursor = 'auto';
               }}
             >
-              <boxGeometry args={[transform.width - 0.07, 0.09, transform.depth - 0.07]} />
+              <RoundedBox args={[transform.width - 0.09, 0.09, transform.depth - 0.09]} radius={0.035} smoothness={4} />
               <meshPhysicalMaterial
-                color={isHovered ? '#f8e8bd' : property?.isMortgaged ? '#aab2bd' : '#e9e3d5'}
-                roughness={0.48}
-                metalness={0.04}
-                clearcoat={0.48}
+                color={isHovered ? '#fff0c9' : property?.isMortgaged ? '#aab2bd' : '#eee7d8'}
+                roughness={0.27}
+                metalness={0.06}
+                clearcoat={0.92}
+                clearcoatRoughness={0.16}
               />
             </mesh>
 
@@ -164,7 +170,15 @@ export const Board3D: React.FC = () => {
             {space.type === 'property' && (
               <mesh position={[0, 0.054, -transform.depth / 2 + 0.34]} castShadow>
                 <boxGeometry args={[transform.width - 0.1, 0.045, 0.62]} />
-                <meshStandardMaterial color={space.colorHex} roughness={0.36} metalness={0.12} />
+                <meshPhysicalMaterial
+                  color={space.colorHex}
+                  roughness={0.24}
+                  metalness={0.28}
+                  clearcoat={1}
+                  clearcoatRoughness={0.12}
+                  emissive={space.colorHex}
+                  emissiveIntensity={0.08}
+                />
               </mesh>
             )}
 
@@ -173,7 +187,7 @@ export const Board3D: React.FC = () => {
               <>
                 <mesh position={[0, 0.075, transform.depth / 2 - 0.13]}>
                   <boxGeometry args={[transform.width - 0.13, 0.075, 0.22]} />
-                  <meshStandardMaterial color={owner.color} emissive={owner.color} emissiveIntensity={0.72} metalness={0.34} roughness={0.24} />
+                  <meshPhysicalMaterial color={owner.color} emissive={owner.color} emissiveIntensity={0.82} metalness={0.58} roughness={0.18} clearcoat={1} />
                 </mesh>
                 <group position={[0, 0.055, 0]}>
                   <mesh position={[0, 0, -transform.depth / 2 + 0.045]}>

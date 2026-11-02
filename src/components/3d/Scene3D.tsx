@@ -74,7 +74,11 @@ export const Scene3D: React.FC = () => (
     <Canvas
       camera={{ position: [0, 24, 24], fov: 43, near: 0.1, far: 1000 }}
       shadows
-      dpr={[1, 1.2]}
+      dpr={[1, 1.35]}
+      onCreated={({ gl }) => {
+        gl.toneMapping = THREE.ACESFilmicToneMapping;
+        gl.toneMappingExposure = 1.08;
+      }}
       performance={{ min: 0.55, max: 1, debounce: 180 }}
       gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
     >
@@ -85,23 +89,24 @@ export const Scene3D: React.FC = () => (
       <color attach="background" args={['#10182b']} />
       <fog attach="fog" args={['#10182b', 34, 86]} />
 
-      <ambientLight intensity={0.78} />
-      <hemisphereLight args={['#a8ceef', '#302235', 0.72]} />
+      <ambientLight intensity={0.52} />
+      <hemisphereLight args={['#b8d9f2', '#2a1d2d', 0.86]} />
       <directionalLight
         position={[-13, 24, 14]}
-        intensity={1.5}
+        intensity={1.92}
         color="#d7e7ff"
         castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
-        shadow-radius={4}
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
+        shadow-radius={5}
+        shadow-bias={-0.00018}
         shadow-camera-left={-21}
         shadow-camera-right={21}
         shadow-camera-top={21}
         shadow-camera-bottom={-21}
       />
-      <directionalLight position={[10, 12, -12]} intensity={0.58} color="#f2b979" />
-      <pointLight position={[0, 9, 0]} intensity={1.1} color="#6b9edb" distance={30} decay={2} />
+      <directionalLight position={[10, 12, -12]} intensity={0.76} color="#f2b979" />
+      <pointLight position={[0, 9, 0]} intensity={0.82} color="#6b9edb" distance={30} decay={2} />
 
       <Stars radius={90} depth={45} count={420} factor={2.2} saturation={0.1} fade speed={0} />
       <Sparkles count={28} scale={[17, 4, 17]} size={1.25} speed={0.12} opacity={0.18} color="#86c9f1" />
@@ -113,8 +118,8 @@ export const Scene3D: React.FC = () => (
       <Dice3D />
 
       <EffectComposer multisampling={0}>
-        <N8AO aoRadius={0.72} distanceFalloff={1.05} intensity={1.15} halfRes />
-        <Bloom luminanceThreshold={0.78} luminanceSmoothing={0.18} intensity={0.42} mipmapBlur />
+        <N8AO aoRadius={0.82} distanceFalloff={1.08} intensity={1.38} halfRes />
+        <Bloom luminanceThreshold={0.72} luminanceSmoothing={0.22} intensity={0.52} mipmapBlur />
       </EffectComposer>
     </Canvas>
   </div>
