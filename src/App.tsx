@@ -87,6 +87,7 @@ export const App: React.FC = () => {
   const [showMetaHub, setShowMetaHub] = useState(false);
   const [metaTab, setMetaTab] = useState<'daily' | 'missions' | 'album'>('daily');
   const [lastPackReveal, setLastPackReveal] = useState<{ stickers: string[]; duplicateCount: number } | null>(null);
+  const [isWheelSpinning, setIsWheelSpinning] = useState(false);
 
   const activePlayer = game.players[game.currentPlayerIndex];
   const selectedSpace = game.selectedSpaceId === null ? null : BOARD_SPACES[game.selectedSpaceId];
@@ -189,6 +190,13 @@ export const App: React.FC = () => {
 
     return () => window.clearTimeout(timer);
   }, [game.railroadRaid, game.players]);
+
+  const handleWheelSpin = () => {
+    if (wheelUsedToday || isWheelSpinning) return;
+    setIsWheelSpinning(true);
+    game.spinLuckyWheel();
+    window.setTimeout(() => setIsWheelSpinning(false), 1350);
+  };
 
   const handleStart = () => {
     game.startNewGame(DEFAULT_SETUP);
@@ -560,7 +568,7 @@ export const App: React.FC = () => {
 
                 <div className="meta-section-title"><div><span className="eyebrow">ONE FREE SPIN EVERY DAY</span><h3>Lucky Wheel</h3></div><span className="meta-availability">{wheelUsedToday ? 'Come back tomorrow' : 'Ready to spin'}</span></div>
                 <div className="wheel-layout">
-                  <div className="lucky-wheel">
+                  <div className={`lucky-wheel ${isWheelSpinning ? "is-spinning" : ""}`}>
                     <div className="wheel-center"><Star size={25} fill="currentColor" /></div>
                     <span className="wheel-label wheel-label-1">$100</span>
                     <span className="wheel-label wheel-label-2">$200</span>
@@ -572,7 +580,7 @@ export const App: React.FC = () => {
                   <div className="wheel-copy">
                     <strong>Try your luck.</strong>
                     <p>Win cash or a Sticker Pack. The wheel resets every day.</p>
-                    <button className="meta-secondary-button" disabled={wheelUsedToday} onClick={game.spinLuckyWheel}>
+                    <button className="meta-secondary-button" disabled={wheelUsedToday} onClick={handleWheelSpin}>
                       <Sparkles size={15} /> {wheelUsedToday ? 'Already spun' : 'Spin the wheel'}
                     </button>
                     {wheelUsedToday && game.lastWheelReward && <span className="wheel-last-win">Today’s prize: {game.lastWheelReward.label}</span>}
