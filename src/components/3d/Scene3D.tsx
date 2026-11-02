@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Sparkles, Stars } from '@react-three/drei';
+import { Bloom, EffectComposer, N8AO } from '@react-three/postprocessing';
 import * as THREE from 'three';
 
 import { Board3D } from './Board3D';
@@ -105,6 +106,11 @@ export const Scene3D: React.FC = () => (
       <CenterCity3D />
       <TokensAndBuildings />
       <Dice3D />
+
+      <EffectComposer multisampling={0}>
+        <N8AO aoRadius={0.72} distanceFalloff={1.05} intensity={1.15} halfRes />
+        <Bloom luminanceThreshold={0.78} luminanceSmoothing={0.18} intensity={0.42} mipmapBlur />
+      </EffectComposer>
     </Canvas>
   </div>
 );
