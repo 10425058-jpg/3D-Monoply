@@ -802,10 +802,10 @@ export const CenterCity3D: React.FC = () => {
         </Text>
       </group>
 
-      {[0, 1, 2, 3].map((index) => (
+      {[0, 1, 2].map((index) => (
         <Tree
           key={`foreground-tree-${index}`}
-          position={[4.35 + index * 0.88, 0.42, 5.45 + (index % 2) * 0.18]}
+          position={[3.8 + index * 0.8, 0.42, 5.45 + (index % 2) * 0.18]}
           scale={0.62 + (index % 2) * 0.08}
           canopy={index % 2 === 0 ? '#287b51' : '#3b9659'}
         />
