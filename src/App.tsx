@@ -111,7 +111,12 @@ export const App: React.FC = () => {
     ? undefined
     : game.players.find((player) => player.id === selectedState.ownerId);
   const myTradableProperties = useMemo(
-    () => BOARD_SPACES.filter((space) => space.type === 'property' && game.properties[space.id]?.ownerId === activePlayer?.id && !game.properties[space.id]?.isMortgaged),
+    () => BOARD_SPACES.filter((space) => {
+      if (space.type !== 'property' || game.properties[space.id]?.ownerId !== activePlayer?.id || game.properties[space.id]?.isMortgaged) return false;
+      return !BOARD_SPACES
+        .filter((candidate) => candidate.colorGroup === space.colorGroup)
+        .some((candidate) => (game.properties[candidate.id]?.houses ?? 0) > 0);
+    }),
     [game.properties, activePlayer?.id]
   );
   const rivalTradableProperties = useMemo(
