@@ -75,6 +75,7 @@ export const App: React.FC = () => {
   };
 
   const phaseLabel = useMemo(() => ({
+    SETUP: 'Set up your game',
     PRE_ROLL: 'Ready to roll',
     ROLLING: 'Rolling dice…',
     MOVING: 'Moving around the board…',
