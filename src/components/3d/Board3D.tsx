@@ -13,8 +13,8 @@ export const Board3D: React.FC = () => {
   const properties = useGameStore((s) => s.properties);
   const players = useGameStore((s) => s.players);
   const [hoveredId, setHoveredId] = useState<number | null>(null);
-  const cornerSpaces = BOARD_SPACES.filter((space) => getSpaceTransform(space.id).isCorner);
-  const edgeSpaces = BOARD_SPACES.filter((space) => !getSpaceTransform(space.id).isCorner);
+  const cornerSpaces = useMemo(() => BOARD_SPACES.filter((space) => getSpaceTransform(space.id).isCorner), []);
+  const edgeSpaces = useMemo(() => BOARD_SPACES.filter((space) => !getSpaceTransform(space.id).isCorner), []);
 
   const cornerBaseGeometry = useMemo(() => new RoundedBoxGeometry(2.875, 0.12, 2.875, 0.045, 3), []);
   const edgeBaseGeometry = useMemo(() => new RoundedBoxGeometry(1.775, 0.12, 2.875, 0.045, 3), []);
@@ -119,22 +119,10 @@ export const Board3D: React.FC = () => {
       </RoundedBox>
 
       {/* The 40 tile shells are batched into six instanced draws: corner/edge × base/trim/top. */}
-      <instancedMesh ref={cornerBase} args={[cornerBaseGeometry, baseMaterial, cornerSpaces.length]}>
-        <primitive object={cornerBaseGeometry} attach="geometry" />
-        <primitive object={baseMaterial} attach="material" />
-      </instancedMesh>
-      <instancedMesh ref={edgeBase} args={[edgeBaseGeometry, baseMaterial, edgeSpaces.length]}>
-        <primitive object={edgeBaseGeometry} attach="geometry" />
-        <primitive object={baseMaterial} attach="material" />
-      </instancedMesh>
-      <instancedMesh ref={cornerTrim} args={[cornerTrimGeometry, trimMaterial, cornerSpaces.length]}>
-        <primitive object={cornerTrimGeometry} attach="geometry" />
-        <primitive object={trimMaterial} attach="material" />
-      </instancedMesh>
-      <instancedMesh ref={edgeTrim} args={[edgeTrimGeometry, trimMaterial, edgeSpaces.length]}>
-        <primitive object={edgeTrimGeometry} attach="geometry" />
-        <primitive object={trimMaterial} attach="material" />
-      </instancedMesh>
+      <instancedMesh ref={cornerBase} args={[cornerBaseGeometry, baseMaterial, cornerSpaces.length]} />
+      <instancedMesh ref={edgeBase} args={[edgeBaseGeometry, baseMaterial, edgeSpaces.length]} />
+      <instancedMesh ref={cornerTrim} args={[cornerTrimGeometry, trimMaterial, cornerSpaces.length]} />
+      <instancedMesh ref={edgeTrim} args={[edgeTrimGeometry, trimMaterial, edgeSpaces.length]} />
       <instancedMesh
         ref={cornerTop}
         args={[cornerTopGeometry, topMaterial, cornerSpaces.length]}
