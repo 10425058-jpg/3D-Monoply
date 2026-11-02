@@ -144,7 +144,7 @@ const Building: React.FC<BuildingProps> = ({
         <meshStandardMaterial
           color={accent}
           emissive={accent}
-          emissiveIntensity={0.38}
+          emissiveIntensity={0.92}
           roughness={0.42}
           side={THREE.DoubleSide}
         />
@@ -299,7 +299,7 @@ const FerrisWheel: React.FC = () => {
       <group ref={wheelRef} position={[0, 2.02, 0]}>
         <mesh>
           <torusGeometry args={[1.35, 0.055, 10, 48]} />
-          <meshStandardMaterial color="#ef7b8e" metalness={0.55} roughness={0.25} emissive="#a82c64" emissiveIntensity={0.22} />
+          <meshStandardMaterial color="#ef7b8e" metalness={0.55} roughness={0.25} emissive="#a82c64" emissiveIntensity={0.85} />
         </mesh>
         <mesh>
           <torusGeometry args={[1.18, 0.022, 8, 48]} />
