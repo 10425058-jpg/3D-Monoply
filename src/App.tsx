@@ -19,7 +19,6 @@ import {
   Gift,
   Star,
   PackageOpen,
-  BookOpen,
   RotateCcw,
   ScrollText,
   ShieldCheck,
