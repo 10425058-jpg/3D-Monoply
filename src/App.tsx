@@ -67,7 +67,7 @@ export const App: React.FC = () => {
       }
     }, 850);
     return () => window.clearTimeout(timer);
-  }, [activePlayer, game.turnPhase, game.winner, game.pendingDebt, game]);
+  }, [activePlayer, game.turnPhase, game.winner, game.pendingDebt]);
 
   const handleStart = () => {
     game.startNewGame(DEFAULT_SETUP);
