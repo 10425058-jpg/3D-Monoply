@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 import { RoundedBox } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -32,24 +32,162 @@ const Island: React.FC<{position: Pos; size: [number, number, number]; top?: str
   </group>
 );
 
-const Tree: React.FC<{position: Pos; scale?: number; tone?: string}> = ({
-  position, scale = 1, tone = '#65b94c',
-}) => (
-  <group position={position} scale={scale}>
-    <mesh position={[0, 0.32, 0]} castShadow>
-      <cylinderGeometry args={[0.075, 0.13, 0.64, 9]} />
-      <meshStandardMaterial color="#996044" roughness={0.9} />
-    </mesh>
-    <mesh position={[0, 0.83, 0]} castShadow>
-      <dodecahedronGeometry args={[0.48, 1]} />
-      <meshStandardMaterial color={tone} roughness={0.82} />
-    </mesh>
-    <mesh position={[0.22, 1.0, 0.08]} scale={0.56}>
-      <icosahedronGeometry args={[0.4, 1]} />
-      <meshStandardMaterial color="#c1ed73" roughness={0.78} />
-    </mesh>
-  </group>
+type TreeLayout = { position: Pos; scale: number; tone: string };
+
+const TREE_LAYOUT: TreeLayout[] = [
+  { position: [-6.25, 1.31, -2.0], scale: 0.74, tone: '#57b34b' },
+  { position: [-5.9, 1.31, 0.0], scale: 0.82, tone: '#69c34e' },
+  { position: [-2.75, 1.61, -4.3], scale: 0.8, tone: '#65bb4a' },
+  { position: [1.25, 1.61, -4.45], scale: 0.72, tone: '#75c84e' },
+  { position: [5.0, 1.37, -2.95], scale: 0.84, tone: '#62ba4b' },
+  { position: [5.9, 1.26, 1.6], scale: 0.88, tone: '#72c64b' },
+  { position: [3.85, 1.24, 4.15], scale: 0.72, tone: '#65b94c' },
+  { position: [-1.0, 0.98, 4.9], scale: 0.76, tone: '#67c14e' },
+];
+
+const TreeInstances: React.FC = () => {
+  const trunks = useRef<THREE.InstancedMesh>(null);
+  const canopies = useRef<THREE.InstancedMesh>(null);
+  const highlights = useRef<THREE.InstancedMesh>(null);
+
+  useLayoutEffect(() => {
+    const dummy = new THREE.Object3D();
+    TREE_LAYOUT.forEach((tree, index) => {
+      const [x, y, z] = tree.position;
+      dummy.position.set(x, y + 0.32 * tree.scale, z);
+      dummy.scale.setScalar(tree.scale);
+      dummy.updateMatrix();
+      trunks.current?.setMatrixAt(index, dummy.matrix);
+
+      dummy.position.set(x, y + 0.83 * tree.scale, z);
+      dummy.updateMatrix();
+      canopies.current?.setMatrixAt(index, dummy.matrix);
+      canopies.current?.setColorAt(index, new THREE.Color(tree.tone));
+
+      dummy.position.set(x + 0.22 * tree.scale, y + 1.0 * tree.scale, z + 0.08 * tree.scale);
+      dummy.scale.setScalar(tree.scale * 0.56);
+      dummy.updateMatrix();
+      highlights.current?.setMatrixAt(index, dummy.matrix);
+    });
+    if (trunks.current) trunks.current.instanceMatrix.needsUpdate = true;
+    if (canopies.current) {
+      canopies.current.instanceMatrix.needsUpdate = true;
+      if (canopies.current.instanceColor) canopies.current.instanceColor.needsUpdate = true;
+    }
+    if (highlights.current) highlights.current.instanceMatrix.needsUpdate = true;
+  }, []);
+
+  return (
+    <>
+      <instancedMesh ref={trunks} args={[undefined, undefined, TREE_LAYOUT.length]} frustumCulled={false}>
+        <cylinderGeometry args={[0.075, 0.13, 0.64, 7]} />
+        <meshStandardMaterial color="#996044" roughness={0.9} />
+      </instancedMesh>
+      <instancedMesh ref={canopies} args={[undefined, undefined, TREE_LAYOUT.length]} frustumCulled={false}>
+        <dodecahedronGeometry args={[0.48, 1]} />
+        <meshStandardMaterial vertexColors roughness={0.82} />
+      </instancedMesh>
+      <instancedMesh ref={highlights} args={[undefined, undefined, TREE_LAYOUT.length]} frustumCulled={false}>
+        <icosahedronGeometry args={[0.4, 1]} />
+        <meshStandardMaterial color="#c1ed73" roughness={0.78} />
+      </instancedMesh>
+    </>
+  );
+};
+
+type CloudLayout = { position: Pos; scale: number };
+const CLOUD_LAYOUT: CloudLayout[] = [
+  { position: [-4.3, 5.7, -4.3], scale: 0.82 },
+  { position: [2.5, 5.9, -4.6], scale: 0.9 },
+  { position: [5.3, 5.1, 0.6], scale: 0.6 },
+];
+const CLOUD_PUFFS: Array<{ position: Pos; radius: number }> = CLOUD_LAYOUT.flatMap((cloud) =>
+  [
+    [-0.45, 0, 0, 0.52], [0, 0.17, 0, 0.68],
+    [0.48, 0.02, 0.04, 0.48], [0.18, -0.13, 0.22, 0.42],
+  ].map(([x, y, z, radius]) => ({
+    position: [
+      cloud.position[0] + x * cloud.scale,
+      cloud.position[1] + y * cloud.scale,
+      cloud.position[2] + z * cloud.scale,
+    ] as Pos,
+    radius: radius * cloud.scale,
+  }))
 );
+
+const CloudInstances: React.FC = () => {
+  const clouds = useRef<THREE.InstancedMesh>(null);
+  useLayoutEffect(() => {
+    if (!clouds.current) return;
+    const dummy = new THREE.Object3D();
+    CLOUD_PUFFS.forEach((puff, index) => {
+      dummy.position.set(...puff.position);
+      dummy.scale.setScalar(puff.radius);
+      dummy.updateMatrix();
+      clouds.current?.setMatrixAt(index, dummy.matrix);
+    });
+    clouds.current.instanceMatrix.needsUpdate = true;
+  }, []);
+
+  return (
+    <instancedMesh ref={clouds} args={[undefined, undefined, CLOUD_PUFFS.length]} frustumCulled={false}>
+      <sphereGeometry args={[1, 12, 10]} />
+      <meshStandardMaterial color="#fff5f1" roughness={0.96} />
+    </instancedMesh>
+  );
+};
+
+const OrchardInstances: React.FC = () => {
+  const pots = useRef<THREE.InstancedMesh>(null);
+  const fruits = useRef<THREE.InstancedMesh>(null);
+  const leaves = useRef<THREE.InstancedMesh>(null);
+  const positions = [-4.85, -4.1, -3.35].flatMap((x) =>
+    [-0.32, 0.18, 0.68].map((z) => [x, 1.21, 4.05 + z] as Pos)
+  );
+
+  useLayoutEffect(() => {
+    const dummy = new THREE.Object3D();
+    positions.forEach(([x, y, z], index) => {
+      dummy.position.set(x, y + 0.16, z);
+      dummy.scale.set(1, 1, 1);
+      dummy.updateMatrix();
+      pots.current?.setMatrixAt(index, dummy.matrix);
+
+      dummy.position.set(x, y + 0.34, z);
+      dummy.scale.setScalar(1);
+      dummy.updateMatrix();
+      fruits.current?.setMatrixAt(index, dummy.matrix);
+      fruits.current?.setColorAt(index, new THREE.Color(index % 2 ? '#f36d52' : '#ef9d42'));
+
+      dummy.position.set(x + 0.02, y + 0.46, z);
+      dummy.updateMatrix();
+      leaves.current?.setMatrixAt(index, dummy.matrix);
+    });
+    if (pots.current) pots.current.instanceMatrix.needsUpdate = true;
+    if (fruits.current) {
+      fruits.current.instanceMatrix.needsUpdate = true;
+      if (fruits.current.instanceColor) fruits.current.instanceColor.needsUpdate = true;
+    }
+    if (leaves.current) leaves.current.instanceMatrix.needsUpdate = true;
+  }, []);
+
+  return (
+    <>
+      <instancedMesh ref={pots} args={[undefined, undefined, positions.length]} frustumCulled={false}>
+        <cylinderGeometry args={[0.15, 0.18, 0.28, 8]} />
+        <meshStandardMaterial color="#d86e4d" roughness={0.8} />
+      </instancedMesh>
+      <instancedMesh ref={fruits} args={[undefined, undefined, positions.length]} frustumCulled={false}>
+        <sphereGeometry args={[0.13, 8, 8]} />
+        <meshStandardMaterial vertexColors roughness={0.65} />
+      </instancedMesh>
+      <instancedMesh ref={leaves} args={[undefined, undefined, positions.length]} frustumCulled={false}>
+        <coneGeometry args={[0.11, 0.18, 5]} />
+        <meshStandardMaterial color="#66b75d" />
+      </instancedMesh>
+    </>
+  );
+};
 
 const House: React.FC<{position: Pos; roof?: string; wall?: string; scale?: number; awning?: boolean}> = ({
   position, roof = '#f17c61', wall = '#ffe4bd', scale = 1, awning = false,
@@ -229,19 +367,6 @@ const Bridge: React.FC<{position: Pos; rotation?: number; length?: number}> = ({
   </group>
 );
 
-const Cloud: React.FC<{position: Pos; scale?: number}> = ({ position, scale = 1 }) => (
-  <group position={position} scale={scale}>
-    {[
-      [-0.45, 0, 0, 0.52], [0, 0.17, 0, 0.68], [0.48, 0.02, 0.04, 0.48], [0.18, -0.13, 0.22, 0.42],
-    ].map(([x, y, z, r], i) => (
-      <mesh key={i} position={[x, y, z]} castShadow>
-        <sphereGeometry args={[r, 16, 14]} />
-        <meshStandardMaterial color="#fff5f1" roughness={0.96} />
-      </mesh>
-    ))}
-  </group>
-);
-
 const LandmarkTower: React.FC<{position: Pos; color: string; level: number}> = ({ position, color, level }) => (
   <group position={position}>
     {Array.from({ length: level }).map((_, index) => (
@@ -344,36 +469,10 @@ export const CenterCity3D: React.FC = () => {
       {/* Market stalls, planted beds and fruit trees bring scale to the village. */}
       <MarketStall position={[0.0, 1.24, 4.0]} color="#8e8bdd" />
       <MarketStall position={[1.35, 1.24, 4.15]} color="#ef8467" />
-      {[-4.85, -4.1, -3.35].map((x, i) => (
-        <group key={i} position={[x, 1.21, 4.05]}>
-          {[-0.32, 0.18, 0.68].map((z, j) => (
-            <group key={j} position={[0, 0, z]}>
-              <mesh position={[0, 0.16, 0]}>
-                <cylinderGeometry args={[0.15, 0.18, 0.28, 10]} />
-                <meshStandardMaterial color="#d86e4d" roughness={0.8} />
-              </mesh>
-              <mesh position={[0, 0.34, 0]}>
-                <sphereGeometry args={[0.13, 10, 10]} />
-                <meshStandardMaterial color={j % 2 ? '#f36d52' : '#ef9d42'} />
-              </mesh>
-              <mesh position={[0.02, 0.46, 0]}>
-                <coneGeometry args={[0.11, 0.18, 5]} />
-                <meshStandardMaterial color="#66b75d" />
-              </mesh>
-            </group>
-          ))}
-        </group>
-      ))}
+      <OrchardInstances />
 
       {/* Trees scattered around the house lanes. */}
-      <Tree position={[-6.25, 1.31, -2.0]} scale={0.74} tone="#57b34b" />
-      <Tree position={[-5.9, 1.31, 0.0]} scale={0.82} tone="#69c34e" />
-      <Tree position={[-2.75, 1.61, -4.3]} scale={0.8} tone="#65bb4a" />
-      <Tree position={[1.25, 1.61, -4.45]} scale={0.72} tone="#75c84e" />
-      <Tree position={[5.0, 1.37, -2.95]} scale={0.84} tone="#62ba4b" />
-      <Tree position={[5.9, 1.26, 1.6]} scale={0.88} tone="#72c64b" />
-      <Tree position={[3.85, 1.24, 4.15]} scale={0.72} tone="#65b94c" />
-      <Tree position={[-1.0, 0.98, 4.9]} scale={0.76} tone="#67c14e" />
+      <TreeInstances />
 
       {/* A little blue fountain and arched bridges connect the districts. */}
       <Fountain />
@@ -407,9 +506,7 @@ export const CenterCity3D: React.FC = () => {
       ) : null)}
 
       {/* Puffy clouds and floating crystals make the city feel magical, not gothic. */}
-      <Cloud position={[-4.3, 5.7, -4.3]} scale={0.82} />
-      <Cloud position={[2.5, 5.9, -4.6]} scale={0.9} />
-      <Cloud position={[5.3, 5.1, 0.6]} scale={0.6} />
+      <CloudInstances />
       <mesh position={[0.1, 5.4, -2.2]}>
         <octahedronGeometry args={[0.3, 0]} />
         <meshPhysicalMaterial color="#64eaff" emissive="#2ccfff" emissiveIntensity={1.2} roughness={0.12} />
