@@ -54,6 +54,7 @@ const PHASE_LABELS: Record<TurnPhase, string> = {
   LANDED_ACTION: 'A new opportunity',
   CARD_DRAWN: 'A card has been drawn',
   DEBT_RESOLUTION: 'A debt needs attention',
+  AUCTION: 'Property auction',
   END_TURN: 'Turn complete',
   GAME_OVER: 'Game over',
 };
@@ -100,6 +101,9 @@ export const App: React.FC = () => {
   const aiInvestmentDoneThisTurn = useRef(false);
 
   const activePlayer = game.players[game.currentPlayerIndex];
+  const auctionBidder = game.auction
+    ? game.players.find((player) => player.id === game.auction?.currentBidderId)
+    : undefined;
   const inspectorSpaceId = game.hoveredSpaceId ?? game.selectedSpaceId;
   const selectedSpace = inspectorSpaceId === null ? null : BOARD_SPACES[inspectorSpaceId];
   const selectedState = selectedSpace ? game.properties[selectedSpace.id] : undefined;
@@ -257,6 +261,39 @@ export const App: React.FC = () => {
   }, [activePlayer, game.turnPhase, game.winner, game.pendingDebt, game.railroadRaid, game.gameSpeed]);
 
   useEffect(() => {
+    const auction = game.auction;
+    const bidder = auction
+      ? game.players.find((player) => player.id === auction.currentBidderId)
+      : undefined;
+    if (!auction || !bidder?.isAI) return;
+
+    const timer = window.setTimeout(() => {
+      const space = BOARD_SPACES[auction.spaceId];
+      const groupSpaces = BOARD_SPACES.filter((candidate) => candidate.colorGroup === space.colorGroup);
+      const ownedInGroup = groupSpaces.filter((candidate) =>
+        game.properties[candidate.id]?.ownerId === bidder.id
+      ).length;
+      const completesSet = groupSpaces.length > 0 && ownedInGroup + 1 === groupSpaces.length;
+      const alreadyInvested = ownedInGroup > 0;
+      const strategicMultiplier = completesSet ? 1.08 : alreadyInvested ? 0.82 : 0.62;
+      const cashReserve = Math.max(100, Math.min(350, Math.round(bidder.money * 0.2)));
+      const maxBid = Math.max(0, Math.min(
+        bidder.money - cashReserve,
+        Math.round((space.price ?? 0) * strategicMultiplier)
+      ));
+      const nextBid = auction.currentBid + 10;
+
+      if (nextBid <= maxBid && bidder.money >= nextBid) {
+        game.placeAuctionBid(10);
+      } else {
+        game.passAuction();
+      }
+    }, 720 / game.gameSpeed);
+
+    return () => window.clearTimeout(timer);
+  }, [game.auction, game.players, game.properties, game.gameSpeed]);
+
+  useEffect(() => {
     const raid = game.railroadRaid;
     if (!raid) return;
     const attacker = game.players.find((player) => player.id === raid.attackerId);
@@ -409,7 +446,14 @@ export const App: React.FC = () => {
 
           <div className="active-player-note">
             <span className="note-icon"><Sparkles size={13} /></span>
-            <span><strong>{activePlayer?.name ?? 'Waiting'}</strong> is in control</span>
+            <span>
+              <strong>
+                {game.turnPhase === 'AUCTION'
+                  ? auctionBidder?.name ?? 'Auction'
+                  : activePlayer?.name ?? 'Waiting'}
+              </strong>
+              {game.turnPhase === 'AUCTION' ? ' is bidding' : ' is in control'}
+            </span>
           </div>
 
           <div className="player-list">
@@ -578,6 +622,38 @@ export const App: React.FC = () => {
               ><Landmark size={15} /> Buy property</button>
               <button className="console-button secondary" disabled={activePlayer?.isAI} onClick={game.auctionCurrentProperty}>Auction</button>
               <button className="console-button secondary" disabled={activePlayer?.isAI} onClick={game.declineProperty}>Pass</button>
+            </>
+          )}
+
+          {game.turnPhase === 'AUCTION' && game.auction && (
+            <>
+              <div className="debt-readout">
+                Top bid <strong>{money(game.auction.currentBid)}</strong>
+                {game.auction.highestBidderId !== null && (
+                  <span> · {game.players.find((player) => player.id === game.auction?.highestBidderId)?.name}</span>
+                )}
+              </div>
+              {auctionBidder && !auctionBidder.isAI ? (
+                <>
+                  <button
+                    className="console-button primary"
+                    disabled={auctionBidder.money < game.auction.currentBid + 10}
+                    onClick={() => game.placeAuctionBid(10)}
+                  >
+                    Bid {money(game.auction.currentBid + 10)}
+                  </button>
+                  <button
+                    className="console-button secondary"
+                    disabled={auctionBidder.money < game.auction.currentBid + 50}
+                    onClick={() => game.placeAuctionBid(50)}
+                  >
+                    Bid +$50
+                  </button>
+                  <button className="console-button danger" onClick={game.passAuction}>Pass</button>
+                </>
+              ) : (
+                <div className="console-wait"><span className="loading-orbit" /> {auctionBidder?.name ?? 'Players'} is considering a bid…</div>
+              )}
             </>
           )}
 
