@@ -1,6 +1,7 @@
 import React, { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { useGameStore } from '../../store/useGameStore';
 
 type TreeProps = {
   position: [number, number, number];
@@ -180,6 +181,60 @@ const Building: React.FC<BuildingProps> = ({
     </group>
   );
 };
+
+type LandmarkTowerProps = {
+  position: [number, number, number];
+  color: string;
+  level: number;
+};
+
+const LandmarkTower: React.FC<LandmarkTowerProps> = ({ position, color, level }) => (
+  <group position={position}>
+    <mesh position={[0, 0.12, 0]} receiveShadow>
+      <boxGeometry args={[1.18, 0.22, 1.18]} />
+      <meshStandardMaterial color="#26384d" metalness={0.58} roughness={0.32} />
+    </mesh>
+    {Array.from({ length: level }).map((_, index) => {
+      const width = 0.72 + index * 0.07;
+      const y = 0.25 + index * 0.58;
+      return (
+        <group key={index} position={[0, y, 0]}>
+          <mesh position={[0, 0.27, 0]} castShadow>
+            <boxGeometry args={[width, 0.5, width]} />
+            <meshPhysicalMaterial
+              color={color}
+              metalness={0.56}
+              roughness={0.28}
+              clearcoat={0.72}
+              emissive={color}
+              emissiveIntensity={0.08}
+            />
+          </mesh>
+          <mesh position={[0, 0.54, 0]}>
+            <boxGeometry args={[width + 0.12, 0.07, width + 0.12]} />
+            <meshStandardMaterial color="#d5b36d" metalness={0.78} roughness={0.22} />
+          </mesh>
+          <mesh position={[0, 0.27, width / 2 + 0.012]}>
+            <boxGeometry args={[width * 0.48, 0.18, 0.025]} />
+            <meshStandardMaterial color="#d8edff" emissive="#8ccdf5" emissiveIntensity={0.48} />
+          </mesh>
+          <mesh position={[width / 2 + 0.012, 0.27, 0]}>
+            <boxGeometry args={[0.025, 0.18, width * 0.48]} />
+            <meshStandardMaterial color="#d8edff" emissive="#8ccdf5" emissiveIntensity={0.38} />
+          </mesh>
+        </group>
+      );
+    })}
+    <mesh position={[0, 0.28 + level * 0.58, 0]}>
+      <cylinderGeometry args={[0.06, 0.12, 0.42, 8]} />
+      <meshStandardMaterial color="#e5c67d" metalness={0.82} roughness={0.2} emissive="#f0b84e" emissiveIntensity={0.35} />
+    </mesh>
+    <mesh position={[0, 0.5 + level * 0.58, 0]}>
+      <sphereGeometry args={[0.085, 10, 10]} />
+      <meshStandardMaterial color="#fff0ad" emissive="#ffbf52" emissiveIntensity={1.15} />
+    </mesh>
+  </group>
+);
 
 const ObservationTower: React.FC = () => (
   <group position={[-1.15, 0.48, -2.3]}>
@@ -505,6 +560,13 @@ const ParkIsland: React.FC = () => {
 
 export const CenterCity3D: React.FC = () => {
   const boatRef = useRef<THREE.Group>(null);
+  const players = useGameStore((state) => state.players);
+  const landmarkPlots: Array<[number, number, number]> = [
+    [-6.45, 0.2, -5.75],
+    [-6.45, 0.2, 5.75],
+    [6.45, 0.2, -5.75],
+    [6.45, 0.2, 5.75],
+  ];
 
   const buildings: BuildingProps[] = [
     { position: [-3.55, 0.47, -1.55], size: [0.95, 3.65, 0.92], color: '#294b6c', floors: 8, accent: '#74d2f2', crown: 'spire' },
@@ -606,6 +668,16 @@ export const CenterCity3D: React.FC = () => {
           </mesh>
         ))}
       </group>
+
+      {/* Player-owned landmark plots: tower height and color track the live game state. */}
+      {players.map((player, index) => player.landmarkLevel > 0 ? (
+        <LandmarkTower
+          key={player.id}
+          position={landmarkPlots[index % landmarkPlots.length]}
+          color={player.color}
+          level={player.landmarkLevel}
+        />
+      ) : null)}
 
       {/* Scenic amusement district */}
       <FerrisWheel />

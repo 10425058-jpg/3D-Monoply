@@ -81,6 +81,7 @@ export const App: React.FC = () => {
     : game.players.find((player) => player.id === selectedState.ownerId);
 
   const phaseLabel = useMemo(() => PHASE_LABELS[game.turnPhase], [game.turnPhase]);
+  const landmarkCost = activePlayer ? game.landmarkUpgradeCost(activePlayer.id) : Infinity;
   const ownedCount = useMemo(
     () => Object.values(game.properties).filter((property) => property.ownerId !== null).length,
     [game.properties]
@@ -88,10 +89,16 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     if (!activePlayer?.isAI || game.winner) return;
+    if (game.railroadRaid?.attackerId === activePlayer.id) return;
 
     const timer = window.setTimeout(() => {
       switch (game.turnPhase) {
         case 'PRE_ROLL':
+          if (!activePlayer.inJail && activePlayer.landmarkLevel < 5 &&
+              activePlayer.money >= game.landmarkUpgradeCost(activePlayer.id) + 350 &&
+              Math.random() < 0.3) {
+            game.upgradeLandmark();
+          }
           if (activePlayer.inJail && activePlayer.money >= 50 && activePlayer.jailTurns >= 2) {
             game.payJailBail();
           } else if (activePlayer.inJail && activePlayer.getOutOfJailCards > 0) {
@@ -126,7 +133,33 @@ export const App: React.FC = () => {
     }, 850);
 
     return () => window.clearTimeout(timer);
-  }, [activePlayer, game.turnPhase, game.winner, game.pendingDebt]);
+  }, [activePlayer, game.turnPhase, game.winner, game.pendingDebt, game.railroadRaid]);
+
+  useEffect(() => {
+    const raid = game.railroadRaid;
+    if (!raid) return;
+    const attacker = game.players.find((player) => player.id === raid.attackerId);
+    if (!attacker?.isAI) return;
+
+    const timer = window.setTimeout(() => {
+      if (raid.mode === 'choose') {
+        const target = game.players
+          .filter((player) => !player.isBankrupt && player.id !== attacker.id)
+          .sort((left, right) => right.landmarkLevel - left.landmarkLevel)[0];
+
+        if (target && target.landmarkLevel > 0 && Math.random() < 0.55) {
+          game.shutdownLandmark(target.id);
+        } else {
+          game.startBankHeist();
+        }
+      } else {
+        const bestVault = raid.vaultRewards.indexOf(Math.max(...raid.vaultRewards));
+        game.resolveBankHeist(bestVault);
+      }
+    }, 700);
+
+    return () => window.clearTimeout(timer);
+  }, [game.railroadRaid, game.players]);
 
   const handleStart = () => {
     game.startNewGame(DEFAULT_SETUP);
@@ -221,6 +254,7 @@ export const App: React.FC = () => {
                     <div className="player-detail">
                       <span>{player.isBankrupt ? 'Bankrupt' : player.inJail ? 'In jail' : `At ${playerStatus(player)}`}</span>
                       <span className="property-count"><Landmark size={11} /> {propertyCount} properties</span>
+                      <span className="landmark-level">CITY LV {player.landmarkLevel}/5</span>
                     </div>
                   </div>
                   {isTurn && <div className="active-card-glow" />}
@@ -378,11 +412,69 @@ export const App: React.FC = () => {
             <div className="console-wait"><span className="loading-orbit" /> {game.turnPhase === 'ROLLING' ? 'Rolling…' : 'Moving…'}</div>
           )}
 
+          {activePlayer && !activePlayer.isAI && (
+            <button
+              className="console-button landmark-upgrade-button"
+              disabled={activePlayer.landmarkLevel >= 5 || activePlayer.money < landmarkCost || (game.turnPhase !== 'PRE_ROLL' && game.turnPhase !== 'END_TURN')}
+              onClick={game.upgradeLandmark}
+            >
+              <Landmark size={14} />
+              {activePlayer.landmarkLevel >= 5 ? 'Landmark max' : `Upgrade Lv.${activePlayer.landmarkLevel + 1} · ${money(landmarkCost)}`}
+            </button>
+          )}
           <button className="console-button location-button" onClick={() => game.selectSpace(activePlayer?.position ?? null)}>
             <Landmark size={14} /> My space
           </button>
         </div>
       </footer>
+
+      {game.railroadRaid && activePlayer?.id === game.railroadRaid.attackerId && !activePlayer.isAI && (
+        <div className="modal-backdrop">
+          <div className="game-modal raid-modal" role="dialog" aria-modal="true" aria-labelledby="raid-title">
+            <div className="modal-ornament"><Coins size={25} /></div>
+            <div className="eyebrow">RAILROAD BONUS EVENT</div>
+            {game.railroadRaid.mode === 'choose' ? (
+              <>
+                <h2 id="raid-title">Choose your next move</h2>
+                <p>Use your railroad connection to raid the bank or disrupt a rival city landmark.</p>
+                <div className="raid-option-grid">
+                  <button className="raid-option raid-heist" onClick={game.startBankHeist}>
+                    <span className="raid-option-icon"><Coins size={25} /></span>
+                    <strong>Bank Heist</strong>
+                    <small>Pick one of three vaults. Rewards range from $150 to $550.</small>
+                  </button>
+                  <div className="raid-shutdown-list">
+                    <div className="raid-list-title"><ShieldCheck size={15} /> Shutdown a rival</div>
+                    {game.players.filter((player) => !player.isBankrupt && player.id !== activePlayer.id).map((player) => (
+                      <button className="raid-target" key={player.id} onClick={() => game.shutdownLandmark(player.id)}>
+                        <span className="raid-target-dot" style={{ background: player.color }} />
+                        <span className="raid-target-name">{player.name}</span>
+                        <span className="raid-target-level">LV {player.landmarkLevel}</span>
+                        <ArrowRight size={14} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <button className="raid-skip" onClick={game.skipRailroadRaid}>Skip this event</button>
+              </>
+            ) : (
+              <>
+                <h2 id="raid-title">Choose a vault</h2>
+                <p>Three vaults are locked. Choose one to reveal your bank heist reward.</p>
+                <div className="vault-grid">
+                  {[0, 1, 2].map((vaultIndex) => (
+                    <button className="vault-choice" key={vaultIndex} onClick={() => game.resolveBankHeist(vaultIndex)}>
+                      <span className="vault-door"><span /></span>
+                      <strong>VAULT {vaultIndex + 1}</strong>
+                      <small>Open vault</small>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {showSetup && (
         <div className="modal-backdrop">
@@ -415,6 +507,8 @@ export const App: React.FC = () => {
               <div><span>03</span><p><strong>Build your district</strong>Own every property in a color group to build houses and hotels.</p></div>
               <div><span>04</span><p><strong>Manage your fortune</strong>Pay taxes, resolve cards, and use mortgages carefully to avoid bankruptcy.</p></div>
               <div><span>05</span><p><strong>Watch the dice</strong>Rolling doubles grants another turn. Three consecutive doubles send you to jail.</p></div>
+              <div><span>06</span><p><strong>Grow your landmark</strong>Upgrade your city landmark to increase the bonus you collect each time you pass GO.</p></div>
+              <div><span>07</span><p><strong>Railroad bonus</strong>Landing on a railroad unlocks a Bank Heist or a chance to shut down a rival landmark.</p></div>
             </div>
             <button className="modal-primary" onClick={() => setShowRules(false)}>Back to the board <ArrowRight size={16} /></button>
           </div>
