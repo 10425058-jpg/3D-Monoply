@@ -195,11 +195,11 @@ const FloatingIslands: React.FC<{ quality: Quality }> = ({ quality }) => {
     <group>
       <instancedMesh ref={rockRef} args={[undefined, undefined, islands.length]} frustumCulled={false}>
         <dodecahedronGeometry args={[1, 1]} />
-        <meshStandardMaterial vertexColors roughness={0.95} flatShading />
+        <meshStandardMaterial roughness={0.95} flatShading />
       </instancedMesh>
       <instancedMesh ref={grassRef} args={[undefined, undefined, islands.length]} frustumCulled={false}>
         <cylinderGeometry args={[1.12, 1.26, 0.42, 8]} />
-        <meshStandardMaterial vertexColors roughness={0.94} />
+        <meshStandardMaterial roughness={0.94} />
       </instancedMesh>
       <instancedMesh ref={trunkRef} args={[undefined, undefined, islands.length]} frustumCulled={false}>
         <cylinderGeometry args={[0.08, 0.14, 1, 7]} />
@@ -207,7 +207,7 @@ const FloatingIslands: React.FC<{ quality: Quality }> = ({ quality }) => {
       </instancedMesh>
       <instancedMesh ref={canopyRef} args={[undefined, undefined, islands.length]} frustumCulled={false}>
         <dodecahedronGeometry args={[1, 1]} />
-        <meshStandardMaterial vertexColors roughness={0.88} flatShading />
+        <meshStandardMaterial roughness={0.88} flatShading />
       </instancedMesh>
       <instancedMesh ref={highlightRef} args={[undefined, undefined, islands.length]} frustumCulled={false}>
         <icosahedronGeometry args={[1, 1]} />
@@ -261,7 +261,7 @@ const SkyClouds: React.FC<{ quality: Quality }> = ({ quality }) => {
   return (
     <instancedMesh ref={cloudsRef} args={[undefined, undefined, puffs.length]} frustumCulled={false}>
       <sphereGeometry args={[1, 12, 9]} />
-      <meshStandardMaterial vertexColors roughness={1} metalness={0} flatShading />
+      <meshStandardMaterial roughness={1} metalness={0} flatShading />
     </instancedMesh>
   );
 };
