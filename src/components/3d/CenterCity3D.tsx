@@ -1,257 +1,650 @@
-import React, { useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
-export const CenterCity3D: React.FC = () => {
-  const ferrisWheelRef = useRef<THREE.Group>(null);
-  const piggyRef = useRef<THREE.Group>(null);
-  const boatRef = useRef<THREE.Group>(null);
+type TreeProps = {
+  position: [number, number, number];
+  scale?: number;
+  canopy?: string;
+};
 
-  useFrame(({ clock }) => {
-    const t = clock.getElapsedTime();
-    if (ferrisWheelRef.current) {
-      ferrisWheelRef.current.rotation.z = t * 0.35;
-    }
-    if (piggyRef.current) {
-      piggyRef.current.position.y = 2.6 + Math.sin(t * 2.2) * 0.15;
-      piggyRef.current.rotation.y = Math.sin(t * 0.8) * 0.25;
-    }
-    if (boatRef.current) {
-      boatRef.current.position.x = 1.2 + Math.sin(t * 0.5) * 0.8;
-      boatRef.current.position.z = 3.2 + Math.cos(t * 0.5) * 0.4;
-    }
-  });
+const Tree: React.FC<TreeProps> = ({ position, scale = 1, canopy = '#267b54' }) => (
+  <group position={position} scale={scale}>
+    <mesh position={[0, 0.34, 0]} castShadow>
+      <cylinderGeometry args={[0.07, 0.12, 0.68, 7]} />
+      <meshStandardMaterial color="#65432f" roughness={0.92} />
+    </mesh>
+    <mesh position={[0, 0.88, 0]} castShadow>
+      <dodecahedronGeometry args={[0.48, 1]} />
+      <meshStandardMaterial color={canopy} roughness={0.82} />
+    </mesh>
+    <mesh position={[-0.18, 1.12, 0.08]} castShadow>
+      <icosahedronGeometry args={[0.29, 1]} />
+      <meshStandardMaterial color={canopy} roughness={0.78} />
+    </mesh>
+    <mesh position={[0.19, 1.02, -0.1]} castShadow>
+      <dodecahedronGeometry args={[0.31, 1]} />
+      <meshStandardMaterial color={canopy} roughness={0.8} />
+    </mesh>
+  </group>
+);
 
-  // Downtown Skyscraper Definitions [x, z, width, depth, height, color, hasGlassTop]
-  const skyscrapers: Array<[number, number, number, number, number, string, boolean]> = [
-    [-2.4, -1.8, 1.15, 1.15, 5.4, '#38bdf8', true],
-    [-1.0, -1.2, 1.05, 1.05, 4.7, '#60a5fa', true],
-    [-2.8, -0.3, 1.0, 1.0, 4.1, '#93c5fd', false],
-    [-1.3, 0.2, 1.1, 0.9, 3.8, '#e2e8f0', false],
-    [-0.1, -2.2, 1.1, 1.1, 4.4, '#2563eb', true],
-    [0.2, -0.8, 0.95, 0.95, 3.5, '#cbd5e1', false],
-    [-3.6, -1.6, 0.9, 0.9, 3.6, '#f8fafc', false],
-    [-2.2, 1.2, 1.1, 0.9, 3.1, '#f1f5f9', false],
-    [-3.4, 0.8, 0.9, 0.9, 2.7, '#cbd5e1', false],
-    [-0.9, 1.5, 0.85, 0.85, 2.9, '#94a3b8', false],
-    [0.5, -2.9, 0.9, 0.9, 3.2, '#3b82f6', true],
-    [-1.8, -3.1, 1.0, 0.9, 3.9, '#64748b', false],
-  ];
+const StreetLamp: React.FC<{ position: [number, number, number]; scale?: number }> = ({
+  position,
+  scale = 1,
+}) => (
+  <group position={position} scale={scale}>
+    <mesh position={[0, 0.62, 0]} castShadow>
+      <cylinderGeometry args={[0.035, 0.055, 1.24, 8]} />
+      <meshStandardMaterial color="#303b4b" metalness={0.82} roughness={0.25} />
+    </mesh>
+    <mesh position={[0, 1.27, 0]} castShadow>
+      <cylinderGeometry args={[0.12, 0.075, 0.13, 10]} />
+      <meshStandardMaterial color="#b88a42" metalness={0.75} roughness={0.28} />
+    </mesh>
+    <mesh position={[0, 1.39, 0]} castShadow>
+      <sphereGeometry args={[0.105, 12, 12]} />
+      <meshStandardMaterial
+        color="#ffe6a0"
+        emissive="#ffbd55"
+        emissiveIntensity={1.8}
+        roughness={0.22}
+      />
+    </mesh>
+    <pointLight position={[0, 1.38, 0]} color="#ffca72" intensity={0.55} distance={3.3} decay={2} />
+  </group>
+);
+
+type BuildingProps = {
+  position: [number, number, number];
+  size: [number, number, number];
+  color: string;
+  floors: number;
+  accent?: string;
+  crown?: 'flat' | 'spire' | 'stepped';
+};
+
+const Building: React.FC<BuildingProps> = ({
+  position,
+  size,
+  color,
+  floors,
+  accent = '#67c8f2',
+  crown = 'flat',
+}) => {
+  const [width, height, depth] = size;
+  const windowHeight = Math.min(0.16, height / (floors * 3.4));
+  const windowWidth = Math.min(0.15, width / 5.4);
+  const floorGap = height / (floors + 0.25);
 
   return (
-    <group position={[0, 0.12, 0]}>
-      {/* Crystal Turquoise Lagoon Water Base */}
-      <mesh position={[0, -0.02, 0]} receiveShadow>
-        <boxGeometry args={[16.2, 0.16, 16.2]} />
+    <group position={position}>
+      {/* Foundation and main facade */}
+      <mesh position={[0, height / 2, 0]} castShadow receiveShadow>
+        <boxGeometry args={[width, height, depth]} />
         <meshPhysicalMaterial
-          color="#06b6d4"
-          roughness={0.12}
-          metalness={0.1}
-          transmission={0.25}
-          clearcoat={1}
-          clearcoatRoughness={0.1}
+          color={color}
+          metalness={0.55}
+          roughness={0.28}
+          clearcoat={0.8}
+          clearcoatRoughness={0.18}
         />
       </mesh>
 
-      {/* Main Downtown Concrete & Harbor Island */}
-      <mesh position={[-1.9, 0.15, -0.7]} receiveShadow castShadow>
-        <boxGeometry args={[6.8, 0.32, 6.6]} />
-        <meshStandardMaterial color="#cbd5e1" roughness={0.6} />
-      </mesh>
-      <mesh position={[-1.9, 0.32, -0.7]} receiveShadow>
-        <boxGeometry args={[6.4, 0.06, 6.2]} />
-        <meshStandardMaterial color="#475569" roughness={0.8} />
-      </mesh>
+      {/* Warm illuminated windows on all four sides */}
+      {Array.from({ length: floors }).map((_, floor) =>
+        Array.from({ length: 3 }).map((__, column) => {
+          const y = 0.3 + floor * floorGap;
+          const x = -width / 2 + ((column + 1) * width) / 4;
+          const z = -depth / 2 + ((column + 1) * depth) / 4;
+          return (
+            <React.Fragment key={`${floor}-${column}`}>
+              <mesh position={[x, y, depth / 2 + 0.009]}>
+                <boxGeometry args={[windowWidth, windowHeight, 0.018]} />
+                <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={0.42} />
+              </mesh>
+              <mesh position={[x, y, -depth / 2 - 0.009]}>
+                <boxGeometry args={[windowWidth, windowHeight, 0.018]} />
+                <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={0.3} />
+              </mesh>
+              <mesh position={[width / 2 + 0.009, y, z]}>
+                <boxGeometry args={[0.018, windowHeight, windowWidth]} />
+                <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={0.34} />
+              </mesh>
+              <mesh position={[-width / 2 - 0.009, y, z]}>
+                <boxGeometry args={[0.018, windowHeight, windowWidth]} />
+                <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={0.34} />
+              </mesh>
+            </React.Fragment>
+          );
+        })
+      )}
 
-      {/* Iconic Observation Tower (Space Needle Inspired) */}
-      <group position={[-1.8, 0.35, -1.9]}>
-        {/* Tower Core & Legs */}
-        <mesh position={[0, 3.2, 0]} castShadow>
-          <cylinderGeometry args={[0.18, 0.45, 6.4, 16]} />
-          <meshStandardMaterial color="#f8fafc" metalness={0.3} roughness={0.3} />
+      {/* Architectural ledges and roof silhouette */}
+      <mesh position={[0, height + 0.035, 0]} castShadow>
+        <boxGeometry args={[width + 0.12, 0.09, depth + 0.12]} />
+        <meshStandardMaterial color="#9eafc2" metalness={0.72} roughness={0.23} />
+      </mesh>
+      {crown === 'stepped' && (
+        <>
+          <mesh position={[0, height + 0.24, 0]} castShadow>
+            <boxGeometry args={[width * 0.72, 0.34, depth * 0.72]} />
+            <meshStandardMaterial color={color} metalness={0.6} roughness={0.26} />
+          </mesh>
+          <mesh position={[0, height + 0.43, 0]} castShadow>
+            <boxGeometry args={[width * 0.48, 0.06, depth * 0.48]} />
+            <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={0.5} />
+          </mesh>
+        </>
+      )}
+      {crown === 'spire' && (
+        <>
+          <mesh position={[0, height + 0.36, 0]} castShadow>
+            <cylinderGeometry args={[0.12, 0.23, 0.62, 8]} />
+            <meshStandardMaterial color="#aabbd0" metalness={0.8} roughness={0.2} />
+          </mesh>
+          <mesh position={[0, height + 0.88, 0]} castShadow>
+            <cylinderGeometry args={[0.012, 0.035, 0.48, 8]} />
+            <meshStandardMaterial color="#e8a36c" emissive="#e46d54" emissiveIntensity={0.55} />
+          </mesh>
+        </>
+      )}
+    </group>
+  );
+};
+
+const ObservationTower: React.FC = () => (
+  <group position={[-1.15, 0.48, -2.3]}>
+    <mesh position={[0, 2.2, 0]} castShadow>
+      <cylinderGeometry args={[0.12, 0.34, 4.4, 16]} />
+      <meshStandardMaterial color="#b7c5d9" metalness={0.72} roughness={0.22} />
+    </mesh>
+    <mesh position={[0, 3.75, 0]} castShadow>
+      <cylinderGeometry args={[0.38, 0.2, 0.55, 16]} />
+      <meshStandardMaterial color="#263f64" metalness={0.8} roughness={0.18} />
+    </mesh>
+    <mesh position={[0, 4.1, 0]} castShadow>
+      <cylinderGeometry args={[1.05, 0.78, 0.34, 32]} />
+      <meshPhysicalMaterial color="#1b4671" metalness={0.8} roughness={0.18} clearcoat={1} />
+    </mesh>
+    <mesh position={[0, 4.31, 0]} castShadow>
+      <torusGeometry args={[0.91, 0.045, 10, 48]} />
+      <meshStandardMaterial color="#67d7f3" emissive="#178cc4" emissiveIntensity={0.75} metalness={0.65} />
+    </mesh>
+    <mesh position={[0, 4.55, 0]} castShadow>
+      <cylinderGeometry args={[0.65, 0.9, 0.18, 32]} />
+      <meshStandardMaterial color="#d9e5f1" metalness={0.75} roughness={0.2} />
+    </mesh>
+    <mesh position={[0, 5.3, 0]} castShadow>
+      <cylinderGeometry args={[0.025, 0.055, 1.35, 8]} />
+      <meshStandardMaterial color="#eb685c" emissive="#b9363d" emissiveIntensity={0.45} />
+    </mesh>
+    <mesh position={[0, 5.99, 0]}>
+      <sphereGeometry args={[0.075, 12, 12]} />
+      <meshStandardMaterial color="#ffcb76" emissive="#ff9e4a" emissiveIntensity={1.4} />
+    </mesh>
+    <pointLight position={[0, 4.1, 0]} color="#3fbbe8" intensity={1.4} distance={5} />
+  </group>
+);
+
+const FerrisWheel: React.FC = () => {
+  const wheelRef = useRef<THREE.Group>(null);
+
+  useFrame(({ clock }) => {
+    if (wheelRef.current) wheelRef.current.rotation.z = clock.getElapsedTime() * 0.19;
+  });
+
+  const gondolas = Array.from({ length: 10 }).map((_, i) => {
+    const angle = (i / 10) * Math.PI * 2;
+    return {
+      key: i,
+      position: [Math.cos(angle) * 1.34, Math.sin(angle) * 1.34, 0] as [number, number, number],
+      color: ['#f7b84f', '#e66d78', '#54b9e7', '#8dcf92', '#d7a7ef'][i % 5],
+    };
+  });
+
+  return (
+    <group position={[-4.45, 0.45, 2.0]}>
+      <mesh position={[-0.78, 1.12, 0]} rotation={[0, 0, 0.28]} castShadow>
+        <cylinderGeometry args={[0.07, 0.12, 2.3, 8]} />
+        <meshStandardMaterial color="#a9bacd" metalness={0.8} roughness={0.24} />
+      </mesh>
+      <mesh position={[0.78, 1.12, 0]} rotation={[0, 0, -0.28]} castShadow>
+        <cylinderGeometry args={[0.07, 0.12, 2.3, 8]} />
+        <meshStandardMaterial color="#a9bacd" metalness={0.8} roughness={0.24} />
+      </mesh>
+      <group ref={wheelRef} position={[0, 2.02, 0]}>
+        <mesh>
+          <torusGeometry args={[1.35, 0.055, 10, 48]} />
+          <meshStandardMaterial color="#ef7b8e" metalness={0.55} roughness={0.25} emissive="#a82c64" emissiveIntensity={0.22} />
         </mesh>
-        {/* Observation Saucer */}
-        <mesh position={[0, 6.2, 0]} castShadow>
-          <cylinderGeometry args={[1.15, 0.75, 0.32, 24]} />
-          <meshStandardMaterial color="#e2e8f0" metalness={0.4} roughness={0.2} />
+        <mesh>
+          <torusGeometry args={[1.18, 0.022, 8, 48]} />
+          <meshStandardMaterial color="#f8d38a" metalness={0.72} roughness={0.2} />
         </mesh>
-        <mesh position={[0, 6.42, 0]} castShadow>
-          <cylinderGeometry args={[0.85, 1.15, 0.22, 24]} />
-          <meshStandardMaterial color="#0284c7" metalness={0.7} roughness={0.15} />
-        </mesh>
-        {/* Spire */}
-        <mesh position={[0, 7.3, 0]} castShadow>
-          <cylinderGeometry args={[0.02, 0.06, 1.6, 8]} />
-          <meshStandardMaterial color="#ef4444" />
+        {Array.from({ length: 10 }).map((_, i) => {
+          const angle = (i / 10) * Math.PI * 2;
+          return (
+            <mesh key={i} rotation={[0, 0, angle - Math.PI / 2]}>
+              <cylinderGeometry args={[0.025, 0.025, 2.7, 7]} />
+              <meshStandardMaterial color="#f3c16e" metalness={0.65} roughness={0.25} />
+            </mesh>
+          );
+        })}
+        {gondolas.map((gondola) => (
+          <group key={gondola.key} position={gondola.position}>
+            <mesh position={[0, -0.1, 0]} castShadow>
+              <boxGeometry args={[0.28, 0.22, 0.22]} />
+              <meshStandardMaterial color={gondola.color} metalness={0.32} roughness={0.28} />
+            </mesh>
+            <mesh position={[0, 0.04, 0]} castShadow>
+              <boxGeometry args={[0.3, 0.06, 0.24]} />
+              <meshStandardMaterial color="#e8edf4" metalness={0.55} roughness={0.2} />
+            </mesh>
+          </group>
+        ))}
+        <mesh>
+          <cylinderGeometry args={[0.18, 0.18, 0.22, 16]} />
+          <meshStandardMaterial color="#f7d27b" metalness={0.8} roughness={0.2} />
         </mesh>
       </group>
+      <mesh position={[0, 0.16, 0]} castShadow>
+        <boxGeometry args={[2.8, 0.24, 1.15]} />
+        <meshStandardMaterial color="#35495e" metalness={0.45} roughness={0.32} />
+      </mesh>
+      <pointLight position={[0, 2.1, 0.35]} color="#ff7baf" intensity={0.8} distance={4} />
+    </group>
+  );
+};
 
-      {/* Downtown Skyscrapers */}
-      {skyscrapers.map(([x, z, w, d, h, col, glass], idx) => (
-        <group key={idx} position={[x, 0.35, z]}>
-          <mesh position={[0, h / 2, 0]} castShadow receiveShadow>
-            <boxGeometry args={[w, h, d]} />
-            <meshPhysicalMaterial
-              color={col}
-              metalness={glass ? 0.65 : 0.2}
-              roughness={glass ? 0.18 : 0.55}
-              clearcoat={glass ? 0.8 : 0.1}
-            />
-          </mesh>
-          {/* Roof HVAC / Crown Detail */}
-          <mesh position={[0, h + 0.08, 0]} castShadow>
-            <boxGeometry args={[w * 0.7, 0.16, d * 0.7]} />
-            <meshStandardMaterial color="#f8fafc" />
-          </mesh>
-        </group>
+const RollerCoaster: React.FC = () => {
+  const trainRef = useRef<THREE.Group>(null);
+  const path = useMemo(
+    () =>
+      new THREE.CatmullRomCurve3(
+        [
+          new THREE.Vector3(-2.15, 0.55, 0.9),
+          new THREE.Vector3(-1.85, 1.7, 0.55),
+          new THREE.Vector3(-1.15, 3.0, -0.2),
+          new THREE.Vector3(-0.2, 4.15, -0.8),
+          new THREE.Vector3(0.85, 4.35, -0.75),
+          new THREE.Vector3(1.75, 3.25, -0.15),
+          new THREE.Vector3(2.18, 1.7, 0.6),
+          new THREE.Vector3(2.1, 0.62, 1.1),
+          new THREE.Vector3(1.1, 0.52, 1.55),
+          new THREE.Vector3(-0.5, 0.58, 1.6),
+          new THREE.Vector3(-2.15, 0.55, 0.9),
+        ],
+        false,
+        'catmullrom',
+        0.18
+      ),
+    []
+  );
+  const supportPoints = useMemo(() => path.getPoints(24).filter((_, index) => index % 2 === 0), [path]);
+
+  useFrame(({ clock }) => {
+    if (!trainRef.current) return;
+    const progress = (clock.getElapsedTime() * 0.035) % 1;
+    const point = path.getPointAt(progress);
+    const ahead = path.getPointAt((progress + 0.008) % 1);
+    trainRef.current.position.copy(point);
+    trainRef.current.lookAt(ahead);
+  });
+
+  return (
+    <group position={[4.45, 0.28, -3.35]}>
+      <mesh position={[0, 0.08, 0]} receiveShadow>
+        <boxGeometry args={[5.9, 0.2, 3.7]} />
+        <meshStandardMaterial color="#26364b" roughness={0.72} />
+      </mesh>
+      <mesh position={[0, 0.19, 0]}>
+        <boxGeometry args={[5.65, 0.035, 3.45]} />
+        <meshStandardMaterial color="#46576a" roughness={0.68} />
+      </mesh>
+
+      {/* Twin rails and cross ties */}
+      <mesh>
+        <tubeGeometry args={[path, 120, 0.055, 8, false]} />
+        <meshStandardMaterial color="#d95b55" metalness={0.65} roughness={0.24} />
+      </mesh>
+      <mesh position={[0, 0, 0.14]}>
+        <tubeGeometry
+          args={[
+            new THREE.CatmullRomCurve3(path.getPoints(90).map((point) => new THREE.Vector3(point.x, point.y, point.z + 0.15))),
+            120,
+            0.045,
+            8,
+            false,
+          ]}
+        />
+        <meshStandardMaterial color="#e7b46e" metalness={0.72} roughness={0.22} />
+      </mesh>
+      {supportPoints.map((point, index) => (
+        <mesh key={index} position={[point.x, Math.max(0.12, point.y / 2), point.z]} castShadow>
+          <cylinderGeometry args={[0.035, 0.055, Math.max(0.2, point.y), 7]} />
+          <meshStandardMaterial color="#b94b4c" metalness={0.5} roughness={0.35} />
+        </mesh>
       ))}
 
-      {/* Stadium & Red Construction Crane + Floating Piggy Bank (Top-Left Harbor) */}
-      <group position={[-4.2, 0.25, -2.5]}>
-        <mesh position={[0, 0.35, 0]} castShadow receiveShadow>
-          <cylinderGeometry args={[1.25, 1.05, 0.7, 24]} />
-          <meshStandardMaterial color="#f1f5f9" roughness={0.4} />
-        </mesh>
-        <mesh position={[0, 0.42, 0]}>
-          <cylinderGeometry args={[0.85, 0.85, 0.6, 20]} />
-          <meshStandardMaterial color="#16a34a" />
-        </mesh>
-        {/* Red Construction Crane */}
-        <mesh position={[-0.9, 1.5, 0.8]} castShadow>
-          <boxGeometry args={[0.14, 3.0, 0.14]} />
-          <meshStandardMaterial color="#dc2626" />
-        </mesh>
-        <mesh position={[-0.2, 2.9, 0.8]} castShadow>
-          <boxGeometry args={[1.8, 0.12, 0.12]} />
-          <meshStandardMaterial color="#dc2626" />
-        </mesh>
-      </group>
-
-      {/* Floating Pink Piggy Bank with Gold Coin */}
-      <group ref={piggyRef} position={[-3.6, 2.6, -1.6]}>
-        <mesh castShadow>
-          <sphereGeometry args={[0.52, 20, 20]} />
-          <meshStandardMaterial color="#f472b6" roughness={0.3} />
-        </mesh>
-        {/* Gold Coin on Top */}
-        <mesh position={[0, 0.58, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
-          <cylinderGeometry args={[0.25, 0.25, 0.08, 16]} />
-          <meshStandardMaterial color="#fbbf24" metalness={0.8} roughness={0.2} />
-        </mesh>
-      </group>
-
-      {/* Amusement Pier with Animated Ferris Wheel (Bottom-Left Harbor) */}
-      <group position={[-2.3, 0.18, 4.1]}>
-        <mesh position={[0, 0, 0]} receiveShadow castShadow>
-          <boxGeometry args={[3.1, 0.25, 2.6]} />
-          <meshStandardMaterial color="#d6d3d1" />
-        </mesh>
-        {/* Ferris Wheel Support A-Frame */}
-        <mesh position={[0, 0.9, 0]} castShadow>
-          <cylinderGeometry args={[0.06, 0.45, 1.6, 4]} />
-          <meshStandardMaterial color="#e11d48" />
-        </mesh>
-        {/* Rotating Wheel */}
-        <group ref={ferrisWheelRef} position={[0, 1.35, 0]}>
-          <mesh castShadow>
-            <torusGeometry args={[0.85, 0.05, 12, 28]} />
-            <meshStandardMaterial color="#fb7185" />
-          </mesh>
-          {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
-            const angle = (i * Math.PI) / 4;
-            return (
-              <mesh key={i} position={[Math.cos(angle) * 0.85, Math.sin(angle) * 0.85, 0]}>
-                <sphereGeometry args={[0.11, 10, 10]} />
-                <meshStandardMaterial color={i % 2 === 0 ? '#facc15' : '#38bdf8'} />
-              </mesh>
-            );
-          })}
-        </group>
-      </group>
-
-      {/* Rocky Lighthouse Islet (Bottom Edge) */}
-      <group position={[-2.5, 0.15, 6.7]}>
-        <mesh position={[0, 0.15, 0]} castShadow receiveShadow>
-          <dodecahedronGeometry args={[0.95, 1]} />
-          <meshStandardMaterial color="#57534e" roughness={0.9} />
-        </mesh>
-        <mesh position={[0.2, 0.85, -0.1]} castShadow>
-          <cylinderGeometry args={[0.16, 0.26, 1.2, 12]} />
-          <meshStandardMaterial color="#f8fafc" />
-        </mesh>
-        <mesh position={[0.2, 1.5, -0.1]}>
-          <sphereGeometry args={[0.18, 12, 12]} />
-          <meshStandardMaterial color="#fef08a" emissive="#facc15" emissiveIntensity={0.8} />
-        </mesh>
-      </group>
-
-      {/* Suspension Bridge Connecting Downtown to Green Park Island */}
-      <group position={[1.7, 0.38, -0.7]}>
-        <mesh receiveShadow castShadow>
-          <boxGeometry args={[1.6, 0.12, 0.9]} />
-          <meshStandardMaterial color="#94a3b8" />
-        </mesh>
-        <mesh position={[-0.5, 0.45, 0.38]} castShadow>
-          <boxGeometry args={[0.12, 0.9, 0.12]} />
-          <meshStandardMaterial color="#64748b" />
-        </mesh>
-        <mesh position={[0.5, 0.45, 0.38]} castShadow>
-          <boxGeometry args={[0.12, 0.9, 0.12]} />
-          <meshStandardMaterial color="#64748b" />
-        </mesh>
-      </group>
-
-      {/* Green Park, Sandy Beach & Suburban Island (Right Side) */}
-      <group position={[4.4, 0.12, 0.2]}>
-        {/* Sandy Beach Base */}
-        <mesh position={[-0.3, 0.04, 1.2]} receiveShadow>
-          <cylinderGeometry args={[3.5, 3.8, 0.22, 24]} />
-          <meshStandardMaterial color="#fde68a" roughness={0.85} />
-        </mesh>
-        {/* Lush Green Grass Hills */}
-        <mesh position={[0.2, 0.22, -0.3]} receiveShadow castShadow>
-          <cylinderGeometry args={[3.1, 3.5, 0.38, 24]} />
-          <meshStandardMaterial color="#4ade80" roughness={0.75} />
-        </mesh>
-        {/* Suburban Villa & Community Buildings */}
-        <mesh position={[0.8, 0.62, 0.4]} castShadow receiveShadow>
-          <boxGeometry args={[1.3, 0.55, 0.95]} />
-          <meshStandardMaterial color="#2563eb" />
-        </mesh>
-        {/* Trees (Green & Autumn Orange) */}
-        {[
-          [-0.9, 0.6, -1.5, '#16a34a'],
-          [0.4, 0.65, -1.8, '#ea580c'],
-          [1.6, 0.6, -0.8, '#15803d'],
-          [-1.1, 0.6, 1.6, '#ca8a04'],
-          [0.2, 0.65, 2.0, '#16a34a'],
-          [1.8, 0.6, 1.2, '#ea580c'],
-          [-0.2, 0.65, 0.2, '#22c55e'],
-        ].map(([tx, ty, tz, tcol], i) => (
-          <group key={i} position={[tx as number, ty as number, tz as number]}>
-            <mesh position={[0, -0.15, 0]} castShadow>
-              <cylinderGeometry args={[0.07, 0.09, 0.35, 6]} />
-              <meshStandardMaterial color="#78350f" />
+      {/* Animated coaster train */}
+      <group ref={trainRef}>
+        {[0, 1, 2].map((car) => (
+          <group key={car} position={[0, 0.12, car * 0.32]}>
+            <mesh castShadow>
+              <boxGeometry args={[0.38, 0.24, 0.42]} />
+              <meshStandardMaterial color={car === 0 ? '#f4c35f' : '#e86b60'} metalness={0.35} roughness={0.24} />
             </mesh>
-            <mesh position={[0, 0.15, 0]} castShadow>
-              <dodecahedronGeometry args={[0.38, 1]} />
-              <meshStandardMaterial color={tcol as string} roughness={0.7} />
+            <mesh position={[0, 0.16, -0.02]} castShadow>
+              <boxGeometry args={[0.31, 0.13, 0.25]} />
+              <meshStandardMaterial color="#26364c" metalness={0.6} roughness={0.2} />
             </mesh>
           </group>
         ))}
       </group>
-
-      {/* Animated Harbor Yacht */}
-      <group ref={boatRef} position={[1.2, 0.12, 3.2]}>
-        <mesh castShadow>
-          <boxGeometry args={[0.65, 0.16, 0.28]} />
-          <meshStandardMaterial color="#ffffff" />
-        </mesh>
-        <mesh position={[0, 0.26, 0]} castShadow>
-          <coneGeometry args={[0.18, 0.45, 4]} />
-          <meshStandardMaterial color="#f8fafc" />
-        </mesh>
-      </group>
+      <pointLight position={[0, 1.1, 0]} color="#f07860" intensity={0.65} distance={5} />
     </group>
   );
 };
+
+const CircusTent: React.FC = () => {
+  const stripeCount = 12;
+  return (
+    <group position={[2.55, 0.38, 3.2]}>
+      <mesh position={[0, 0.16, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[1.34, 1.42, 0.28, 32]} />
+        <meshStandardMaterial color="#8b4d4b" roughness={0.72} />
+      </mesh>
+      {Array.from({ length: stripeCount }).map((_, index) => {
+        const angle = (index / stripeCount) * Math.PI * 2;
+        return (
+          <mesh key={index} position={[0, 0.98, 0]} rotation={[0, angle, 0]} castShadow>
+            <cylinderGeometry args={[0.035, 1.31, 1.68, 1, 1, false, 0, (Math.PI * 2) / stripeCount]} />
+            <meshStandardMaterial color={index % 2 === 0 ? '#d65b57' : '#f2e5d0'} roughness={0.65} />
+          </mesh>
+        );
+      })}
+      <mesh position={[0, 1.84, 0]} castShadow>
+        <coneGeometry args={[0.16, 0.45, 12]} />
+        <meshStandardMaterial color="#e8c77e" metalness={0.28} roughness={0.35} />
+      </mesh>
+      <mesh position={[0, 2.1, 0]} rotation={[0, 0, 0.12]}>
+        <coneGeometry args={[0.035, 0.5, 6]} />
+        <meshStandardMaterial color="#d95850" />
+      </mesh>
+      <mesh position={[0, 0.27, 0]}>
+        <torusGeometry args={[1.29, 0.035, 8, 36]} />
+        <meshStandardMaterial color="#e7c27d" metalness={0.65} roughness={0.25} />
+      </mesh>
+      <pointLight position={[0, 0.9, 0]} color="#ffb86e" intensity={0.75} distance={3.8} />
+    </group>
+  );
+};
+
+const ParkIsland: React.FC = () => {
+  const trees: Array<[number, number, number, string, number]> = [
+    [-1.85, -1.7, 0.72, '#247a50', 0.88],
+    [-0.6, -2.05, 0.8, '#3c9659', 0.95],
+    [1.2, -1.72, 0.68, '#267650', 0.82],
+    [2.0, -0.2, 0.66, '#2b8658', 0.8],
+    [-2.0, 0.4, 0.78, '#3b8e51', 0.92],
+    [-1.3, 1.85, 0.72, '#2c8050', 0.85],
+    [1.5, 1.72, 0.78, '#3c9659', 0.92],
+    [2.35, 1.05, 0.62, '#27784b', 0.78],
+    [0.3, 2.15, 0.55, '#4b9e5b', 0.78],
+    [-2.35, -0.8, 0.6, '#478f54', 0.76],
+  ];
+
+  return (
+    <group position={[4.35, 0.12, 0.42]}>
+      {/* Layered garden island */}
+      <mesh position={[0, 0.02, 0]} receiveShadow castShadow>
+        <cylinderGeometry args={[3.18, 3.55, 0.48, 48]} />
+        <meshStandardMaterial color="#bd9f65" roughness={0.78} />
+      </mesh>
+      <mesh position={[0, 0.28, 0]} receiveShadow castShadow>
+        <cylinderGeometry args={[3.02, 3.2, 0.34, 48]} />
+        <meshStandardMaterial color="#3b9c68" roughness={0.78} />
+      </mesh>
+      <mesh position={[0, 0.47, 0]}>
+        <torusGeometry args={[2.88, 0.055, 8, 64]} />
+        <meshStandardMaterial color="#a9e6ac" emissive="#4fae77" emissiveIntensity={0.16} />
+      </mesh>
+
+      {/* Winding paved paths */}
+      <mesh position={[-0.2, 0.47, 0.45]} rotation={[0, 0, 0]}>
+        <torusGeometry args={[1.35, 0.16, 5, 48]} />
+        <meshStandardMaterial color="#d7c7a2" roughness={0.86} />
+      </mesh>
+      <mesh position={[0.05, 0.49, 0.08]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[0.8, 32]} />
+        <meshStandardMaterial color="#4fba79" roughness={0.8} />
+      </mesh>
+
+      {/* Small central pavilion */}
+      <group position={[0.55, 0.48, 0.3]}>
+        <mesh position={[0, 0.25, 0]} castShadow>
+          <boxGeometry args={[0.95, 0.5, 0.72]} />
+          <meshStandardMaterial color="#d8e5e8" roughness={0.48} />
+        </mesh>
+        <mesh position={[0, 0.58, 0]} castShadow>
+          <coneGeometry args={[0.72, 0.48, 4]} />
+          <meshStandardMaterial color="#327fc1" metalness={0.25} roughness={0.35} />
+        </mesh>
+        <mesh position={[0, 0.25, 0.37]}>
+          <boxGeometry args={[0.28, 0.33, 0.025]} />
+          <meshStandardMaterial color="#19324b" emissive="#24527b" emissiveIntensity={0.2} />
+        </mesh>
+      </group>
+
+      {trees.map(([x, z, scale, color, _], index) => (
+        <Tree key={index} position={[x, 0.45, z]} scale={scale} canopy={color} />
+      ))}
+
+      {/* Flower beds and benches */}
+      {[
+        [-1.25, 0.55, 0.45],
+        [1.65, 0.48, 0.2],
+        [0.1, 0.5, -1.75],
+      ].map(([x, y, z], index) => (
+        <group key={index} position={[x, y, z]}>
+          <mesh>
+            <cylinderGeometry args={[0.22, 0.25, 0.1, 12]} />
+            <meshStandardMaterial color="#6b6747" />
+          </mesh>
+          <mesh position={[0, 0.13, 0]}>
+            <sphereGeometry args={[0.12, 10, 10]} />
+            <meshStandardMaterial color={index % 2 === 0 ? '#f2b5a1' : '#e8d178'} />
+          </mesh>
+        </group>
+      ))}
+      <group position={[-0.8, 0.52, 1.05]} rotation={[0, 0.3, 0]}>
+        <mesh position={[0, 0.13, 0]} castShadow>
+          <boxGeometry args={[0.75, 0.08, 0.18]} />
+          <meshStandardMaterial color="#7e4c33" />
+        </mesh>
+        <mesh position={[-0.28, 0.03, 0]}>
+          <boxGeometry args={[0.06, 0.26, 0.18]} />
+          <meshStandardMaterial color="#343e4b" />
+        </mesh>
+        <mesh position={[0.28, 0.03, 0]}>
+          <boxGeometry args={[0.06, 0.26, 0.18]} />
+          <meshStandardMaterial color="#343e4b" />
+        </mesh>
+      </group>
+      <StreetLamp position={[-2.55, 0.48, 0.25]} scale={0.75} />
+      <StreetLamp position={[1.95, 0.48, 1.7]} scale={0.75} />
+    </group>
+  );
+};
+
+export const CenterCity3D: React.FC = () => {
+  const boatRef = useRef<THREE.Group>(null);
+
+  const buildings: BuildingProps[] = [
+    { position: [-3.55, 0.47, -1.55], size: [0.95, 3.65, 0.92], color: '#294b6c', floors: 8, accent: '#74d2f2', crown: 'spire' },
+    { position: [-2.25, 0.47, -2.5], size: [0.94, 4.6, 0.95], color: '#315e87', floors: 10, accent: '#f5ce86', crown: 'stepped' },
+    { position: [-0.15, 0.47, -2.2], size: [0.9, 3.7, 0.88], color: '#263e62', floors: 9, accent: '#8ac8fb', crown: 'flat' },
+    { position: [-3.65, 0.47, 0.05], size: [0.82, 2.75, 0.82], color: '#85614c', floors: 6, accent: '#ffd18c', crown: 'flat' },
+    { position: [-2.35, 0.47, 0.18], size: [1.02, 3.15, 0.92], color: '#53637a', floors: 7, accent: '#b9e7f4', crown: 'stepped' },
+    { position: [-0.95, 0.47, -0.72], size: [0.9, 2.95, 0.84], color: '#364f70', floors: 7, accent: '#ffd48b', crown: 'spire' },
+    { position: [0.35, 0.47, -1.0], size: [0.75, 2.45, 0.78], color: '#47566b', floors: 6, accent: '#8bd5e7', crown: 'flat' },
+    { position: [-1.65, 0.47, 1.45], size: [0.86, 2.2, 0.78], color: '#526175', floors: 5, accent: '#ffd08b', crown: 'flat' },
+  ];
+
+  useFrame(({ clock }) => {
+    if (boatRef.current) {
+      const time = clock.getElapsedTime();
+      boatRef.current.position.x = 1.7 + Math.sin(time * 0.42) * 0.4;
+      boatRef.current.position.z = 4.75 + Math.cos(time * 0.42) * 0.24;
+      boatRef.current.rotation.y = Math.sin(time * 0.42) * 0.12;
+    }
+  });
+
+  return (
+    <group position={[0, 0.1, 0]}>
+      {/* Deep teal lagoon with a layered island edge */}
+      <mesh position={[0, -0.015, 0]} receiveShadow>
+        <boxGeometry args={[16.15, 0.18, 16.15]} />
+        <meshPhysicalMaterial color="#123e52" roughness={0.27} metalness={0.45} clearcoat={1} clearcoatRoughness={0.16} />
+      </mesh>
+      <mesh position={[0, 0.08, 0]}>
+        <boxGeometry args={[15.92, 0.025, 15.92]} />
+        <meshStandardMaterial color="#176077" roughness={0.34} metalness={0.34} />
+      </mesh>
+
+      {/* Downtown district raised plaza */}
+      <mesh position={[-1.65, 0.23, -0.72]} receiveShadow castShadow>
+        <boxGeometry args={[7.75, 0.38, 7.4]} />
+        <meshStandardMaterial color="#26384c" roughness={0.68} metalness={0.22} />
+      </mesh>
+      <mesh position={[-1.65, 0.435, -0.72]} receiveShadow>
+        <boxGeometry args={[7.5, 0.045, 7.15]} />
+        <meshStandardMaterial color="#344a5d" roughness={0.75} />
+      </mesh>
+
+      {/* Road grid and lane markings */}
+      {[-4.55, -2.95, -1.35, 0.25].map((x, index) => (
+        <mesh key={index} position={[x, 0.465, -0.72]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[0.035, 6.7]} />
+          <meshBasicMaterial color="#d3b76e" transparent opacity={0.72} />
+        </mesh>
+      ))}
+      {[-3.7, -1.95, -0.2, 1.35].map((z, index) => (
+        <mesh key={index} position={[-1.65, 0.466, z]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[7.15, 0.035]} />
+          <meshBasicMaterial color="#d3b76e" transparent opacity={0.62} />
+        </mesh>
+      ))}
+
+      {/* Central city buildings */}
+      {buildings.map((building, index) => (
+        <Building key={index} {...building} />
+      ))}
+      <ObservationTower />
+
+      {/* Rooftop details: vents and aerials */}
+      {[
+        [-3.5, 4.2, -1.55],
+        [-2.2, 5.15, -2.5],
+        [-0.15, 4.22, -2.2],
+        [-3.65, 3.2, 0.05],
+      ].map(([x, y, z], index) => (
+        <group key={index} position={[x, y, z]}>
+          <mesh castShadow>
+            <boxGeometry args={[0.23, 0.2, 0.2]} />
+            <meshStandardMaterial color="#8fa5b7" metalness={0.7} roughness={0.3} />
+          </mesh>
+          <mesh position={[0.12, 0.22, 0]}>
+            <cylinderGeometry args={[0.012, 0.025, 0.36, 6]} />
+            <meshStandardMaterial color="#d7b76e" metalness={0.8} />
+          </mesh>
+        </group>
+      ))}
+
+      {/* Waterfront promenade and bridge to the park */}
+      <group position={[1.72, 0.48, 0.05]}>
+        <mesh castShadow receiveShadow>
+          <boxGeometry args={[2.6, 0.16, 0.86]} />
+          <meshStandardMaterial color="#b7c0c4" roughness={0.5} />
+        </mesh>
+        {[-0.34, 0.34].map((z, index) => (
+          <mesh key={index} position={[0, 0.24, z]} castShadow>
+            <boxGeometry args={[2.55, 0.04, 0.045]} />
+            <meshStandardMaterial color="#d9b66b" metalness={0.65} roughness={0.25} />
+          </mesh>
+        ))}
+        {[-1.05, 1.05].map((x, index) => (
+          <mesh key={index} position={[x, 0.12, 0]} castShadow>
+            <boxGeometry args={[0.07, 0.38, 0.75]} />
+            <meshStandardMaterial color="#60788b" metalness={0.5} />
+          </mesh>
+        ))}
+      </group>
+
+      {/* Scenic amusement district */}
+      <FerrisWheel />
+      <RollerCoaster />
+      <ParkIsland />
+      <CircusTent />
+
+      {/* Small waterfront houses, kiosks and boats */}
+      <group position={[-4.2, 0.42, -3.55]}>
+        <mesh position={[0, 0.38, 0]} castShadow>
+          <boxGeometry args={[0.92, 0.75, 0.82]} />
+          <meshStandardMaterial color="#bb8668" roughness={0.66} />
+        </mesh>
+        <mesh position={[0, 0.88, 0]} castShadow>
+          <coneGeometry args={[0.72, 0.58, 4]} />
+          <meshStandardMaterial color="#48566d" roughness={0.52} />
+        </mesh>
+        <mesh position={[0.18, 0.34, 0.42]}>
+          <boxGeometry args={[0.2, 0.34, 0.025]} />
+          <meshStandardMaterial color="#1d3750" emissive="#24567d" emissiveIntensity={0.22} />
+        </mesh>
+      </group>
+      <group ref={boatRef} position={[1.7, 0.28, 4.75]}>
+        <mesh castShadow rotation={[Math.PI / 2, 0, 0]}>
+          <coneGeometry args={[0.38, 0.95, 4]} />
+          <meshStandardMaterial color="#eee7d9" metalness={0.3} roughness={0.3} />
+        </mesh>
+        <mesh position={[0, 0.18, 0]} castShadow>
+          <boxGeometry args={[0.48, 0.2, 0.35]} />
+          <meshStandardMaterial color="#d55e54" roughness={0.38} />
+        </mesh>
+        <mesh position={[0, 0.32, 0]}>
+          <coneGeometry args={[0.12, 0.34, 4]} />
+          <meshStandardMaterial color="#f1e8d7" />
+        </mesh>
+      </group>
+
+      {/* Detail lighting around the city edges */}
+      <StreetLamp position={[-5.4, 0.13, -0.2]} scale={0.82} />
+      <StreetLamp position={[-4.2, 0.13, 4.1]} scale={0.82} />
+      <StreetLamp position={[0.8, 0.13, 4.9]} scale={0.82} />
+      <StreetLamp position={[6.75, 0.13, -0.1]} scale={0.82} />
+
+      {/* Small clusters of decorative shrubs */}
+      {[
+        [-5.3, 0.22, -2.2],
+        [-5.0, 0.22, 1.0],
+        [1.0, 0.22, -5.1],
+        [6.3, 0.22, 3.1],
+        [-0.5, 0.22, 5.8],
+      ].map(([x, y, z], index) => (
+        <group key={index} position={[x, y, z]}>
+          <mesh castShadow>
+            <sphereGeometry args={[0.28, 10, 10]} />
+            <meshStandardMaterial color="#2c8057" roughness={0.86} />
+          </mesh>
+          <mesh position={[0.2, -0.02, 0.12]} castShadow>
+            <sphereGeometry args={[0.2, 10, 10]} />
+            <meshStandardMaterial color="#3e9a64" roughness={0.86} />
+          </mesh>
+        </group>
+      ))}
+    </group>
+  );
+};
+
+export default CenterCity3D;
