@@ -32,6 +32,9 @@ const DICE_FACES: DiceFace[] = [
   { value: 4, normal: [-1, 0, 0], right: [0, 0, 1], up: [0, 1, 0] },
 ];
 
+// The dice are positioned over the central lagoon, whose water surface is Y=0.72.
+ // Keep the full 0.84-unit die above that surface with a small visual clearance.
+const DICE_REST_HEIGHT = 1.2;
 const HALF_SIZE = 0.385;
 const PIP_SPACING = 0.18;
 const PIP_RADIUS = 0.058;
@@ -124,7 +127,7 @@ const Die: React.FC<{
       wasRolling.current = true;
       landedAt.current = null;
       const time = clock.getElapsedTime();
-      die.position.y = 0.95 + Math.abs(Math.sin(time * 17 * speed + index * 1.7)) * 0.58;
+      die.position.y = DICE_REST_HEIGHT + Math.abs(Math.sin(time * 17 * speed + index * 1.7)) * 0.58;
       die.rotation.x += delta * speed * (7.2 + index * 0.8);
       die.rotation.y += delta * speed * (8.6 + index * 0.65);
       die.rotation.z += delta * speed * (6.4 + index * 0.45);
@@ -138,7 +141,7 @@ const Die: React.FC<{
     }
     if (landedAt.current === null) {
       const rotationError = 1 - Math.abs(die.quaternion.dot(targetQuaternion));
-      if (Math.abs(die.position.y - 0.76) < 0.001 && rotationError < 0.0002) return;
+      if (Math.abs(die.position.y - DICE_REST_HEIGHT) < 0.001 && rotationError < 0.0002) return;
     }
     const landingElapsed = landedAt.current === null ? 1 : clock.getElapsedTime() - landedAt.current;
     const bounce = landedAt.current !== null && landingElapsed < 0.62
@@ -147,12 +150,12 @@ const Die: React.FC<{
     die.scale.set(1 + bounce * 0.1, 1 - bounce * 0.065, 1 + bounce * 0.1);
     if (landingElapsed >= 0.62) landedAt.current = null;
 
-    die.position.y = THREE.MathUtils.damp(die.position.y, 0.76, 10, delta);
+    die.position.y = THREE.MathUtils.damp(die.position.y, DICE_REST_HEIGHT, 10, delta);
     die.quaternion.slerp(targetQuaternion, 1 - Math.exp(-12 * delta));
   });
 
   return (
-    <group ref={dieRef} position={[index === 0 ? -0.86 : 0.86, 0.76, 0]}>
+    <group ref={dieRef} position={[index === 0 ? -0.86 : 0.86, DICE_REST_HEIGHT, 0]}>
       {/* Brass reveal frame and deep navy enamel body stay readable on the pale board. */}
       <RoundedBox args={[0.84, 0.84, 0.84]} radius={0.095} smoothness={3} castShadow receiveShadow>
         <meshStandardMaterial color="#c49b52" metalness={0.76} roughness={0.24} />
