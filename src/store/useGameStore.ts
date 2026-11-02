@@ -919,13 +919,14 @@ export const useGameStore = create<GameStore>((set, get) => {
       const property = state.properties[space.id];
       if (!player || player.isAI || !space.price || !property || property.ownerId !== null) return;
 
+      const purchasePrice = space.price ?? 0;
       const bidders = state.players.filter((candidate) =>
         candidate.id !== player.id && candidate.isAI && !candidate.isBankrupt
       );
       const bids = bidders
         .map((bidder) => {
-          const reserve = Math.max(50, Math.round(space.price * 0.35));
-          const maximum = Math.max(0, Math.min(bidder.money - 100, Math.round(space.price * (0.55 + Math.random() * 0.5))));
+          const reserve = Math.max(50, Math.round(purchasePrice * 0.35));
+          const maximum = Math.max(0, Math.min(bidder.money - 100, Math.round(purchasePrice * (0.55 + Math.random() * 0.5))));
           const bid = maximum >= reserve ? Math.round((reserve + Math.random() * (maximum - reserve)) / 10) * 10 : 0;
           return { bidder, bid };
         })
