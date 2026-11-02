@@ -1055,3 +1055,5 @@
   .vault-choice { min-height: 120px; }
   .vault-door { width: 43px; height: 43px; }
 }
+
+.player-detail { flex-wrap: wrap; }
