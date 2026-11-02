@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import confetti from 'canvas-confetti';
 import {
   ArrowRight,
   Bot,
@@ -26,7 +27,7 @@ import { Scene3D } from './components/3d/Scene3D';
 import { BOARD_SPACES } from './data/boardData';
 import { useGameStore } from './store/useGameStore';
 import { DAILY_MISSIONS, DAILY_REWARD_CYCLE, LUCKY_WHEEL_REWARDS, STICKER_COLLECTION } from './data/metaGameData';
-import type { LogEntry, TokenType, TurnPhase } from './types/game';
+import type { LogEntry, TokenType, TradeOffer, TurnPhase } from './types/game';
 import './app-ui.css';
 
 const DEFAULT_SETUP = [
@@ -88,13 +89,26 @@ export const App: React.FC = () => {
   const [metaTab, setMetaTab] = useState<'daily' | 'missions' | 'album'>('daily');
   const [lastPackReveal, setLastPackReveal] = useState<{ stickers: string[]; duplicateCount: number } | null>(null);
   const [isWheelSpinning, setIsWheelSpinning] = useState(false);
+  const [autoRoll, setAutoRoll] = useState(false);
+  const [showTradeModal, setShowTradeModal] = useState(false);
+  const [tradeTargetId, setTradeTargetId] = useState<number>(1);
+  const [tradePropertyId, setTradePropertyId] = useState('');
+  const [tradeOfferCash, setTradeOfferCash] = useState('0');
+  const [tradeRequestCash, setTradeRequestCash] = useState('150');
+  const [tradeFeedback, setTradeFeedback] = useState('');
 
   const activePlayer = game.players[game.currentPlayerIndex];
-  const selectedSpace = game.selectedSpaceId === null ? null : BOARD_SPACES[game.selectedSpaceId];
+  const inspectorSpaceId = game.hoveredSpaceId ?? game.selectedSpaceId;
+  const selectedSpace = inspectorSpaceId === null ? null : BOARD_SPACES[inspectorSpaceId];
   const selectedState = selectedSpace ? game.properties[selectedSpace.id] : undefined;
   const selectedOwner = selectedState?.ownerId === null || selectedState?.ownerId === undefined
     ? undefined
     : game.players.find((player) => player.id === selectedState.ownerId);
+  const myTradableProperties = useMemo(
+    () => BOARD_SPACES.filter((space) => space.type === 'property' && game.properties[space.id]?.ownerId === activePlayer?.id && !game.properties[space.id]?.isMortgaged),
+    [game.properties, activePlayer?.id]
+  );
+  const rivalPlayers = game.players.filter((player) => player.id !== activePlayer?.id && player.isAI && !player.isBankrupt);
 
   const phaseLabel = useMemo(() => PHASE_LABELS[game.turnPhase], [game.turnPhase]);
   const todayKey = localDateKey();
@@ -160,10 +174,10 @@ export const App: React.FC = () => {
         default:
           break;
       }
-    }, 850);
+    }, 850 / game.gameSpeed);
 
     return () => window.clearTimeout(timer);
-  }, [activePlayer, game.turnPhase, game.winner, game.pendingDebt, game.railroadRaid]);
+  }, [activePlayer, game.turnPhase, game.winner, game.pendingDebt, game.railroadRaid, game.gameSpeed]);
 
   useEffect(() => {
     const raid = game.railroadRaid;
@@ -186,10 +200,10 @@ export const App: React.FC = () => {
         const bestVault = raid.vaultRewards.indexOf(Math.max(...raid.vaultRewards));
         game.resolveBankHeist(bestVault);
       }
-    }, 700);
+    }, 700 / game.gameSpeed);
 
     return () => window.clearTimeout(timer);
-  }, [game.railroadRaid, game.players]);
+  }, [game.railroadRaid, game.players, game.gameSpeed]);
 
   const handleWheelSpin = () => {
     if (wheelUsedToday || isWheelSpinning) return;
