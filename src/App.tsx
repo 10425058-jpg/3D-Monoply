@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import confetti from 'canvas-confetti';
 import {
   ArrowRight,
@@ -96,6 +96,7 @@ export const App: React.FC = () => {
   const [tradeOfferCash, setTradeOfferCash] = useState('0');
   const [tradeRequestCash, setTradeRequestCash] = useState('150');
   const [tradeFeedback, setTradeFeedback] = useState('');
+  const aiInvestmentDoneThisTurn = useRef(false);
 
   const activePlayer = game.players[game.currentPlayerIndex];
   const inspectorSpaceId = game.hoveredSpaceId ?? game.selectedSpaceId;
@@ -132,14 +133,16 @@ export const App: React.FC = () => {
   );
 
   useEffect(() => {
+    if (game.turnPhase === 'END_TURN') aiInvestmentDoneThisTurn.current = false;
     if (!activePlayer?.isAI || game.winner) return;
     if (game.railroadRaid?.attackerId === activePlayer.id) return;
 
     const timer = window.setTimeout(() => {
       switch (game.turnPhase) {
         case 'PRE_ROLL': {
-          if (!activePlayer.inJail) {
-            // Invest in the strongest available improvement before rolling.
+          if (!activePlayer.inJail && !aiInvestmentDoneThisTurn.current) {
+            // Make at most one investment per turn so the AI cannot chain-build
+            // repeatedly just because its own state update re-triggers this effect.
             const buildCandidates = BOARD_SPACES
               .filter((space) => game.canBuildHouse(activePlayer.id, space.id))
               .map((space) => {
@@ -152,12 +155,14 @@ export const App: React.FC = () => {
               .sort((left, right) => right.score - left.score);
             const bestBuild = buildCandidates[0];
             if (bestBuild && activePlayer.money - bestBuild.cost >= Math.max(300, activePlayer.money * 0.24) && bestBuild.score >= 0.16) {
+              aiInvestmentDoneThisTurn.current = true;
               game.buildHouse(bestBuild.space.id);
-            }
-
-            if (activePlayer.landmarkLevel < 5 &&
-                activePlayer.money >= game.landmarkUpgradeCost(activePlayer.id) + 450 &&
-                Math.random() < 0.18) {
+            } else if (
+              activePlayer.landmarkLevel < 5 &&
+              activePlayer.money >= game.landmarkUpgradeCost(activePlayer.id) + 450 &&
+              Math.random() < 0.18
+            ) {
+              aiInvestmentDoneThisTurn.current = true;
               game.upgradeLandmark();
             }
           }
