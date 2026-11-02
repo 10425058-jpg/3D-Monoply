@@ -85,7 +85,7 @@ const TreeInstances: React.FC = () => {
       </instancedMesh>
       <instancedMesh ref={canopies} args={[undefined, undefined, TREE_LAYOUT.length]} frustumCulled={false}>
         <dodecahedronGeometry args={[0.48, 1]} />
-        <meshStandardMaterial vertexColors roughness={0.82} />
+        <meshStandardMaterial roughness={0.82} />
       </instancedMesh>
       <instancedMesh ref={highlights} args={[undefined, undefined, TREE_LAYOUT.length]} frustumCulled={false}>
         <icosahedronGeometry args={[0.4, 1]} />
@@ -179,7 +179,7 @@ const OrchardInstances: React.FC = () => {
       </instancedMesh>
       <instancedMesh ref={fruits} args={[undefined, undefined, positions.length]} frustumCulled={false}>
         <sphereGeometry args={[0.13, 8, 8]} />
-        <meshStandardMaterial vertexColors roughness={0.65} />
+        <meshStandardMaterial roughness={0.65} />
       </instancedMesh>
       <instancedMesh ref={leaves} args={[undefined, undefined, positions.length]} frustumCulled={false}>
         <coneGeometry args={[0.11, 0.18, 5]} />
