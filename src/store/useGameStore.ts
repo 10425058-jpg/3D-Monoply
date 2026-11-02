@@ -122,7 +122,8 @@ export const useGameStore = create<GameStore>((set, get) => {
   };
 
   const openRailroadRaid = (attackerId: number) => {
-    const vaultRewards = shuffleDeck([150, 300, 550]) as [number, number, number];
+    const shuffledRewards = shuffleDeck([150, 300, 550]);
+    const vaultRewards: [number, number, number] = [shuffledRewards[0], shuffledRewards[1], shuffledRewards[2]];
     set({ railroadRaid: { attackerId, mode: 'choose', vaultRewards } });
     addLog('Railroad bonus unlocked: choose a Bank Heist or shut down a rival landmark.', 'card');
   };
@@ -529,7 +530,8 @@ export const useGameStore = create<GameStore>((set, get) => {
     upgradeLandmark: () => {
       const state = get();
       const player = state.players[state.currentPlayerIndex];
-      if (!player || player.isAI || player.isBankrupt || player.landmarkLevel >= 5) return;
+      if (!player || player.isBankrupt || player.landmarkLevel >= 5) return;
+      if (state.turnPhase !== 'PRE_ROLL' && state.turnPhase !== 'END_TURN') return;
       const cost = get().landmarkUpgradeCost(player.id);
       if (player.money < cost) return;
       set((current) => ({
