@@ -8,6 +8,10 @@ import {
   Crown,
   Home,
   Landmark,
+  Gift,
+  Star,
+  PackageOpen,
+  BookOpen,
   RotateCcw,
   ScrollText,
   ShieldCheck,
@@ -21,6 +25,7 @@ import {
 import { Scene3D } from './components/3d/Scene3D';
 import { BOARD_SPACES } from './data/boardData';
 import { useGameStore } from './store/useGameStore';
+import { DAILY_MISSIONS, DAILY_REWARD_CYCLE, LUCKY_WHEEL_REWARDS, STICKER_COLLECTION } from './data/metaGameData';
 import type { LogEntry, TokenType, TurnPhase } from './types/game';
 import './app-ui.css';
 
@@ -31,7 +36,14 @@ const DEFAULT_SETUP = [
   { name: 'Elena', isAI: true, token: 'yacht' as TokenType, color: '#e7ad54' },
 ];
 
-const money = (value: number) => `$${value.toLocaleString('en-US')}`;
+const money = (value: number) => `${value.toLocaleString('en-US')}`;
+
+const localDateKey = (date = new Date()) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 const PHASE_LABELS: Record<TurnPhase, string> = {
   SETUP: 'Set up your table',
@@ -72,6 +84,9 @@ export const App: React.FC = () => {
   const game = useGameStore();
   const [showSetup, setShowSetup] = useState(true);
   const [showRules, setShowRules] = useState(false);
+  const [showMetaHub, setShowMetaHub] = useState(false);
+  const [metaTab, setMetaTab] = useState<'daily' | 'missions' | 'album'>('daily');
+  const [lastPackReveal, setLastPackReveal] = useState<{ stickers: string[]; duplicateCount: number } | null>(null);
 
   const activePlayer = game.players[game.currentPlayerIndex];
   const selectedSpace = game.selectedSpaceId === null ? null : BOARD_SPACES[game.selectedSpaceId];
@@ -81,6 +96,20 @@ export const App: React.FC = () => {
     : game.players.find((player) => player.id === selectedState.ownerId);
 
   const phaseLabel = useMemo(() => PHASE_LABELS[game.turnPhase], [game.turnPhase]);
+  const todayKey = localDateKey();
+  const dailyClaimedToday = game.metaProgress.lastDailyClaimDate === todayKey;
+  const wheelUsedToday = game.metaProgress.lastWheelSpinDate === todayKey;
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const expectedStreak = game.metaProgress.lastDailyClaimDate === localDateKey(yesterday)
+    ? game.metaProgress.dailyStreak + 1
+    : dailyClaimedToday ? game.metaProgress.dailyStreak : 1;
+  const rewardDay = dailyClaimedToday
+    ? ((game.metaProgress.dailyStreak - 1) % DAILY_REWARD_CYCLE.length) + 1
+    : ((expectedStreak - 1) % DAILY_REWARD_CYCLE.length) + 1;
+  const nextDailyReward = DAILY_REWARD_CYCLE[rewardDay - 1];
+  const stickerCount = STICKER_COLLECTION.filter((sticker) => (game.metaProgress.stickers[sticker.id] ?? 0) > 0).length;
+  const albumComplete = stickerCount === STICKER_COLLECTION.length;
   const landmarkCost = activePlayer ? game.landmarkUpgradeCost(activePlayer.id) : Infinity;
   const ownedCount = useMemo(
     () => Object.values(game.properties).filter((property) => property.ownerId !== null).length,
@@ -198,6 +227,10 @@ export const App: React.FC = () => {
         </div>
 
         <nav className="top-actions" aria-label="Game controls">
+          <button className="top-action event-hub-button" onClick={() => setShowMetaHub(true)}>
+            <Gift size={15} /><span>Events</span>
+            {(!dailyClaimedToday || !wheelUsedToday || game.metaProgress.stickerPacks > 0) && <i className="event-notification-dot" />}
+          </button>
           <button className="top-action" onClick={() => setShowRules(true)}>
             <ScrollText size={15} /><span>Rules</span>
           </button>
@@ -473,6 +506,166 @@ export const App: React.FC = () => {
               </>
             )}
           </div>
+        </div>
+      )}
+
+      {showMetaHub && (
+        <div className="modal-backdrop meta-backdrop" role="presentation" onClick={() => setShowMetaHub(false)}>
+          <section className="meta-hub game-modal" role="dialog" aria-modal="true" aria-labelledby="meta-hub-title" onClick={(event) => event.stopPropagation()}>
+            <button className="modal-close" onClick={() => setShowMetaHub(false)} aria-label="Close events"><X size={18} /></button>
+            <div className="meta-hub-heading">
+              <div className="modal-ornament"><Gift size={24} /></div>
+              <div className="eyebrow">TYCOON REWARDS CLUB</div>
+              <h2 id="meta-hub-title">Daily Events</h2>
+              <p>Collect rewards, complete missions and build your sticker collection.</p>
+            </div>
+
+            <div className="meta-tabs">
+              <button className={metaTab === 'daily' ? 'is-selected' : ''} onClick={() => setMetaTab('daily')}><Gift size={14} /> Daily</button>
+              <button className={metaTab === 'missions' ? 'is-selected' : ''} onClick={() => setMetaTab('missions')}><Star size={14} /> Missions</button>
+              <button className={metaTab === 'album' ? 'is-selected' : ''} onClick={() => setMetaTab('album')}><BookOpen size={14} /> Album <span>{stickerCount}/{STICKER_COLLECTION.length}</span></button>
+            </div>
+
+            {metaTab === 'daily' && (
+              <div className="meta-content">
+                <div className="daily-streak-card">
+                  <div>
+                    <div className="eyebrow">LOGIN STREAK</div>
+                    <strong>{game.metaProgress.dailyStreak} <small>days</small></strong>
+                    <span>{dailyClaimedToday ? 'Today’s reward collected' : 'Claim today to keep your streak alive'}</span>
+                  </div>
+                  <div className="streak-flame">🔥</div>
+                </div>
+
+                <div className="reward-calendar">
+                  {DAILY_REWARD_CYCLE.map((reward) => {
+                    const isClaimed = dailyClaimedToday
+                      ? reward.day <= ((game.metaProgress.dailyStreak - 1) % 7) + 1
+                      : reward.day < rewardDay;
+                    const isToday = reward.day === rewardDay;
+                    return (
+                      <div key={reward.day} className={`reward-day ${isToday ? 'is-today' : ''} ${isClaimed ? 'is-claimed' : ''}`}>
+                        <span>DAY {reward.day}</span>
+                        <strong>{reward.cash ? money(reward.cash) : '—'}</strong>
+                        {reward.packs > 0 ? <small>+ {reward.packs} pack</small> : <small>Cash</small>}
+                        {isClaimed && <i>✓</i>}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <button className="meta-primary-button" disabled={dailyClaimedToday} onClick={game.claimDailyReward}>
+                  <Gift size={16} /> {dailyClaimedToday ? 'Daily reward claimed' : `Claim day ${rewardDay} · ${money(nextDailyReward.cash)}${nextDailyReward.packs ? ' + Sticker Pack' : ''}`}
+                </button>
+
+                <div className="meta-section-title"><div><span className="eyebrow">ONE FREE SPIN EVERY DAY</span><h3>Lucky Wheel</h3></div><span className="meta-availability">{wheelUsedToday ? 'Come back tomorrow' : 'Ready to spin'}</span></div>
+                <div className="wheel-layout">
+                  <div className="lucky-wheel">
+                    <div className="wheel-center"><Star size={25} fill="currentColor" /></div>
+                    <span className="wheel-label wheel-label-1">$100</span>
+                    <span className="wheel-label wheel-label-2">$200</span>
+                    <span className="wheel-label wheel-label-3">$350</span>
+                    <span className="wheel-label wheel-label-4">$500</span>
+                    <span className="wheel-label wheel-label-5">$750</span>
+                    <span className="wheel-label wheel-label-6">PACK</span>
+                  </div>
+                  <div className="wheel-copy">
+                    <strong>Try your luck.</strong>
+                    <p>Win cash or a Sticker Pack. The wheel resets every day.</p>
+                    <button className="meta-secondary-button" disabled={wheelUsedToday} onClick={game.spinLuckyWheel}>
+                      <Sparkles size={15} /> {wheelUsedToday ? 'Already spun' : 'Spin the wheel'}
+                    </button>
+                    {wheelUsedToday && game.lastWheelReward && <span className="wheel-last-win">Today’s prize: {game.lastWheelReward.label}</span>}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {metaTab === 'missions' && (
+              <div className="meta-content">
+                <div className="mission-summary">
+                  <div><span className="eyebrow">DAILY CHALLENGES</span><h3>Make your moves count.</h3></div>
+                  <span>{game.metaProgress.missionClaimed.length}/{DAILY_MISSIONS.length} claimed</span>
+                </div>
+                <div className="mission-list">
+                  {DAILY_MISSIONS.map((mission) => {
+                    const progress = Math.min(game.metaProgress.missionProgress[mission.stat], mission.target);
+                    const complete = progress >= mission.target;
+                    const claimed = game.metaProgress.missionClaimed.includes(mission.id);
+                    return (
+                      <article key={mission.id} className={`mission-card ${claimed ? 'is-claimed' : ''}`}>
+                        <div className="mission-icon">{mission.id === 'roll-dice' ? '🎲' : mission.id === 'buy-property' ? '🏠' : '🚂'}</div>
+                        <div className="mission-main">
+                          <strong>{mission.title}</strong>
+                          <span>{mission.description}</span>
+                          <div className="mission-progress-track"><i style={{ width: `${(progress / mission.target) * 100}%` }} /></div>
+                          <small>{progress}/{mission.target} complete · Reward {money(mission.cashReward)}{mission.packReward ? ' + Sticker Pack' : ''}</small>
+                        </div>
+                        <button className="mission-claim" disabled={!complete || claimed} onClick={() => game.claimMissionReward(mission.id)}>
+                          {claimed ? 'Claimed' : complete ? 'Claim' : 'In progress'}
+                        </button>
+                      </article>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {metaTab === 'album' && (
+              <div className="meta-content album-content">
+                <div className="album-summary">
+                  <div><span className="eyebrow">COLLECTION PROGRESS</span><h3>Miniature City Album</h3><p>Collect all 18 stickers across three themed sets.</p></div>
+                  <strong>{stickerCount}<small> / {STICKER_COLLECTION.length}</small></strong>
+                </div>
+                <div className="album-progress-track"><i style={{ width: `${(stickerCount / STICKER_COLLECTION.length) * 100}%` }} /></div>
+                {['City Lights', 'Wonder Park', 'Royal Fortune'].map((setName) => {
+                  const setStickers = STICKER_COLLECTION.filter((sticker) => sticker.set === setName);
+                  const ownedInSet = setStickers.filter((sticker) => (game.metaProgress.stickers[sticker.id] ?? 0) > 0).length;
+                  return (
+                    <section className="sticker-set" key={setName}>
+                      <div className="sticker-set-heading"><strong>{setName}</strong><span>{ownedInSet}/{setStickers.length}</span></div>
+                      <div className="sticker-grid">
+                        {setStickers.map((sticker) => {
+                          const owned = (game.metaProgress.stickers[sticker.id] ?? 0) > 0;
+                          return (
+                            <div className={`sticker-card ${owned ? 'is-owned' : 'is-locked'} rarity-${sticker.rarity.toLowerCase()}`} key={sticker.id}>
+                              <span className="sticker-emoji">{owned ? sticker.emoji : '？'}</span>
+                              <strong>{owned ? sticker.name : 'Mystery sticker'}</strong>
+                              <small>{owned ? sticker.rarity : 'Not found yet'}</small>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  );
+                })}
+                <div className="album-footer">
+                  <div><span className="eyebrow">DUPLICATE EXCHANGE</span><strong><Star size={14} fill="currentColor" /> {game.metaProgress.stickerStars} stars</strong><small>10 stars can be exchanged for 1 Sticker Pack.</small></div>
+                  <button className="meta-secondary-button" disabled={game.metaProgress.stickerStars < 10} onClick={game.redeemStickerStars}>Exchange 10 ★</button>
+                </div>
+                <button className="meta-primary-button" disabled={game.metaProgress.stickerPacks <= 0} onClick={() => setLastPackReveal(game.openStickerPack())}>
+                  <PackageOpen size={16} /> Open Sticker Pack ({game.metaProgress.stickerPacks})
+                </button>
+                {lastPackReveal && (
+                  <div className="pack-reveal">
+                    <div className="sticker-set-heading"><strong>Pack opened!</strong><span>{lastPackReveal.duplicateCount} duplicates</span></div>
+                    <div className="pack-reveal-cards">
+                      {lastPackReveal.stickers.map((id, index) => {
+                        const sticker = STICKER_COLLECTION.find((item) => item.id === id);
+                        return sticker ? <div key={id + index}><span>{sticker.emoji}</span><strong>{sticker.name}</strong><small>{sticker.rarity}</small></div> : null;
+                      })}
+                    </div>
+                    <span className="pack-reveal-note">Duplicates convert into sticker stars automatically.</span>
+                  </div>
+                )}
+                {albumComplete && (
+                  <button className="meta-primary-button album-grand-prize" disabled={game.metaProgress.albumBonusClaimed} onClick={game.claimStickerAlbumReward}>
+                    <Trophy size={16} /> {game.metaProgress.albumBonusClaimed ? 'Album prize claimed' : 'Claim grand prize · $2,500'}
+                  </button>
+                )}
+              </div>
+            )}
+          </section>
         </div>
       )}
 
