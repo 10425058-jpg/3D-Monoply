@@ -8,6 +8,7 @@ import { Board3D } from './Board3D';
 import { CenterCity3D } from './CenterCity3D';
 import { TokensAndBuildings } from './TokensAndBuildings';
 import { Dice3D } from './Dice3D';
+import { FantasySkyBackground } from './FantasySkyBackground';
 
 import { useGameStore } from '../../store/useGameStore';
 import { getSpaceTransform } from '../../data/boardData';
@@ -84,12 +85,9 @@ export const Scene3D: React.FC<{ quality?: GraphicsQuality }> = ({ quality = 'ba
       performance={{ min: 0.55, max: 1, debounce: 180 }}
       gl={{ antialias: quality !== 'low', alpha: false, powerPreference: 'high-performance' }}
     >
-      <mesh position={[0, -1.56, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[180, 180]} />
-        <meshPhysicalMaterial color="#39b6e7" roughness={0.32} metalness={0.12} clearcoat={0.7} />
-      </mesh>
-      <color attach="background" args={['#7768d2']} />
-      <fog attach="fog" args={['#7768d2', 58, 125]} />
+      <color attach="background" args={['#373078']} />
+      <fog attach="fog" args={['#51458e', 64, 138]} />
+      <FantasySkyBackground quality={quality} />
 
       <ambientLight intensity={1.05} />
       <hemisphereLight args={['#fff0fa', '#63b9a0', 1.05]} />
