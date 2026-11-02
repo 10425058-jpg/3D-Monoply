@@ -33,36 +33,35 @@ export const Board3D: React.FC = () => {
         <meshStandardMaterial color="#bf9855" metalness={0.82} roughness={0.2} />
       </mesh>
 
-      {/* Decorative card decks around the board */}
-      <group position={[14.2, -0.05, 4.5]} rotation={[0, -0.4, 0]}>
+      {/* Chance and Community Chest decks sit on the upper corners of the board inset. */}
+      <group position={[-8.55, 0.31, -6.75]} rotation={[0, 0.18, 0]}>
         <mesh castShadow receiveShadow>
-          <boxGeometry args={[2.1, 0.25, 3.1]} />
+          <boxGeometry args={[1.55, 0.22, 1.12]} />
           <meshStandardMaterial color="#a84b43" roughness={0.42} metalness={0.12} />
         </mesh>
-        <mesh position={[0, 0.14, 0]}>
-          <boxGeometry args={[1.94, 0.035, 2.94]} />
-          <meshStandardMaterial color="#e2c78e" roughness={0.65} />
+        <mesh position={[0, 0.125, 0]}>
+          <boxGeometry args={[1.43, 0.035, 1.0]} />
+          <meshStandardMaterial color="#f1e6ce" roughness={0.62} />
         </mesh>
+        <Text position={[0, 0.15, 0]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.19} maxWidth={1.3} textAlign="center" color="#7d302d" anchorX="center" anchorY="middle" fontWeight="bold">
+          CHANCE
+        </Text>
       </group>
-      <group position={[-13.5, -0.05, -7.2]} rotation={[0, 0.5, 0]}>
+
+      <group position={[8.55, 0.31, -6.75]} rotation={[0, -0.18, 0]}>
         <mesh castShadow receiveShadow>
-          <boxGeometry args={[2.4, 0.14, 1.3]} />
-          <meshStandardMaterial color="#3d805f" roughness={0.5} />
+          <boxGeometry args={[1.55, 0.22, 1.12]} />
+          <meshStandardMaterial color="#327a8e" roughness={0.42} metalness={0.12} />
         </mesh>
-        <mesh position={[0.4, 0.08, 0.8]} castShadow receiveShadow>
-          <boxGeometry args={[2.4, 0.14, 1.3]} />
-          <meshStandardMaterial color="#d3a751" roughness={0.42} />
+        <mesh position={[0, 0.125, 0]}>
+          <boxGeometry args={[1.43, 0.035, 1.0]} />
+          <meshStandardMaterial color="#f1e6ce" roughness={0.62} />
         </mesh>
-      </group>
-      <group position={[13.8, -0.05, -5.5]} rotation={[0, -0.35, 0]}>
-        <mesh castShadow receiveShadow>
-          <boxGeometry args={[2.4, 0.16, 1.3]} />
-          <meshStandardMaterial color="#343d61" roughness={0.4} />
-        </mesh>
-        <mesh position={[-0.5, 0.09, 0.9]} castShadow receiveShadow>
-          <boxGeometry args={[2.4, 0.16, 1.3]} />
-          <meshStandardMaterial color="#d7b56b" roughness={0.42} />
-        </mesh>
+        <Text position={[0, 0.15, 0]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.16} maxWidth={1.3} textAlign="center" color="#1c596d" anchorX="center" anchorY="middle" fontWeight="bold">
+          COMMUNITY
+          {'\n'}
+          CHEST
+        </Text>
       </group>
 
       {/* Layered board chassis with a polished brass reveal */}
@@ -87,6 +86,14 @@ export const Board3D: React.FC = () => {
           ? players.find((player) => player.id === property.ownerId)
           : null;
         const isHovered = hoveredId === space.id;
+        // Keep the text baseline aligned with the edge while correcting the far/bottom-facing sides.
+        const flipLabel = (space.id >= 20 && space.id <= 29) || space.id >= 30;
+        const labelRotation: [number, number, number] = [-Math.PI / 2, 0, flipLabel ? Math.PI : 0];
+        const labelText = space.id === 20
+          ? 'FREE\\nPARKING'
+          : space.id === 30
+            ? 'GO TO\\nJAIL'
+            : space.shortName;
 
         return (
           <group
@@ -128,7 +135,7 @@ export const Board3D: React.FC = () => {
 
             {/* Inner property color strip */}
             {space.type === 'property' && (
-              <mesh position={[0, 0.054, -transform.depth / 2 + 0.34]}>
+              <mesh position={[0, 0.054, -transform.depth / 2 + 0.34]} castShadow>
                 <boxGeometry args={[transform.width - 0.1, 0.045, 0.62]} />
                 <meshStandardMaterial color={space.colorHex} roughness={0.36} metalness={0.12} />
               </mesh>
@@ -149,8 +156,8 @@ export const Board3D: React.FC = () => {
             {/* Space label */}
             <Text
               position={[0, 0.064, space.type === 'property' ? 0.08 : -0.15]}
-              rotation={[-Math.PI / 2, 0, 0]}
-              fontSize={transform.isCorner ? 0.28 : 0.165}
+              rotation={labelRotation}
+              fontSize={transform.isCorner ? 0.30 : 0.165}
               maxWidth={transform.width - 0.18}
               textAlign="center"
               color="#17263a"
@@ -160,14 +167,14 @@ export const Board3D: React.FC = () => {
               outlineWidth={0.003}
               outlineColor="#f7f1e4"
             >
-              {space.shortName}
+              {labelText}
             </Text>
 
             {/* Purchase price or tax */}
             {(space.price || space.taxAmount) && (
               <Text
                 position={[0, 0.065, transform.depth / 2 - 0.42]}
-                rotation={[-Math.PI / 2, 0, 0]}
+                rotation={labelRotation}
                 fontSize={0.18}
                 color="#27364b"
                 anchorX="center"
@@ -181,7 +188,7 @@ export const Board3D: React.FC = () => {
             {space.type === 'chance' && (
               <Text
                 position={[0, 0.065, 0.35]}
-                rotation={[-Math.PI / 2, 0, 0]}
+                rotation={labelRotation}
                 fontSize={0.75}
                 color={space.colorHex}
                 anchorX="center"
@@ -194,7 +201,7 @@ export const Board3D: React.FC = () => {
             {space.type === 'railroad' && (
               <Text
                 position={[0, 0.065, 0.32]}
-                rotation={[-Math.PI / 2, 0, 0]}
+                rotation={labelRotation}
                 fontSize={0.42}
                 color="#25364c"
                 anchorX="center"
