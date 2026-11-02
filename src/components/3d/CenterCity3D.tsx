@@ -235,8 +235,10 @@ const House: React.FC<{position: Pos; roof?: string; wall?: string; scale?: numb
 
 const Crystal: React.FC<{position: Pos}> = ({ position }) => {
   const ref = useRef<THREE.Group>(null);
+  const lastUpdate = useRef(0);
   useFrame(({ clock }) => {
-    if (!ref.current) return;
+    if (!ref.current || clock.elapsedTime - lastUpdate.current < 1 / 30) return;
+    lastUpdate.current = clock.elapsedTime;
     ref.current.rotation.y = clock.elapsedTime * 0.7;
     ref.current.position.y = position[1] + Math.sin(clock.elapsedTime * 1.7) * 0.12;
   });
@@ -306,7 +308,10 @@ const Castle: React.FC = () => (
 
 const Fountain: React.FC = () => {
   const waterRef = useRef<THREE.Mesh>(null);
+  const lastUpdate = useRef(0);
   useFrame(({ clock }) => {
+    if (clock.elapsedTime - lastUpdate.current < 1 / 30) return;
+    lastUpdate.current = clock.elapsedTime;
     if (waterRef.current) {
       waterRef.current.position.y = 0.66 + Math.sin(clock.elapsedTime * 2.2) * 0.08;
       waterRef.current.scale.y = 0.85 + Math.sin(clock.elapsedTime * 2.2) * 0.18;
@@ -427,9 +432,11 @@ const MarketStall: React.FC<{position: Pos; color: string}> = ({ position, color
 export const CenterCity3D: React.FC = () => {
   const players = useGameStore((state) => state.players);
   const boatRef = useRef<THREE.Group>(null);
+  const lastBoatUpdate = useRef(0);
 
   useFrame(({ clock }) => {
-    if (!boatRef.current) return;
+    if (!boatRef.current || clock.elapsedTime - lastBoatUpdate.current < 1 / 30) return;
+    lastBoatUpdate.current = clock.elapsedTime;
     const t = clock.elapsedTime;
     boatRef.current.position.x = 3.0 + Math.sin(t * 0.42) * 0.24;
     boatRef.current.position.y = 0.78 + Math.sin(t * 1.5) * 0.06;
