@@ -40,7 +40,12 @@ interface GameStore {
   gameSpeed: 1 | 2;
   cameraMode: CameraMode;
   logs: LogEntry[];
-  pendingDebt: { amount: number; creditorId: number | null; reason: string } | null;
+  pendingDebt: {
+    amount: number;
+    creditorId: number | null;
+    reason: string;
+    distribution?: { recipientIds: number[]; amountPerPlayer: number };
+  } | null;
   railroadRaid: RailroadRaid | null;
   metaProgress: MetaProgress;
   lastWheelReward: WheelReward | null;
@@ -187,6 +192,9 @@ const DEFAULT_PLAYERS: PlayerSetupConfig[] = [
 ];
 
 export const useGameStore = create<GameStore>((set, get) => {
+  // Invalidate in-flight movement and dice callbacks whenever a new game starts.
+  let gameGeneration = 0;
+
   const addLog = (message: string, type: LogEntry['type'] = 'info') => {
     const entry: LogEntry = {
       id: `${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
@@ -242,10 +250,12 @@ export const useGameStore = create<GameStore>((set, get) => {
   };
 
   const stepMovePlayer = (playerIndex: number, totalSteps: number, onComplete: () => void) => {
+    const generation = gameGeneration;
     let remaining = Math.abs(totalSteps);
     const direction = totalSteps >= 0 ? 1 : -1;
 
     const tick = () => {
+      if (generation !== gameGeneration) return;
       if (remaining <= 0) {
         onComplete();
         return;
@@ -432,6 +442,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     isSetupModalOpen: false,
 
     startNewGame: (configs) => {
+      gameGeneration += 1;
       const newPlayers: Player[] = configs.map((cfg, idx) => ({
         id: idx,
         name: cfg.name,
@@ -557,6 +568,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     rollDice: () => {
       const state = get();
       if (state.turnPhase !== 'PRE_ROLL') return;
+      const generation = gameGeneration;
 
       const d1 = Math.floor(Math.random() * 6) + 1;
       const d2 = Math.floor(Math.random() * 6) + 1;
@@ -568,6 +580,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       if (!player.isAI) progressMission('rolls');
 
       setTimeout(() => {
+        if (generation !== gameGeneration) return;
         const currentState = get();
         const activePlayer = currentState.players[currentState.currentPlayerIndex];
 
@@ -1128,7 +1141,15 @@ export const useGameStore = create<GameStore>((set, get) => {
             addLog(`${player.name} paid $${perPlayer} to each player ($${totalNeeded} total).`, 'money');
           } else {
             set({
-              pendingDebt: { amount: totalNeeded, creditorId: null, reason: card.title },
+              pendingDebt: {
+                amount: totalNeeded,
+                creditorId: null,
+                reason: card.title,
+                distribution: {
+                  recipientIds: activeOthers.map((candidate) => candidate.id),
+                  amountPerPlayer: perPlayer,
+                },
+              },
               turnPhase: 'DEBT_RESOLUTION',
             });
           }
@@ -1260,29 +1281,76 @@ export const useGameStore = create<GameStore>((set, get) => {
       const state = get();
       const fromPlayer = state.players.find((p) => p.id === offer.fromPlayerId);
       const toPlayer = state.players.find((p) => p.id === offer.toPlayerId);
-      if (!fromPlayer || !toPlayer) return { accepted: false, message: 'Invalid players.' };
+      if (!fromPlayer || !toPlayer || fromPlayer.id === toPlayer.id) {
+        return { accepted: false, message: 'Choose two different players.' };
+      }
+      if (fromPlayer.id !== state.players[state.currentPlayerIndex]?.id || fromPlayer.isAI || fromPlayer.isBankrupt || toPlayer.isBankrupt) {
+        return { accepted: false, message: 'Only the active human player can initiate a trade with an active rival.' };
+      }
+      if (!['PRE_ROLL', 'LANDED_ACTION', 'END_TURN'].includes(state.turnPhase)) {
+        return { accepted: false, message: 'Trades are available between actions during your turn.' };
+      }
+
+      if (
+        !Number.isSafeInteger(offer.offerCash) ||
+        !Number.isSafeInteger(offer.requestCash) ||
+        offer.offerCash < 0 ||
+        offer.requestCash < 0 ||
+        !Array.isArray(offer.offerProperties) ||
+        !Array.isArray(offer.requestProperties) ||
+        new Set(offer.offerProperties).size !== offer.offerProperties.length ||
+        new Set(offer.requestProperties).size !== offer.requestProperties.length
+      ) {
+        return { accepted: false, message: 'Trade values and property selections must be valid and non-negative.' };
+      }
 
       if (fromPlayer.money < offer.offerCash || toPlayer.money < offer.requestCash) {
         return { accepted: false, message: 'Insufficient cash for this trade.' };
       }
 
       const offeredPropertiesValid = offer.offerProperties.every((id) =>
-        state.properties[id]?.ownerId === fromPlayer.id && !state.properties[id]?.isMortgaged
+        Number.isInteger(id) && state.properties[id]?.ownerId === fromPlayer.id && !state.properties[id]?.isMortgaged
       );
       const requestedPropertiesValid = offer.requestProperties.every((id) =>
-        state.properties[id]?.ownerId === toPlayer.id && !state.properties[id]?.isMortgaged
+        Number.isInteger(id) && state.properties[id]?.ownerId === toPlayer.id && !state.properties[id]?.isMortgaged
       );
       if (!offeredPropertiesValid || !requestedPropertiesValid) {
         return { accepted: false, message: 'Only properties owned free and clear can be traded.' };
       }
 
-      // Calculate fair value for AI evaluation
+      const tradedIds = [...offer.offerProperties, ...offer.requestProperties];
+      const groupsWithBuildings = new Set(
+        BOARD_SPACES
+          .filter((space) => (state.properties[space.id]?.houses ?? 0) > 0)
+          .map((space) => space.colorGroup)
+      );
+      if (tradedIds.some((id) => groupsWithBuildings.has(BOARD_SPACES[id].colorGroup))) {
+        return { accepted: false, message: 'Sell all buildings in a color group before trading its properties.' };
+      }
+      if (
+        offer.offerCash === 0 &&
+        offer.requestCash === 0 &&
+        offer.offerProperties.length === 0 &&
+        offer.requestProperties.length === 0
+      ) {
+        return { accepted: false, message: 'A trade must include cash or at least one property.' };
+      }
+
+      // AI evaluates the overall value of the exchange, including a modest set-completion bonus.
+      const propertyValue = (id: number, acquiringPlayerId: number) => {
+        const space = BOARD_SPACES[id];
+        const group = BOARD_SPACES.filter((candidate) => candidate.colorGroup === space.colorGroup);
+        const completesSet = group.length > 0 && group.every((candidate) =>
+          candidate.id === id || state.properties[candidate.id]?.ownerId === acquiringPlayerId
+        );
+        return (space.price || 150) * (completesSet ? 1.3 : 1);
+      };
       const offeredPropVal = offer.offerProperties.reduce(
-        (sum, id) => sum + (BOARD_SPACES[id].price || 150),
+        (sum, id) => sum + propertyValue(id, toPlayer.id),
         0
       );
       const requestedPropVal = offer.requestProperties.reduce(
-        (sum, id) => sum + (BOARD_SPACES[id].price || 150),
+        (sum, id) => sum + propertyValue(id, fromPlayer.id),
         0
       );
 
@@ -1292,11 +1360,10 @@ export const useGameStore = create<GameStore>((set, get) => {
       if (toPlayer.isAI && totalOfferedValue < totalRequestedValue * 0.95) {
         return {
           accepted: false,
-          message: `${toPlayer.name} declined the trade: "I need at least equal value ($${totalRequestedValue}) to accept!"`,
+          message: `${toPlayer.name} declined the trade: the offer is below its estimated value ($${Math.round(totalRequestedValue)}).`,
         };
       }
 
-      // Execute trade
       set((s) => {
         const players = s.players.map((p) => {
           if (p.id === fromPlayer.id) {
@@ -1310,10 +1377,10 @@ export const useGameStore = create<GameStore>((set, get) => {
 
         const properties = { ...s.properties };
         offer.offerProperties.forEach((id) => {
-          if (properties[id]) properties[id] = { ...properties[id], ownerId: toPlayer.id };
+          properties[id] = { ...properties[id], ownerId: toPlayer.id };
         });
         offer.requestProperties.forEach((id) => {
-          if (properties[id]) properties[id] = { ...properties[id], ownerId: fromPlayer.id };
+          properties[id] = { ...properties[id], ownerId: fromPlayer.id };
         });
 
         return { players, properties };
@@ -1322,7 +1389,6 @@ export const useGameStore = create<GameStore>((set, get) => {
       addLog(`Trade completed between ${fromPlayer.name} and ${toPlayer.name}!`, 'property');
       return { accepted: true, message: `${toPlayer.name} accepted your trade offer!` };
     },
-
     settlePendingDebt: () => {
       const state = get();
       const debt = state.pendingDebt;
@@ -1344,6 +1410,9 @@ export const useGameStore = create<GameStore>((set, get) => {
           if (debt.creditorId !== null && p.id === debt.creditorId) {
             return { ...p, money: p.money + debt.amount };
           }
+          if (debt.distribution?.recipientIds.includes(p.id) && !p.isBankrupt) {
+            return { ...p, money: p.money + debt.distribution.amountPerPlayer };
+          }
           return p;
         });
         return {
@@ -1353,7 +1422,12 @@ export const useGameStore = create<GameStore>((set, get) => {
         };
       });
 
-      addLog(`${player.name} settled their ${debt.amount} debt (${debt.reason}).`, 'money');
+      addLog(
+        debt.distribution
+          ? `${player.name} paid ${debt.distribution.amountPerPlayer} to each active rival (${debt.amount} total).`
+          : `${player.name} settled their ${debt.amount} debt (${debt.reason}).`,
+        'money'
+      );
       if (jailRelease) {
         addLog(`${player.name} is released from Jail and moves ${jailMoveTotal} spaces.`, 'info');
         stepMovePlayer(state.currentPlayerIndex, jailMoveTotal, evaluateLandedSpace);
