@@ -75,14 +75,14 @@ export const Scene3D: React.FC<{ quality?: GraphicsQuality }> = ({ quality = 'ba
   <div className="relative h-full w-full">
     <Canvas
       camera={{ position: [0, 23.5, 26.5], fov: 38, near: 0.1, far: 1000 }}
-      shadows={quality === 'low' ? false : THREE.PCFSoftShadowMap}
-      dpr={quality === 'low' ? [0.72, 0.85] : quality === 'high' ? [1, 1.15] : [0.82, 1.0]}
+      shadows={quality !== 'low'}
+      dpr={quality === 'low' ? ([0.72, 0.85] as [number, number]) : quality === 'high' ? ([1, 1.15] as [number, number]) : ([0.82, 1.0] as [number, number])}
       onCreated={({ gl }) => {
         gl.toneMapping = THREE.ACESFilmicToneMapping;
         gl.toneMappingExposure = 1.08;
       }}
       performance={{ min: 0.55, max: 1, debounce: 180 }}
-      gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
+      gl={{ antialias: quality !== 'low', alpha: false, powerPreference: 'high-performance' }}
     >
       <mesh position={[0, -1.56, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[180, 180]} />
