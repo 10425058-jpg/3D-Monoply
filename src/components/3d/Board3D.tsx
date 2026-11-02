@@ -37,7 +37,7 @@ export const Board3D: React.FC = () => {
       </mesh>
 
       {/* Compact card trays sit fully inside the lower blue inset, away from lane markings. */}
-      <group position={[6.7, 0.36, 6.88]} rotation={[0, -0.14, 0]}>
+      <group position={[7.0, 0.36, 7.1]} rotation={[0, -0.14, 0]}>
         <mesh castShadow receiveShadow>
           <boxGeometry args={[1.18, 0.18, 0.82]} />
           <meshStandardMaterial color="#a84b43" roughness={0.4} metalness={0.16} />
@@ -51,7 +51,7 @@ export const Board3D: React.FC = () => {
         </Text>
       </group>
 
-      <group position={[-6.7, 0.36, 6.88]} rotation={[0, 0.14, 0]}>
+      <group position={[-5.5, 0.36, 7.1]} rotation={[0, 0.14, 0]}>
         <mesh castShadow receiveShadow>
           <boxGeometry args={[1.18, 0.18, 0.82]} />
           <meshStandardMaterial color="#327a8e" roughness={0.4} metalness={0.16} />
@@ -140,7 +140,7 @@ export const Board3D: React.FC = () => {
             </mesh>
 
             {isHighlighted && (
-              <group position={[0, 0.105, 0]}>
+              <group position={[0, 0.055, 0]}>
                 <mesh position={[0, 0, -transform.depth / 2 + 0.055]}>
                   <boxGeometry args={[transform.width - 0.08, 0.028, 0.055]} />
                   <meshStandardMaterial color="#ffe7ad" emissive="#eab85e" emissiveIntensity={isSelected ? 0.95 : 0.68} />
@@ -175,7 +175,7 @@ export const Board3D: React.FC = () => {
                   <boxGeometry args={[transform.width - 0.13, 0.075, 0.22]} />
                   <meshStandardMaterial color={owner.color} emissive={owner.color} emissiveIntensity={0.72} metalness={0.34} roughness={0.24} />
                 </mesh>
-                <group position={[0, 0.115, 0]}>
+                <group position={[0, 0.055, 0]}>
                   <mesh position={[0, 0, -transform.depth / 2 + 0.045]}>
                     <boxGeometry args={[transform.width - 0.12, 0.035, 0.045]} />
                     <meshStandardMaterial color={owner.color} emissive={owner.color} emissiveIntensity={0.55} />
