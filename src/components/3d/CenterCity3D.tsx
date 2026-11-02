@@ -590,16 +590,74 @@ export const CenterCity3D: React.FC = () => {
 
   return (
     <group position={[0, 0.1, 0]}>
+      {/* Raised miniature-city plinth fills the unused cream center and frames the island. */}
+      <mesh position={[0, 0.0, 0]} receiveShadow castShadow>
+        <boxGeometry args={[19.2, 0.36, 19.2]} />
+        <meshStandardMaterial color="#26384a" roughness={0.62} metalness={0.18} />
+      </mesh>
+      <mesh position={[0, 0.19, 0]}>
+        <boxGeometry args={[18.95, 0.035, 18.95]} />
+        <meshStandardMaterial color="#35495b" roughness={0.56} metalness={0.12} />
+      </mesh>
+
+      {/* Four connected perimeter streets meet the inner edge of the property spaces. */}
+      <group>
+        {[-7.95, 7.95].map((z) => (
+          <mesh key={`road-z-${z}`} position={[0, 0.25, z]} receiveShadow>
+            <boxGeometry args={[16.25, 0.12, 0.72]} />
+            <meshStandardMaterial color="#263442" roughness={0.78} />
+          </mesh>
+        ))}
+        {[-7.95, 7.95].map((x) => (
+          <mesh key={`road-x-${x}`} position={[x, 0.25, 0]} receiveShadow>
+            <boxGeometry args={[0.72, 0.12, 16.25]} />
+            <meshStandardMaterial color="#263442" roughness={0.78} />
+          </mesh>
+        ))}
+        {Array.from({ length: 13 }).map((_, index) => {
+          const x = -6.1 + index * 1.02;
+          return (
+            <React.Fragment key={`road-mark-x-${index}`}>
+              <mesh position={[x, 0.313, -7.95]}>
+                <boxGeometry args={[0.38, 0.012, 0.045]} />
+                <meshBasicMaterial color="#d8c58e" />
+              </mesh>
+              <mesh position={[x, 0.313, 7.95]}>
+                <boxGeometry args={[0.38, 0.012, 0.045]} />
+                <meshBasicMaterial color="#d8c58e" />
+              </mesh>
+            </React.Fragment>
+          );
+        })}
+        {Array.from({ length: 13 }).map((_, index) => {
+          const z = -6.1 + index * 1.02;
+          return (
+            <React.Fragment key={`road-mark-z-${index}`}>
+              <mesh position={[-7.95, 0.313, z]}>
+                <boxGeometry args={[0.045, 0.012, 0.38]} />
+                <meshBasicMaterial color="#d8c58e" />
+              </mesh>
+              <mesh position={[7.95, 0.313, z]}>
+                <boxGeometry args={[0.045, 0.012, 0.38]} />
+                <meshStandardMaterial color="#d8c58e" />
+              </mesh>
+            </React.Fragment>
+          );
+        })}
+      </group>
+
       {/* Deep teal lagoon with a layered island edge */}
-      <mesh position={[0, -0.015, 0]} receiveShadow>
+      <mesh position={[0, 0.135, 0]} receiveShadow>
         <boxGeometry args={[16.15, 0.18, 16.15]} />
         <meshPhysicalMaterial color="#123e52" roughness={0.27} metalness={0.45} clearcoat={1} clearcoatRoughness={0.16} />
       </mesh>
-      <mesh position={[0, 0.08, 0]}>
+      <mesh position={[0, 0.23, 0]}>
         <boxGeometry args={[15.92, 0.025, 15.92]} />
         <meshStandardMaterial color="#176077" roughness={0.34} metalness={0.34} />
       </mesh>
 
+      {/* Rebalance the city attractions over the full island instead of clustering them toward one corner. */}
+      <group position={[-0.65, 0, 0.3]}>
       {/* Downtown district raised plaza */}
       <mesh position={[-1.65, 0.23, -0.72]} receiveShadow castShadow>
         <boxGeometry args={[7.75, 0.38, 7.4]} />
@@ -740,6 +798,7 @@ export const CenterCity3D: React.FC = () => {
           </mesh>
         </group>
       ))}
+      </group>
     </group>
   );
 };
