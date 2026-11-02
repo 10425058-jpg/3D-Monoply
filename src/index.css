@@ -1,0 +1,597 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   1. DESIGN TOKENS & GLOBAL CSS VARIABLES
+   Style: Modern Premium 3D Board Game
+   ========================================================================== */
+:root {
+  /* Core Backgrounds: Deep Navy / Charcoal */
+  --bg-primary: #090d16;
+  --bg-secondary: #0f172a;
+  --bg-tertiary: #162038;
+  --bg-surface: rgba(15, 23, 42, 0.78);
+  --bg-surface-elevated: rgba(22, 32, 56, 0.88);
+  --bg-surface-hover: rgba(30, 41, 69, 0.92);
+  --bg-modal-backdrop: rgba(6, 9, 17, 0.78);
+
+  /* Luxury Gold Accent Palette */
+  --gold-primary: #d4af37;
+  --gold-light: #f3cf55;
+  --gold-bright: #ffe074;
+  --gold-dark: #aa820a;
+  --gold-muted: rgba(212, 175, 55, 0.22);
+  --gold-border: rgba(212, 175, 55, 0.36);
+  --gold-glow: rgba(212, 175, 55, 0.35);
+
+  /* Secondary: Cream / Warm White */
+  --cream-primary: #f8f5eb;
+  --cream-secondary: #ede6d3;
+  --cream-muted: rgba(248, 245, 235, 0.75);
+
+  /* Typography Colors */
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  --text-inverse: #090d16;
+
+  /* Semantic Status Colors */
+  --status-success: #10b981;
+  --status-success-bg: rgba(16, 185, 129, 0.16);
+  --status-success-border: rgba(16, 185, 129, 0.4);
+
+  --status-warning: #f59e0b;
+  --status-warning-bg: rgba(245, 158, 11, 0.16);
+  --status-warning-border: rgba(245, 158, 11, 0.4);
+
+  --status-danger: #ef4444;
+  --status-danger-bg: rgba(239, 68, 68, 0.16);
+  --status-danger-border: rgba(239, 68, 68, 0.4);
+
+  /* Borders & Glassmorphism */
+  --border-subtle: rgba(148, 163, 184, 0.16);
+  --border-strong: rgba(148, 163, 184, 0.28);
+  --glass-blur: blur(14px);
+
+  /* Shadows */
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 10px 28px -4px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 20px 48px -8px rgba(0, 0, 0, 0.72);
+  --shadow-gold: 0 0 22px rgba(212, 175, 55, 0.28);
+
+  /* Layout Dimensions */
+  --header-height: 64px;
+  --dock-height: 84px;
+  --side-panel-width: 320px;
+  --side-panel-width-tablet: 268px;
+  --hud-padding: 16px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+
+  /* Z-Index Layer System */
+  --z-board: 1;
+  --z-hud: 10;
+  --z-header: 20;
+  --z-side-panel: 25;
+  --z-dock: 20;
+  --z-mobile-backdrop: 30;
+  --z-modal-overlay: 50;
+  --z-modal-content: 60;
+
+  /* Typography Stack */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Oxygen, Ubuntu, Cantarell, sans-serif;
+  --font-display: 'Cinzel', 'Playfair Display', Georgia, serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 240ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 360ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ==========================================================================
+   2. CSS RESET & BOX-SIZING NORMALIZATION
+   ========================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ==========================================================================
+   3. GLOBAL TYPOGRAPHY, SELECTION, FOCUS & SCROLLBARS
+   ========================================================================== */
+h1,
+h2,
+h3,
+h4,
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.03em;
+  color: var(--cream-primary);
+}
+
+::selection {
+  background-color: var(--gold-primary);
+  color: var(--text-inverse);
+}
+
+/* Button Defaults */
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: inherit;
+  transition: transform var(--transition-fast),
+    background-color var(--transition-base),
+    border-color var(--transition-base),
+    box-shadow var(--transition-base),
+    opacity var(--transition-fast);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Accessible Focus States */
+:focus-visible {
+  outline: 2px solid var(--gold-light);
+  outline-offset: 2px;
+}
+
+/* Custom Scrollbar Styling for Panels & Modals */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212, 175, 55, 0.35) rgba(15, 23, 42, 0.4);
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 9999px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.35);
+  border-radius: 9999px;
+  transition: background-color var(--transition-fast);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--gold-primary);
+}
+
+/* ==========================================================================
+   4. 3D CANVAS & THREE.JS SCENE COMPATIBILITY
+   ========================================================================== */
+.app-container,
+.game-screen {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: radial-gradient(
+    circle at 50% 45%,
+    #17223b 0%,
+    #0c1222 60%,
+    #070a12 100%
+  );
+}
+
+/* 3D Board Container occupies full viewport behind HUD */
+.game-board-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: var(--z-board);
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.board-canvas-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Ensure Three.js / R3F canvas is never distorted or filtered */
+.game-board-container canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  outline: none;
+  touch-action: none;
+  pointer-events: auto;
+}
+
+/* ==========================================================================
+   5. HUD LAYOUT UTILITIES (HEADER, SIDE PANELS, ACTION DOCK)
+   ========================================================================== */
+.game-hud-layer {
+  position: relative;
+  z-index: var(--z-hud);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Pass pointer events through empty space to 3D board */
+}
+
+/* Top Header Bar */
+.game-header {
+  position: relative;
+  z-index: var(--z-header);
+  width: 100%;
+  min-height: var(--header-height);
+  padding: 10px var(--hud-padding);
+  pointer-events: auto;
+  background: linear-gradient(
+    180deg,
+    rgba(9, 13, 22, 0.92) 0%,
+    rgba(9, 13, 22, 0.68) 75%,
+    transparent 100%
+  );
+}
+
+/* Main Middle Area: Left Panel | 3D Center Spacer | Right Panel */
+.game-main-area {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 0;
+  padding: 8px var(--hud-padding);
+  gap: 16px;
+  pointer-events: none;
+}
+
+/* Unobstructed center region for 3D board interaction */
+.game-board-spacer {
+  flex: 1 1 auto;
+  min-width: 0;
+  pointer-events: none;
+}
+
+/* Side Panels (PlayerPanels & ActivityLog) */
+.game-side-panel {
+  position: relative;
+  z-index: var(--z-side-panel);
+  width: var(--side-panel-width);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+  background: var(--bg-surface);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: transform var(--transition-smooth),
+    opacity var(--transition-base),
+    width var(--transition-base);
+}
+
+.game-side-panel--left {
+  animation: slideInLeft var(--transition-smooth) forwards;
+}
+
+.game-side-panel--right {
+  animation: slideInRight var(--transition-smooth) forwards;
+}
+
+/* Bottom Action Dock */
+.game-action-dock {
+  position: relative;
+  z-index: var(--z-dock);
+  width: 100%;
+  min-height: var(--dock-height);
+  padding: 8px var(--hud-padding) 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.game-action-dock > * {
+  pointer-events: auto;
+}
+
+/* ==========================================================================
+   6. MODAL OVERLAY & MODAL CONTENT LAYER
+   ========================================================================== */
+.modal-overlay,
+.game-modal-layer {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background-color: var(--bg-modal-backdrop);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: auto;
+}
+
+.modal-content {
+  position: relative;
+  z-index: var(--z-modal-content);
+  width: 100%;
+  max-width: 680px;
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg), var(--shadow-gold);
+  color: var(--text-primary);
+  pointer-events: auto;
+}
+
+/* Reusable Luxury UI Surface Helpers */
+.surface-glass {
+  background: var(--bg-surface);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.surface-gold {
+  background: linear-gradient(
+    135deg,
+    rgba(212, 175, 55, 0.18) 0%,
+    rgba(170, 130, 10, 0.08) 100%
+  );
+  border: 1px solid var(--gold-border);
+  box-shadow: var(--shadow-gold);
+}
+
+.btn-gold {
+  background: linear-gradient(
+    135deg,
+    var(--gold-light) 0%,
+    var(--gold-primary) 50%,
+    var(--gold-dark) 100%
+  );
+  color: var(--text-inverse);
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 1.25rem;
+  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);
+}
+
+.btn-gold:hover:not(:disabled) {
+  filter: brightness(1.08);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   7. ANIMATION SYSTEM
+   ========================================================================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes goldPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 18px 4px rgba(212, 175, 55, 0.25);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--transition-base) forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn var(--transition-smooth) forwards;
+}
+
+.animate-slide-up {
+  animation: slideInUp var(--transition-smooth) forwards;
+}
+
+.animate-gold-pulse {
+  animation: goldPulse 2.4s infinite ease-in-out;
+}
+
+/* ==========================================================================
+   8. RESPONSIVE BREAKPOINTS (DESKTOP, TABLET, MOBILE)
+   ========================================================================== */
+
+/* Tablet (<= 1180px): Compact side panels */
+@media (max-width: 1180px) {
+  :root {
+    --side-panel-width: var(--side-panel-width-tablet);
+    --hud-padding: 12px;
+  }
+}
+
+/* Mobile & Small Tablet (<= 860px): Prioritize 3D Board Visibility */
+@media (max-width: 860px) {
+  :root {
+    --header-height: 56px;
+    --dock-height: 72px;
+    --hud-padding: 8px;
+  }
+
+  .mobile-panel-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-side-panel);
+    background: rgba(6, 9, 17, 0.55);
+    backdrop-filter: blur(4px);
+    pointer-events: auto;
+    animation: fadeIn var(--transition-fast) forwards;
+  }
+
+  .game-side-panel {
+    position: fixed;
+    top: calc(var(--header-height) + 8px);
+    bottom: calc(var(--dock-height) + 8px);
+    width: min(86vw, 320px);
+    z-index: calc(var(--z- mobile-backdrop, 30) + 1);
+    pointer-events: auto;
+  }
+
+  .game-side-panel--left {
+    left: 8px;
+    transform: translateX(calc(-100% - 16px));
+    opacity: 0;
+    pointer-events: none;
+    animation: none;
+  }
+
+  .game-side-panel--left.is-open {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .game-side-panel--right {
+    right: 8px;
+    transform: translateX(calc(100% + 16px));
+    opacity: 0;
+    pointer-events: none;
+    animation: none;
+  }
+
+  .game-side-panel--right.is-open {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .modal-overlay,
+  .game-modal-layer {
+    padding: 12px;
+    align-items: flex-end;
+  }
+
+  .modal-content {
+    max-width: 100%;
+    max-height: 88dvh;
+    border-bottom-left-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
+  }
+}
+
+/* Small Mobile (<= 480px): Compact Action Dock & Header */
+@media (max-width: 480px) {
+  .game-header {
+    padding: 6px 8px;
+  }
+
+  .game-action-dock {
+    padding: 6px 8px 10px;
+  }
+}
