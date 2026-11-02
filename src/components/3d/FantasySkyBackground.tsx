@@ -12,22 +12,28 @@ type IslandLayout = {
 };
 
 const ISLANDS: IslandLayout[] = [
-  { position: [-30, -1.3, -24], scale: 0.64, topColor: '#6d9d6b', canopyColor: '#6b9c5c' },
-  { position: [29, -1.1, -25], scale: 0.72, topColor: '#759f69', canopyColor: '#78a55d' },
-  { position: [-31, -1.6, 18], scale: 0.66, topColor: '#6b9b66', canopyColor: '#6c9d59' },
-  { position: [30, -1.4, 20], scale: 0.7, topColor: '#719e68', canopyColor: '#79a95e' },
+  { position: [-20, -1.15, -15], scale: 0.82, topColor: '#719f69', canopyColor: '#6b9d5b' },
+  { position: [20, -1.10, -16], scale: 0.84, topColor: '#7ca66d', canopyColor: '#78a85d' },
+  { position: [-22, -1.35, 1], scale: 0.78, topColor: '#759f68', canopyColor: '#6c9f5a' },
+  { position: [22, -1.25, 3], scale: 0.84, topColor: '#6d9d69', canopyColor: '#79a95e' },
+  { position: [-19, -1.25, 17], scale: 0.76, topColor: '#77a36b', canopyColor: '#6c9f59' },
+  { position: [19, -1.20, 18], scale: 0.82, topColor: '#739e68', canopyColor: '#7ba85e' },
 ];
 
 const CLOUD_CLUSTERS: Array<{ position: Vec3; scale: number; tone: string }> = [
-  { position: [-21, 6.5, -17], scale: 1.05, tone: '#fff6f5' },
-  { position: [-12, 10, -25], scale: 0.9, tone: '#e7e4ff' },
-  { position: [1, 8.6, -29], scale: 1.1, tone: '#fff8f0' },
-  { position: [17, 8.0, -22], scale: 1.0, tone: '#eee8ff' },
-  { position: [25, 5.4, -8], scale: 0.82, tone: '#fff7f0' },
-  { position: [-25, 3.7, -5], scale: 0.82, tone: '#eeeaff' },
-  { position: [-21, -1.0, 16], scale: 0.9, tone: '#fff3fa' },
-  { position: [22, -0.4, 17], scale: 1.0, tone: '#f2edff' },
-  { position: [1, 11.5, 19], scale: 0.7, tone: '#fff7f3' },
+  { position: [-18, 5.8, -13], scale: 1.35, tone: '#fff3f5' },
+  { position: [-11, 8.8, -21], scale: 1.15, tone: '#e7e0ff' },
+  { position: [1, 8.0, -23], scale: 1.35, tone: '#fff7f0' },
+  { position: [13, 8.4, -19], scale: 1.28, tone: '#eee5ff' },
+  { position: [19, 5.3, -8], scale: 1.25, tone: '#fff5f0' },
+  { position: [-20, 4.5, -3], scale: 1.18, tone: '#f0eaff' },
+  { position: [-19, 3.1, 11], scale: 1.45, tone: '#fff2f7' },
+  { position: [19, 3.0, 13], scale: 1.48, tone: '#f2eaff' },
+  { position: [-12, 2.8, 20], scale: 1.35, tone: '#fff5f5' },
+  { position: [12, 2.7, 21], scale: 1.42, tone: '#eeeaff' },
+  { position: [0, 10.5, 23], scale: 1.1, tone: '#fff6f1' },
+  { position: [-25, 7.0, 4], scale: 1.0, tone: '#fff3f0' },
+  { position: [25, 6.8, 5], scale: 1.12, tone: '#efe9ff' },
 ];
 
 const CLOUD_OFFSETS: Array<[number, number, number, number]> = [
@@ -60,11 +66,11 @@ const SkyDome: React.FC = () => (
       depthWrite={false}
       depthTest={false}
       uniforms={{
-        uTop: { value: new THREE.Color('#25204f') },
-        uUpper: { value: new THREE.Color('#55417f') },
-        uHorizon: { value: new THREE.Color('#bd83b0') },
-        uLower: { value: new THREE.Color('#7884c2') },
-        uBottom: { value: new THREE.Color('#344578') },
+        uTop: { value: new THREE.Color('#292052') },
+        uUpper: { value: new THREE.Color('#57417f') },
+        uHorizon: { value: new THREE.Color('#c77fae') },
+        uLower: { value: new THREE.Color('#7285c4') },
+        uBottom: { value: new THREE.Color('#313f78') },
       }}
       vertexShader={`
         varying vec3 vDirection;
@@ -82,14 +88,16 @@ const SkyDome: React.FC = () => (
         varying vec3 vDirection;
 
         void main() {
-          float h = clamp(vDirection.y * 0.5 + 0.5, 0.0, 1.0);
-          vec3 lowerBand = mix(uBottom, uLower, smoothstep(0.02, 0.45, h));
-          vec3 upperBand = mix(uHorizon, uUpper, smoothstep(0.48, 0.86, h));
-          vec3 sky = mix(lowerBand, upperBand, smoothstep(0.40, 0.62, h));
-          sky = mix(sky, uTop, smoothstep(0.78, 1.0, h));
+          float h = clamp(vDirection.y, -0.2, 0.8);
+          float horizon = smoothstep(-0.08, 0.27, h);
+          float upperSky = smoothstep(0.24, 0.67, h);
+          vec3 lowerBand = mix(uBottom, uLower, horizon);
+          vec3 upperBand = mix(uHorizon, uUpper, upperSky);
+          vec3 sky = mix(lowerBand, upperBand, smoothstep(0.16, 0.38, h));
+          sky = mix(sky, uTop, smoothstep(0.52, 0.78, h));
 
-          float horizonGlow = exp(-pow((h - 0.52) * 5.5, 2.0));
-          vec3 lavenderGlow = vec3(0.16, 0.10, 0.25) * horizonGlow;
+          float horizonGlow = exp(-pow((h - 0.16) * 4.2, 2.0));
+          vec3 lavenderGlow = vec3(0.13, 0.07, 0.18) * horizonGlow;
           gl_FragColor = vec4(sky + lavenderGlow, 1.0);
           #include <tonemapping_fragment>
           #include <colorspace_fragment>
