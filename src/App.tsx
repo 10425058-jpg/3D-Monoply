@@ -301,6 +301,12 @@ export const App: React.FC = () => {
             <Gift size={15} /><span>Events</span>
             {(!dailyClaimedToday || !wheelUsedToday || game.metaProgress.stickerPacks > 0) && <i className="event-notification-dot" />}
           </button>
+          <button className={`top-action speed-action ${game.gameSpeed === 2 ? 'is-active' : ''}`} onClick={() => game.setGameSpeed(game.gameSpeed === 1 ? 2 : 1)} title="Change game speed">
+            <span>{game.gameSpeed}x</span>
+          </button>
+          <button className={`top-action auto-roll-action ${autoRoll ? 'is-active' : ''}`} onClick={() => setAutoRoll((value) => !value)} title="Automatically roll on your turn">
+            <span>{autoRoll ? 'Auto ON' : 'Auto-roll'}</span>
+          </button>
           <button className="top-action" onClick={() => setShowRules(true)}>
             <ScrollText size={15} /><span>Rules</span>
           </button>
