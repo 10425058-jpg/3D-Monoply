@@ -34,7 +34,7 @@ export const Board3D: React.FC = () => {
       </mesh>
 
       {/* Chance and Community Chest decks sit on the upper corners of the board inset. */}
-      <group position={[-8.55, 0.31, -6.75]} rotation={[0, 0.18, 0]}>
+      <group position={[-8.55, 0.42, -6.75]} rotation={[0, 0.18, 0]}>
         <mesh castShadow receiveShadow>
           <boxGeometry args={[1.55, 0.22, 1.12]} />
           <meshStandardMaterial color="#a84b43" roughness={0.42} metalness={0.12} />
@@ -48,7 +48,7 @@ export const Board3D: React.FC = () => {
         </Text>
       </group>
 
-      <group position={[8.55, 0.31, -6.75]} rotation={[0, -0.18, 0]}>
+      <group position={[8.55, 0.42, -6.75]} rotation={[0, -0.18, 0]}>
         <mesh castShadow receiveShadow>
           <boxGeometry args={[1.55, 0.22, 1.12]} />
           <meshStandardMaterial color="#327a8e" roughness={0.42} metalness={0.12} />
