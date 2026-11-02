@@ -6,13 +6,19 @@ import {
   Camera,
   Clock3,
   Coins,
+  Gem,
+  Settings,
+  BarChart3,
+  BookOpen,
+  Users,
+  Gavel,
+  Dices,
   Crown,
   Home,
   Landmark,
   Gift,
   Star,
   PackageOpen,
-  BookOpen,
   RotateCcw,
   ScrollText,
   ShieldCheck,
@@ -416,25 +422,22 @@ export const App: React.FC = () => {
           </div>
         </div>
 
-        <nav className="top-actions" aria-label="Game controls">
-          <button className="top-action event-hub-button" onClick={() => setShowMetaHub(true)}>
-            <Gift size={15} /><span>Events</span>
-            {(!dailyClaimedToday || !wheelUsedToday || game.metaProgress.stickerPacks > 0) && <i className="event-notification-dot" />}
+        <nav className="top-actions" aria-label="Game status and settings">
+          <div className="currency-pill cash-pill">
+            <Wallet size={22} />
+            <strong>${money(activePlayer?.money ?? 0)}</strong>
+            <span className="currency-plus">+</span>
+          </div>
+          <div className="currency-pill gem-pill">
+            <Gem size={22} />
+            <strong>{game.metaProgress.stickerStars}</strong>
+            <span className="currency-plus">+</span>
+          </div>
+          <button className="top-action icon-only" onClick={switchCamera} title={game.cameraMode === 'top' ? 'Switch to isometric camera' : 'Switch to top camera'}>
+            <Camera size={20} />
           </button>
-          <button className={`top-action speed-action ${game.gameSpeed === 2 ? 'is-active' : ''}`} onClick={() => game.setGameSpeed(game.gameSpeed === 1 ? 2 : 1)} title="Change game speed">
-            <span>{game.gameSpeed}x</span>
-          </button>
-          <button className={`top-action auto-roll-action ${autoRoll ? 'is-active' : ''}`} onClick={() => setAutoRoll((value) => !value)} title="Automatically roll on your turn">
-            <span>{autoRoll ? 'Auto ON' : 'Auto-roll'}</span>
-          </button>
-          <button className="top-action" onClick={() => setShowRules(true)}>
-            <ScrollText size={15} /><span>Rules</span>
-          </button>
-          <button className="top-action" onClick={() => setShowSetup(true)}>
-            <RotateCcw size={15} /><span>New game</span>
-          </button>
-          <button className="top-action" onClick={switchCamera}>
-            <Camera size={15} /><span>{game.cameraMode === 'top' ? 'Isometric' : 'Top view'}</span>
+          <button className="top-action icon-only settings-action" onClick={() => setShowSetup(true)} title="Start a new game">
+            <Settings size={20} />
           </button>
         </nav>
       </header>
@@ -532,6 +535,23 @@ export const App: React.FC = () => {
         </aside>
       </div>
 
+      <nav className="right-rail" aria-label="Daily rewards and collections">
+        <button className="rail-button" onClick={() => { setMetaTab('daily'); setShowMetaHub(true); }}>
+          <span className="rail-icon daily-icon"><Gift size={24} /></span><strong>Daily</strong>
+          {(!dailyClaimedToday || !wheelUsedToday) && <i className="rail-alert" />}
+        </button>
+        <button className="rail-button" onClick={() => { setMetaTab('daily'); setShowMetaHub(true); handleWheelSpin(); }}>
+          <span className="rail-icon spin-icon"><Sparkles size={24} /></span><strong>Spin</strong>
+        </button>
+        <button className="rail-button" onClick={() => { setMetaTab('album'); setShowMetaHub(true); }}>
+          <span className="rail-icon album-icon"><BookOpen size={24} /></span><strong>Album</strong>
+        </button>
+        <button className="rail-button" onClick={() => { setMetaTab('missions'); setShowMetaHub(true); }}>
+          <span className="rail-icon missions-icon"><Trophy size={24} /></span><strong>Missions</strong>
+          {game.metaProgress.missionClaimed.length < DAILY_MISSIONS.length && <i className="rail-alert" />}
+        </button>
+      </nav>
+
       {selectedSpace && (
         <section className="property-inspector glass-panel">
           <button className="inspector-close" onClick={() => { game.selectSpace(null); game.setHoveredSpace(null); }} aria-label="Close property details">
@@ -575,6 +595,21 @@ export const App: React.FC = () => {
         </section>
       )}
 
+      <nav className="bottom-utilities" aria-label="Quick game actions">
+        <button className="utility-button" onClick={() => game.selectSpace(activePlayer?.position ?? null)}>
+          <BarChart3 size={23} /><span>Stats</span>
+        </button>
+        <button className="utility-button" onClick={() => setShowRules(true)}>
+          <BookOpen size={23} /><span>Rules</span>
+        </button>
+        <button className="utility-button" disabled={!activePlayer || activePlayer.isAI || (game.turnPhase !== 'PRE_ROLL' && game.turnPhase !== 'END_TURN')} onClick={openTrade}>
+          <Users size={23} /><span>Trade</span>
+        </button>
+        <button className="utility-button" disabled={game.turnPhase !== 'LANDED_ACTION' || !activePlayer || activePlayer.isAI || !BOARD_SPACES[activePlayer.position]?.price} onClick={game.auctionCurrentProperty}>
+          <Gavel size={23} /><span>Auction</span>
+        </button>
+      </nav>
+
       <footer className="bottom-console">
         <div className="console-player">
           <div className="console-avatar" style={{ '--player-accent': activePlayer?.color ?? '#d8b45a' } as React.CSSProperties}>
@@ -612,9 +647,7 @@ export const App: React.FC = () => {
                   Use jail card
                 </button>
               )}
-              <button className="console-button primary" disabled={activePlayer?.isAI} onClick={game.rollDice}>
-                <Sparkles size={16} /> Roll the dice <ArrowRight size={15} />
-              </button>
+
             </>
           )}
 
@@ -711,6 +744,12 @@ export const App: React.FC = () => {
           </button>
         </div>
       </footer>
+
+      {game.turnPhase === 'PRE_ROLL' && activePlayer && (
+        <button className="console-button primary roll-button" disabled={activePlayer.isAI} onClick={game.rollDice}>
+          <Dices size={32} /><span>ROLL</span>
+        </button>
+      )}
 
       {showTradeModal && activePlayer && !activePlayer.isAI && (
         <div className="modal-backdrop">

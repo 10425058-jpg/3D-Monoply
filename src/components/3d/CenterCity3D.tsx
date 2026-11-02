@@ -30,7 +30,7 @@ const StreetLamp: React.FC<{ position: [number, number, number]; scale?: number 
   <group position={position} scale={scale}>
     <mesh position={[0, 0.62, 0]} castShadow>
       <cylinderGeometry args={[0.035, 0.055, 1.24, 8]} />
-      <meshStandardMaterial color="#303b4b" metalness={0.82} roughness={0.25} />
+      <meshStandardMaterial color="#8877aa" metalness={0.82} roughness={0.25} />
     </mesh>
     <mesh position={[0, 1.27, 0]} castShadow>
       <cylinderGeometry args={[0.12, 0.075, 0.13, 10]} />
@@ -593,14 +593,14 @@ export const CenterCity3D: React.FC = () => {
   ];
 
   const buildings: BuildingProps[] = [
-    { position: [-3.55, 0.47, -1.55], size: [0.95, 3.65, 0.92], color: '#294b6c', floors: 8, accent: '#74d2f2', crown: 'spire' },
-    { position: [-2.25, 0.47, -2.5], size: [0.94, 4.6, 0.95], color: '#315e87', floors: 10, accent: '#f5ce86', crown: 'stepped' },
-    { position: [-0.15, 0.47, -2.2], size: [0.9, 3.7, 0.88], color: '#263e62', floors: 9, accent: '#8ac8fb', crown: 'flat' },
-    { position: [-3.65, 0.47, 0.05], size: [0.82, 2.75, 0.82], color: '#85614c', floors: 6, accent: '#ffd18c', crown: 'flat' },
-    { position: [-2.35, 0.47, 0.18], size: [1.02, 3.15, 0.92], color: '#53637a', floors: 7, accent: '#b9e7f4', crown: 'stepped' },
-    { position: [-0.95, 0.47, -0.72], size: [0.9, 2.95, 0.84], color: '#364f70', floors: 7, accent: '#ffd48b', crown: 'spire' },
-    { position: [0.35, 0.47, -1.0], size: [0.75, 2.45, 0.78], color: '#47566b', floors: 6, accent: '#8bd5e7', crown: 'flat' },
-    { position: [-1.65, 0.47, 1.45], size: [0.86, 2.2, 0.78], color: '#526175', floors: 5, accent: '#ffd08b', crown: 'flat' },
+    { position: [-3.55, 0.47, -1.55], size: [0.95, 3.65, 0.92], color: '#dfa0a7', floors: 8, accent: '#74d2f2', crown: 'spire' },
+    { position: [-2.25, 0.47, -2.5], size: [0.94, 4.6, 0.95], color: '#d78c99', floors: 10, accent: '#f5ce86', crown: 'stepped' },
+    { position: [-0.15, 0.47, -2.2], size: [0.9, 3.7, 0.88], color: '#a58fd0', floors: 9, accent: '#8ac8fb', crown: 'flat' },
+    { position: [-3.65, 0.47, 0.05], size: [0.82, 2.75, 0.82], color: '#d78f6d', floors: 6, accent: '#ffd18c', crown: 'flat' },
+    { position: [-2.35, 0.47, 0.18], size: [1.02, 3.15, 0.92], color: '#8fa6d2', floors: 7, accent: '#b9e7f4', crown: 'stepped' },
+    { position: [-0.95, 0.47, -0.72], size: [0.9, 2.95, 0.84], color: '#bd8bbd', floors: 7, accent: '#ffd48b', crown: 'spire' },
+    { position: [0.35, 0.47, -1.0], size: [0.75, 2.45, 0.78], color: '#8ba6bd', floors: 6, accent: '#8bd5e7', crown: 'flat' },
+    { position: [-1.65, 0.47, 1.45], size: [0.86, 2.2, 0.78], color: '#e4a16f', floors: 5, accent: '#ffd08b', crown: 'flat' },
   ];
 
   useFrame(({ clock }) => {
@@ -617,11 +617,11 @@ export const CenterCity3D: React.FC = () => {
       {/* Raised miniature-city plinth fills the unused cream center and frames the island. */}
       <mesh position={[0, 0.0, 0]} receiveShadow castShadow>
         <boxGeometry args={[19.2, 0.36, 19.2]} />
-        <meshStandardMaterial color="#26384a" roughness={0.62} metalness={0.18} />
+        <meshStandardMaterial color="#9b8bb7" roughness={0.62} metalness={0.18} />
       </mesh>
       <mesh position={[0, 0.19, 0]}>
         <boxGeometry args={[18.95, 0.035, 18.95]} />
-        <meshStandardMaterial color="#35495b" roughness={0.56} metalness={0.12} />
+        <meshStandardMaterial color="#c0acd2" roughness={0.56} metalness={0.12} />
       </mesh>
 
       {/* Four connected perimeter streets meet the inner edge of the property spaces. */}
@@ -629,13 +629,13 @@ export const CenterCity3D: React.FC = () => {
         {[-7.95, 7.95].map((z) => (
           <mesh key={`road-z-${z}`} position={[0, 0.25, z]} receiveShadow>
             <boxGeometry args={[16.25, 0.12, 0.72]} />
-            <meshStandardMaterial color="#263442" roughness={0.78} />
+            <meshStandardMaterial color="#a79dc5" roughness={0.78} />
           </mesh>
         ))}
         {[-7.95, 7.95].map((x) => (
           <mesh key={`road-x-${x}`} position={[x, 0.25, 0]} receiveShadow>
             <boxGeometry args={[0.72, 0.12, 16.25]} />
-            <meshStandardMaterial color="#263442" roughness={0.78} />
+            <meshStandardMaterial color="#a79dc5" roughness={0.78} />
           </mesh>
         ))}
         {Array.from({ length: 13 }).map((_, index) => {
@@ -673,11 +673,11 @@ export const CenterCity3D: React.FC = () => {
       {/* Deep teal lagoon with a layered island edge */}
       <mesh position={[0, 0.135, 0]} receiveShadow>
         <boxGeometry args={[16.15, 0.18, 16.15]} />
-        <meshPhysicalMaterial color="#123e52" roughness={0.27} metalness={0.45} clearcoat={1} clearcoatRoughness={0.16} />
+        <meshPhysicalMaterial color="#39b9df" roughness={0.27} metalness={0.45} clearcoat={1} clearcoatRoughness={0.16} />
       </mesh>
       <mesh position={[0, 0.23, 0]}>
         <boxGeometry args={[15.92, 0.025, 15.92]} />
-        <meshStandardMaterial color="#176077" roughness={0.34} metalness={0.34} />
+        <meshStandardMaterial color="#72d5ec" roughness={0.34} metalness={0.34} />
       </mesh>
 
       {/* Rebalance the city attractions over the full island instead of clustering them toward one corner. */}
@@ -685,11 +685,11 @@ export const CenterCity3D: React.FC = () => {
       {/* Downtown district raised plaza */}
       <mesh position={[-1.65, 0.23, -0.72]} receiveShadow castShadow>
         <boxGeometry args={[7.75, 0.38, 7.4]} />
-        <meshStandardMaterial color="#26384c" roughness={0.68} metalness={0.22} />
+        <meshStandardMaterial color="#a697c3" roughness={0.68} metalness={0.22} />
       </mesh>
       <mesh position={[-1.65, 0.435, -0.72]} receiveShadow>
         <boxGeometry args={[7.5, 0.045, 7.15]} />
-        <meshStandardMaterial color="#344a5d" roughness={0.75} />
+        <meshStandardMaterial color="#c9b7d8" roughness={0.75} />
       </mesh>
 
       {/* Road grid and lane markings */}

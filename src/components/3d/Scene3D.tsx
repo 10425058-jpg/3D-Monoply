@@ -84,17 +84,17 @@ export const Scene3D: React.FC = () => (
     >
       <mesh position={[0, -1.18, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <circleGeometry args={[27, 96]} />
-        <meshStandardMaterial color="#0b1321" roughness={0.98} metalness={0.02} />
+        <meshStandardMaterial color="#58b8eb" roughness={0.98} metalness={0.02} />
       </mesh>
-      <color attach="background" args={['#10182b']} />
-      <fog attach="fog" args={['#10182b', 34, 86]} />
+      <color attach="background" args={['#7768d2']} />
+      <fog attach="fog" args={['#7768d2', 42, 96]} />
 
-      <ambientLight intensity={0.52} />
-      <hemisphereLight args={['#b8d9f2', '#2a1d2d', 0.86]} />
+      <ambientLight intensity={0.92} />
+      <hemisphereLight args={['#fff0fa', '#63b9a0', 1.05]} />
       <directionalLight
         position={[-13, 24, 14]}
-        intensity={1.92}
-        color="#d7e7ff"
+        intensity={2.35}
+        color="#fff0d8"
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
@@ -105,11 +105,11 @@ export const Scene3D: React.FC = () => (
         shadow-camera-top={21}
         shadow-camera-bottom={-21}
       />
-      <directionalLight position={[10, 12, -12]} intensity={0.76} color="#f2b979" />
-      <pointLight position={[0, 9, 0]} intensity={0.82} color="#6b9edb" distance={30} decay={2} />
+      <directionalLight position={[10, 12, -12]} intensity={0.9} color="#ffb9c9" />
+      <pointLight position={[0, 9, 0]} intensity={0.55} color="#65d8ff" distance={30} decay={2} />
 
-      <Stars radius={90} depth={45} count={420} factor={2.2} saturation={0.1} fade speed={0} />
-      <Sparkles count={28} scale={[17, 4, 17]} size={1.25} speed={0.12} opacity={0.18} color="#86c9f1" />
+      
+      <Sparkles count={46} scale={[23, 8, 23]} size={2.1} speed={0.2} opacity={0.32} color="#fff3d7" />
 
       <CameraRig />
       <Board3D />
@@ -118,8 +118,8 @@ export const Scene3D: React.FC = () => (
       <Dice3D />
 
       <EffectComposer multisampling={0}>
-        <N8AO aoRadius={0.82} distanceFalloff={1.08} intensity={1.38} halfRes />
-        <Bloom luminanceThreshold={0.72} luminanceSmoothing={0.22} intensity={0.52} mipmapBlur />
+        <N8AO aoRadius={0.72} distanceFalloff={1.12} intensity={0.95} halfRes />
+        <Bloom luminanceThreshold={0.78} luminanceSmoothing={0.2} intensity={0.42} mipmapBlur />
       </EffectComposer>
     </Canvas>
   </div>

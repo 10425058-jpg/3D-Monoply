@@ -17,15 +17,15 @@ export const Board3D: React.FC = () => {
       {/* Dark walnut presentation table */}
       <mesh position={[0, -0.45, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[21.5, 21.5, 0.7, 96]} />
-        <meshStandardMaterial color="#352536" roughness={0.36} metalness={0.14} />
+        <meshStandardMaterial color="#a37a9f" roughness={0.36} metalness={0.14} />
       </mesh>
       <mesh position={[0, -0.86, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[20.9, 20.4, 0.5, 96]} />
-        <meshStandardMaterial color="#1c1723" roughness={0.48} />
+        <meshStandardMaterial color="#8278b1" roughness={0.48} />
       </mesh>
       <mesh position={[0, -1.12, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[19.8, 19.8, 0.045, 96]} />
-        <meshStandardMaterial color="#0c1322" roughness={0.86} />
+        <meshStandardMaterial color="#54b4dc" roughness={0.86} />
       </mesh>
       <mesh position={[0, -0.065, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry args={[20.45, 0.045, 8, 128]} />
@@ -68,15 +68,15 @@ export const Board3D: React.FC = () => {
       {/* Layered board chassis with a polished brass reveal */}
       <mesh position={[0, 0.005, 0]} receiveShadow castShadow>
         <boxGeometry args={[22.8, 0.42, 22.8]} />
-        <meshStandardMaterial color="#b58a47" metalness={0.8} roughness={0.28} />
+        <meshStandardMaterial color="#e6a36a" metalness={0.8} roughness={0.28} />
       </mesh>
       <mesh position={[0, 0.075, 0]} receiveShadow castShadow>
         <boxGeometry args={[22.62, 0.28, 22.62]} />
-        <meshStandardMaterial color="#142238" metalness={0.35} roughness={0.42} />
+        <meshStandardMaterial color="#796ac0" metalness={0.35} roughness={0.42} />
       </mesh>
       <mesh position={[0, 0.218, 0]} receiveShadow>
         <boxGeometry args={[22.48, 0.035, 22.48]} />
-        <meshStandardMaterial color="#d6c49d" roughness={0.68} />
+        <meshStandardMaterial color="#ffe0b8" roughness={0.68} />
       </mesh>
 
       {/* Render all 40 interactive perimeter spaces */}
@@ -107,11 +107,11 @@ export const Board3D: React.FC = () => {
             {/* Dark bevel and brass reveal make each space read as a separate crafted tile. */}
             <mesh position={[0, -0.055, 0]} castShadow>
               <RoundedBox args={[transform.width - 0.025, 0.12, transform.depth - 0.025]} radius={0.045} smoothness={3} />
-              <meshStandardMaterial color="#253249" metalness={0.46} roughness={0.25} />
+              <meshStandardMaterial color="#a995c7" metalness={0.46} roughness={0.25} />
             </mesh>
             <mesh position={[0, -0.006, 0]} castShadow>
               <RoundedBox args={[transform.width - 0.045, 0.105, transform.depth - 0.045]} radius={0.04} smoothness={3} />
-              <meshPhysicalMaterial color="#c5a365" metalness={0.84} roughness={0.22} clearcoat={1} />
+              <meshPhysicalMaterial color="#f0c36e" metalness={0.84} roughness={0.22} clearcoat={1} />
             </mesh>
 
             {/* Glossy porcelain top with a soft bevel and a warm enamel finish. */}
@@ -137,7 +137,7 @@ export const Board3D: React.FC = () => {
             >
               <RoundedBox args={[transform.width - 0.09, 0.09, transform.depth - 0.09]} radius={0.035} smoothness={4} />
               <meshPhysicalMaterial
-                color={isHovered ? '#fff0c9' : property?.isMortgaged ? '#aab2bd' : '#eee7d8'}
+                color={isHovered ? '#fff8e7' : property?.isMortgaged ? '#cbd5e1' : '#fff1e6'}
                 roughness={0.27}
                 metalness={0.06}
                 clearcoat={0.92}
