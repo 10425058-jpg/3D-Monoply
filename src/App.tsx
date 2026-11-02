@@ -415,7 +415,7 @@ export const App: React.FC = () => {
           {activePlayer && !activePlayer.isAI && (
             <button
               className="console-button landmark-upgrade-button"
-              disabled={activePlayer.landmarkLevel >= 5 || activePlayer.money < landmarkCost}
+              disabled={activePlayer.landmarkLevel >= 5 || activePlayer.money < landmarkCost || (game.turnPhase !== 'PRE_ROLL' && game.turnPhase !== 'END_TURN')}
               onClick={game.upgradeLandmark}
             >
               <Landmark size={14} />
