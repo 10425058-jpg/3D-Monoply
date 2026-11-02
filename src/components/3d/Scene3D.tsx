@@ -78,6 +78,10 @@ export const Scene3D: React.FC = () => (
       performance={{ min: 0.55, max: 1, debounce: 180 }}
       gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
     >
+      <mesh position={[0, -1.18, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <circleGeometry args={[27, 96]} />
+        <meshStandardMaterial color="#0b1321" roughness={0.98} metalness={0.02} />
+      </mesh>
       <color attach="background" args={['#10182b']} />
       <fog attach="fog" args={['#10182b', 34, 86]} />
 
@@ -90,6 +94,7 @@ export const Scene3D: React.FC = () => (
         castShadow
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
+        shadow-radius={4}
         shadow-camera-left={-21}
         shadow-camera-right={21}
         shadow-camera-top={21}
