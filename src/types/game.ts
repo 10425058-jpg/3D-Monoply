@@ -121,3 +121,26 @@ export interface TradeOffer {
   offerProperties: number[];
   requestProperties: number[];
 }
+
+
+export interface MetaProgress {
+  lastDailyClaimDate: string | null;
+  dailyStreak: number;
+  lastWheelSpinDate: string | null;
+  stickers: Record<string, number>;
+  stickerStars: number;
+  stickerPacks: number;
+  missionDate: string;
+  missionProgress: {
+    rolls: number;
+    purchases: number;
+    railroadEvents: number;
+  };
+  missionClaimed: string[];
+  albumBonusClaimed: boolean;
+}
+
+export interface StickerPackResult {
+  stickers: string[];
+  duplicateCount: number;
+}
