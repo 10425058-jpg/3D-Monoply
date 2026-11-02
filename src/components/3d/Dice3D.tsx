@@ -1,5 +1,6 @@
 import React, { useLayoutEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
+import { RoundedBox } from '@react-three/drei';
 import * as THREE from 'three';
 import { useGameStore } from '../../store/useGameStore';
 
@@ -31,9 +32,9 @@ const DICE_FACES: DiceFace[] = [
   { value: 4, normal: [-1, 0, 0], right: [0, 0, 1], up: [0, 1, 0] },
 ];
 
-const HALF_SIZE = 0.36;
-const PIP_SPACING = 0.17;
-const PIP_RADIUS = 0.052;
+const HALF_SIZE = 0.385;
+const PIP_SPACING = 0.18;
+const PIP_RADIUS = 0.058;
 const PIP_COUNT = 21;
 
 const PIP_POSITIONS: THREE.Vector3[] = DICE_FACES.flatMap((face) =>
@@ -51,9 +52,11 @@ const PIP_POSITIONS: THREE.Vector3[] = DICE_FACES.flatMap((face) =>
 
 const PIP_GEOMETRY = new THREE.SphereGeometry(1, 10, 10);
 const PIP_MATERIAL = new THREE.MeshStandardMaterial({
-  color: '#172033',
-  roughness: 0.32,
-  metalness: 0.08,
+  color: '#f6d88f',
+  emissive: '#76552a',
+  emissiveIntensity: 0.28,
+  roughness: 0.28,
+  metalness: 0.22,
 });
 
 const getTopFaceRotation = (value: number): THREE.Euler => {
@@ -123,23 +126,25 @@ const Die: React.FC<{
       return;
     }
 
-    die.position.y = THREE.MathUtils.damp(die.position.y, 0.72, 10, delta);
+    die.position.y = THREE.MathUtils.damp(die.position.y, 0.76, 10, delta);
     die.quaternion.slerp(targetQuaternion, 1 - Math.exp(-12 * delta));
   });
 
   return (
-    <group ref={dieRef} position={[index === 0 ? -0.65 : 0.65, 0.72, 0]}>
-      {/* Ivory body with a softly polished finish */}
-      <mesh castShadow receiveShadow>
-        <boxGeometry args={[0.72, 0.72, 0.72]} />
+    <group ref={dieRef} position={[index === 0 ? -0.86 : 0.86, 0.76, 0]}>
+      {/* Brass reveal frame and deep navy enamel body stay readable on the pale board. */}
+      <RoundedBox args={[0.84, 0.84, 0.84]} radius={0.095} smoothness={3} castShadow receiveShadow>
+        <meshStandardMaterial color="#c49b52" metalness={0.76} roughness={0.24} />
+      </RoundedBox>
+      <RoundedBox args={[0.77, 0.77, 0.77]} radius={0.075} smoothness={3} castShadow receiveShadow>
         <meshPhysicalMaterial
-          color="#f7f3e9"
-          roughness={0.24}
-          metalness={0.025}
-          clearcoat={0.82}
-          clearcoatRoughness={0.2}
+          color="#1b2e4c"
+          roughness={0.2}
+          metalness={0.18}
+          clearcoat={1}
+          clearcoatRoughness={0.14}
         />
-      </mesh>
+      </RoundedBox>
 
       {/* All 21 pips are instanced across the six faces. */}
       <instancedMesh
