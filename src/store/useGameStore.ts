@@ -985,13 +985,16 @@ export const useGameStore = create<GameStore>((set, get) => {
         ...auction,
         currentBid: nextBid,
         highestBidderId: bidder.id,
-        passedPlayerIds: [],
         currentBidderId: null,
       };
       const afterIndex = state.players.findIndex((candidate) => candidate.id === bidder.id);
       for (let offset = 1; offset <= state.players.length; offset += 1) {
         const candidate = state.players[(afterIndex + offset) % state.players.length];
-        if (candidate.isBankrupt || candidate.id === bidder.id) continue;
+        if (
+          candidate.isBankrupt ||
+          candidate.id === bidder.id ||
+          nextAuction.passedPlayerIds.includes(candidate.id)
+        ) continue;
         nextAuction.currentBidderId = candidate.id;
         break;
       }
