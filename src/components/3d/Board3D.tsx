@@ -37,7 +37,7 @@ export const Board3D: React.FC = () => {
       </mesh>
 
       {/* Compact card trays sit fully inside the lower blue inset, away from lane markings. */}
-      <group position={[8.45, 0.36, 6.55]} rotation={[0, -0.14, 0]}>
+      <group position={[6.7, 0.36, 6.88]} rotation={[0, -0.14, 0]}>
         <mesh castShadow receiveShadow>
           <boxGeometry args={[1.18, 0.18, 0.82]} />
           <meshStandardMaterial color="#a84b43" roughness={0.4} metalness={0.16} />
@@ -51,7 +51,7 @@ export const Board3D: React.FC = () => {
         </Text>
       </group>
 
-      <group position={[-8.45, 0.36, 6.55]} rotation={[0, 0.14, 0]}>
+      <group position={[-6.7, 0.36, 6.88]} rotation={[0, 0.14, 0]}>
         <mesh castShadow receiveShadow>
           <boxGeometry args={[1.18, 0.18, 0.82]} />
           <meshStandardMaterial color="#327a8e" roughness={0.4} metalness={0.16} />
