@@ -57,7 +57,7 @@ export const Board3D: React.FC = () => {
           <boxGeometry args={[1.43, 0.035, 1.0]} />
           <meshStandardMaterial color="#f1e6ce" roughness={0.62} />
         </mesh>
-        <Text position={[0, 0.15, 0]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.16} maxWidth={1.3} textAlign="center" color="#1c596d" anchorX="center" anchorY="middle" fontWeight="bold">
+        <Text position={[0, 0.15, 0]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.13} maxWidth={1.3} textAlign="center" color="#1c596d" anchorX="center" anchorY="middle" fontWeight="bold">
           COMMUNITY
           {'\n'}
           CHEST
@@ -90,9 +90,9 @@ export const Board3D: React.FC = () => {
         const flipLabel = (space.id >= 20 && space.id <= 29) || space.id >= 30;
         const labelRotation: [number, number, number] = [-Math.PI / 2, 0, flipLabel ? Math.PI : 0];
         const labelText = space.id === 20
-          ? 'FREE\\nPARKING'
+          ? 'FREE PARKING'
           : space.id === 30
-            ? 'GO TO\\nJAIL'
+            ? 'GO TO JAIL'
             : space.shortName;
 
         return (
