@@ -69,7 +69,7 @@ const TokenMesh: React.FC<{ token: TokenType; color: string }> = ({ token, color
         <group>
           <mesh position={[0, 0.14, 0]} castShadow>
             <boxGeometry args={[0.36, 0.16, 0.62]} />
-            <meshStandardMaterial color={color} metalness={0.72} roughness={0.18} clearcoat={0.95} clearcoatRoughness={0.12} />
+            <meshPhysicalMaterial color={color} metalness={0.72} roughness={0.18} clearcoat={0.95} clearcoatRoughness={0.12} />
           </mesh>
           <mesh position={[0, 0.26, -0.05]} castShadow>
             <boxGeometry args={[0.28, 0.14, 0.28]} />
@@ -82,7 +82,7 @@ const TokenMesh: React.FC<{ token: TokenType; color: string }> = ({ token, color
         <group>
           <mesh position={[0, 0.18, 0]} castShadow>
             <boxGeometry args={[0.24, 0.24, 0.45]} />
-            <meshStandardMaterial color={color} metalness={0.62} roughness={0.2} clearcoat={0.9} clearcoatRoughness={0.14} />
+            <meshPhysicalMaterial color={color} metalness={0.62} roughness={0.2} clearcoat={0.9} clearcoatRoughness={0.14} />
           </mesh>
           <mesh position={[0, 0.34, 0.16]} castShadow>
             <boxGeometry args={[0.22, 0.22, 0.22]} />
@@ -96,7 +96,7 @@ const TokenMesh: React.FC<{ token: TokenType; color: string }> = ({ token, color
         <group>
           <mesh position={[0, 0.12, 0]} castShadow>
             <boxGeometry args={[0.32, 0.16, 0.56]} />
-            <meshStandardMaterial color={color} metalness={0.68} roughness={0.16} clearcoat={1} clearcoatRoughness={0.1} />
+            <meshPhysicalMaterial color={color} metalness={0.68} roughness={0.16} clearcoat={1} clearcoatRoughness={0.1} />
           </mesh>
           <mesh position={[0, 0.34, 0]} castShadow>
             <coneGeometry args={[0.22, 0.38, 4]} />
