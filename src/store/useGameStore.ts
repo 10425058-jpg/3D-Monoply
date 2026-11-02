@@ -5,6 +5,7 @@ import {
   ColorGroup,
   DeckCard,
   LogEntry,
+  MetaProgress,
   Player,
   PropertyState,
   RailroadRaid,
@@ -14,6 +15,7 @@ import {
 } from '../types/game';
 import { BOARD_SPACES, COLOR_GROUP_TOTALS } from '../data/boardData';
 import { CHANCE_CARDS, COMMUNITY_CHEST_CARDS } from '../data/cardsData';
+import { DAILY_MISSIONS, DAILY_REWARD_CYCLE, LUCKY_WHEEL_REWARDS, STICKER_COLLECTION, type MissionId, type MissionStat, type WheelReward } from '../data/metaGameData';
 import confetti from 'canvas-confetti';
 
 interface PlayerSetupConfig {
@@ -38,6 +40,8 @@ interface GameStore {
   logs: LogEntry[];
   pendingDebt: { amount: number; creditorId: number | null; reason: string } | null;
   railroadRaid: RailroadRaid | null;
+  metaProgress: MetaProgress;
+  lastWheelReward: WheelReward | null;
   winner: Player | null;
   isRulebookOpen: boolean;
   isTradeModalOpen: boolean;
@@ -58,6 +62,12 @@ interface GameStore {
   resolveBankHeist: (vaultIndex: number) => void;
   shutdownLandmark: (targetPlayerId: number) => void;
   skipRailroadRaid: () => void;
+  claimDailyReward: () => boolean;
+  spinLuckyWheel: () => void;
+  claimMissionReward: (missionId: MissionId) => void;
+  openStickerPack: () => { stickers: string[]; duplicateCount: number } | null;
+  redeemStickerStars: () => void;
+  claimStickerAlbumReward: () => void;
   payJailBail: () => void;
   useJailCard: () => void;
   buyCurrentProperty: () => void;
@@ -78,6 +88,67 @@ interface GameStore {
   landmarkUpgradeCost: (playerId: number) => number;
   ownsFullGroup: (playerId: number, group: ColorGroup) => boolean;
 }
+
+const getLocalDateKey = (date = new Date()): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const getYesterdayKey = (): string => {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  return getLocalDateKey(yesterday);
+};
+
+const createDefaultMetaProgress = (): MetaProgress => ({
+  lastDailyClaimDate: null,
+  dailyStreak: 0,
+  lastWheelSpinDate: null,
+  stickers: {},
+  stickerStars: 0,
+  stickerPacks: 0,
+  missionDate: getLocalDateKey(),
+  missionProgress: { rolls: 0, purchases: 0, railroadEvents: 0 },
+  missionClaimed: [],
+  albumBonusClaimed: false,
+});
+
+const loadMetaProgress = (): MetaProgress => {
+  const fallback = createDefaultMetaProgress();
+  if (typeof window === 'undefined') return fallback;
+  try {
+    const saved = window.localStorage.getItem('monopoly3d-meta-progress-v1');
+    if (!saved) return fallback;
+    const parsed = JSON.parse(saved) as Partial<MetaProgress>;
+    const today = getLocalDateKey();
+    const missionIsToday = parsed.missionDate === today;
+    return {
+      ...fallback,
+      ...parsed,
+      stickers: parsed.stickers ?? {},
+      missionDate: today,
+      missionProgress: missionIsToday && parsed.missionProgress
+        ? parsed.missionProgress
+        : { rolls: 0, purchases: 0, railroadEvents: 0 },
+      missionClaimed: missionIsToday && Array.isArray(parsed.missionClaimed)
+        ? parsed.missionClaimed
+        : [],
+    };
+  } catch {
+    return fallback;
+  }
+};
+
+const saveMetaProgress = (progress: MetaProgress) => {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem('monopoly3d-meta-progress-v1', JSON.stringify(progress));
+  } catch {
+    // The game remains playable when browser storage is unavailable or full.
+  }
+};
 
 function shuffleDeck<T>(items: T[]): T[] {
   const copy = [...items];
@@ -119,6 +190,43 @@ export const useGameStore = create<GameStore>((set, get) => {
       type,
     };
     set((state) => ({ logs: [entry, ...state.logs.slice(0, 79)] }));
+  };
+
+  const progressMission = (stat: MissionStat, amount = 1) => {
+    const state = get();
+    const today = getLocalDateKey();
+    const baseProgress = state.metaProgress.missionDate === today
+      ? state.metaProgress.missionProgress
+      : { rolls: 0, purchases: 0, railroadEvents: 0 };
+    const metaProgress: MetaProgress = {
+      ...state.metaProgress,
+      missionDate: today,
+      missionProgress: { ...baseProgress, [stat]: baseProgress[stat] + amount },
+      missionClaimed: state.metaProgress.missionDate === today ? state.metaProgress.missionClaimed : [],
+    };
+    saveMetaProgress(metaProgress);
+    set({ metaProgress });
+  };
+
+  const rewardStickerPack = (progress: MetaProgress): { metaProgress: MetaProgress; stickers: string[]; duplicateCount: number } => {
+    const stickers: string[] = [];
+    let duplicateCount = 0;
+    let stickerStars = progress.stickerStars;
+    const owned = { ...progress.stickers };
+    for (let index = 0; index < 3; index += 1) {
+      const roll = Math.random();
+      const rarity = roll < 0.62 ? 'Common' : roll < 0.9 ? 'Rare' : 'Epic';
+      const pool = STICKER_COLLECTION.filter((sticker) => sticker.rarity === rarity);
+      const sticker = pool[Math.floor(Math.random() * pool.length)];
+      stickers.push(sticker.id);
+      if ((owned[sticker.id] ?? 0) > 0) {
+        duplicateCount += 1;
+        stickerStars += sticker.rarity === 'Epic' ? 5 : sticker.rarity === 'Rare' ? 2 : 1;
+      } else {
+        owned[sticker.id] = 1;
+      }
+    }
+    return { metaProgress: { ...progress, stickers: owned, stickerStars }, stickers, duplicateCount };
   };
 
   const openRailroadRaid = (attackerId: number) => {
@@ -309,6 +417,8 @@ export const useGameStore = create<GameStore>((set, get) => {
     ],
     pendingDebt: null,
     railroadRaid: null,
+    metaProgress: loadMetaProgress(),
+    lastWheelReward: null,
     winner: null,
     isRulebookOpen: false,
     isTradeModalOpen: false,
@@ -445,6 +555,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       const player = state.players[state.currentPlayerIndex];
 
       set({ dice: [d1, d2], turnPhase: 'ROLLING' });
+      if (!player.isAI) progressMission('rolls');
 
       setTimeout(() => {
         const currentState = get();
@@ -568,6 +679,7 @@ export const useGameStore = create<GameStore>((set, get) => {
         railroadRaid: null,
       }));
       addLog(`${attacker.name} cracked vault ${vaultIndex + 1} and stole ${reward} from the bank!`, 'money');
+      if (!attacker.isAI) progressMission('railroadEvents');
     },
 
     shutdownLandmark: (targetPlayerId) => {
@@ -587,6 +699,7 @@ export const useGameStore = create<GameStore>((set, get) => {
           railroadRaid: null,
         }));
         addLog(`${attacker.name} shut down ${target.name}'s landmark! Its level dropped by one.`, 'alert');
+        if (!attacker.isAI) progressMission('railroadEvents');
       } else {
         const stolen = Math.min(100, target.money);
         set((current) => ({
@@ -598,6 +711,7 @@ export const useGameStore = create<GameStore>((set, get) => {
           railroadRaid: null,
         }));
         addLog(`${attacker.name} raided ${target.name}'s empty landmark site and stole ${stolen}.`, 'alert');
+        if (!attacker.isAI) progressMission('railroadEvents');
       }
     },
 
@@ -605,6 +719,125 @@ export const useGameStore = create<GameStore>((set, get) => {
       if (!get().railroadRaid) return;
       set({ railroadRaid: null });
     },
+    claimDailyReward: () => {
+      const state = get();
+      const player = state.players.find((candidate) => !candidate.isAI && !candidate.isBankrupt);
+      if (!player) return false;
+      const today = getLocalDateKey();
+      if (state.metaProgress.lastDailyClaimDate === today) return false;
+
+      const streak = state.metaProgress.lastDailyClaimDate === getYesterdayKey()
+        ? state.metaProgress.dailyStreak + 1
+        : 1;
+      const rewardDay = ((streak - 1) % DAILY_REWARD_CYCLE.length) + 1;
+      const reward = DAILY_REWARD_CYCLE[rewardDay - 1];
+      const metaProgress = {
+        ...state.metaProgress,
+        lastDailyClaimDate: today,
+        dailyStreak: streak,
+        stickerPacks: state.metaProgress.stickerPacks + reward.packs,
+      };
+      saveMetaProgress(metaProgress);
+      set((current) => ({
+        players: current.players.map((candidate) => candidate.id === player.id
+          ? { ...candidate, money: candidate.money + reward.cash }
+          : candidate),
+        metaProgress,
+      }));
+      addLog(`Daily reward claimed: ${reward.cash}${reward.packs ? ' and 1 Sticker Pack' : ''} (Day ${rewardDay}).`, 'money');
+      return true;
+    },
+
+    spinLuckyWheel: () => {
+      const state = get();
+      const player = state.players.find((candidate) => !candidate.isAI && !candidate.isBankrupt);
+      if (!player) return;
+      const today = getLocalDateKey();
+      if (state.metaProgress.lastWheelSpinDate === today) return;
+      const reward = LUCKY_WHEEL_REWARDS[Math.floor(Math.random() * LUCKY_WHEEL_REWARDS.length)];
+      const metaProgress = {
+        ...state.metaProgress,
+        lastWheelSpinDate: today,
+        stickerPacks: state.metaProgress.stickerPacks + (reward.kind === 'pack' ? reward.amount : 0),
+      };
+      saveMetaProgress(metaProgress);
+      set((current) => ({
+        players: current.players.map((candidate) => candidate.id === player.id && reward.kind === 'cash'
+          ? { ...candidate, money: candidate.money + reward.amount }
+          : candidate),
+        metaProgress,
+        lastWheelReward: reward,
+      }));
+      addLog(`Lucky Wheel reward: ${reward.label}!`, reward.kind === 'cash' ? 'money' : 'card');
+    },
+
+    claimMissionReward: (missionId) => {
+      const state = get();
+      const mission = DAILY_MISSIONS.find((candidate) => candidate.id === missionId);
+      const player = state.players.find((candidate) => !candidate.isAI && !candidate.isBankrupt);
+      const today = getLocalDateKey();
+      if (!mission || !player || state.metaProgress.missionDate !== today) return;
+      if (state.metaProgress.missionClaimed.includes(missionId)) return;
+      if (state.metaProgress.missionProgress[mission.stat] < mission.target) return;
+
+      const metaProgress = {
+        ...state.metaProgress,
+        stickerPacks: state.metaProgress.stickerPacks + mission.packReward,
+        missionClaimed: [...state.metaProgress.missionClaimed, missionId],
+      };
+      saveMetaProgress(metaProgress);
+      set((current) => ({
+        players: current.players.map((candidate) => candidate.id === player.id
+          ? { ...candidate, money: candidate.money + mission.cashReward }
+          : candidate),
+        metaProgress,
+      }));
+      addLog(`Mission completed: ${mission.title}. Collected ${mission.cashReward}.`, 'money');
+    },
+
+    openStickerPack: () => {
+      const state = get();
+      if (state.metaProgress.stickerPacks <= 0) return null;
+      const opened = rewardStickerPack({
+        ...state.metaProgress,
+        stickerPacks: state.metaProgress.stickerPacks - 1,
+      });
+      saveMetaProgress(opened.metaProgress);
+      set({ metaProgress: opened.metaProgress });
+      addLog(`Sticker Pack opened: ${opened.stickers.length} stickers revealed, ${opened.duplicateCount} duplicates converted to stars.`, 'card');
+      return { stickers: opened.stickers, duplicateCount: opened.duplicateCount };
+    },
+
+    redeemStickerStars: () => {
+      const state = get();
+      if (state.metaProgress.stickerStars < 10) return;
+      const metaProgress = {
+        ...state.metaProgress,
+        stickerStars: state.metaProgress.stickerStars - 10,
+        stickerPacks: state.metaProgress.stickerPacks + 1,
+      };
+      saveMetaProgress(metaProgress);
+      set({ metaProgress });
+      addLog('Exchanged 10 sticker stars for a Sticker Pack.', 'card');
+    },
+
+    claimStickerAlbumReward: () => {
+      const state = get();
+      const player = state.players.find((candidate) => !candidate.isAI && !candidate.isBankrupt);
+      if (!player || state.metaProgress.albumBonusClaimed) return;
+      const complete = STICKER_COLLECTION.every((sticker) => (state.metaProgress.stickers[sticker.id] ?? 0) > 0);
+      if (!complete) return;
+      const metaProgress = { ...state.metaProgress, albumBonusClaimed: true };
+      saveMetaProgress(metaProgress);
+      set((current) => ({
+        players: current.players.map((candidate) => candidate.id === player.id
+          ? { ...candidate, money: candidate.money + 2500 }
+          : candidate),
+        metaProgress,
+      }));
+      addLog('Sticker Album completed! Collected the $2,500 grand album reward.', 'money');
+    },
+
     payJailBail: () => {
       const state = get();
       const player = state.players[state.currentPlayerIndex];
@@ -664,6 +897,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       });
 
       addLog(`${player.name} purchased ${space.name} for ${space.price}!`, 'property');
+      if (!player.isAI) progressMission('purchases');
       if (space.type === 'railroad') openRailroadRaid(player.id);
     },
 
