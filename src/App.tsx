@@ -6,7 +6,7 @@ import {
   Clock3,
   Coins,
   Crown,
-  House,
+  Home,
   Landmark,
   RotateCcw,
   ScrollText,
@@ -286,7 +286,7 @@ export const App: React.FC = () => {
                 className="mini-action mini-action-gold"
                 disabled={!game.canBuildHouse(activePlayer.id, selectedSpace.id)}
                 onClick={() => game.buildHouse(selectedSpace.id)}
-              ><House size={13} /> Build</button>
+              ><Home size={13} /> Build</button>
               <button
                 className="mini-action"
                 disabled={!game.canSellHouse(activePlayer.id, selectedSpace.id)}
