@@ -1506,3 +1506,16 @@
   .mission-claim { min-width: 62px; }
   .album-footer { align-items: flex-start; flex-direction: column; }
 }
+
+.lucky-wheel.is-spinning {
+  animation: lucky-wheel-spin 1.35s cubic-bezier(.12,.68,.16,1) both;
+}
+@keyframes lucky-wheel-spin {
+  0% { transform: rotate(0deg); }
+  72% { transform: rotate(1260deg); }
+  88% { transform: rotate(1375deg); }
+  100% { transform: rotate(1440deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lucky-wheel.is-spinning { animation-duration: .01ms; }
+}
