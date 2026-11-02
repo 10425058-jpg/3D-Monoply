@@ -107,6 +107,7 @@ export const TokensAndBuildings: React.FC = () => {
               tokenRefs.current[player.id] = el;
             }}
             position={[9.5, 0.22, 9.5]}
+            scale={getSpaceTransform(player.position).isCorner ? 1.16 : 1}
           >
             <TokenMesh token={player.token} color={player.color} />
             {/* Coloured Player Ring Indicator */}
