@@ -7,6 +7,7 @@ import {
   LogEntry,
   Player,
   PropertyState,
+  RailroadRaid,
   TokenType,
   TradeOffer,
   TurnPhase,
@@ -36,6 +37,7 @@ interface GameStore {
   cameraMode: CameraMode;
   logs: LogEntry[];
   pendingDebt: { amount: number; creditorId: number | null; reason: string } | null;
+  railroadRaid: RailroadRaid | null;
   winner: Player | null;
   isRulebookOpen: boolean;
   isTradeModalOpen: boolean;
@@ -51,6 +53,11 @@ interface GameStore {
 
   // Core Gameplay Actions
   rollDice: () => void;
+  upgradeLandmark: () => void;
+  startBankHeist: () => void;
+  resolveBankHeist: (vaultIndex: number) => void;
+  shutdownLandmark: (targetPlayerId: number) => void;
+  skipRailroadRaid: () => void;
   payJailBail: () => void;
   useJailCard: () => void;
   buyCurrentProperty: () => void;
@@ -68,6 +75,7 @@ interface GameStore {
   canBuildHouse: (playerId: number, spaceId: number) => boolean;
   canSellHouse: (playerId: number, spaceId: number) => boolean;
   calculateRent: (spaceId: number, diceTotal: number) => number;
+  landmarkUpgradeCost: (playerId: number) => number;
   ownsFullGroup: (playerId: number, group: ColorGroup) => boolean;
 }
 
@@ -113,6 +121,12 @@ export const useGameStore = create<GameStore>((set, get) => {
     set((state) => ({ logs: [entry, ...state.logs.slice(0, 79)] }));
   };
 
+  const openRailroadRaid = (attackerId: number) => {
+    const vaultRewards = shuffleDeck([150, 300, 550]) as [number, number, number];
+    set({ railroadRaid: { attackerId, mode: 'choose', vaultRewards } });
+    addLog('Railroad bonus unlocked: choose a Bank Heist or shut down a rival landmark.', 'card');
+  };
+
   const stepMovePlayer = (playerIndex: number, totalSteps: number, onComplete: () => void) => {
     let remaining = Math.abs(totalSteps);
     const direction = totalSteps >= 0 ? 1 : -1;
@@ -131,8 +145,9 @@ export const useGameStore = create<GameStore>((set, get) => {
 
         // Collect $200 when passing or landing on GO moving forward
         if (direction > 0 && nextPos === 0) {
-          player.money += 200;
-          addLog(`${player.name} passed GO and collected $200!`, 'money');
+          const goReward = 200 + player.landmarkLevel * 50;
+          player.money += goReward;
+          addLog(`${player.name} passed GO and collected ${goReward} (including landmark income)!`, 'money');
         }
         updated[playerIndex] = player;
         return { players: updated };
@@ -222,12 +237,14 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     if (propState.ownerId === player.id) {
       set({ turnPhase: 'END_TURN' });
+      if (space.type === 'railroad') openRailroadRaid(player.id);
       return;
     }
 
     if (propState.isMortgaged) {
       addLog(`${space.name} is mortgaged—no rent due.`, 'info');
       set({ turnPhase: 'END_TURN' });
+      if (space.type === 'railroad') openRailroadRaid(player.id);
       return;
     }
 
@@ -245,7 +262,8 @@ export const useGameStore = create<GameStore>((set, get) => {
         });
         return { players, turnPhase: 'END_TURN' };
       });
-      addLog(`${player.name} paid $${rent} rent to ${owner.name} for ${space.name}.`, 'money');
+      addLog(`${player.name} paid ${rent} rent to ${owner.name} for ${space.name}.`, 'money');
+      if (space.type === 'railroad') openRailroadRaid(player.id);
     } else {
       addLog(`${player.name} owes $${rent} rent to ${owner.name} and must raise funds!`, 'alert');
       set({
@@ -268,6 +286,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       jailTurns: 0,
       getOutOfJailCards: 0,
       isBankrupt: false,
+      landmarkLevel: 0,
     })),
     properties: createInitialProperties(),
     currentPlayerIndex: 0,
@@ -288,6 +307,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       },
     ],
     pendingDebt: null,
+    railroadRaid: null,
     winner: null,
     isRulebookOpen: false,
     isTradeModalOpen: false,
@@ -306,6 +326,7 @@ export const useGameStore = create<GameStore>((set, get) => {
         jailTurns: 0,
         getOutOfJailCards: 0,
         isBankrupt: false,
+        landmarkLevel: 0,
       }));
       set({
         players: newPlayers,
@@ -319,6 +340,7 @@ export const useGameStore = create<GameStore>((set, get) => {
         activeCard: null,
         selectedSpaceId: null,
         pendingDebt: null,
+        railroadRaid: null,
         winner: null,
         isSetupModalOpen: false,
         logs: [
@@ -498,6 +520,89 @@ export const useGameStore = create<GameStore>((set, get) => {
       }, 650);
     },
 
+    landmarkUpgradeCost: (playerId) => {
+      const player = get().players.find((candidate) => candidate.id === playerId);
+      if (!player || player.landmarkLevel >= 5) return Infinity;
+      return 400 + player.landmarkLevel * 350;
+    },
+
+    upgradeLandmark: () => {
+      const state = get();
+      const player = state.players[state.currentPlayerIndex];
+      if (!player || player.isAI || player.isBankrupt || player.landmarkLevel >= 5) return;
+      const cost = get().landmarkUpgradeCost(player.id);
+      if (player.money < cost) return;
+      set((current) => ({
+        players: current.players.map((candidate) =>
+          candidate.id === player.id
+            ? { ...candidate, money: candidate.money - cost, landmarkLevel: candidate.landmarkLevel + 1 }
+            : candidate
+        ),
+      }));
+      addLog(`${player.name} upgraded their city landmark to level ${player.landmarkLevel + 1} for ${cost}.`, 'property');
+    },
+
+    startBankHeist: () => {
+      const raid = get().railroadRaid;
+      if (!raid || raid.mode !== 'choose') return;
+      set({ railroadRaid: { ...raid, mode: 'heist' } });
+      addLog('Bank Heist started! Pick one of three vaults.', 'card');
+    },
+
+    resolveBankHeist: (vaultIndex) => {
+      const state = get();
+      const raid = state.railroadRaid;
+      if (!raid || raid.mode !== 'heist' || vaultIndex < 0 || vaultIndex > 2) return;
+      const reward = raid.vaultRewards[vaultIndex];
+      const attacker = state.players.find((player) => player.id === raid.attackerId);
+      if (!attacker || attacker.isBankrupt) {
+        set({ railroadRaid: null });
+        return;
+      }
+      set((current) => ({
+        players: current.players.map((player) =>
+          player.id === attacker.id ? { ...player, money: player.money + reward } : player
+        ),
+        railroadRaid: null,
+      }));
+      addLog(`${attacker.name} cracked vault ${vaultIndex + 1} and stole ${reward} from the bank!`, 'money');
+    },
+
+    shutdownLandmark: (targetPlayerId) => {
+      const state = get();
+      const raid = state.railroadRaid;
+      if (!raid || raid.mode !== 'choose' || raid.attackerId === targetPlayerId) return;
+      const attacker = state.players.find((player) => player.id === raid.attackerId);
+      const target = state.players.find((player) => player.id === targetPlayerId);
+      if (!attacker || !target || attacker.isBankrupt || target.isBankrupt) return;
+      if (target.landmarkLevel > 0) {
+        set((current) => ({
+          players: current.players.map((player) => {
+            if (player.id === target.id) return { ...player, landmarkLevel: Math.max(0, player.landmarkLevel - 1) };
+            if (player.id === attacker.id) return { ...player, money: player.money + 100 };
+            return player;
+          }),
+          railroadRaid: null,
+        }));
+        addLog(`${attacker.name} shut down ${target.name}'s landmark! Its level dropped by one.`, 'alert');
+      } else {
+        const stolen = Math.min(100, target.money);
+        set((current) => ({
+          players: current.players.map((player) => {
+            if (player.id === target.id) return { ...player, money: player.money - stolen };
+            if (player.id === attacker.id) return { ...player, money: player.money + stolen };
+            return player;
+          }),
+          railroadRaid: null,
+        }));
+        addLog(`${attacker.name} raided ${target.name}'s empty landmark site and stole ${stolen}.`, 'alert');
+      }
+    },
+
+    skipRailroadRaid: () => {
+      if (!get().railroadRaid) return;
+      set({ railroadRaid: null });
+    },
     payJailBail: () => {
       const state = get();
       const player = state.players[state.currentPlayerIndex];
@@ -556,7 +661,8 @@ export const useGameStore = create<GameStore>((set, get) => {
         return { players, properties, turnPhase: 'END_TURN' };
       });
 
-      addLog(`${player.name} purchased ${space.name} for $${space.price}!`, 'property');
+      addLog(`${player.name} purchased ${space.name} for ${space.price}!`, 'property');
+      if (space.type === 'railroad') openRailroadRaid(player.id);
     },
 
     declineProperty: () => {
@@ -566,6 +672,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       const space = BOARD_SPACES[player.position];
       addLog(`${player.name} passed on buying ${space.name}.`, 'info');
       set({ turnPhase: 'END_TURN' });
+      if (space.type === 'railroad') openRailroadRaid(player.id);
     },
 
     applyActiveCard: () => {
@@ -924,7 +1031,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       set((s) => {
         const players = s.players.map((p) => {
           if (p.id === player.id) {
-            return { ...p, money: 0, isBankrupt: true };
+            return { ...p, money: 0, isBankrupt: true, landmarkLevel: 0 };
           }
           if (creditorId !== null && p.id === creditorId) {
             return { ...p, money: p.money + Math.max(0, player.money) };
