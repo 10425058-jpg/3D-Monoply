@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Sparkles, Stars } from '@react-three/drei';
+import { OrbitControls, Sparkles } from '@react-three/drei';
 import { Bloom, EffectComposer, N8AO } from '@react-three/postprocessing';
 import * as THREE from 'three';
 
@@ -26,7 +26,7 @@ const CameraRig: React.FC = () => {
     const controls = controlsRef.current;
 
     if (cameraMode === 'top') {
-      cameraTarget.current.set(0, 27, 0.01);
+      cameraTarget.current.set(0, 28, 0.01);
       lookTarget.current.set(0, 0, 0);
       camera.position.lerp(cameraTarget.current, 1 - Math.exp(-3 * delta));
       controls.target.lerp(lookTarget.current, 1 - Math.exp(-4 * delta));
@@ -62,9 +62,9 @@ const CameraRig: React.FC = () => {
       enableRotate
       enableDamping
       dampingFactor={0.08}
-      maxPolarAngle={Math.PI / 2.05}
-      minDistance={10}
-      maxDistance={60}
+      maxPolarAngle={Math.PI / 2.16}
+      minDistance={15}
+      maxDistance={42}
     />
   );
 };
@@ -72,7 +72,7 @@ const CameraRig: React.FC = () => {
 export const Scene3D: React.FC = () => (
   <div className="relative h-full w-full">
     <Canvas
-      camera={{ position: [0, 24, 24], fov: 43, near: 0.1, far: 1000 }}
+      camera={{ position: [0, 23.5, 26.5], fov: 38, near: 0.1, far: 1000 }}
       shadows
       dpr={[1, 1.35]}
       onCreated={({ gl }) => {
@@ -82,18 +82,18 @@ export const Scene3D: React.FC = () => (
       performance={{ min: 0.55, max: 1, debounce: 180 }}
       gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
     >
-      <mesh position={[0, -1.18, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <circleGeometry args={[27, 96]} />
-        <meshStandardMaterial color="#58b8eb" roughness={0.98} metalness={0.02} />
+      <mesh position={[0, -1.56, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[180, 180]} />
+        <meshPhysicalMaterial color="#39b6e7" roughness={0.32} metalness={0.12} clearcoat={0.7} />
       </mesh>
       <color attach="background" args={['#7768d2']} />
-      <fog attach="fog" args={['#7768d2', 42, 96]} />
+      <fog attach="fog" args={['#7768d2', 58, 125]} />
 
-      <ambientLight intensity={0.92} />
+      <ambientLight intensity={1.05} />
       <hemisphereLight args={['#fff0fa', '#63b9a0', 1.05]} />
       <directionalLight
         position={[-13, 24, 14]}
-        intensity={2.35}
+        intensity={2.5}
         color="#fff0d8"
         castShadow
         shadow-mapSize-width={2048}
@@ -109,7 +109,7 @@ export const Scene3D: React.FC = () => (
       <pointLight position={[0, 9, 0]} intensity={0.55} color="#65d8ff" distance={30} decay={2} />
 
       
-      <Sparkles count={46} scale={[23, 8, 23]} size={2.1} speed={0.2} opacity={0.32} color="#fff3d7" />
+      <Sparkles count={58} scale={[27, 10, 27]} size={2.0} speed={0.22} opacity={0.34} color="#fff3d7" />
 
       <CameraRig />
       <Board3D />
@@ -118,7 +118,7 @@ export const Scene3D: React.FC = () => (
       <Dice3D />
 
       <EffectComposer multisampling={0}>
-        <N8AO aoRadius={0.72} distanceFalloff={1.12} intensity={0.95} halfRes />
+        <N8AO aoRadius={0.68} distanceFalloff={1.1} intensity={0.78} halfRes />
         <Bloom luminanceThreshold={0.78} luminanceSmoothing={0.2} intensity={0.42} mipmapBlur />
       </EffectComposer>
     </Canvas>

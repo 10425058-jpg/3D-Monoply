@@ -1,909 +1,420 @@
-import React, { useMemo, useRef } from 'react';
-import { Text } from '@react-three/drei';
+import React, { useRef } from 'react';
+import { RoundedBox } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useGameStore } from '../../store/useGameStore';
 
-type TreeProps = {
-  position: [number, number, number];
-  scale?: number;
-  canopy?: string;
-};
+type Pos = [number, number, number];
+const GOLD = '#ffd36c';
+const CREAM = '#fff0d8';
 
-const Tree: React.FC<TreeProps> = ({ position, scale = 1, canopy = '#267b54' }) => (
-  <group position={position} scale={scale}>
-    <mesh position={[0, 0.34, 0]}>
-      <cylinderGeometry args={[0.07, 0.12, 0.68, 7]} />
-      <meshStandardMaterial color="#65432f" roughness={0.92} />
-    </mesh>
-    <mesh position={[0, 0.82, 0]}>
-      <dodecahedronGeometry args={[0.52, 0]} />
-      <meshStandardMaterial color={canopy} roughness={0.86} />
+const Island: React.FC<{position: Pos; size: [number, number, number]; top?: string; cliff?: string; rotation?: number}> = ({
+  position, size, top = '#9fe15c', cliff = '#8272bd', rotation = 0,
+}) => (
+  <group position={position} rotation={[0, rotation, 0]}>
+    <RoundedBox args={size} radius={0.26} smoothness={5} castShadow receiveShadow>
+      <meshStandardMaterial color={cliff} roughness={0.72} />
+    </RoundedBox>
+    <RoundedBox
+      args={[size[0] - 0.12, 0.2, size[2] - 0.12]}
+      radius={0.22}
+      smoothness={5}
+      position={[0, size[1] * 0.48 + 0.08, 0]}
+      castShadow
+      receiveShadow
+    >
+      <meshStandardMaterial color={top} roughness={0.88} />
+    </RoundedBox>
+    <mesh position={[0, size[1] * 0.48 + 0.19, 0]}>
+      <boxGeometry args={[size[0] - 0.48, 0.018, 0.035]} />
+      <meshBasicMaterial color="#c8f17c" />
     </mesh>
   </group>
 );
 
-const StreetLamp: React.FC<{ position: [number, number, number]; scale?: number }> = ({
-  position,
-  scale = 1,
+const Tree: React.FC<{position: Pos; scale?: number; tone?: string}> = ({
+  position, scale = 1, tone = '#65b94c',
 }) => (
   <group position={position} scale={scale}>
-    <mesh position={[0, 0.62, 0]} castShadow>
-      <cylinderGeometry args={[0.035, 0.055, 1.24, 8]} />
-      <meshStandardMaterial color="#8877aa" metalness={0.82} roughness={0.25} />
+    <mesh position={[0, 0.32, 0]} castShadow>
+      <cylinderGeometry args={[0.075, 0.13, 0.64, 9]} />
+      <meshStandardMaterial color="#996044" roughness={0.9} />
     </mesh>
-    <mesh position={[0, 1.27, 0]} castShadow>
-      <cylinderGeometry args={[0.12, 0.075, 0.13, 10]} />
-      <meshStandardMaterial color="#b88a42" metalness={0.75} roughness={0.28} />
+    <mesh position={[0, 0.83, 0]} castShadow>
+      <dodecahedronGeometry args={[0.48, 1]} />
+      <meshStandardMaterial color={tone} roughness={0.82} />
     </mesh>
-    <mesh position={[0, 1.39, 0]} castShadow>
-      <sphereGeometry args={[0.105, 12, 12]} />
-      <meshStandardMaterial
-        color="#ffe6a0"
-        emissive="#ffbd55"
-        emissiveIntensity={1.8}
-        roughness={0.22}
-      />
+    <mesh position={[0.22, 1.0, 0.08]} scale={0.56}>
+      <icosahedronGeometry args={[0.4, 1]} />
+      <meshStandardMaterial color="#c1ed73" roughness={0.78} />
     </mesh>
   </group>
 );
 
-type BuildingProps = {
-  position: [number, number, number];
-  size: [number, number, number];
-  color: string;
-  floors: number;
-  accent?: string;
-  crown?: 'flat' | 'spire' | 'stepped';
+const House: React.FC<{position: Pos; roof?: string; wall?: string; scale?: number; awning?: boolean}> = ({
+  position, roof = '#f17c61', wall = '#ffe4bd', scale = 1, awning = false,
+}) => (
+  <group position={position} scale={scale}>
+    <RoundedBox args={[1.0, 0.86, 0.86]} radius={0.12} smoothness={4} position={[0, 0.48, 0]} castShadow receiveShadow>
+      <meshStandardMaterial color={wall} roughness={0.72} />
+    </RoundedBox>
+    <mesh position={[0, 1.08, 0]} rotation={[0, Math.PI / 4, 0]} castShadow>
+      <coneGeometry args={[0.82, 0.76, 4]} />
+      <meshStandardMaterial color={roof} roughness={0.56} />
+    </mesh>
+    <mesh position={[0, 0.34, 0.438]}>
+      <boxGeometry args={[0.25, 0.54, 0.035]} />
+      <meshStandardMaterial color="#a65d4e" roughness={0.65} />
+    </mesh>
+    <mesh position={[-0.27, 0.57, 0.45]}>
+      <boxGeometry args={[0.2, 0.2, 0.035]} />
+      <meshPhysicalMaterial color="#75d8ed" roughness={0.18} metalness={0.18} clearcoat={1} />
+    </mesh>
+    <mesh position={[0.27, 0.57, 0.45]}>
+      <boxGeometry args={[0.2, 0.2, 0.035]} />
+      <meshPhysicalMaterial color="#75d8ed" roughness={0.18} metalness={0.18} clearcoat={1} />
+    </mesh>
+    {awning && (
+      <group position={[0, 0.86, 0.56]}>
+        <mesh rotation={[-0.17, 0, 0]}>
+          <boxGeometry args={[1.18, 0.12, 0.66]} />
+          <meshStandardMaterial color={roof} roughness={0.6} />
+        </mesh>
+        {[-0.36, -0.12, 0.12, 0.36].map((x, i) => (
+          <mesh key={i} position={[x, 0.012, 0.01]} rotation={[-0.17, 0, 0]}>
+            <boxGeometry args={[0.12, 0.125, 0.67]} />
+            <meshStandardMaterial color={i % 2 ? '#fff4e6' : roof} roughness={0.58} />
+          </mesh>
+        ))}
+      </group>
+    )}
+    <mesh position={[0, 1.47, 0]}>
+      <sphereGeometry args={[0.07, 10, 10]} />
+      <meshStandardMaterial color={GOLD} metalness={0.35} roughness={0.25} />
+    </mesh>
+  </group>
+);
+
+const Crystal: React.FC<{position: Pos}> = ({ position }) => {
+  const ref = useRef<THREE.Group>(null);
+  useFrame(({ clock }) => {
+    if (!ref.current) return;
+    ref.current.rotation.y = clock.elapsedTime * 0.7;
+    ref.current.position.y = position[1] + Math.sin(clock.elapsedTime * 1.7) * 0.12;
+  });
+  return (
+    <group ref={ref} position={position}>
+      <mesh castShadow>
+        <octahedronGeometry args={[0.43, 0]} />
+        <meshPhysicalMaterial color="#60e8ff" emissive="#22cfff" emissiveIntensity={1.2} metalness={0.1} roughness={0.12} transmission={0.12} thickness={0.5} />
+      </mesh>
+      <mesh position={[0, 0.48, 0]}>
+        <octahedronGeometry args={[0.22, 0]} />
+        <meshPhysicalMaterial color="#b2f8ff" emissive="#4ee8ff" emissiveIntensity={1.3} roughness={0.12} />
+      </mesh>
+      <pointLight color="#52eaff" intensity={1.2} distance={5} />
+    </group>
+  );
 };
 
-const Building: React.FC<BuildingProps> = ({
-  position,
-  size,
-  color,
-  floors,
-  accent = '#67c8f2',
-  crown = 'flat',
-}) => {
-  const [width, height, depth] = size;
-  const windowHeight = Math.min(0.16, height / (floors * 3.4));
-  const windowWidth = Math.min(0.15, width / 5.4);
-  const floorGap = height / (floors + 0.25);
+const Castle: React.FC = () => (
+  <group position={[-0.9, 1.61, -2.28]}>
+    <RoundedBox args={[2.65, 2.25, 2.35]} radius={0.16} smoothness={5} position={[0, 1.18, 0]} castShadow receiveShadow>
+      <meshStandardMaterial color="#f8d6b8" roughness={0.66} />
+    </RoundedBox>
+    <mesh position={[0, 1.1, 1.19]}>
+      <boxGeometry args={[0.55, 1.55, 0.06]} />
+      <meshStandardMaterial color="#b95f58" roughness={0.64} />
+    </mesh>
+    <mesh position={[0, 0.53, 1.24]}>
+      <boxGeometry args={[0.54, 0.88, 0.08]} />
+      <meshStandardMaterial color="#985249" roughness={0.7} />
+    </mesh>
+    {[[-1.02, 2.12, -0.88], [1.02, 2.12, -0.88], [-1.02, 2.12, 0.88], [1.02, 2.12, 0.88]].map((p, i) => (
+      <group key={i} position={p as Pos}>
+        <mesh position={[0, 0.45, 0]} castShadow>
+          <cylinderGeometry args={[0.36, 0.42, 1.5, 8]} />
+          <meshStandardMaterial color={i % 2 ? '#f6cba5' : '#f5d9bd'} roughness={0.68} />
+        </mesh>
+        <mesh position={[0, 1.35, 0]} castShadow>
+          <coneGeometry args={[0.53, 0.75, 4]} />
+          <meshStandardMaterial color={i % 2 ? '#ee8066' : '#8b82d2'} roughness={0.5} />
+        </mesh>
+        <mesh position={[0, 1.84, 0]}>
+          <sphereGeometry args={[0.09, 10, 10]} />
+          <meshStandardMaterial color={GOLD} metalness={0.6} roughness={0.2} />
+        </mesh>
+      </group>
+    ))}
+    <mesh position={[0, 2.58, 0]}>
+      <boxGeometry args={[1.55, 0.32, 1.4]} />
+      <meshStandardMaterial color="#f7d3b3" roughness={0.6} />
+    </mesh>
+    <mesh position={[0, 2.82, 0]}>
+      <coneGeometry args={[0.82, 0.92, 4]} />
+      <meshStandardMaterial color="#ed8068" roughness={0.52} />
+    </mesh>
+    <mesh position={[0, 3.35, 0]}>
+      <cylinderGeometry args={[0.12, 0.12, 0.55, 8]} />
+      <meshStandardMaterial color={GOLD} metalness={0.75} roughness={0.2} />
+    </mesh>
+    <Crystal position={[0, 3.82, 0]} />
+    <mesh position={[0, 2.2, 1.2]}>
+      <boxGeometry args={[0.16, 0.78, 0.035]} />
+      <meshStandardMaterial color="#ffc65f" emissive="#ffc65f" emissiveIntensity={0.15} />
+    </mesh>
+  </group>
+);
 
-  // Merge every lit window into one geometry per building to reduce draw calls.
-  const windowGeometry = useMemo(() => {
-    const positions: number[] = [];
-    const addQuad = (
-      a: [number, number, number],
-      b: [number, number, number],
-      c: [number, number, number],
-      d: [number, number, number]
-    ) => {
-      positions.push(...a, ...b, ...c, ...a, ...c, ...d);
-    };
-
-    for (let floor = 0; floor < floors; floor += 1) {
-      const y = 0.3 + floor * floorGap;
-      for (let column = 0; column < 3; column += 1) {
-        const x = -width / 2 + ((column + 1) * width) / 4;
-        const z = -depth / 2 + ((column + 1) * depth) / 4;
-        const halfW = windowWidth / 2;
-        const halfH = windowHeight / 2;
-        const front = depth / 2 + 0.012;
-        const back = -depth / 2 - 0.012;
-        const right = width / 2 + 0.012;
-        const left = -width / 2 - 0.012;
-
-        addQuad(
-          [x - halfW, y - halfH, front],
-          [x + halfW, y - halfH, front],
-          [x + halfW, y + halfH, front],
-          [x - halfW, y + halfH, front]
-        );
-        addQuad(
-          [x - halfW, y - halfH, back],
-          [x + halfW, y - halfH, back],
-          [x + halfW, y + halfH, back],
-          [x - halfW, y + halfH, back]
-        );
-        addQuad(
-          [right, y - halfH, z - halfW],
-          [right, y - halfH, z + halfW],
-          [right, y + halfH, z + halfW],
-          [right, y + halfH, z - halfW]
-        );
-        addQuad(
-          [left, y - halfH, z - halfW],
-          [left, y - halfH, z + halfW],
-          [left, y + halfH, z + halfW],
-          [left, y + halfH, z - halfW]
-        );
-      }
+const Fountain: React.FC = () => {
+  const waterRef = useRef<THREE.Mesh>(null);
+  useFrame(({ clock }) => {
+    if (waterRef.current) {
+      waterRef.current.position.y = 0.66 + Math.sin(clock.elapsedTime * 2.2) * 0.08;
+      waterRef.current.scale.y = 0.85 + Math.sin(clock.elapsedTime * 2.2) * 0.18;
     }
-
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-    geometry.computeVertexNormals();
-    return geometry;
-  }, [depth, floors, floorGap, height, width, windowHeight, windowWidth]);
-
-  React.useEffect(() => () => windowGeometry.dispose(), [windowGeometry]);
-
+  });
   return (
-    <group position={position}>
-      <mesh position={[0, height / 2, 0]} castShadow receiveShadow>
-        <boxGeometry args={[width, height, depth]} />
-        <meshPhysicalMaterial
-          color={color}
-          metalness={0.55}
-          roughness={0.28}
-          clearcoat={0.8}
-          clearcoatRoughness={0.18}
-        />
+    <group position={[0.7, 0.72, 0.95]}>
+      <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[1.48, 40]} />
+        <meshPhysicalMaterial color="#34c9ed" metalness={0.22} roughness={0.14} clearcoat={1} />
       </mesh>
-      <mesh geometry={windowGeometry}>
-        <meshStandardMaterial
-          color={accent}
-          emissive={accent}
-          emissiveIntensity={0.92}
-          roughness={0.42}
-          side={THREE.DoubleSide}
-        />
+      <mesh position={[0, 0.14, 0]}>
+        <cylinderGeometry args={[1.48, 1.55, 0.23, 40]} />
+        <meshStandardMaterial color="#e9d4df" roughness={0.42} />
       </mesh>
-
-      {/* Architectural detailing: raised stone plinth, brass corner pilasters and a lit entrance. */}
-      <mesh position={[0, 0.105, 0]} castShadow receiveShadow>
-        <boxGeometry args={[width + 0.16, 0.15, depth + 0.16]} />
-        <meshStandardMaterial color="#263449" metalness={0.48} roughness={0.3} />
+      <mesh position={[0, 0.29, 0]}>
+        <torusGeometry args={[1.32, 0.11, 10, 40]} />
+        <meshStandardMaterial color="#83d8f0" metalness={0.3} roughness={0.2} />
       </mesh>
-      {[-1, 1].map((xSide) => [-1, 1].map((zSide) => (
-        <mesh
-          key={`corner-${xSide}-${zSide}`}
-          position={[xSide * (width / 2 + 0.018), height / 2 + 0.12, zSide * (depth / 2 + 0.018)]}
-          castShadow
-        >
-          <boxGeometry args={[0.055, Math.max(0.25, height - 0.12), 0.055]} />
-          <meshStandardMaterial color="#b9975d" metalness={0.82} roughness={0.22} />
-        </mesh>
-      )))}
-      <mesh position={[0, 0.31, depth / 2 + 0.025]} castShadow>
-        <boxGeometry args={[0.25, 0.42, 0.035]} />
-        <meshPhysicalMaterial color="#17283c" metalness={0.42} roughness={0.2} clearcoat={1} />
+      <mesh position={[0, 0.46, 0]}>
+        <cylinderGeometry args={[0.48, 0.62, 0.3, 24]} />
+        <meshStandardMaterial color="#fff0d8" roughness={0.48} />
       </mesh>
-      <mesh position={[0, 0.31, depth / 2 + 0.047]}>
-        <boxGeometry args={[0.13, 0.25, 0.012]} />
-        <meshStandardMaterial color="#e5c77e" metalness={0.75} roughness={0.2} emissive="#b58b45" emissiveIntensity={0.2} />
+      <mesh position={[0, 0.66, 0]}>
+        <torusGeometry args={[0.47, 0.08, 8, 24]} />
+        <meshStandardMaterial color={GOLD} metalness={0.55} roughness={0.22} />
       </mesh>
-      <mesh position={[0, height + 0.035, 0]} castShadow>
-        <boxGeometry args={[width + 0.12, 0.09, depth + 0.12]} />
-        <meshStandardMaterial color="#9eafc2" metalness={0.72} roughness={0.23} />
+      <mesh ref={waterRef} position={[0, 0.66, 0]}>
+        <cylinderGeometry args={[0.09, 0.16, 0.76, 12]} />
+        <meshStandardMaterial color="#87f4ff" emissive="#46dfff" emissiveIntensity={0.75} transparent opacity={0.82} />
       </mesh>
-      {crown === 'stepped' && (
-        <>
-          <mesh position={[0, height + 0.24, 0]} castShadow>
-            <boxGeometry args={[width * 0.72, 0.34, depth * 0.72]} />
-            <meshStandardMaterial color={color} metalness={0.6} roughness={0.26} />
-          </mesh>
-          <mesh position={[0, height + 0.43, 0]}>
-            <boxGeometry args={[width * 0.48, 0.06, depth * 0.48]} />
-            <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={0.5} />
-          </mesh>
-        </>
-      )}
-      {crown === 'spire' && (
-        <>
-          <mesh position={[0, height + 0.36, 0]} castShadow>
-            <cylinderGeometry args={[0.12, 0.23, 0.62, 8]} />
-            <meshStandardMaterial color="#aabbd0" metalness={0.8} roughness={0.2} />
-          </mesh>
-          <mesh position={[0, height + 0.88, 0]}>
-            <cylinderGeometry args={[0.012, 0.035, 0.48, 8]} />
-            <meshStandardMaterial color="#e8a36c" emissive="#e46d54" emissiveIntensity={0.55} />
-          </mesh>
-        </>
-      )}
+      <pointLight position={[0, 1.0, 0]} color="#69eaff" intensity={0.65} distance={4} />
     </group>
   );
 };
 
-type LandmarkTowerProps = {
-  position: [number, number, number];
-  color: string;
-  level: number;
-};
+const Bridge: React.FC<{position: Pos; rotation?: number; length?: number}> = ({
+  position, rotation = 0, length = 2.5,
+}) => (
+  <group position={position} rotation={[0, rotation, 0]}>
+    <RoundedBox args={[length, 0.22, 0.72]} radius={0.12} smoothness={4} position={[0, 0.12, 0]} castShadow>
+      <meshStandardMaterial color="#d99562" roughness={0.68} />
+    </RoundedBox>
+    {[-1, 1].map((side) => (
+      <React.Fragment key={side}>
+        <mesh position={[0, 0.46, side * 0.32]}>
+          <boxGeometry args={[length - 0.12, 0.08, 0.09]} />
+          <meshStandardMaterial color="#f7c58c" roughness={0.55} />
+        </mesh>
+        {[-0.42, 0.42].map((x) => (
+          <mesh key={x} position={[x * (length / 2.1), 0.29, side * 0.32]}>
+            <cylinderGeometry args={[0.045, 0.055, 0.35, 8]} />
+            <meshStandardMaterial color="#b66b4f" roughness={0.72} />
+          </mesh>
+        ))}
+      </React.Fragment>
+    ))}
+  </group>
+);
 
-const LandmarkTower: React.FC<LandmarkTowerProps> = ({ position, color, level }) => (
+const Cloud: React.FC<{position: Pos; scale?: number}> = ({ position, scale = 1 }) => (
+  <group position={position} scale={scale}>
+    {[
+      [-0.45, 0, 0, 0.52], [0, 0.17, 0, 0.68], [0.48, 0.02, 0.04, 0.48], [0.18, -0.13, 0.22, 0.42],
+    ].map(([x, y, z, r], i) => (
+      <mesh key={i} position={[x, y, z]} castShadow>
+        <sphereGeometry args={[r, 16, 14]} />
+        <meshStandardMaterial color="#fff5f1" roughness={0.96} />
+      </mesh>
+    ))}
+  </group>
+);
+
+const LandmarkTower: React.FC<{position: Pos; color: string; level: number}> = ({ position, color, level }) => (
   <group position={position}>
-    <mesh position={[0, 0.12, 0]} receiveShadow>
-      <boxGeometry args={[1.18, 0.22, 1.18]} />
-      <meshStandardMaterial color="#26384d" metalness={0.58} roughness={0.32} />
+    {Array.from({ length: level }).map((_, index) => (
+      <group key={index} position={[0, index * 0.62, 0]}>
+        <mesh position={[0, 0.32, 0]} castShadow>
+          <boxGeometry args={[0.72 + index * 0.12, 0.62, 0.72 + index * 0.12]} />
+          <meshStandardMaterial color={color} roughness={0.38} metalness={0.16} />
+        </mesh>
+        <mesh position={[0, 0.66, 0]}>
+          <coneGeometry args={[0.56 + index * 0.08, 0.42, 4]} />
+          <meshStandardMaterial color="#ffe0a0" roughness={0.5} />
+        </mesh>
+      </group>
+    ))}
+  </group>
+);
+
+const CannonFort: React.FC<{position: Pos}> = ({ position }) => (
+  <group position={position} rotation={[0, -0.35, 0]}>
+    <mesh position={[0, 0.22, 0]} castShadow>
+      <cylinderGeometry args={[0.76, 0.92, 0.42, 12]} />
+      <meshStandardMaterial color="#d9c4dc" roughness={0.74} />
     </mesh>
-    {Array.from({ length: level }).map((_, index) => {
-      const width = 0.72 + index * 0.07;
-      const y = 0.25 + index * 0.58;
-      return (
-        <group key={index} position={[0, y, 0]}>
-          <mesh position={[0, 0.27, 0]} castShadow>
-            <boxGeometry args={[width, 0.5, width]} />
-            <meshPhysicalMaterial
-              color={color}
-              metalness={0.56}
-              roughness={0.28}
-              clearcoat={0.72}
-              emissive={color}
-              emissiveIntensity={0.08}
-            />
-          </mesh>
-          <mesh position={[0, 0.54, 0]}>
-            <boxGeometry args={[width + 0.12, 0.07, width + 0.12]} />
-            <meshStandardMaterial color="#d5b36d" metalness={0.78} roughness={0.22} />
-          </mesh>
-          <mesh position={[0, 0.27, width / 2 + 0.012]}>
-            <boxGeometry args={[width * 0.48, 0.18, 0.025]} />
-            <meshStandardMaterial color="#d8edff" emissive="#8ccdf5" emissiveIntensity={0.48} />
-          </mesh>
-          <mesh position={[width / 2 + 0.012, 0.27, 0]}>
-            <boxGeometry args={[0.025, 0.18, width * 0.48]} />
-            <meshStandardMaterial color="#d8edff" emissive="#8ccdf5" emissiveIntensity={0.38} />
-          </mesh>
-        </group>
-      );
-    })}
-    <mesh position={[0, 0.28 + level * 0.58, 0]}>
-      <cylinderGeometry args={[0.06, 0.12, 0.42, 8]} />
-      <meshStandardMaterial color="#e5c67d" metalness={0.82} roughness={0.2} emissive="#f0b84e" emissiveIntensity={0.35} />
+    <mesh position={[0, 0.64, 0]} castShadow>
+      <cylinderGeometry args={[0.55, 0.62, 0.48, 12]} />
+      <meshStandardMaterial color="#edb29c" roughness={0.62} />
     </mesh>
-    <mesh position={[0, 0.5 + level * 0.58, 0]}>
-      <sphereGeometry args={[0.085, 10, 10]} />
-      <meshStandardMaterial color="#fff0ad" emissive="#ffbf52" emissiveIntensity={1.15} />
+    <mesh position={[0, 1.05, 0.14]} rotation={[Math.PI / 2.5, 0, 0]} castShadow>
+      <cylinderGeometry args={[0.22, 0.31, 1.15, 16]} />
+      <meshStandardMaterial color="#8373a8" metalness={0.42} roughness={0.28} />
+    </mesh>
+    <mesh position={[0, 0.62, 0.34]}>
+      <boxGeometry args={[0.18, 0.45, 0.07]} />
+      <meshStandardMaterial color="#e65f5d" />
     </mesh>
   </group>
 );
 
-const ObservationTower: React.FC = () => (
-  <group position={[-1.15, 0.48, -2.3]}>
-    <mesh position={[0, 2.2, 0]} castShadow>
-      <cylinderGeometry args={[0.12, 0.34, 4.4, 16]} />
-      <meshStandardMaterial color="#b7c5d9" metalness={0.72} roughness={0.22} />
+const MarketStall: React.FC<{position: Pos; color: string}> = ({ position, color }) => (
+  <group position={position}>
+    <mesh position={[0, 0.38, 0]} castShadow>
+      <boxGeometry args={[0.82, 0.68, 0.7]} />
+      <meshStandardMaterial color="#cf906a" roughness={0.68} />
     </mesh>
-    <mesh position={[0, 3.75, 0]} castShadow>
-      <cylinderGeometry args={[0.38, 0.2, 0.55, 16]} />
-      <meshStandardMaterial color="#263f64" metalness={0.8} roughness={0.18} />
+    <mesh position={[0, 0.82, 0]}>
+      <boxGeometry args={[1.08, 0.12, 0.92]} />
+      <meshStandardMaterial color={color} roughness={0.54} />
     </mesh>
-    <mesh position={[0, 4.1, 0]} castShadow>
-      <cylinderGeometry args={[1.05, 0.78, 0.34, 32]} />
-      <meshPhysicalMaterial color="#1b4671" metalness={0.8} roughness={0.18} clearcoat={1} />
-    </mesh>
-    <mesh position={[0, 4.31, 0]} castShadow>
-      <torusGeometry args={[0.91, 0.045, 10, 48]} />
-      <meshStandardMaterial color="#67d7f3" emissive="#178cc4" emissiveIntensity={0.75} metalness={0.65} />
-    </mesh>
-    <mesh position={[0, 4.55, 0]} castShadow>
-      <cylinderGeometry args={[0.65, 0.9, 0.18, 32]} />
-      <meshStandardMaterial color="#d9e5f1" metalness={0.75} roughness={0.2} />
-    </mesh>
-    <mesh position={[0, 5.3, 0]} castShadow>
-      <cylinderGeometry args={[0.025, 0.055, 1.35, 8]} />
-      <meshStandardMaterial color="#eb685c" emissive="#b9363d" emissiveIntensity={0.45} />
-    </mesh>
-    <mesh position={[0, 5.99, 0]}>
-      <sphereGeometry args={[0.075, 12, 12]} />
-      <meshStandardMaterial color="#ffcb76" emissive="#ff9e4a" emissiveIntensity={1.4} />
-    </mesh>
-    <pointLight position={[0, 4.1, 0]} color="#3fbbe8" intensity={1.4} distance={5} />
+    {[-0.3, 0, 0.3].map((x, i) => (
+      <mesh key={i} position={[x, 0.83, 0.01]}>
+        <boxGeometry args={[0.12, 0.125, 0.93]} />
+        <meshStandardMaterial color={i % 2 ? CREAM : color} roughness={0.54} />
+      </mesh>
+    ))}
   </group>
 );
-
-const FerrisWheel: React.FC = () => {
-  const wheelRef = useRef<THREE.Group>(null);
-
-  useFrame(({ clock }) => {
-    if (wheelRef.current) wheelRef.current.rotation.z = clock.getElapsedTime() * 0.19;
-  });
-
-  const gondolas = Array.from({ length: 10 }).map((_, i) => {
-    const angle = (i / 10) * Math.PI * 2;
-    return {
-      key: i,
-      position: [Math.cos(angle) * 1.34, Math.sin(angle) * 1.34, 0] as [number, number, number],
-      color: ['#f7b84f', '#e66d78', '#54b9e7', '#8dcf92', '#d7a7ef'][i % 5],
-    };
-  });
-
-  return (
-    <group position={[-4.45, 0.45, 2.0]}>
-      <mesh position={[-0.78, 1.12, 0]} rotation={[0, 0, 0.28]}>
-        <cylinderGeometry args={[0.07, 0.12, 2.3, 8]} />
-        <meshStandardMaterial color="#a9bacd" metalness={0.8} roughness={0.24} />
-      </mesh>
-      <mesh position={[0.78, 1.12, 0]} rotation={[0, 0, -0.28]}>
-        <cylinderGeometry args={[0.07, 0.12, 2.3, 8]} />
-        <meshStandardMaterial color="#a9bacd" metalness={0.8} roughness={0.24} />
-      </mesh>
-      <group ref={wheelRef} position={[0, 2.02, 0]}>
-        <mesh>
-          <torusGeometry args={[1.35, 0.055, 10, 48]} />
-          <meshStandardMaterial color="#ef7b8e" metalness={0.55} roughness={0.25} emissive="#a82c64" emissiveIntensity={0.85} />
-        </mesh>
-        <mesh>
-          <torusGeometry args={[1.18, 0.022, 8, 48]} />
-          <meshStandardMaterial color="#f8d38a" metalness={0.72} roughness={0.2} />
-        </mesh>
-        {Array.from({ length: 10 }).map((_, i) => {
-          const angle = (i / 10) * Math.PI * 2;
-          return (
-            <mesh key={i} rotation={[0, 0, angle - Math.PI / 2]}>
-              <cylinderGeometry args={[0.025, 0.025, 2.7, 7]} />
-              <meshStandardMaterial color="#f3c16e" metalness={0.65} roughness={0.25} />
-            </mesh>
-          );
-        })}
-        {gondolas.map((gondola) => (
-          <group key={gondola.key} position={gondola.position}>
-            <mesh position={[0, -0.1, 0]}>
-              <boxGeometry args={[0.28, 0.22, 0.22]} />
-              <meshStandardMaterial color={gondola.color} metalness={0.32} roughness={0.28} />
-            </mesh>
-            <mesh position={[0, 0.04, 0]}>
-              <boxGeometry args={[0.3, 0.06, 0.24]} />
-              <meshStandardMaterial color="#e8edf4" metalness={0.55} roughness={0.2} />
-            </mesh>
-          </group>
-        ))}
-        <mesh>
-          <cylinderGeometry args={[0.18, 0.18, 0.22, 16]} />
-          <meshStandardMaterial color="#f7d27b" metalness={0.8} roughness={0.2} />
-        </mesh>
-      </group>
-      <mesh position={[0, 0.16, 0]}>
-        <boxGeometry args={[2.8, 0.24, 1.15]} />
-        <meshStandardMaterial color="#35495e" metalness={0.45} roughness={0.32} />
-      </mesh>
-    </group>
-  );
-};
-
-const RollerCoaster: React.FC = () => {
-  const trainRef = useRef<THREE.Group>(null);
-  const path = useMemo(
-    () =>
-      new THREE.CatmullRomCurve3(
-        [
-          new THREE.Vector3(-2.15, 0.55, 0.9),
-          new THREE.Vector3(-1.85, 1.7, 0.55),
-          new THREE.Vector3(-1.15, 3.0, -0.2),
-          new THREE.Vector3(-0.2, 4.15, -0.8),
-          new THREE.Vector3(0.85, 4.35, -0.75),
-          new THREE.Vector3(1.75, 3.25, -0.15),
-          new THREE.Vector3(2.18, 1.7, 0.6),
-          new THREE.Vector3(2.1, 0.62, 1.1),
-          new THREE.Vector3(1.1, 0.52, 1.55),
-          new THREE.Vector3(-0.5, 0.58, 1.6),
-          new THREE.Vector3(-2.15, 0.55, 0.9),
-        ],
-        false,
-        'catmullrom',
-        0.18
-      ),
-    []
-  );
-  const supportPoints = useMemo(() => path.getPoints(12).filter((_, index) => index % 3 === 0), [path]);
-
-  useFrame(({ clock }) => {
-    if (!trainRef.current) return;
-    const progress = (clock.getElapsedTime() * 0.035) % 1;
-    const point = path.getPointAt(progress);
-    const ahead = path.getPointAt((progress + 0.008) % 1);
-    trainRef.current.position.copy(point);
-    trainRef.current.lookAt(ahead);
-  });
-
-  return (
-    <group position={[4.45, 0.28, -3.35]}>
-      <mesh position={[0, 0.08, 0]} receiveShadow>
-        <boxGeometry args={[5.9, 0.2, 3.7]} />
-        <meshStandardMaterial color="#26364b" roughness={0.72} />
-      </mesh>
-      <mesh position={[0, 0.19, 0]}>
-        <boxGeometry args={[5.65, 0.035, 3.45]} />
-        <meshStandardMaterial color="#46576a" roughness={0.68} />
-      </mesh>
-
-      {/* Twin rails and cross ties */}
-      <mesh>
-        <tubeGeometry args={[path, 56, 0.055, 6, false]} />
-        <meshStandardMaterial color="#d95b55" metalness={0.65} roughness={0.24} />
-      </mesh>
-      <mesh position={[0, 0, 0.14]}>
-        <tubeGeometry
-          args={[
-            new THREE.CatmullRomCurve3(path.getPoints(48).map((point) => new THREE.Vector3(point.x, point.y, point.z + 0.15))),
-            56,
-            0.045,
-            6,
-            false,
-          ]}
-        />
-        <meshStandardMaterial color="#e7b46e" metalness={0.72} roughness={0.22} />
-      </mesh>
-      {supportPoints.map((point, index) => (
-        <mesh key={index} position={[point.x, Math.max(0.12, point.y / 2), point.z]}>
-          <cylinderGeometry args={[0.035, 0.055, Math.max(0.2, point.y), 7]} />
-          <meshStandardMaterial color="#b94b4c" metalness={0.5} roughness={0.35} />
-        </mesh>
-      ))}
-
-      {/* Animated coaster train */}
-      <group ref={trainRef}>
-        {[0, 1, 2].map((car) => (
-          <group key={car} position={[0, 0.12, car * 0.32]}>
-            <mesh>
-              <boxGeometry args={[0.38, 0.24, 0.42]} />
-              <meshStandardMaterial color={car === 0 ? '#f4c35f' : '#e86b60'} metalness={0.35} roughness={0.24} />
-            </mesh>
-            <mesh position={[0, 0.16, -0.02]}>
-              <boxGeometry args={[0.31, 0.13, 0.25]} />
-              <meshStandardMaterial color="#26364c" metalness={0.6} roughness={0.2} />
-            </mesh>
-          </group>
-        ))}
-      </group>
-    </group>
-  );
-};
-
-const CircusTent: React.FC = () => {
-  const stripeCount = 12;
-  return (
-    <group position={[2.55, 0.38, 3.2]}>
-      <mesh position={[0, 0.16, 0]} receiveShadow>
-        <cylinderGeometry args={[1.34, 1.42, 0.28, 32]} />
-        <meshStandardMaterial color="#8b4d4b" roughness={0.72} />
-      </mesh>
-      {Array.from({ length: stripeCount }).map((_, index) => {
-        const angle = (index / stripeCount) * Math.PI * 2;
-        return (
-          <mesh key={index} position={[0, 0.98, 0]} rotation={[0, angle, 0]}>
-            <cylinderGeometry args={[0.035, 1.31, 1.68, 1, 1, false, 0, (Math.PI * 2) / stripeCount]} />
-            <meshStandardMaterial color={index % 2 === 0 ? '#d65b57' : '#f2e5d0'} roughness={0.65} />
-          </mesh>
-        );
-      })}
-      <mesh position={[0, 1.84, 0]}>
-        <coneGeometry args={[0.16, 0.45, 12]} />
-        <meshStandardMaterial color="#e8c77e" metalness={0.28} roughness={0.35} />
-      </mesh>
-      <mesh position={[0, 2.1, 0]} rotation={[0, 0, 0.12]}>
-        <coneGeometry args={[0.035, 0.5, 6]} />
-        <meshStandardMaterial color="#d95850" />
-      </mesh>
-      <mesh position={[0, 0.27, 0]}>
-        <torusGeometry args={[1.29, 0.035, 8, 36]} />
-        <meshStandardMaterial color="#e7c27d" metalness={0.65} roughness={0.25} />
-      </mesh>
-    </group>
-  );
-};
-
-const ParkIsland: React.FC = () => {
-  const trees: Array<[number, number, number, string, number]> = [
-    [-1.85, -1.7, 0.72, '#247a50', 0.88],
-    [-0.6, -2.05, 0.8, '#3c9659', 0.95],
-    [1.2, -1.72, 0.68, '#267650', 0.82],
-    [2.0, -0.2, 0.66, '#2b8658', 0.8],
-    [-2.0, 0.4, 0.78, '#3b8e51', 0.92],
-    [-1.3, 1.85, 0.72, '#2c8050', 0.85],
-    [1.5, 1.72, 0.78, '#3c9659', 0.92],
-    [2.35, 1.05, 0.62, '#27784b', 0.78],
-    [0.3, 2.15, 0.55, '#4b9e5b', 0.78],
-    [-2.35, -0.8, 0.6, '#478f54', 0.76],
-  ];
-
-  return (
-    <group position={[4.35, 0.12, 0.42]}>
-      {/* Layered garden island */}
-      <mesh position={[0, 0.02, 0]} receiveShadow>
-        <cylinderGeometry args={[3.18, 3.55, 0.48, 48]} />
-        <meshStandardMaterial color="#bd9f65" roughness={0.78} />
-      </mesh>
-      <mesh position={[0, 0.28, 0]} receiveShadow>
-        <cylinderGeometry args={[3.02, 3.2, 0.34, 48]} />
-        <meshStandardMaterial color="#3b9c68" roughness={0.78} />
-      </mesh>
-      <mesh position={[0, 0.47, 0]}>
-        <torusGeometry args={[2.88, 0.055, 8, 64]} />
-        <meshStandardMaterial color="#a9e6ac" emissive="#4fae77" emissiveIntensity={0.16} />
-      </mesh>
-
-      {/* Winding paved paths */}
-      <mesh position={[-0.2, 0.47, 0.45]} rotation={[0, 0, 0]}>
-        <torusGeometry args={[1.35, 0.16, 5, 48]} />
-        <meshStandardMaterial color="#d7c7a2" roughness={0.86} />
-      </mesh>
-      <mesh position={[0.05, 0.49, 0.08]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[0.8, 32]} />
-        <meshStandardMaterial color="#4fba79" roughness={0.8} />
-      </mesh>
-
-      {/* Small central pavilion */}
-      <group position={[0.55, 0.48, 0.3]}>
-        <mesh position={[0, 0.25, 0]}>
-          <boxGeometry args={[0.95, 0.5, 0.72]} />
-          <meshStandardMaterial color="#d8e5e8" roughness={0.48} />
-        </mesh>
-        <mesh position={[0, 0.58, 0]}>
-          <coneGeometry args={[0.72, 0.48, 4]} />
-          <meshStandardMaterial color="#327fc1" metalness={0.25} roughness={0.35} />
-        </mesh>
-        <mesh position={[0, 0.25, 0.37]}>
-          <boxGeometry args={[0.28, 0.33, 0.025]} />
-          <meshStandardMaterial color="#19324b" emissive="#24527b" emissiveIntensity={0.2} />
-        </mesh>
-      </group>
-
-      {trees.map(([x, z, scale, color, _], index) => (
-        <Tree key={index} position={[x, 0.45, z]} scale={scale} canopy={color} />
-      ))}
-
-      {/* Flower beds and benches */}
-      {[
-        [-1.25, 0.55, 0.45],
-        [1.65, 0.48, 0.2],
-        [0.1, 0.5, -1.75],
-      ].map(([x, y, z], index) => (
-        <group key={index} position={[x, y, z]}>
-          <mesh>
-            <cylinderGeometry args={[0.22, 0.25, 0.1, 12]} />
-            <meshStandardMaterial color="#6b6747" />
-          </mesh>
-          <mesh position={[0, 0.13, 0]}>
-            <sphereGeometry args={[0.12, 10, 10]} />
-            <meshStandardMaterial color={index % 2 === 0 ? '#f2b5a1' : '#e8d178'} />
-          </mesh>
-        </group>
-      ))}
-      <group position={[-0.8, 0.52, 1.05]} rotation={[0, 0.3, 0]}>
-        <mesh position={[0, 0.13, 0]}>
-          <boxGeometry args={[0.75, 0.08, 0.18]} />
-          <meshStandardMaterial color="#7e4c33" />
-        </mesh>
-        <mesh position={[-0.28, 0.03, 0]}>
-          <boxGeometry args={[0.06, 0.26, 0.18]} />
-          <meshStandardMaterial color="#343e4b" />
-        </mesh>
-        <mesh position={[0.28, 0.03, 0]}>
-          <boxGeometry args={[0.06, 0.26, 0.18]} />
-          <meshStandardMaterial color="#343e4b" />
-        </mesh>
-      </group>
-      <StreetLamp position={[-2.55, 0.48, 0.25]} scale={0.75} />
-      <StreetLamp position={[1.95, 0.48, 1.7]} scale={0.75} />
-    </group>
-  );
-};
 
 export const CenterCity3D: React.FC = () => {
-  const boatRef = useRef<THREE.Group>(null);
   const players = useGameStore((state) => state.players);
-  const landmarkPlots: Array<[number, number, number]> = [
-    [-6.45, 0.2, -5.75],
-    [-6.45, 0.2, 5.75],
-    [6.45, 0.2, -5.75],
-    [6.45, 0.2, 5.75],
-  ];
-
-  const buildings: BuildingProps[] = [
-    { position: [-3.55, 0.47, -1.55], size: [0.95, 3.65, 0.92], color: '#dfa0a7', floors: 8, accent: '#74d2f2', crown: 'spire' },
-    { position: [-2.25, 0.47, -2.5], size: [0.94, 4.6, 0.95], color: '#d78c99', floors: 10, accent: '#f5ce86', crown: 'stepped' },
-    { position: [-0.15, 0.47, -2.2], size: [0.9, 3.7, 0.88], color: '#a58fd0', floors: 9, accent: '#8ac8fb', crown: 'flat' },
-    { position: [-3.65, 0.47, 0.05], size: [0.82, 2.75, 0.82], color: '#d78f6d', floors: 6, accent: '#ffd18c', crown: 'flat' },
-    { position: [-2.35, 0.47, 0.18], size: [1.02, 3.15, 0.92], color: '#8fa6d2', floors: 7, accent: '#b9e7f4', crown: 'stepped' },
-    { position: [-0.95, 0.47, -0.72], size: [0.9, 2.95, 0.84], color: '#bd8bbd', floors: 7, accent: '#ffd48b', crown: 'spire' },
-    { position: [0.35, 0.47, -1.0], size: [0.75, 2.45, 0.78], color: '#8ba6bd', floors: 6, accent: '#8bd5e7', crown: 'flat' },
-    { position: [-1.65, 0.47, 1.45], size: [0.86, 2.2, 0.78], color: '#e4a16f', floors: 5, accent: '#ffd08b', crown: 'flat' },
-  ];
+  const boatRef = useRef<THREE.Group>(null);
 
   useFrame(({ clock }) => {
-    if (boatRef.current) {
-      const time = clock.getElapsedTime();
-      boatRef.current.position.x = 1.7 + Math.sin(time * 0.42) * 0.4;
-      boatRef.current.position.z = 4.75 + Math.cos(time * 0.42) * 0.24;
-      boatRef.current.rotation.y = Math.sin(time * 0.42) * 0.12;
-    }
+    if (!boatRef.current) return;
+    const t = clock.elapsedTime;
+    boatRef.current.position.x = 3.0 + Math.sin(t * 0.42) * 0.24;
+    boatRef.current.position.y = 0.78 + Math.sin(t * 1.5) * 0.06;
+    boatRef.current.rotation.y = -0.3 + Math.sin(t * 0.42) * 0.08;
   });
 
+  const landmarkPlots: Pos[] = [
+    [-6.25, 1.02, -5.45], [-6.2, 0.92, 5.35], [6.15, 0.92, -5.3], [6.0, 0.92, 5.3],
+  ];
+
   return (
-    <group position={[0, 0.1, 0]}>
-      {/* Raised miniature-city plinth fills the unused cream center and frames the island. */}
-      <mesh position={[0, 0.0, 0]} receiveShadow castShadow>
-        <boxGeometry args={[19.2, 0.36, 19.2]} />
-        <meshStandardMaterial color="#9b8bb7" roughness={0.62} metalness={0.18} />
-      </mesh>
-      <mesh position={[0, 0.19, 0]}>
-        <boxGeometry args={[18.95, 0.035, 18.95]} />
-        <meshStandardMaterial color="#c0acd2" roughness={0.56} metalness={0.12} />
-      </mesh>
+    <group>
+      {/* Turquoise lagoon foundation with visible channels between raised green landforms. */}
+      <RoundedBox args={[15.7, 0.52, 15.7]} radius={0.45} smoothness={6} position={[0, 0.46, 0]} receiveShadow castShadow>
+        <meshPhysicalMaterial color="#42c5e6" roughness={0.22} metalness={0.16} clearcoat={1} clearcoatRoughness={0.12} />
+      </RoundedBox>
 
-      {/* Four connected perimeter streets meet the inner edge of the property spaces. */}
-      <group>
-        {[-7.95, 7.95].map((z) => (
-          <mesh key={`road-z-${z}`} position={[0, 0.25, z]} receiveShadow>
-            <boxGeometry args={[16.25, 0.12, 0.72]} />
-            <meshStandardMaterial color="#a79dc5" roughness={0.78} />
-          </mesh>
-        ))}
-        {[-7.95, 7.95].map((x) => (
-          <mesh key={`road-x-${x}`} position={[x, 0.25, 0]} receiveShadow>
-            <boxGeometry args={[0.72, 0.12, 16.25]} />
-            <meshStandardMaterial color="#a79dc5" roughness={0.78} />
-          </mesh>
-        ))}
-        {Array.from({ length: 13 }).map((_, index) => {
-          const x = -6.1 + index * 1.02;
-          return (
-            <React.Fragment key={`road-mark-x-${index}`}>
-              <mesh position={[x, 0.313, -7.95]}>
-                <boxGeometry args={[0.38, 0.012, 0.045]} />
-                <meshBasicMaterial color="#d8c58e" />
+      {/* Multi-level floating grass islands. */}
+      <Island position={[-1.0, 1.06, -2.65]} size={[5.35, 0.76, 5.05]} top="#9fe15c" cliff="#7c70bd" />
+      <Island position={[-5.05, 0.78, -1.1]} size={[3.55, 0.72, 3.6]} top="#a6e968" cliff="#8374c2" rotation={-0.08} />
+      <Island position={[3.55, 0.83, -1.45]} size={[4.35, 0.74, 3.7]} top="#a5e55c" cliff="#8c79c5" rotation={0.04} />
+      <Island position={[-3.8, 0.72, 3.15]} size={[4.0, 0.64, 3.25]} top="#b1e967" cliff="#7e72bd" rotation={-0.06} />
+      <Island position={[1.9, 0.74, 3.12]} size={[4.15, 0.66, 3.45]} top="#b4ed69" cliff="#8d7bc5" rotation={0.04} />
+      <Island position={[5.65, 0.68, 3.25]} size={[2.5, 0.58, 3.1]} top="#a8e65f" cliff="#8a79bd" rotation={-0.05} />
+
+      {/* Castle district. */}
+      <Castle />
+      <House position={[-5.0, 1.31, -1.65]} roof="#8b84d8" wall="#f7d9c3" scale={0.82} />
+      <House position={[-4.0, 1.31, -0.55]} roof="#ee7962" wall="#fff0d5" scale={0.78} awning />
+      <House position={[2.85, 1.37, -2.1]} roof="#8c80d5" wall="#ffdfbd" scale={0.86} />
+      <House position={[4.2, 1.37, -1.0]} roof="#eb795e" wall="#f9e4cc" scale={0.82} awning />
+      <House position={[-4.7, 1.21, 2.45]} roof="#ee7961" wall="#fff0d5" scale={0.75} awning />
+      <House position={[-3.45, 1.21, 3.6]} roof="#9686dc" wall="#f7dfc7" scale={0.72} />
+      <House position={[1.0, 1.24, 2.72]} roof="#ee8664" wall="#fff0d5" scale={0.73} awning />
+      <House position={[2.5, 1.24, 3.48]} roof="#f17c5e" wall="#ffdfbd" scale={0.75} />
+
+      {/* Market stalls, planted beds and fruit trees bring scale to the village. */}
+      <MarketStall position={[0.0, 1.24, 4.0]} color="#8e8bdd" />
+      <MarketStall position={[1.35, 1.24, 4.15]} color="#ef8467" />
+      {[-4.85, -4.1, -3.35].map((x, i) => (
+        <group key={i} position={[x, 1.21, 4.05]}>
+          {[-0.32, 0.18, 0.68].map((z, j) => (
+            <group key={j} position={[0, 0, z]}>
+              <mesh position={[0, 0.16, 0]}>
+                <cylinderGeometry args={[0.15, 0.18, 0.28, 10]} />
+                <meshStandardMaterial color="#d86e4d" roughness={0.8} />
               </mesh>
-              <mesh position={[x, 0.313, 7.95]}>
-                <boxGeometry args={[0.38, 0.012, 0.045]} />
-                <meshBasicMaterial color="#d8c58e" />
+              <mesh position={[0, 0.34, 0]}>
+                <sphereGeometry args={[0.13, 10, 10]} />
+                <meshStandardMaterial color={j % 2 ? '#f36d52' : '#ef9d42'} />
               </mesh>
-            </React.Fragment>
-          );
-        })}
-        {Array.from({ length: 13 }).map((_, index) => {
-          const z = -6.1 + index * 1.02;
-          return (
-            <React.Fragment key={`road-mark-z-${index}`}>
-              <mesh position={[-7.95, 0.313, z]}>
-                <boxGeometry args={[0.045, 0.012, 0.38]} />
-                <meshBasicMaterial color="#d8c58e" />
+              <mesh position={[0.02, 0.46, 0]}>
+                <coneGeometry args={[0.11, 0.18, 5]} />
+                <meshStandardMaterial color="#66b75d" />
               </mesh>
-              <mesh position={[7.95, 0.313, z]}>
-                <boxGeometry args={[0.045, 0.012, 0.38]} />
-                <meshStandardMaterial color="#d8c58e" />
-              </mesh>
-            </React.Fragment>
-          );
-        })}
-      </group>
-
-      {/* Deep teal lagoon with a layered island edge */}
-      <mesh position={[0, 0.135, 0]} receiveShadow>
-        <boxGeometry args={[16.15, 0.18, 16.15]} />
-        <meshPhysicalMaterial color="#39b9df" roughness={0.27} metalness={0.45} clearcoat={1} clearcoatRoughness={0.16} />
-      </mesh>
-      <mesh position={[0, 0.23, 0]}>
-        <boxGeometry args={[15.92, 0.025, 15.92]} />
-        <meshStandardMaterial color="#72d5ec" roughness={0.34} metalness={0.34} />
-      </mesh>
-
-      {/* Rebalance the city attractions over the full island instead of clustering them toward one corner. */}
-      <group position={[-0.65, 0, 0.3]}>
-      {/* Downtown district raised plaza */}
-      <mesh position={[-1.65, 0.23, -0.72]} receiveShadow castShadow>
-        <boxGeometry args={[7.75, 0.38, 7.4]} />
-        <meshStandardMaterial color="#a697c3" roughness={0.68} metalness={0.22} />
-      </mesh>
-      <mesh position={[-1.65, 0.435, -0.72]} receiveShadow>
-        <boxGeometry args={[7.5, 0.045, 7.15]} />
-        <meshStandardMaterial color="#c9b7d8" roughness={0.75} />
-      </mesh>
-
-      {/* Road grid and lane markings */}
-      {[-4.55, -2.95, -1.35, 0.25].map((x, index) => (
-        <mesh key={index} position={[x, 0.465, -0.72]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[0.035, 6.7]} />
-          <meshBasicMaterial color="#d3b76e" transparent opacity={0.72} />
-        </mesh>
-      ))}
-      {[-3.7, -1.95, -0.2, 1.35].map((z, index) => (
-        <mesh key={index} position={[-1.65, 0.466, z]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[7.15, 0.035]} />
-          <meshBasicMaterial color="#d3b76e" transparent opacity={0.62} />
-        </mesh>
-      ))}
-
-      {/* Central city buildings */}
-      {buildings.map((building, index) => (
-        <Building key={index} {...building} />
-      ))}
-      <ObservationTower />
-
-      {/* Rooftop details: vents and aerials */}
-      {[
-        [-3.5, 4.2, -1.55],
-        [-2.2, 5.15, -2.5],
-        [-0.15, 4.22, -2.2],
-        [-3.65, 3.2, 0.05],
-      ].map(([x, y, z], index) => (
-        <group key={index} position={[x, y, z]}>
-          <mesh castShadow>
-            <boxGeometry args={[0.23, 0.2, 0.2]} />
-            <meshStandardMaterial color="#8fa5b7" metalness={0.7} roughness={0.3} />
-          </mesh>
-          <mesh position={[0.12, 0.22, 0]}>
-            <cylinderGeometry args={[0.012, 0.025, 0.36, 6]} />
-            <meshStandardMaterial color="#d7b76e" metalness={0.8} />
-          </mesh>
+            </group>
+          ))}
         </group>
       ))}
 
-      {/* Waterfront promenade and bridge to the park */}
-      <group position={[1.72, 0.48, 0.05]}>
-        <mesh castShadow receiveShadow>
-          <boxGeometry args={[2.6, 0.16, 0.86]} />
-          <meshStandardMaterial color="#b7c0c4" roughness={0.5} />
+      {/* Trees scattered around the house lanes. */}
+      <Tree position={[-6.25, 1.31, -2.0]} scale={0.74} tone="#57b34b" />
+      <Tree position={[-5.9, 1.31, 0.0]} scale={0.82} tone="#69c34e" />
+      <Tree position={[-2.75, 1.61, -4.3]} scale={0.8} tone="#65bb4a" />
+      <Tree position={[1.25, 1.61, -4.45]} scale={0.72} tone="#75c84e" />
+      <Tree position={[5.0, 1.37, -2.95]} scale={0.84} tone="#62ba4b" />
+      <Tree position={[5.9, 1.26, 1.6]} scale={0.88} tone="#72c64b" />
+      <Tree position={[3.85, 1.24, 4.15]} scale={0.72} tone="#65b94c" />
+      <Tree position={[-1.0, 0.98, 4.9]} scale={0.76} tone="#67c14e" />
+
+      {/* A little blue fountain and arched bridges connect the districts. */}
+      <Fountain />
+      <Bridge position={[2.55, 1.22, 1.28]} rotation={0.32} length={2.55} />
+      <Bridge position={[-2.72, 1.18, 1.05]} rotation={-0.28} length={2.3} />
+      <CannonFort position={[-5.55, 1.21, 3.3]} />
+
+      {/* A toy sailing boat gently rocks through the front-right channel. */}
+      <group ref={boatRef} position={[3, 0.78, 5.25]}>
+        <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
+          <coneGeometry args={[0.36, 1.05, 4]} />
+          <meshStandardMaterial color="#fff0d8" roughness={0.42} />
         </mesh>
-        {[-0.34, 0.34].map((z, index) => (
-          <mesh key={index} position={[0, 0.24, z]} castShadow>
-            <boxGeometry args={[2.55, 0.04, 0.045]} />
-            <meshStandardMaterial color="#d9b66b" metalness={0.65} roughness={0.25} />
-          </mesh>
-        ))}
-        {[-1.05, 1.05].map((x, index) => (
-          <mesh key={index} position={[x, 0.12, 0]} castShadow>
-            <boxGeometry args={[0.07, 0.38, 0.75]} />
-            <meshStandardMaterial color="#60788b" metalness={0.5} />
-          </mesh>
-        ))}
+        <mesh position={[0, 0.18, 0]}>
+          <boxGeometry args={[0.38, 0.22, 0.34]} />
+          <meshStandardMaterial color="#e76b5e" roughness={0.48} />
+        </mesh>
+        <mesh position={[0, 0.68, 0]}>
+          <coneGeometry args={[0.26, 0.48, 3]} />
+          <meshStandardMaterial color="#fff7e9" roughness={0.52} />
+        </mesh>
+        <mesh position={[0, 0.46, 0]}>
+          <cylinderGeometry args={[0.018, 0.025, 0.78, 6]} />
+          <meshStandardMaterial color="#a76a50" />
+        </mesh>
       </group>
 
-      {/* Player-owned landmark plots: tower height and color track the live game state. */}
+      {/* Live player landmark upgrades remain visible on the outer terraces. */}
       {players.map((player, index) => player.landmarkLevel > 0 ? (
-        <LandmarkTower
-          key={player.id}
-          position={landmarkPlots[index % landmarkPlots.length]}
-          color={player.color}
-          level={player.landmarkLevel}
-        />
+        <LandmarkTower key={player.id} position={landmarkPlots[index % landmarkPlots.length]} color={player.color} level={player.landmarkLevel} />
       ) : null)}
 
-      {/* Scenic amusement district */}
-      <FerrisWheel />
-      <RollerCoaster />
-      <ParkIsland />
-      <CircusTent />
-
-      {/* Foreground leisure district: pond, fountain, parking bays and a tree promenade. */}
-      <group position={[1.15, 0.34, 5.2]}>
-        <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={[1.6, 0.9, 1]}>
-          <circleGeometry args={[1.55, 48]} />
-          <meshPhysicalMaterial color="#167a91" metalness={0.42} roughness={0.16} clearcoat={1} clearcoatRoughness={0.08} emissive="#0a344c" emissiveIntensity={0.16} />
-        </mesh>
-        <mesh position={[0, 0.025, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={[1.6, 0.9, 1]}>
-          <torusGeometry args={[1.5, 0.12, 8, 48]} />
-          <meshStandardMaterial color="#d2b478" metalness={0.62} roughness={0.28} />
-        </mesh>
-        <mesh position={[-0.48, 0.2, 0.1]} castShadow>
-          <cylinderGeometry args={[0.24, 0.3, 0.32, 16]} />
-          <meshStandardMaterial color="#d8c79f" roughness={0.6} />
-        </mesh>
-        <mesh position={[-0.48, 0.43, 0.1]} castShadow>
-          <cylinderGeometry args={[0.34, 0.22, 0.12, 20]} />
-          <meshStandardMaterial color="#d6b978" metalness={0.5} roughness={0.3} />
-        </mesh>
-        <mesh position={[-0.48, 0.68, 0.1]}>
-          <sphereGeometry args={[0.085, 12, 12]} />
-          <meshStandardMaterial color="#dffaff" emissive="#62d9f0" emissiveIntensity={1.1} />
-        </mesh>
-        {[0, 1, 2, 3].map((index) => {
-          const angle = (index / 4) * Math.PI * 2;
-          return (
-            <mesh key={index} position={[-0.48 + Math.cos(angle) * 0.2, 0.52, 0.1 + Math.sin(angle) * 0.2]} rotation={[0, 0, angle]}>
-              <cylinderGeometry args={[0.025, 0.045, 0.28, 6]} />
-              <meshStandardMaterial color="#9cecff" emissive="#48bde4" emissiveIntensity={0.6} />
-            </mesh>
-          );
-        })}
-      </group>
-
-      <group position={[-4.15, 0.39, 5.05]} rotation={[0, -0.08, 0]}>
-        <mesh receiveShadow castShadow>
-          <boxGeometry args={[3.6, 0.16, 1.82]} />
-          <meshStandardMaterial color="#273746" roughness={0.84} />
-        </mesh>
-        {[-1.05, -0.35, 0.35, 1.05].map((x, index) => (
-          <group key={index} position={[x, 0.09, 0]}>
-            <mesh position={[0, 0.014, 0]}>
-              <boxGeometry args={[0.045, 0.012, 1.48]} />
-              <meshBasicMaterial color="#e7d69e" />
-            </mesh>
-            <mesh position={[0, 0.12, -0.28]}>
-              <boxGeometry args={[0.34, 0.14, 0.5]} />
-              <meshPhysicalMaterial color={['#b84d46', '#4e8dc0', '#c4a04e', '#4a916b'][index]} metalness={0.48} roughness={0.24} clearcoat={0.85} />
-            </mesh>
-            <mesh position={[0, 0.22, -0.28]}>
-              <boxGeometry args={[0.23, 0.09, 0.24]} />
-              <meshPhysicalMaterial color="#dbe8ef" metalness={0.48} roughness={0.18} clearcoat={1} />
-            </mesh>
-          </group>
-        ))}
-        <Text position={[0, 0.19, 0.72]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.16} color="#f1dfae" anchorX="center" anchorY="middle" fontWeight="bold">
-          MINI PARKING
-        </Text>
-      </group>
-
-      {[0, 1, 2].map((index) => (
-        <Tree
-          key={`foreground-tree-${index}`}
-          position={[3.8 + index * 0.8, 0.42, 5.45 + (index % 2) * 0.18]}
-          scale={0.62 + (index % 2) * 0.08}
-          canopy={index % 2 === 0 ? '#287b51' : '#3b9659'}
-        />
-      ))}
-
-      <group position={[-1.1, 0.39, 4.72]}>
-        <mesh position={[0, 0.06, 0]} receiveShadow>
-          <boxGeometry args={[1.35, 0.12, 0.58]} />
-          <meshStandardMaterial color="#b7c0c4" roughness={0.52} />
-        </mesh>
-        {[-0.45, 0.45].map((x) => (
-          <mesh key={x} position={[x, 0.2, 0.22]}>
-            <cylinderGeometry args={[0.025, 0.025, 0.28, 8]} />
-            <meshStandardMaterial color="#caa45d" metalness={0.7} roughness={0.26} />
-          </mesh>
-        ))}
-      </group>
-
-      {/* Small waterfront houses, kiosks and boats */}
-      <group position={[-4.2, 0.42, -3.55]}>
-        <mesh position={[0, 0.38, 0]} castShadow>
-          <boxGeometry args={[0.92, 0.75, 0.82]} />
-          <meshStandardMaterial color="#bb8668" roughness={0.66} />
-        </mesh>
-        <mesh position={[0, 0.88, 0]}>
-          <coneGeometry args={[0.72, 0.58, 4]} />
-          <meshStandardMaterial color="#48566d" roughness={0.52} />
-        </mesh>
-        <mesh position={[0.18, 0.34, 0.42]}>
-          <boxGeometry args={[0.2, 0.34, 0.025]} />
-          <meshStandardMaterial color="#1d3750" emissive="#24567d" emissiveIntensity={0.22} />
-        </mesh>
-      </group>
-      <group ref={boatRef} position={[1.7, 0.28, 4.75]}>
-        <mesh castShadow rotation={[Math.PI / 2, 0, 0]}>
-          <coneGeometry args={[0.38, 0.95, 4]} />
-          <meshStandardMaterial color="#eee7d9" metalness={0.3} roughness={0.3} />
-        </mesh>
-        <mesh position={[0, 0.18, 0]} castShadow>
-          <boxGeometry args={[0.48, 0.2, 0.35]} />
-          <meshStandardMaterial color="#d55e54" roughness={0.38} />
-        </mesh>
-        <mesh position={[0, 0.32, 0]}>
-          <coneGeometry args={[0.12, 0.34, 4]} />
-          <meshStandardMaterial color="#f1e8d7" />
-        </mesh>
-      </group>
-
-      {/* Detail lighting around the city edges */}
-      <StreetLamp position={[-5.4, 0.13, -0.2]} scale={0.82} />
-      <StreetLamp position={[-4.2, 0.13, 4.1]} scale={0.82} />
-      <StreetLamp position={[0.8, 0.13, 4.9]} scale={0.82} />
-      <StreetLamp position={[6.75, 0.13, -0.1]} scale={0.82} />
-
-      {/* Small clusters of decorative shrubs */}
-      {[
-        [-5.3, 0.22, -2.2],
-        [-5.0, 0.22, 1.0],
-        [1.0, 0.22, -5.1],
-        [6.3, 0.22, 3.1],
-        [-0.5, 0.22, 5.8],
-      ].map(([x, y, z], index) => (
-        <group key={index} position={[x, y, z]}>
-          <mesh castShadow>
-            <sphereGeometry args={[0.28, 10, 10]} />
-            <meshStandardMaterial color="#2c8057" roughness={0.86} />
-          </mesh>
-          <mesh position={[0.2, -0.02, 0.12]} castShadow>
-            <sphereGeometry args={[0.2, 10, 10]} />
-            <meshStandardMaterial color="#3e9a64" roughness={0.86} />
-          </mesh>
-        </group>
-      ))}
-      </group>
+      {/* Puffy clouds and floating crystals make the city feel magical, not gothic. */}
+      <Cloud position={[-4.3, 5.7, -4.3]} scale={0.82} />
+      <Cloud position={[2.5, 5.9, -4.6]} scale={0.9} />
+      <Cloud position={[5.3, 5.1, 0.6]} scale={0.6} />
+      <mesh position={[0.1, 5.4, -2.2]}>
+        <octahedronGeometry args={[0.3, 0]} />
+        <meshPhysicalMaterial color="#64eaff" emissive="#2ccfff" emissiveIntensity={1.2} roughness={0.12} />
+      </mesh>
+      <pointLight position={[0, 4.9, -2.0]} color="#74eeff" intensity={1.1} distance={8} />
     </group>
   );
 };

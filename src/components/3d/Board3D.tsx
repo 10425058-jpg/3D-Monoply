@@ -14,27 +14,19 @@ export const Board3D: React.FC = () => {
 
   return (
     <group>
-      {/* Dark walnut presentation table */}
-      <mesh position={[0, -0.45, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[21.5, 21.5, 0.7, 96]} />
-        <meshStandardMaterial color="#a37a9f" roughness={0.36} metalness={0.14} />
-      </mesh>
-      <mesh position={[0, -0.86, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[20.9, 20.4, 0.5, 96]} />
-        <meshStandardMaterial color="#8278b1" roughness={0.48} />
-      </mesh>
-      <mesh position={[0, -1.12, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[19.8, 19.8, 0.045, 96]} />
-        <meshStandardMaterial color="#54b4dc" roughness={0.86} />
-      </mesh>
-      <mesh position={[0, -0.065, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[20.45, 0.045, 8, 128]} />
-        <meshStandardMaterial color="#9a713b" metalness={0.78} roughness={0.28} />
-      </mesh>
-      <mesh position={[0, -0.075, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[19.95, 0.018, 6, 128]} />
-        <meshStandardMaterial color="#bf9855" metalness={0.82} roughness={0.2} />
-      </mesh>
+      {/* Floating square plinth: layered toy-board sides with warm candy trim. */}
+      <RoundedBox args={[24.8, 0.62, 24.8]} radius={0.5} smoothness={6} position={[0, -1.18, 0]} receiveShadow>
+        <meshStandardMaterial color="#8b75bc" roughness={0.62} />
+      </RoundedBox>
+      <RoundedBox args={[24.25, 0.32, 24.25]} radius={0.42} smoothness={6} position={[0, -0.79, 0]} receiveShadow castShadow>
+        <meshStandardMaterial color="#e9a27a" metalness={0.22} roughness={0.42} />
+      </RoundedBox>
+      <RoundedBox args={[23.9, 0.2, 23.9]} radius={0.38} smoothness={6} position={[0, -0.59, 0]} receiveShadow>
+        <meshStandardMaterial color="#fff0d5" roughness={0.48} />
+      </RoundedBox>
+      <RoundedBox args={[23.7, 0.08, 23.7]} radius={0.34} smoothness={6} position={[0, -0.46, 0]}>
+        <meshStandardMaterial color="#f5c77c" metalness={0.46} roughness={0.28} />
+      </RoundedBox>
 
       {/* Compact card trays sit fully inside the lower blue inset, away from lane markings. */}
       <group position={[7.0, 0.36, 7.1]} rotation={[0, -0.14, 0]}>
@@ -107,7 +99,7 @@ export const Board3D: React.FC = () => {
             {/* Dark bevel and brass reveal make each space read as a separate crafted tile. */}
             <mesh position={[0, -0.055, 0]} castShadow>
               <RoundedBox args={[transform.width - 0.025, 0.12, transform.depth - 0.025]} radius={0.045} smoothness={3} />
-              <meshStandardMaterial color="#a995c7" metalness={0.46} roughness={0.25} />
+              <meshStandardMaterial color="#c9a9ce" metalness={0.12} roughness={0.42} />
             </mesh>
             <mesh position={[0, -0.006, 0]} castShadow>
               <RoundedBox args={[transform.width - 0.045, 0.105, transform.depth - 0.045]} radius={0.04} smoothness={3} />
@@ -214,10 +206,10 @@ export const Board3D: React.FC = () => {
             <Text
               position={[0, 0.064, space.type === 'property' ? 0.08 : -0.15]}
               rotation={labelRotation}
-              fontSize={transform.isCorner ? 0.30 : 0.165}
+              fontSize={transform.isCorner ? 0.33 : 0.19}
               maxWidth={transform.width - 0.18}
               textAlign="center"
-              color="#17263a"
+              color="#4b3b64"
               anchorX="center"
               anchorY="middle"
               fontWeight="bold"
@@ -232,8 +224,8 @@ export const Board3D: React.FC = () => {
               <Text
                 position={[0, 0.065, transform.depth / 2 - 0.42]}
                 rotation={labelRotation}
-                fontSize={0.18}
-                color="#27364b"
+                fontSize={0.20}
+                color="#56446b"
                 anchorX="center"
                 anchorY="middle"
                 fontWeight="bold"
