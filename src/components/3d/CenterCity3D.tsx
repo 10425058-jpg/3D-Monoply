@@ -473,37 +473,58 @@ const MarketStall: React.FC<{position: Pos; color: string}> = ({ position, color
   </group>
 );
 
-const PATH_POINTS: Pos[][] = [
-  [
-    [-5.1, 0, -4.35], [-4.3, 0, -4.0], [-3.25, 0, -3.95],
-    [-2.1, 0, -4.15], [-0.95, 0, -4.45], [0.4, 0, -4.35],
-    [1.7, 0, -3.95], [3.0, 0, -3.4], [4.45, 0, -2.75],
-  ],
-  [
-    [-5.2, 0, -0.6], [-5.45, 0, 0.6], [-5.0, 0, 1.85],
-    [-4.3, 0, 2.9], [-3.35, 0, 3.8], [-2.0, 0, 4.2],
-  ],
-  [
-    [-3.3, 0, 4.55], [-2.1, 0, 4.68], [-0.7, 0, 4.62],
-    [0.85, 0, 4.45], [2.25, 0, 4.0], [3.45, 0, 3.35],
-    [4.35, 0, 2.35],
-  ],
-  [
-    [4.65, 0, -2.3], [5.1, 0, -1.1], [5.25, 0, 0.2],
-    [5.05, 0, 1.3], [4.45, 0, 2.35],
-  ],
+const PATH_ROUTES: Array<{ points: Pos[]; elevation: number }> = [
+  {
+    elevation: 1.72,
+    points: [
+      [-5.1, 0, -4.35], [-4.3, 0, -4.0], [-3.25, 0, -3.95],
+      [-2.1, 0, -4.15], [-0.95, 0, -4.45], [0.4, 0, -4.35],
+      [1.7, 0, -3.95], [3.0, 0, -3.4], [4.45, 0, -2.75],
+    ],
+  },
+  {
+    elevation: 1.43,
+    points: [
+      [-5.2, 0, -0.6], [-5.45, 0, 0.6], [-5.0, 0, 1.85],
+      [-4.3, 0, 2.9], [-3.35, 0, 3.8], [-2.0, 0, 4.2],
+    ],
+  },
+  {
+    elevation: 1.38,
+    points: [
+      [-3.3, 0, 4.55], [-2.1, 0, 4.68], [-0.7, 0, 4.62],
+      [0.85, 0, 4.45], [2.25, 0, 4.0], [3.45, 0, 3.35],
+      [4.35, 0, 2.35],
+    ],
+  },
+  {
+    elevation: 1.50,
+    points: [
+      [4.65, 0, -2.3], [5.1, 0, -1.1], [5.25, 0, 0.2],
+      [5.05, 0, 1.3], [4.45, 0, 2.35],
+    ],
+  },
 ];
 
 const CityPaths: React.FC = () => {
-  const geometries = useMemo(() => PATH_POINTS.map((points) => {
+  const routes = useMemo(() => PATH_ROUTES.map(({ points, elevation }) => {
     const curve = new THREE.CatmullRomCurve3(points.map((point) => new THREE.Vector3(...point)));
-    return new THREE.TubeGeometry(curve, 56, 0.42, 8, false);
+    return {
+      geometry: new THREE.TubeGeometry(curve, 56, 0.42, 8, false),
+      elevation,
+    };
   }), []);
 
   return (
-    <group position={[0, 1.43, 0]}>
-      {geometries.map((geometry, index) => (
-        <mesh key={index} geometry={geometry} scale={[1, 0.13, 1]} receiveShadow>
+    <group>
+      {routes.map((route, index) => (
+        <mesh
+          key={index}
+          geometry={route.geometry}
+          position={[0, route.elevation, 0]}
+          scale={[1, 0.13, 1]}
+          receiveShadow
+        >
           <meshStandardMaterial
             color={index % 2 === 0 ? '#ead4b5' : '#f5e3c8'}
             roughness={0.95}
