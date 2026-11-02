@@ -36,6 +36,8 @@ interface GameStore {
   chestDeck: DeckCard[];
   activeCard: DeckCard | null;
   selectedSpaceId: number | null;
+  hoveredSpaceId: number | null;
+  gameSpeed: 1 | 2;
   cameraMode: CameraMode;
   logs: LogEntry[];
   pendingDebt: { amount: number; creditorId: number | null; reason: string } | null;
@@ -51,6 +53,8 @@ interface GameStore {
   startNewGame: (configs: PlayerSetupConfig[]) => void;
   setCameraMode: (mode: CameraMode) => void;
   selectSpace: (spaceId: number | null) => void;
+  setHoveredSpace: (spaceId: number | null) => void;
+  setGameSpeed: (speed: 1 | 2) => void;
   setRulebookOpen: (open: boolean) => void;
   setTradeModalOpen: (open: boolean) => void;
   setSetupModalOpen: (open: boolean) => void;
@@ -71,6 +75,7 @@ interface GameStore {
   payJailBail: () => void;
   useJailCard: () => void;
   buyCurrentProperty: () => void;
+  auctionCurrentProperty: () => void;
   declineProperty: () => void;
   applyActiveCard: () => void;
   buildHouse: (spaceId: number) => void;
@@ -262,7 +267,7 @@ export const useGameStore = create<GameStore>((set, get) => {
         return { players: updated };
       });
       remaining -= 1;
-      setTimeout(tick, 155);
+      setTimeout(tick, 155 / get().gameSpeed);
     };
 
     tick();
@@ -406,6 +411,8 @@ export const useGameStore = create<GameStore>((set, get) => {
     chestDeck: shuffleDeck(COMMUNITY_CHEST_CARDS),
     activeCard: null,
     selectedSpaceId: null,
+    hoveredSpaceId: null,
+    gameSpeed: 1,
     cameraMode: 'isometric',
     logs: [
       {
@@ -450,6 +457,7 @@ export const useGameStore = create<GameStore>((set, get) => {
         chestDeck: shuffleDeck(COMMUNITY_CHEST_CARDS),
         activeCard: null,
         selectedSpaceId: null,
+        hoveredSpaceId: null,
         pendingDebt: null,
         railroadRaid: null,
         winner: null,
@@ -467,6 +475,8 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     setCameraMode: (cameraMode) => set({ cameraMode }),
     selectSpace: (selectedSpaceId) => set({ selectedSpaceId }),
+    setHoveredSpace: (hoveredSpaceId) => set({ hoveredSpaceId }),
+    setGameSpeed: (gameSpeed) => set({ gameSpeed }),
     setRulebookOpen: (isRulebookOpen) => set({ isRulebookOpen }),
     setTradeModalOpen: (isTradeModalOpen) => set({ isTradeModalOpen }),
     setSetupModalOpen: (isSetupModalOpen) => set({ isSetupModalOpen }),
@@ -629,7 +639,7 @@ export const useGameStore = create<GameStore>((set, get) => {
         );
         set({ doublesCount: newDoublesCount, turnPhase: 'MOVING' });
         stepMovePlayer(currentState.currentPlayerIndex, total, evaluateLandedSpace);
-      }, 650);
+      }, 650 / get().gameSpeed);
     },
 
     landmarkUpgradeCost: (playerId) => {
@@ -899,6 +909,49 @@ export const useGameStore = create<GameStore>((set, get) => {
       addLog(`${player.name} purchased ${space.name} for ${space.price}!`, 'property');
       if (!player.isAI) progressMission('purchases');
       if (space.type === 'railroad') openRailroadRaid(player.id);
+    },
+
+    auctionCurrentProperty: () => {
+      const state = get();
+      if (state.turnPhase !== 'LANDED_ACTION') return;
+      const player = state.players[state.currentPlayerIndex];
+      const space = BOARD_SPACES[player.position];
+      const property = state.properties[space.id];
+      if (!player || player.isAI || !space.price || !property || property.ownerId !== null) return;
+
+      const bidders = state.players.filter((candidate) =>
+        candidate.id !== player.id && candidate.isAI && !candidate.isBankrupt
+      );
+      const bids = bidders
+        .map((bidder) => {
+          const reserve = Math.max(50, Math.round(space.price * 0.35));
+          const maximum = Math.max(0, Math.min(bidder.money - 100, Math.round(space.price * (0.55 + Math.random() * 0.5))));
+          const bid = maximum >= reserve ? Math.round((reserve + Math.random() * (maximum - reserve)) / 10) * 10 : 0;
+          return { bidder, bid };
+        })
+        .filter((entry) => entry.bid > 0)
+        .sort((left, right) => right.bid - left.bid);
+
+      const winner = bids[0];
+      if (!winner) {
+        addLog(`No rival bid on ${space.name}; it remains available from the bank.`, 'info');
+        set({ turnPhase: 'END_TURN' });
+        return;
+      }
+
+      set((current) => ({
+        players: current.players.map((candidate) =>
+          candidate.id === winner.bidder.id
+            ? { ...candidate, money: candidate.money - winner.bid }
+            : candidate
+        ),
+        properties: {
+          ...current.properties,
+          [space.id]: { ...current.properties[space.id], ownerId: winner.bidder.id },
+        },
+        turnPhase: 'END_TURN',
+      }));
+      addLog(`${winner.bidder.name} won the auction for ${space.name} with a bid of ${winner.bid}.`, 'property');
     },
 
     declineProperty: () => {
@@ -1187,6 +1240,16 @@ export const useGameStore = create<GameStore>((set, get) => {
 
       if (fromPlayer.money < offer.offerCash || toPlayer.money < offer.requestCash) {
         return { accepted: false, message: 'Insufficient cash for this trade.' };
+      }
+
+      const offeredPropertiesValid = offer.offerProperties.every((id) =>
+        state.properties[id]?.ownerId === fromPlayer.id && !state.properties[id]?.isMortgaged
+      );
+      const requestedPropertiesValid = offer.requestProperties.every((id) =>
+        state.properties[id]?.ownerId === toPlayer.id && !state.properties[id]?.isMortgaged
+      );
+      if (!offeredPropertiesValid || !requestedPropertiesValid) {
+        return { accepted: false, message: 'Only properties owned free and clear can be traded.' };
       }
 
       // Calculate fair value for AI evaluation
