@@ -12,15 +12,10 @@ type IslandLayout = {
 };
 
 const ISLANDS: IslandLayout[] = [
-  { position: [-21, -0.8, -18], scale: 0.86, topColor: '#639c67', canopyColor: '#5b9a58' },
-  { position: [-14, 0.8, -27], scale: 0.72, topColor: '#7ca96a', canopyColor: '#78a85c' },
-  { position: [-2, -0.2, -30], scale: 0.92, topColor: '#6f9f65', canopyColor: '#6ea45e' },
-  { position: [13, 0.2, -27], scale: 0.78, topColor: '#759e69', canopyColor: '#80aa5d' },
-  { position: [22, -0.9, -15], scale: 0.9, topColor: '#649965', canopyColor: '#5b9854' },
-  { position: [-25, -1.1, 1], scale: 0.78, topColor: '#759d67', canopyColor: '#6ea25a' },
-  { position: [25, -0.6, 4], scale: 0.82, topColor: '#699a65', canopyColor: '#77a95d' },
-  { position: [-19, -1.6, 19], scale: 0.7, topColor: '#6c9b66', canopyColor: '#6e9f58' },
-  { position: [19, -1.3, 20], scale: 0.76, topColor: '#759f68', canopyColor: '#7aaa5d' },
+  { position: [-30, -1.3, -24], scale: 0.64, topColor: '#6d9d6b', canopyColor: '#6b9c5c' },
+  { position: [29, -1.1, -25], scale: 0.72, topColor: '#759f69', canopyColor: '#78a55d' },
+  { position: [-31, -1.6, 18], scale: 0.66, topColor: '#6b9b66', canopyColor: '#6c9d59' },
+  { position: [30, -1.4, 20], scale: 0.7, topColor: '#719e68', canopyColor: '#79a95e' },
 ];
 
 const CLOUD_CLUSTERS: Array<{ position: Vec3; scale: number; tone: string }> = [
@@ -65,11 +60,11 @@ const SkyDome: React.FC = () => (
       depthWrite={false}
       depthTest={false}
       uniforms={{
-        uTop: { value: new THREE.Color('#211b60') },
-        uUpper: { value: new THREE.Color('#39317f') },
-        uHorizon: { value: new THREE.Color('#655ba9') },
-        uLower: { value: new THREE.Color('#486ba9') },
-        uBottom: { value: new THREE.Color('#303f83') },
+        uTop: { value: new THREE.Color('#25204f') },
+        uUpper: { value: new THREE.Color('#55417f') },
+        uHorizon: { value: new THREE.Color('#bd83b0') },
+        uLower: { value: new THREE.Color('#7884c2') },
+        uBottom: { value: new THREE.Color('#344578') },
       }}
       vertexShader={`
         varying vec3 vDirection;
@@ -325,7 +320,6 @@ export const FantasySkyBackground: React.FC<{ quality?: Quality }> = ({ quality 
     <SkyDome />
     <FloatingIslands quality={quality} />
     <SkyClouds quality={quality} />
-    <SkyLanterns quality={quality} />
   </group>
 );
 
