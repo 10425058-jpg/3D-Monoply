@@ -13,6 +13,23 @@ type FloatingMoneyEvent = {
   positive: boolean;
 };
 
+const PopInGroup: React.FC<{ position: [number, number, number]; children: React.ReactNode }> = ({ position, children }) => {
+  const groupRef = useRef<THREE.Group>(null);
+  const startedAt = useRef<number | null>(null);
+
+  useFrame(({ clock }) => {
+    const group = groupRef.current;
+    if (!group) return;
+    if (startedAt.current === null) startedAt.current = clock.elapsedTime;
+    const progress = Math.min(1, (clock.elapsedTime - startedAt.current) / 0.34);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const overshoot = progress < 1 ? Math.sin(progress * Math.PI) * 0.12 : 0;
+    group.scale.setScalar(0.12 + eased * 0.88 + overshoot);
+  });
+
+  return <group ref={groupRef} position={position}>{children}</group>;
+};
+
 const FloatingMoneyLabel: React.FC<{ event: FloatingMoneyEvent }> = ({ event }) => {
   const groupRef = useRef<THREE.Group>(null);
   const startedAt = useRef<number | null>(null);
@@ -30,7 +47,7 @@ const FloatingMoneyLabel: React.FC<{ event: FloatingMoneyEvent }> = ({ event }) 
   return (
     <group ref={groupRef} position={event.position}>
       <Text
-        fontSize={0.43}
+        fontSize={event.text.length > 8 ? 0.27 : 0.43}
         color={event.positive ? '#9df0b4' : '#ff9999'}
         anchorX="center"
         anchorY="middle"
@@ -202,6 +219,7 @@ export const TokensAndBuildings: React.FC = () => {
   const gameSpeed = useGameStore((s) => s.gameSpeed);
   const [moneyPopups, setMoneyPopups] = useState<FloatingMoneyEvent[]>([]);
   const previousMoney = useRef<Record<number, number>>({});
+  const previousProperties = useRef<Record<number, { ownerId: number | null; houses: number }>>({});
   const popupId = useRef(0);
   const previousPositions = useRef<Record<number, number>>({});
   const jumpStartedAt = useRef<Record<number, number>>({});
@@ -237,6 +255,45 @@ export const TokensAndBuildings: React.FC = () => {
       });
     }
   }, [players]);
+
+  useEffect(() => {
+    const previous = previousProperties.current;
+    const next: Record<number, { ownerId: number | null; houses: number }> = {};
+    const events: FloatingMoneyEvent[] = [];
+
+    Object.values(properties).forEach((property) => {
+      next[property.spaceId] = { ownerId: property.ownerId, houses: property.houses };
+      const before = previous[property.spaceId];
+      if (!before) return;
+
+      const transform = getSpaceTransform(property.spaceId);
+      if (before.ownerId === null && property.ownerId !== null) {
+        events.push({
+          id: ++popupId.current,
+          text: 'PROPERTY WON',
+          position: [transform.position[0], 0.95, transform.position[2]],
+          positive: true,
+        });
+      } else if (property.ownerId !== null && property.houses > before.houses) {
+        events.push({
+          id: ++popupId.current,
+          text: property.houses === 5 ? 'HOTEL BUILT' : 'HOUSE BUILT',
+          position: [transform.position[0], 0.95, transform.position[2]],
+          positive: true,
+        });
+      }
+    });
+
+    previousProperties.current = next;
+    if (events.length > 0) {
+      setMoneyPopups((current) => [...current, ...events]);
+      events.forEach((event) => {
+        window.setTimeout(() => {
+          setMoneyPopups((current) => current.filter((popup) => popup.id !== event.id));
+        }, 1150);
+      });
+    }
+  }, [properties]);
 
   useFrame(({ clock }, delta) => {
     const t = clock.getElapsedTime();
@@ -317,7 +374,7 @@ export const TokensAndBuildings: React.FC = () => {
           >
             {prop.houses === 5 ? (
               /* Red 3D Hotel */
-              <group position={[0, 0.18, -tf.depth / 2 + 0.34]}>
+              <PopInGroup position={[0, 0.18, -tf.depth / 2 + 0.34]}>
                 <mesh castShadow receiveShadow>
                   <boxGeometry args={[0.58, 0.38, 0.42]} />
                   <meshPhysicalMaterial color="#a92337" metalness={0.35} roughness={0.24} clearcoat={0.9} />
@@ -344,14 +401,14 @@ export const TokensAndBuildings: React.FC = () => {
                   <coneGeometry args={[0.42, 0.2, 4]} />
                   <meshPhysicalMaterial color="#5b1c2a" metalness={0.32} roughness={0.28} />
                 </mesh>
-              </group>
+              </PopInGroup>
             ) : (
               /* 1 to 4 Green 3D Houses */
               Array.from({ length: prop.houses }).map((_, hIdx) => {
                 const spacing = 0.38;
                 const startX = -((prop.houses - 1) * spacing) / 2;
                 return (
-                  <group
+                  <PopInGroup
                     key={hIdx}
                     position={[startX + hIdx * spacing, 0.13, -tf.depth / 2 + 0.34]}
                   >
@@ -377,7 +434,7 @@ export const TokensAndBuildings: React.FC = () => {
                       <boxGeometry args={[0.31, 0.035, 0.025]} />
                       <meshStandardMaterial color="#e9c36d" metalness={0.75} roughness={0.24} />
                     </mesh>
-                  </group>
+                  </PopInGroup>
                 );
               })
             )}
