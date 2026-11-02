@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef } from 'react';
+import React, { useLayoutEffect, useMemo, useRef } from 'react';
 import { RoundedBox } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -10,27 +10,56 @@ const CREAM = '#fff0d8';
 
 const Island: React.FC<{position: Pos; size: [number, number, number]; top?: string; cliff?: string; rotation?: number}> = ({
   position, size, top = '#9fe15c', cliff = '#8272bd', rotation = 0,
-}) => (
-  <group position={position} rotation={[0, rotation, 0]}>
-    <RoundedBox args={size} radius={0.26} smoothness={5} castShadow receiveShadow>
-      <meshStandardMaterial color={cliff} roughness={0.72} />
-    </RoundedBox>
-    <RoundedBox
-      args={[size[0] - 0.12, 0.2, size[2] - 0.12]}
-      radius={0.22}
-      smoothness={5}
-      position={[0, size[1] * 0.48 + 0.08, 0]}
-      castShadow
-      receiveShadow
-    >
-      <meshStandardMaterial color={top} roughness={0.88} />
-    </RoundedBox>
-    <mesh position={[0, size[1] * 0.48 + 0.19, 0]}>
-      <boxGeometry args={[size[0] - 0.48, 0.018, 0.035]} />
-      <meshBasicMaterial color="#c8f17c" />
-    </mesh>
-  </group>
-);
+}) => {
+  const [width, height, depth] = size;
+  const shape = useMemo(() => {
+    const outline = new THREE.Shape();
+    const segments = 16;
+    for (let index = 0; index < segments; index += 1) {
+      const angle = (index / segments) * Math.PI * 2;
+      const wave = 1 + 0.075 * Math.sin(angle * 3 + rotation * 5) + 0.035 * Math.cos(angle * 5 - rotation * 3);
+      const x = Math.cos(angle) * width * 0.5 * wave;
+      const z = Math.sin(angle) * depth * 0.5 * wave;
+      if (index === 0) outline.moveTo(x, -z);
+      else outline.lineTo(x, -z);
+    }
+    outline.closePath();
+    return outline;
+  }, [width, depth, rotation]);
+  const cliffGeometry = useMemo(() => {
+    const geometry = new THREE.ExtrudeGeometry(shape, {
+      depth: height,
+      bevelEnabled: true,
+      bevelSegments: 3,
+      steps: 1,
+      bevelSize: 0.075,
+      bevelThickness: 0.075,
+      curveSegments: 5,
+    });
+    geometry.rotateX(-Math.PI / 2);
+    return geometry;
+  }, [shape, height]);
+  const grassGeometry = useMemo(() => {
+    const geometry = new THREE.ShapeGeometry(shape, 8);
+    geometry.rotateX(-Math.PI / 2);
+    return geometry;
+  }, [shape]);
+
+  return (
+    <group position={position} rotation={[0, rotation, 0]}>
+      <mesh geometry={cliffGeometry} castShadow receiveShadow>
+        <meshStandardMaterial color={cliff} roughness={0.78} />
+      </mesh>
+      <mesh geometry={grassGeometry} position={[0, height + 0.085, 0]} receiveShadow>
+        <meshStandardMaterial color={top} roughness={0.9} />
+      </mesh>
+      <mesh position={[0, height + 0.095, 0]}>
+        <cylinderGeometry args={[0.09, 0.12, 0.025, 10]} />
+        <meshStandardMaterial color="#d6c5e7" roughness={0.82} />
+      </mesh>
+    </group>
+  );
+};
 
 type TreeLayout = { position: Pos; scale: number; tone: string };
 
@@ -429,6 +458,80 @@ const MarketStall: React.FC<{position: Pos; color: string}> = ({ position, color
   </group>
 );
 
+const PATH_POINTS: Pos[][] = [
+  [
+    [-5.55, 1.62, 0.55], [-4.45, 1.63, 1.2], [-3.15, 1.65, 1.28],
+    [-1.85, 1.67, 0.62], [-0.15, 1.67, 0.55], [1.5, 1.65, 1.15], [3.25, 1.6, 1.0], [5.15, 1.55, 0.15],
+  ],
+  [
+    [-1.55, 1.68, -4.65], [-0.75, 1.7, -3.65], [-0.15, 1.69, -2.35],
+    [1.35, 1.67, -1.85], [2.85, 1.62, -2.15], [4.25, 1.58, -1.7],
+  ],
+  [
+    [-4.65, 1.57, 2.55], [-3.55, 1.59, 3.45], [-2.05, 1.6, 3.92],
+    [-0.25, 1.59, 3.72], [1.3, 1.58, 3.3], [3.25, 1.55, 3.15],
+  ],
+];
+
+const CityPaths: React.FC = () => {
+  const geometries = useMemo(() => PATH_POINTS.map((points) => {
+    const curve = new THREE.CatmullRomCurve3(points.map((point) => new THREE.Vector3(...point)));
+    return new THREE.TubeGeometry(curve, 48, 0.25, 8, false);
+  }), []);
+
+  return (
+    <group>
+      {geometries.map((geometry, index) => (
+        <mesh key={index} geometry={geometry} scale={[1, 0.42, 1]} receiveShadow>
+          <meshStandardMaterial
+            color={index === 1 ? '#f5dfc1' : '#ead2ae'}
+            roughness={0.92}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
+const CityLamp: React.FC<{ position: Pos }> = ({ position }) => (
+  <group position={position}>
+    <mesh position={[0, 0.12, 0]} castShadow>
+      <cylinderGeometry args={[0.18, 0.22, 0.24, 10]} />
+      <meshStandardMaterial color="#a87969" roughness={0.72} />
+    </mesh>
+    <mesh position={[0, 0.92, 0]} castShadow>
+      <cylinderGeometry args={[0.055, 0.075, 1.48, 8]} />
+      <meshStandardMaterial color="#805b72" metalness={0.32} roughness={0.48} />
+    </mesh>
+    <mesh position={[0, 1.72, 0]}>
+      <octahedronGeometry args={[0.22, 0]} />
+      <meshStandardMaterial color="#ffe49b" emissive="#ffbd60" emissiveIntensity={1.1} roughness={0.28} />
+    </mesh>
+    <mesh position={[0, 1.91, 0]}>
+      <coneGeometry args={[0.2, 0.16, 6]} />
+      <meshStandardMaterial color="#bd7b6b" roughness={0.58} />
+    </mesh>
+    <pointLight position={[0, 1.72, 0]} color="#ffd58c" intensity={0.28} distance={3.5} decay={2} />
+  </group>
+);
+
+const TownDock: React.FC = () => (
+  <group position={[4.85, 0.84, 5.38]} rotation={[0, -0.12, 0]}>
+    {[-0.62, -0.22, 0.18, 0.58].map((x) => (
+      <mesh key={x} position={[x, 0.08, 0]} castShadow>
+        <boxGeometry args={[0.34, 0.16, 1.45]} />
+        <meshStandardMaterial color="#bd8056" roughness={0.76} />
+      </mesh>
+    ))}
+    {[-0.52, 0.52].map((x) => (
+      <mesh key={x} position={[x, -0.08, 0.58]}>
+        <cylinderGeometry args={[0.08, 0.1, 0.55, 8]} />
+        <meshStandardMaterial color="#8b5b47" roughness={0.82} />
+      </mesh>
+    ))}
+  </group>
+);
+
 export const CenterCity3D: React.FC = () => {
   const players = useGameStore((state) => state.players);
   const boatRef = useRef<THREE.Group>(null);
@@ -454,13 +557,15 @@ export const CenterCity3D: React.FC = () => {
         <meshPhysicalMaterial color="#42c5e6" roughness={0.22} metalness={0.16} clearcoat={1} clearcoatRoughness={0.12} />
       </RoundedBox>
 
-      {/* Multi-level floating grass islands. */}
-      <Island position={[-1.0, 1.06, -2.65]} size={[5.35, 0.76, 5.05]} top="#9fe15c" cliff="#7c70bd" />
-      <Island position={[-5.05, 0.78, -1.1]} size={[3.55, 0.72, 3.6]} top="#a6e968" cliff="#8374c2" rotation={-0.08} />
-      <Island position={[3.55, 0.83, -1.45]} size={[4.35, 0.74, 3.7]} top="#a5e55c" cliff="#8c79c5" rotation={0.04} />
-      <Island position={[-3.8, 0.72, 3.15]} size={[4.0, 0.64, 3.25]} top="#b1e967" cliff="#7e72bd" rotation={-0.06} />
-      <Island position={[1.9, 0.74, 3.12]} size={[4.15, 0.66, 3.45]} top="#b4ed69" cliff="#8d7bc5" rotation={0.04} />
-      <Island position={[5.65, 0.68, 3.25]} size={[2.5, 0.58, 3.1]} top="#a8e65f" cliff="#8a79bd" rotation={-0.05} />
+      {/* Organic, connected land districts replace the old rectangular grass slabs. */}
+      <Island position={[0, 0.52, 0.15]} size={[13.1, 0.72, 11.8]} top="#82cf66" cliff="#806db3" rotation={0.015} />
+      <Island position={[-1.0, 1.04, -2.65]} size={[5.35, 0.72, 5.05]} top="#a9e96b" cliff="#8c78c0" />
+      <Island position={[-5.05, 0.78, -1.1]} size={[3.55, 0.68, 3.6]} top="#a4e66b" cliff="#8574bd" rotation={-0.08} />
+      <Island position={[3.55, 0.83, -1.45]} size={[4.35, 0.70, 3.7]} top="#a5e76a" cliff="#917bc2" rotation={0.04} />
+      <Island position={[-3.8, 0.72, 3.15]} size={[4.0, 0.60, 3.25]} top="#b2e975" cliff="#8171b8" rotation={-0.06} />
+      <Island position={[1.9, 0.74, 3.12]} size={[4.15, 0.62, 3.45]} top="#b4ed73" cliff="#8d7bc5" rotation={0.04} />
+
+      <CityPaths />
 
       {/* Castle district. */}
       <Castle />
@@ -472,10 +577,15 @@ export const CenterCity3D: React.FC = () => {
       <House position={[-3.45, 1.21, 3.6]} roof="#9686dc" wall="#f7dfc7" scale={0.72} />
       <House position={[1.0, 1.24, 2.72]} roof="#ee8664" wall="#fff0d5" scale={0.73} awning />
       <House position={[2.5, 1.24, 3.48]} roof="#f17c5e" wall="#ffdfbd" scale={0.75} />
+      <House position={[-2.55, 1.26, -3.75]} roof="#e98a65" wall="#ffead0" scale={0.66} />
+      <House position={[4.75, 1.18, 1.7]} roof="#8b84d8" wall="#f8ddc5" scale={0.68} />
+      <House position={[0.15, 1.20, 4.55]} roof="#f18b68" wall="#fff0d5" scale={0.62} />
 
-      {/* Market stalls, planted beds and fruit trees bring scale to the village. */}
-      <MarketStall position={[0.0, 1.24, 4.0]} color="#8e8bdd" />
-      <MarketStall position={[1.35, 1.24, 4.15]} color="#ef8467" />
+      {/* A compact market street and orchard make the town read as one place. */}
+      <MarketStall position={[-1.05, 1.24, 4.0]} color="#8e8bdd" />
+      <MarketStall position={[0.25, 1.24, 4.18]} color="#ef8467" />
+      <MarketStall position={[1.55, 1.24, 4.1]} color="#f2b15f" />
+      <MarketStall position={[5.0, 1.17, 2.6]} color="#e87c69" />
       <OrchardInstances />
 
       {/* Trees scattered around the house lanes. */}
@@ -486,6 +596,14 @@ export const CenterCity3D: React.FC = () => {
       <Bridge position={[2.55, 1.22, 1.28]} rotation={0.32} length={2.55} />
       <Bridge position={[-2.72, 1.18, 1.05]} rotation={-0.28} length={2.3} />
       <CannonFort position={[-5.55, 1.21, 3.3]} />
+      <CityLamp position={[-6.05, 1.12, -0.55]} />
+      <CityLamp position={[-2.65, 1.16, -5.05]} />
+      <CityLamp position={[5.8, 1.12, -1.75]} />
+      <CityLamp position={[-4.85, 1.0, 5.0]} />
+      <CityLamp position={[4.35, 1.0, 4.15]} />
+
+      {/* A small timber dock gives the boat a clear harbor context. */}
+      <TownDock />
 
       {/* A toy sailing boat gently rocks through the front-right channel. */}
       <group ref={boatRef} position={[3, 0.78, 5.25]}>
@@ -512,8 +630,7 @@ export const CenterCity3D: React.FC = () => {
         <LandmarkTower key={player.id} position={landmarkPlots[index % landmarkPlots.length]} color={player.color} level={player.landmarkLevel} />
       ) : null)}
 
-      {/* Puffy clouds and floating crystals make the city feel magical, not gothic. */}
-      <CloudInstances />
+      {/* The sky clouds are kept outside the city silhouette so they never cover buildings. */}
       <mesh position={[0.1, 5.4, -2.2]}>
         <octahedronGeometry args={[0.3, 0]} />
         <meshPhysicalMaterial color="#64eaff" emissive="#2ccfff" emissiveIntensity={1.2} roughness={0.12} />
