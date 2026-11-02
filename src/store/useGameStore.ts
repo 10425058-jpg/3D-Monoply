@@ -68,6 +68,7 @@ interface GameStore {
   spinLuckyWheel: () => void;
   claimMissionReward: (missionId: MissionId) => void;
   openStickerPack: () => { stickers: string[]; duplicateCount: number } | null;
+  redeemStickerStars: () => void;
   claimStickerAlbumReward: () => void;
   payJailBail: () => void;
   useJailCard: () => void;
@@ -807,6 +808,19 @@ export const useGameStore = create<GameStore>((set, get) => {
       set({ metaProgress: opened.metaProgress });
       addLog(`Sticker Pack opened: ${opened.stickers.length} stickers revealed, ${opened.duplicateCount} duplicates converted to stars.`, 'card');
       return { stickers: opened.stickers, duplicateCount: opened.duplicateCount };
+    },
+
+    redeemStickerStars: () => {
+      const state = get();
+      if (state.metaProgress.stickerStars < 10) return;
+      const metaProgress = {
+        ...state.metaProgress,
+        stickerStars: state.metaProgress.stickerStars - 10,
+        stickerPacks: state.metaProgress.stickerPacks + 1,
+      };
+      saveMetaProgress(metaProgress);
+      set({ metaProgress });
+      addLog('Exchanged 10 sticker stars for a Sticker Pack.', 'card');
     },
 
     claimStickerAlbumReward: () => {
