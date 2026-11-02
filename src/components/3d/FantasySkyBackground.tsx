@@ -117,6 +117,7 @@ const FloatingIslands: React.FC<{ quality: Quality }> = ({ quality }) => {
     () => quality === 'low' ? ISLANDS.filter((_, index) => index % 2 === 0) : ISLANDS,
     [quality]
   );
+  const houses = useMemo(() => islands.filter((_, index) => index % 3 === 1), [islands]);
 
   useLayoutEffect(() => {
     const dummy = new THREE.Object3D();
@@ -156,18 +157,21 @@ const FloatingIslands: React.FC<{ quality: Quality }> = ({ quality }) => {
       dummy.updateMatrix();
       highlightRef.current?.setMatrixAt(index, dummy.matrix);
 
-      if (index % 3 === 1) {
-        dummy.position.set(x - 0.65 * s, y + 0.84 * s, z + 0.25 * s);
-        dummy.rotation.set(0, index * 0.8, 0);
-        dummy.scale.set(0.48 * s, 0.42 * s, 0.42 * s);
-        dummy.updateMatrix();
-        houseRef.current?.setMatrixAt(index, dummy.matrix);
+    });
 
-        dummy.position.set(x - 0.65 * s, y + 1.22 * s, z + 0.25 * s);
-        dummy.scale.set(0.56 * s, 0.42 * s, 0.52 * s);
-        dummy.updateMatrix();
-        roofRef.current?.setMatrixAt(index, dummy.matrix);
-      }
+    houses.forEach((island, index) => {
+      const [x, y, z] = island.position;
+      const s = island.scale;
+      dummy.position.set(x - 0.65 * s, y + 0.84 * s, z + 0.25 * s);
+      dummy.rotation.set(0, index * 0.8, 0);
+      dummy.scale.set(0.48 * s, 0.42 * s, 0.42 * s);
+      dummy.updateMatrix();
+      houseRef.current?.setMatrixAt(index, dummy.matrix);
+
+      dummy.position.set(x - 0.65 * s, y + 1.22 * s, z + 0.25 * s);
+      dummy.scale.set(0.56 * s, 0.42 * s, 0.52 * s);
+      dummy.updateMatrix();
+      roofRef.current?.setMatrixAt(index, dummy.matrix);
     });
 
     const meshes = [
@@ -185,7 +189,7 @@ const FloatingIslands: React.FC<{ quality: Quality }> = ({ quality }) => {
       mesh.instanceMatrix.needsUpdate = true;
       if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
     });
-  }, [islands]);
+  }, [houses, islands]);
 
   return (
     <group>
@@ -209,11 +213,11 @@ const FloatingIslands: React.FC<{ quality: Quality }> = ({ quality }) => {
         <icosahedronGeometry args={[1, 1]} />
         <meshStandardMaterial color="#a9ce79" roughness={0.88} flatShading />
       </instancedMesh>
-      <instancedMesh ref={houseRef} args={[undefined, undefined, islands.length]} frustumCulled={false}>
+      <instancedMesh ref={houseRef} args={[undefined, undefined, houses.length]} frustumCulled={false}>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial color="#ffe0b7" roughness={0.78} />
       </instancedMesh>
-      <instancedMesh ref={roofRef} args={[undefined, undefined, islands.length]} frustumCulled={false}>
+      <instancedMesh ref={roofRef} args={[undefined, undefined, houses.length]} frustumCulled={false}>
         <coneGeometry args={[0.72, 0.82, 4]} />
         <meshStandardMaterial color="#e8896e" roughness={0.72} />
       </instancedMesh>
@@ -266,7 +270,10 @@ const SkyLanterns: React.FC<{ quality: Quality }> = ({ quality }) => {
   const polesRef = useRef<THREE.InstancedMesh>(null);
   const lampsRef = useRef<THREE.InstancedMesh>(null);
   const capsRef = useRef<THREE.InstancedMesh>(null);
-  const positions = quality === 'low' ? LANTERNS.filter((_, index) => index % 2 === 0) : LANTERNS;
+  const positions = useMemo(
+    () => quality === 'low' ? LANTERNS.filter((_, index) => index % 2 === 0) : LANTERNS,
+    [quality]
+  );
 
   useLayoutEffect(() => {
     const dummy = new THREE.Object3D();
