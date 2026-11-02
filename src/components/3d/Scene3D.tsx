@@ -82,7 +82,7 @@ export const Scene3D: React.FC = () => (
       performance={{ min: 0.55, max: 1, debounce: 180 }}
       gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
     >
-      <mesh position={[0, -1.35, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+      <mesh position={[0, -1.56, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[180, 180]} />
         <meshPhysicalMaterial color="#39b6e7" roughness={0.32} metalness={0.12} clearcoat={0.7} />
       </mesh>
