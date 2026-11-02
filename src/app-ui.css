@@ -2454,3 +2454,42 @@
   .roll-button svg { width: 27px; height: 27px; }
   .roll-controls { display: none; }
 }
+
+
+/* Graphics quality selector in the compact game controls. */
+.roll-controls {
+  width: 150px;
+  min-height: 112px;
+  gap: 6px;
+  padding: 9px 10px;
+}
+.quality-switch {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+}
+.quality-switch select {
+  width: 94px;
+  min-height: 25px;
+  padding: 0 6px;
+  border: 1px solid rgba(255,255,255,.24);
+  border-radius: 8px;
+  outline: none;
+  color: #fff5df;
+  background: rgba(57, 39, 119, .72);
+  font-size: 8px;
+  font-weight: 800;
+}
+.quality-switch select option { color: #4c397a; background: #fff2e5; }
+@media (max-width: 1100px) {
+  .roll-controls { width: 132px; min-height: 106px; }
+  .quality-switch select { width: 84px; }
+}
+@media (max-width: 760px) {
+  .roll-controls { display: none; }
+}
