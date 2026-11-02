@@ -28,7 +28,7 @@ const Island: React.FC<{position: Pos; size: [number, number, number]; top?: str
   }, [width, depth, rotation]);
   const cliffGeometry = useMemo(() => {
     const geometry = new THREE.ExtrudeGeometry(shape, {
-      depth: height,
+      depth: height * 0.72,
       bevelEnabled: true,
       bevelSegments: 3,
       steps: 1,
@@ -50,12 +50,8 @@ const Island: React.FC<{position: Pos; size: [number, number, number]; top?: str
       <mesh geometry={cliffGeometry} castShadow receiveShadow>
         <meshStandardMaterial color={cliff} roughness={0.78} />
       </mesh>
-      <mesh geometry={grassGeometry} position={[0, height + 0.085, 0]} receiveShadow>
+      <mesh geometry={grassGeometry} position={[0, height * 0.72 + 0.09, 0]} receiveShadow>
         <meshStandardMaterial color={top} roughness={0.9} />
-      </mesh>
-      <mesh position={[0, height + 0.095, 0]}>
-        <cylinderGeometry args={[0.09, 0.12, 0.025, 10]} />
-        <meshStandardMaterial color="#d6c5e7" roughness={0.82} />
       </mesh>
     </group>
   );
@@ -460,16 +456,16 @@ const MarketStall: React.FC<{position: Pos; color: string}> = ({ position, color
 
 const PATH_POINTS: Pos[][] = [
   [
-    [-5.55, 1.62, 0.55], [-4.45, 1.63, 1.2], [-3.15, 1.65, 1.28],
-    [-1.85, 1.67, 0.62], [-0.15, 1.67, 0.55], [1.5, 1.65, 1.15], [3.25, 1.6, 1.0], [5.15, 1.55, 0.15],
+    [-5.55, 1.36, 0.55], [-4.45, 1.36, 1.2], [-3.15, 1.37, 1.28],
+    [-1.85, 1.38, 0.62], [-0.15, 1.38, 0.55], [1.5, 1.37, 1.15], [3.25, 1.35, 1.0], [5.15, 1.34, 0.15],
   ],
   [
     [-1.55, 1.68, -4.65], [-0.75, 1.7, -3.65], [-0.15, 1.69, -2.35],
     [1.35, 1.67, -1.85], [2.85, 1.62, -2.15], [4.25, 1.58, -1.7],
   ],
   [
-    [-4.65, 1.57, 2.55], [-3.55, 1.59, 3.45], [-2.05, 1.6, 3.92],
-    [-0.25, 1.59, 3.72], [1.3, 1.58, 3.3], [3.25, 1.55, 3.15],
+    [-4.65, 1.35, 2.55], [-3.55, 1.36, 3.45], [-2.05, 1.37, 3.92],
+    [-0.25, 1.36, 3.72], [1.3, 1.35, 3.3], [3.25, 1.34, 3.15],
   ],
 ];
 
@@ -558,7 +554,7 @@ export const CenterCity3D: React.FC = () => {
       </RoundedBox>
 
       {/* Organic, connected land districts replace the old rectangular grass slabs. */}
-      <Island position={[0, 0.52, 0.15]} size={[13.1, 0.72, 11.8]} top="#82cf66" cliff="#806db3" rotation={0.015} />
+      <Island position={[0, 0.72, 0.15]} size={[12.2, 0.68, 10.6]} top="#80c966" cliff="#796ab0" rotation={0.015} />
       <Island position={[-1.0, 1.04, -2.65]} size={[5.35, 0.72, 5.05]} top="#a9e96b" cliff="#8c78c0" />
       <Island position={[-5.05, 0.78, -1.1]} size={[3.55, 0.68, 3.6]} top="#a4e66b" cliff="#8574bd" rotation={-0.08} />
       <Island position={[3.55, 0.83, -1.45]} size={[4.35, 0.70, 3.7]} top="#a5e76a" cliff="#917bc2" rotation={0.04} />
