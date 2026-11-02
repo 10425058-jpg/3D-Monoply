@@ -46,6 +46,19 @@ const DEFAULT_SETUP = [
 
 type GraphicsQuality = 'low' | 'balanced' | 'high';
 
+const getInitialGraphicsQuality = (): GraphicsQuality => {
+  if (typeof window === 'undefined') return 'balanced';
+  try {
+    const saved = window.localStorage.getItem('monopoly-graphics-quality');
+    if (saved === 'low' || saved === 'balanced' || saved === 'high') return saved;
+  } catch {
+    // Storage may be unavailable in private browsing; use device heuristics instead.
+  }
+  const cores = window.navigator.hardwareConcurrency || 8;
+  const memory = (window.navigator as Navigator & { deviceMemory?: number }).deviceMemory || 8;
+  return cores <= 4 || memory <= 4 ? 'low' : 'balanced';
+};
+
 const money = (value: number) => `${value.toLocaleString('en-US')}`;
 
 const localDateKey = (date = new Date()) => {
@@ -100,11 +113,7 @@ export const App: React.FC = () => {
   const [lastPackReveal, setLastPackReveal] = useState<{ stickers: string[]; duplicateCount: number } | null>(null);
   const [isWheelSpinning, setIsWheelSpinning] = useState(false);
   const [autoRoll, setAutoRoll] = useState(false);
-  const [graphicsQuality, setGraphicsQuality] = useState<GraphicsQuality>(() => {
-    if (typeof window === 'undefined') return 'balanced';
-    const saved = window.localStorage.getItem('monopoly-graphics-quality');
-    return saved === 'low' || saved === 'high' ? saved : 'balanced';
-  });
+  const [graphicsQuality, setGraphicsQuality] = useState<GraphicsQuality>(getInitialGraphicsQuality);
   const [showTradeModal, setShowTradeModal] = useState(false);
   const [tradeTargetId, setTradeTargetId] = useState<number>(1);
   const [tradePropertyId, setTradePropertyId] = useState('');
@@ -396,7 +405,11 @@ export const App: React.FC = () => {
 
   const handleGraphicsQualityChange = (quality: GraphicsQuality) => {
     setGraphicsQuality(quality);
-    window.localStorage.setItem('monopoly-graphics-quality', quality);
+    try {
+      window.localStorage.setItem('monopoly-graphics-quality', quality);
+    } catch {
+      // The setting remains active for this session even when storage is blocked.
+    }
   };
 
   const handleStart = () => {
