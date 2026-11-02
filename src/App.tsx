@@ -648,9 +648,7 @@ export const App: React.FC = () => {
                   Use jail card
                 </button>
               )}
-              <button className="console-button primary roll-button" disabled={activePlayer?.isAI} onClick={game.rollDice}>
-                <Dices size={32} /> <span>ROLL</span>
-              </button>
+
             </>
           )}
 
@@ -747,6 +745,12 @@ export const App: React.FC = () => {
           </button>
         </div>
       </footer>
+
+      {game.turnPhase === 'PRE_ROLL' && activePlayer && (
+        <button className="console-button primary roll-button" disabled={activePlayer.isAI} onClick={game.rollDice}>
+          <Dices size={32} /><span>ROLL</span>
+        </button>
+      )}
 
       {showTradeModal && activePlayer && !activePlayer.isAI && (
         <div className="modal-backdrop">
