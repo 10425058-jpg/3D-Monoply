@@ -320,9 +320,17 @@ export const TokensAndBuildings: React.FC = () => {
       const jumpWave = jumpProgress > 0 ? Math.sin(jumpProgress * Math.PI) : 0;
       const jumpHeight = jumpWave * 0.62;
       const targetY = 0.22 + jumpHeight + (isCurrent ? Math.abs(Math.sin(t * 4.5)) * 0.075 : 0);
-      const targetRotation = Math.sin(t * 0.8 + idx) * 0.025 + jumpWave * 0.42;
+      const targetRotation = (isCurrent ? Math.sin(t * 0.8 + idx) * 0.025 : 0) + jumpWave * 0.42;
       const baseScale = tf.isCorner ? 1.2 : 1.06;
       const landingPulse = 1 + jumpWave * 0.13;
+      const isSettled =
+        Math.abs(group.position.x - targetX) < 0.002 &&
+        Math.abs(group.position.z - targetZ) < 0.002 &&
+        Math.abs(group.position.y - targetY) < 0.003 &&
+        Math.abs(group.rotation.y - targetRotation) < 0.002;
+
+      // Park inactive tokens once they reach their space; only the active token keeps its idle bob.
+      if (!isCurrent && jumpWave === 0 && isSettled) return;
 
       group.position.x = THREE.MathUtils.damp(group.position.x, targetX, 11, delta);
       group.position.z = THREE.MathUtils.damp(group.position.z, targetZ, 11, delta);
