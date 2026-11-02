@@ -205,6 +205,54 @@ export const App: React.FC = () => {
     return () => window.clearTimeout(timer);
   }, [game.railroadRaid, game.players, game.gameSpeed]);
 
+  useEffect(() => {
+    if (!autoRoll || !activePlayer || activePlayer.isAI || activePlayer.isBankrupt || game.winner) return;
+    if (game.turnPhase !== 'PRE_ROLL' || game.railroadRaid || showTradeModal || showMetaHub || showRules || showSetup) return;
+    const timer = window.setTimeout(() => game.rollDice(), 260 / game.gameSpeed);
+    return () => window.clearTimeout(timer);
+  }, [autoRoll, activePlayer?.id, activePlayer?.isAI, game.turnPhase, game.railroadRaid, game.gameSpeed, game.winner, showTradeModal, showMetaHub, showRules, showSetup]);
+
+  const openTrade = () => {
+    if (!activePlayer || activePlayer.isAI) return;
+    setTradeTargetId(rivalPlayers[0]?.id ?? 1);
+    setTradePropertyId(myTradableProperties[0] ? String(myTradableProperties[0].id) : '');
+    setTradeOfferCash('0');
+    setTradeRequestCash('150');
+    setTradeFeedback('');
+    setShowTradeModal(true);
+  };
+
+  const handleTradeSubmit = () => {
+    if (!activePlayer || !rivalPlayers.some((player) => player.id === tradeTargetId)) return;
+    const offerCash = Math.max(0, Math.floor(Number(tradeOfferCash) || 0));
+    const requestCash = Math.max(0, Math.floor(Number(tradeRequestCash) || 0));
+    const offer: TradeOffer = {
+      fromPlayerId: activePlayer.id,
+      toPlayerId: tradeTargetId,
+      offerCash,
+      requestCash,
+      offerProperties: tradePropertyId ? [Number(tradePropertyId)] : [],
+      requestProperties: [],
+    };
+    const result = game.proposeTrade(offer);
+    setTradeFeedback(result.message);
+    if (result.accepted) window.setTimeout(() => setShowTradeModal(false), 1100);
+  };
+
+  const handleUpgradeLandmark = () => {
+    if (!activePlayer || activePlayer.isAI || activePlayer.money < landmarkCost ||
+        (game.turnPhase !== 'PRE_ROLL' && game.turnPhase !== 'END_TURN') || activePlayer.landmarkLevel >= 5) return;
+    game.upgradeLandmark();
+    confetti({
+      particleCount: 58,
+      spread: 62,
+      startVelocity: 30,
+      origin: { y: 0.62 },
+      colors: [activePlayer.color, '#e9c879', '#fff4d6', '#81c8df'],
+      ticks: 130,
+      scalar: 0.85,
+    });
+  };
   const handleWheelSpin = () => {
     if (wheelUsedToday || isWheelSpinning) return;
     setIsWheelSpinning(true);
