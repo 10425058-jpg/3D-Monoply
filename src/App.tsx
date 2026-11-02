@@ -94,6 +94,11 @@ export const App: React.FC = () => {
     const timer = window.setTimeout(() => {
       switch (game.turnPhase) {
         case 'PRE_ROLL':
+          if (!activePlayer.inJail && activePlayer.landmarkLevel < 5 &&
+              activePlayer.money >= game.landmarkUpgradeCost(activePlayer.id) + 350 &&
+              Math.random() < 0.3) {
+            game.upgradeLandmark();
+          }
           if (activePlayer.inJail && activePlayer.money >= 50 && activePlayer.jailTurns >= 2) {
             game.payJailBail();
           } else if (activePlayer.inJail && activePlayer.getOutOfJailCards > 0) {
