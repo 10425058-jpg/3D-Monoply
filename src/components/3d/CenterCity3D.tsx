@@ -14,17 +14,9 @@ const Tree: React.FC<TreeProps> = ({ position, scale = 1, canopy = '#267b54' }) 
       <cylinderGeometry args={[0.07, 0.12, 0.68, 7]} />
       <meshStandardMaterial color="#65432f" roughness={0.92} />
     </mesh>
-    <mesh position={[0, 0.88, 0]}>
-      <dodecahedronGeometry args={[0.48, 1]} />
-      <meshStandardMaterial color={canopy} roughness={0.82} />
-    </mesh>
-    <mesh position={[-0.18, 1.12, 0.08]}>
-      <icosahedronGeometry args={[0.29, 1]} />
-      <meshStandardMaterial color={canopy} roughness={0.78} />
-    </mesh>
-    <mesh position={[0.19, 1.02, -0.1]}>
-      <dodecahedronGeometry args={[0.31, 1]} />
-      <meshStandardMaterial color={canopy} roughness={0.8} />
+    <mesh position={[0, 0.82, 0]}>
+      <dodecahedronGeometry args={[0.52, 0]} />
+      <meshStandardMaterial color={canopy} roughness={0.86} />
     </mesh>
   </group>
 );
@@ -317,7 +309,7 @@ const RollerCoaster: React.FC = () => {
       ),
     []
   );
-  const supportPoints = useMemo(() => path.getPoints(24).filter((_, index) => index % 2 === 0), [path]);
+  const supportPoints = useMemo(() => path.getPoints(12).filter((_, index) => index % 3 === 0), [path]);
 
   useFrame(({ clock }) => {
     if (!trainRef.current) return;
@@ -341,16 +333,16 @@ const RollerCoaster: React.FC = () => {
 
       {/* Twin rails and cross ties */}
       <mesh>
-        <tubeGeometry args={[path, 120, 0.055, 8, false]} />
+        <tubeGeometry args={[path, 56, 0.055, 6, false]} />
         <meshStandardMaterial color="#d95b55" metalness={0.65} roughness={0.24} />
       </mesh>
       <mesh position={[0, 0, 0.14]}>
         <tubeGeometry
           args={[
-            new THREE.CatmullRomCurve3(path.getPoints(90).map((point) => new THREE.Vector3(point.x, point.y, point.z + 0.15))),
-            120,
+            new THREE.CatmullRomCurve3(path.getPoints(48).map((point) => new THREE.Vector3(point.x, point.y, point.z + 0.15))),
+            56,
             0.045,
-            8,
+            6,
             false,
           ]}
         />
@@ -371,7 +363,7 @@ const RollerCoaster: React.FC = () => {
               <boxGeometry args={[0.38, 0.24, 0.42]} />
               <meshStandardMaterial color={car === 0 ? '#f4c35f' : '#e86b60'} metalness={0.35} roughness={0.24} />
             </mesh>
-            <mesh position={[0, 0.16, -0.02]} castShadow>
+            <mesh position={[0, 0.16, -0.02]}>
               <boxGeometry args={[0.31, 0.13, 0.25]} />
               <meshStandardMaterial color="#26364c" metalness={0.6} roughness={0.2} />
             </mesh>
