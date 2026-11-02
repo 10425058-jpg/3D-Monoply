@@ -7,6 +7,7 @@ import {
   LogEntry,
   MetaProgress,
   Player,
+  PropertyAuction,
   PropertyState,
   RailroadRaid,
   TokenType,
@@ -40,7 +41,13 @@ interface GameStore {
   gameSpeed: 1 | 2;
   cameraMode: CameraMode;
   logs: LogEntry[];
-  pendingDebt: { amount: number; creditorId: number | null; reason: string } | null;
+  pendingDebt: {
+    amount: number;
+    creditorId: number | null;
+    reason: string;
+    distribution?: { recipientIds: number[]; amountPerPlayer: number };
+  } | null;
+  auction: PropertyAuction | null;
   railroadRaid: RailroadRaid | null;
   metaProgress: MetaProgress;
   lastWheelReward: WheelReward | null;
@@ -76,6 +83,8 @@ interface GameStore {
   useJailCard: () => void;
   buyCurrentProperty: () => void;
   auctionCurrentProperty: () => void;
+  placeAuctionBid: (increment?: number) => void;
+  passAuction: () => void;
   declineProperty: () => void;
   applyActiveCard: () => void;
   buildHouse: (spaceId: number) => void;
@@ -187,6 +196,9 @@ const DEFAULT_PLAYERS: PlayerSetupConfig[] = [
 ];
 
 export const useGameStore = create<GameStore>((set, get) => {
+  // Invalidate in-flight movement and dice callbacks whenever a new game starts.
+  let gameGeneration = 0;
+
   const addLog = (message: string, type: LogEntry['type'] = 'info') => {
     const entry: LogEntry = {
       id: `${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
@@ -242,10 +254,12 @@ export const useGameStore = create<GameStore>((set, get) => {
   };
 
   const stepMovePlayer = (playerIndex: number, totalSteps: number, onComplete: () => void) => {
+    const generation = gameGeneration;
     let remaining = Math.abs(totalSteps);
     const direction = totalSteps >= 0 ? 1 : -1;
 
     const tick = () => {
+      if (generation !== gameGeneration) return;
       if (remaining <= 0) {
         onComplete();
         return;
@@ -423,6 +437,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       },
     ],
     pendingDebt: null,
+    auction: null,
     railroadRaid: null,
     metaProgress: loadMetaProgress(),
     lastWheelReward: null,
@@ -432,6 +447,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     isSetupModalOpen: false,
 
     startNewGame: (configs) => {
+      gameGeneration += 1;
       const newPlayers: Player[] = configs.map((cfg, idx) => ({
         id: idx,
         name: cfg.name,
@@ -459,6 +475,7 @@ export const useGameStore = create<GameStore>((set, get) => {
         selectedSpaceId: null,
         hoveredSpaceId: null,
         pendingDebt: null,
+        auction: null,
         railroadRaid: null,
         winner: null,
         isSetupModalOpen: false,
@@ -557,6 +574,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     rollDice: () => {
       const state = get();
       if (state.turnPhase !== 'PRE_ROLL') return;
+      const generation = gameGeneration;
 
       const d1 = Math.floor(Math.random() * 6) + 1;
       const d2 = Math.floor(Math.random() * 6) + 1;
@@ -568,6 +586,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       if (!player.isAI) progressMission('rolls');
 
       setTimeout(() => {
+        if (generation !== gameGeneration) return;
         const currentState = get();
         const activePlayer = currentState.players[currentState.currentPlayerIndex];
 
@@ -927,55 +946,134 @@ export const useGameStore = create<GameStore>((set, get) => {
       const property = state.properties[space.id];
       if (!player || player.isAI || !space.price || !property || property.ownerId !== null) return;
 
-      const purchasePrice = space.price ?? 0;
-      const bidderPlayers = state.players.filter((candidate) =>
-        candidate.id !== player.id && candidate.isAI && !candidate.isBankrupt
-      );
-      const groupSpaces = BOARD_SPACES.filter((candidate) => candidate.colorGroup === space.colorGroup);
-      const ownsInGroup = (bidderId: number) => groupSpaces.filter((candidate) =>
-        state.properties[candidate.id]?.ownerId === bidderId
-      ).length;
-      const bids = bidderPlayers
-        .map((bidder) => {
-          const completesSet = groupSpaces.length > 0 && ownsInGroup(bidder.id) + 1 === groupSpaces.length;
-          const alreadyInvested = ownsInGroup(bidder.id) > 0;
-          const strategicMultiplier = completesSet ? 1.08 : alreadyInvested ? 0.82 : 0.62;
-          const reserve = Math.max(50, Math.round(purchasePrice * 0.28));
-          const cashReserve = Math.max(100, Math.min(350, Math.round(bidder.money * 0.2)));
-          const maximum = Math.max(0, Math.min(
-            bidder.money - cashReserve,
-            Math.round(purchasePrice * strategicMultiplier)
-          ));
-          const bid = maximum >= reserve
-            ? Math.round((reserve + Math.random() * (maximum - reserve)) / 10) * 10
-            : 0;
-          return { bidder, bid };
-        })
-        .filter((entry) => entry.bid > 0)
-        .sort((left, right) => right.bid - left.bid);
-
-      const winner = bids[0];
-      if (!winner) {
-        addLog(`No rival bid on ${space.name}; it remains available from the bank.`, 'info');
+      const activePlayers = state.players.filter((candidate) => !candidate.isBankrupt);
+      if (activePlayers.length < 2) {
+        addLog('There are not enough active players to hold an auction.', 'info');
         set({ turnPhase: 'END_TURN' });
         return;
       }
 
-      set((current) => ({
-        players: current.players.map((candidate) =>
-          candidate.id === winner.bidder.id
-            ? { ...candidate, money: candidate.money - winner.bid }
-            : candidate
-        ),
-        properties: {
-          ...current.properties,
-          [space.id]: { ...current.properties[space.id], ownerId: winner.bidder.id },
+      set({
+        auction: {
+          spaceId: space.id,
+          currentBid: 0,
+          highestBidderId: null,
+          currentBidderId: player.id,
+          passedPlayerIds: [],
         },
-        turnPhase: 'END_TURN',
-      }));
-      addLog(`${winner.bidder.name} won the auction for ${space.name} with a bid of ${winner.bid}.`, 'property');
+        turnPhase: 'AUCTION',
+      });
+      addLog(`Auction started for ${space.name}. Opening bid is $10.`, 'property');
     },
 
+    placeAuctionBid: (increment = 10) => {
+      const state = get();
+      const auction = state.auction;
+      if (!auction || state.turnPhase !== 'AUCTION') return;
+      const bidderId = auction.currentBidderId;
+      const bidder = state.players.find((candidate) => candidate.id === bidderId);
+      if (!bidder || bidder.isBankrupt) return;
+
+      const safeIncrement = Number.isSafeInteger(increment) && increment > 0 ? increment : 10;
+      const nextBid = auction.currentBid + safeIncrement;
+      if (bidder.money < nextBid) {
+        addLog(`${bidder.name} cannot afford the next bid of $${nextBid}.`, 'alert');
+        return;
+      }
+
+      const nextAuction: PropertyAuction = {
+        ...auction,
+        currentBid: nextBid,
+        highestBidderId: bidder.id,
+        currentBidderId: null,
+      };
+      const afterIndex = state.players.findIndex((candidate) => candidate.id === bidder.id);
+      for (let offset = 1; offset <= state.players.length; offset += 1) {
+        const candidate = state.players[(afterIndex + offset) % state.players.length];
+        if (
+          candidate.isBankrupt ||
+          candidate.id === bidder.id ||
+          nextAuction.passedPlayerIds.includes(candidate.id)
+        ) continue;
+        nextAuction.currentBidderId = candidate.id;
+        break;
+      }
+
+      if (nextAuction.currentBidderId === null) {
+        const space = BOARD_SPACES[auction.spaceId];
+        set((current) => ({
+          players: current.players.map((candidate) =>
+            candidate.id === bidder.id ? { ...candidate, money: candidate.money - nextBid } : candidate
+          ),
+          properties: {
+            ...current.properties,
+            [space.id]: { ...current.properties[space.id], ownerId: bidder.id },
+          },
+          auction: null,
+          turnPhase: 'END_TURN',
+        }));
+        addLog(`${bidder.name} won ${space.name} for $${nextBid}.`, 'property');
+        return;
+      }
+
+      set({ auction: nextAuction });
+      addLog(`${bidder.name} bid $${nextBid} for ${BOARD_SPACES[auction.spaceId].name}.`, 'money');
+    },
+
+    passAuction: () => {
+      const state = get();
+      const auction = state.auction;
+      if (!auction || state.turnPhase !== 'AUCTION' || auction.currentBidderId === null) return;
+
+      const passingId = auction.currentBidderId;
+      const passedPlayerIds = [...new Set([...auction.passedPlayerIds, passingId])];
+      const nextAuction: PropertyAuction = {
+        ...auction,
+        passedPlayerIds,
+        currentBidderId: null,
+      };
+
+      const passingIndex = state.players.findIndex((candidate) => candidate.id === passingId);
+      for (let offset = 1; offset <= state.players.length; offset += 1) {
+        const candidate = state.players[(passingIndex + offset) % state.players.length];
+        if (
+          candidate.isBankrupt ||
+          candidate.id === auction.highestBidderId ||
+          passedPlayerIds.includes(candidate.id)
+        ) continue;
+        nextAuction.currentBidderId = candidate.id;
+        break;
+      }
+
+      if (nextAuction.currentBidderId !== null) {
+        set({ auction: nextAuction });
+        addLog(`${state.players.find((candidate) => candidate.id === passingId)?.name ?? 'Player'} passed on ${BOARD_SPACES[auction.spaceId].name}.`, 'info');
+        return;
+      }
+
+      const winner = auction.highestBidderId === null
+        ? null
+        : state.players.find((candidate) => candidate.id === auction.highestBidderId) ?? null;
+      const space = BOARD_SPACES[auction.spaceId];
+
+      if (winner) {
+        set((current) => ({
+          players: current.players.map((candidate) =>
+            candidate.id === winner.id ? { ...candidate, money: candidate.money - auction.currentBid } : candidate
+          ),
+          properties: {
+            ...current.properties,
+            [space.id]: { ...current.properties[space.id], ownerId: winner.id },
+          },
+          auction: null,
+          turnPhase: 'END_TURN',
+        }));
+        addLog(`${winner.name} won ${space.name} for $${auction.currentBid}.`, 'property');
+      } else {
+        set({ auction: null, turnPhase: 'END_TURN' });
+        addLog(`All players passed. ${space.name} remains unowned.`, 'info');
+      }
+    },
     declineProperty: () => {
       const state = get();
       if (state.turnPhase !== 'LANDED_ACTION') return;
@@ -1128,7 +1226,15 @@ export const useGameStore = create<GameStore>((set, get) => {
             addLog(`${player.name} paid $${perPlayer} to each player ($${totalNeeded} total).`, 'money');
           } else {
             set({
-              pendingDebt: { amount: totalNeeded, creditorId: null, reason: card.title },
+              pendingDebt: {
+                amount: totalNeeded,
+                creditorId: null,
+                reason: card.title,
+                distribution: {
+                  recipientIds: activeOthers.map((candidate) => candidate.id),
+                  amountPerPlayer: perPlayer,
+                },
+              },
               turnPhase: 'DEBT_RESOLUTION',
             });
           }
@@ -1260,29 +1366,76 @@ export const useGameStore = create<GameStore>((set, get) => {
       const state = get();
       const fromPlayer = state.players.find((p) => p.id === offer.fromPlayerId);
       const toPlayer = state.players.find((p) => p.id === offer.toPlayerId);
-      if (!fromPlayer || !toPlayer) return { accepted: false, message: 'Invalid players.' };
+      if (!fromPlayer || !toPlayer || fromPlayer.id === toPlayer.id) {
+        return { accepted: false, message: 'Choose two different players.' };
+      }
+      if (fromPlayer.id !== state.players[state.currentPlayerIndex]?.id || fromPlayer.isAI || fromPlayer.isBankrupt || toPlayer.isBankrupt) {
+        return { accepted: false, message: 'Only the active human player can initiate a trade with an active rival.' };
+      }
+      if (!['PRE_ROLL', 'LANDED_ACTION', 'END_TURN'].includes(state.turnPhase)) {
+        return { accepted: false, message: 'Trades are available between actions during your turn.' };
+      }
+
+      if (
+        !Number.isSafeInteger(offer.offerCash) ||
+        !Number.isSafeInteger(offer.requestCash) ||
+        offer.offerCash < 0 ||
+        offer.requestCash < 0 ||
+        !Array.isArray(offer.offerProperties) ||
+        !Array.isArray(offer.requestProperties) ||
+        new Set(offer.offerProperties).size !== offer.offerProperties.length ||
+        new Set(offer.requestProperties).size !== offer.requestProperties.length
+      ) {
+        return { accepted: false, message: 'Trade values and property selections must be valid and non-negative.' };
+      }
 
       if (fromPlayer.money < offer.offerCash || toPlayer.money < offer.requestCash) {
         return { accepted: false, message: 'Insufficient cash for this trade.' };
       }
 
       const offeredPropertiesValid = offer.offerProperties.every((id) =>
-        state.properties[id]?.ownerId === fromPlayer.id && !state.properties[id]?.isMortgaged
+        Number.isInteger(id) && state.properties[id]?.ownerId === fromPlayer.id && !state.properties[id]?.isMortgaged
       );
       const requestedPropertiesValid = offer.requestProperties.every((id) =>
-        state.properties[id]?.ownerId === toPlayer.id && !state.properties[id]?.isMortgaged
+        Number.isInteger(id) && state.properties[id]?.ownerId === toPlayer.id && !state.properties[id]?.isMortgaged
       );
       if (!offeredPropertiesValid || !requestedPropertiesValid) {
         return { accepted: false, message: 'Only properties owned free and clear can be traded.' };
       }
 
-      // Calculate fair value for AI evaluation
+      const tradedIds = [...offer.offerProperties, ...offer.requestProperties];
+      const groupsWithBuildings = new Set(
+        BOARD_SPACES
+          .filter((space) => (state.properties[space.id]?.houses ?? 0) > 0)
+          .map((space) => space.colorGroup)
+      );
+      if (tradedIds.some((id) => groupsWithBuildings.has(BOARD_SPACES[id].colorGroup))) {
+        return { accepted: false, message: 'Sell all buildings in a color group before trading its properties.' };
+      }
+      if (
+        offer.offerCash === 0 &&
+        offer.requestCash === 0 &&
+        offer.offerProperties.length === 0 &&
+        offer.requestProperties.length === 0
+      ) {
+        return { accepted: false, message: 'A trade must include cash or at least one property.' };
+      }
+
+      // AI evaluates the overall value of the exchange, including a modest set-completion bonus.
+      const propertyValue = (id: number, acquiringPlayerId: number) => {
+        const space = BOARD_SPACES[id];
+        const group = BOARD_SPACES.filter((candidate) => candidate.colorGroup === space.colorGroup);
+        const completesSet = group.length > 0 && group.every((candidate) =>
+          candidate.id === id || state.properties[candidate.id]?.ownerId === acquiringPlayerId
+        );
+        return (space.price || 150) * (completesSet ? 1.3 : 1);
+      };
       const offeredPropVal = offer.offerProperties.reduce(
-        (sum, id) => sum + (BOARD_SPACES[id].price || 150),
+        (sum, id) => sum + propertyValue(id, toPlayer.id),
         0
       );
       const requestedPropVal = offer.requestProperties.reduce(
-        (sum, id) => sum + (BOARD_SPACES[id].price || 150),
+        (sum, id) => sum + propertyValue(id, fromPlayer.id),
         0
       );
 
@@ -1292,11 +1445,10 @@ export const useGameStore = create<GameStore>((set, get) => {
       if (toPlayer.isAI && totalOfferedValue < totalRequestedValue * 0.95) {
         return {
           accepted: false,
-          message: `${toPlayer.name} declined the trade: "I need at least equal value ($${totalRequestedValue}) to accept!"`,
+          message: `${toPlayer.name} declined the trade: the offer is below its estimated value ($${Math.round(totalRequestedValue)}).`,
         };
       }
 
-      // Execute trade
       set((s) => {
         const players = s.players.map((p) => {
           if (p.id === fromPlayer.id) {
@@ -1310,10 +1462,10 @@ export const useGameStore = create<GameStore>((set, get) => {
 
         const properties = { ...s.properties };
         offer.offerProperties.forEach((id) => {
-          if (properties[id]) properties[id] = { ...properties[id], ownerId: toPlayer.id };
+          properties[id] = { ...properties[id], ownerId: toPlayer.id };
         });
         offer.requestProperties.forEach((id) => {
-          if (properties[id]) properties[id] = { ...properties[id], ownerId: fromPlayer.id };
+          properties[id] = { ...properties[id], ownerId: fromPlayer.id };
         });
 
         return { players, properties };
@@ -1322,7 +1474,6 @@ export const useGameStore = create<GameStore>((set, get) => {
       addLog(`Trade completed between ${fromPlayer.name} and ${toPlayer.name}!`, 'property');
       return { accepted: true, message: `${toPlayer.name} accepted your trade offer!` };
     },
-
     settlePendingDebt: () => {
       const state = get();
       const debt = state.pendingDebt;
@@ -1344,6 +1495,9 @@ export const useGameStore = create<GameStore>((set, get) => {
           if (debt.creditorId !== null && p.id === debt.creditorId) {
             return { ...p, money: p.money + debt.amount };
           }
+          if (debt.distribution?.recipientIds.includes(p.id) && !p.isBankrupt) {
+            return { ...p, money: p.money + debt.distribution.amountPerPlayer };
+          }
           return p;
         });
         return {
@@ -1353,7 +1507,12 @@ export const useGameStore = create<GameStore>((set, get) => {
         };
       });
 
-      addLog(`${player.name} settled their ${debt.amount} debt (${debt.reason}).`, 'money');
+      addLog(
+        debt.distribution
+          ? `${player.name} paid ${debt.distribution.amountPerPlayer} to each active rival (${debt.amount} total).`
+          : `${player.name} settled their ${debt.amount} debt (${debt.reason}).`,
+        'money'
+      );
       if (jailRelease) {
         addLog(`${player.name} is released from Jail and moves ${jailMoveTotal} spaces.`, 'info');
         stepMovePlayer(state.currentPlayerIndex, jailMoveTotal, evaluateLandedSpace);

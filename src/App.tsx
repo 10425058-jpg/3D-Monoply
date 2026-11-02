@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import confetti from 'canvas-confetti';
 import {
   ArrowRight,
@@ -54,6 +54,7 @@ const PHASE_LABELS: Record<TurnPhase, string> = {
   LANDED_ACTION: 'A new opportunity',
   CARD_DRAWN: 'A card has been drawn',
   DEBT_RESOLUTION: 'A debt needs attention',
+  AUCTION: 'Property auction',
   END_TURN: 'Turn complete',
   GAME_OVER: 'Game over',
 };
@@ -93,11 +94,16 @@ export const App: React.FC = () => {
   const [showTradeModal, setShowTradeModal] = useState(false);
   const [tradeTargetId, setTradeTargetId] = useState<number>(1);
   const [tradePropertyId, setTradePropertyId] = useState('');
+  const [tradeRequestPropertyId, setTradeRequestPropertyId] = useState('');
   const [tradeOfferCash, setTradeOfferCash] = useState('0');
   const [tradeRequestCash, setTradeRequestCash] = useState('150');
   const [tradeFeedback, setTradeFeedback] = useState('');
+  const aiInvestmentDoneThisTurn = useRef(false);
 
   const activePlayer = game.players[game.currentPlayerIndex];
+  const auctionBidder = game.auction
+    ? game.players.find((player) => player.id === game.auction?.currentBidderId)
+    : undefined;
   const inspectorSpaceId = game.hoveredSpaceId ?? game.selectedSpaceId;
   const selectedSpace = inspectorSpaceId === null ? null : BOARD_SPACES[inspectorSpaceId];
   const selectedState = selectedSpace ? game.properties[selectedSpace.id] : undefined;
@@ -105,8 +111,22 @@ export const App: React.FC = () => {
     ? undefined
     : game.players.find((player) => player.id === selectedState.ownerId);
   const myTradableProperties = useMemo(
-    () => BOARD_SPACES.filter((space) => space.type === 'property' && game.properties[space.id]?.ownerId === activePlayer?.id && !game.properties[space.id]?.isMortgaged),
+    () => BOARD_SPACES.filter((space) => {
+      if (space.type !== 'property' || game.properties[space.id]?.ownerId !== activePlayer?.id || game.properties[space.id]?.isMortgaged) return false;
+      return !BOARD_SPACES
+        .filter((candidate) => candidate.colorGroup === space.colorGroup)
+        .some((candidate) => (game.properties[candidate.id]?.houses ?? 0) > 0);
+    }),
     [game.properties, activePlayer?.id]
+  );
+  const rivalTradableProperties = useMemo(
+    () => BOARD_SPACES.filter((space) => {
+      if (space.type !== 'property' || game.properties[space.id]?.ownerId !== tradeTargetId || game.properties[space.id]?.isMortgaged) return false;
+      return !BOARD_SPACES
+        .filter((candidate) => candidate.colorGroup === space.colorGroup)
+        .some((candidate) => (game.properties[candidate.id]?.houses ?? 0) > 0);
+    }),
+    [game.properties, tradeTargetId]
   );
   const rivalPlayers = game.players.filter((player) => player.id !== activePlayer?.id && player.isAI && !player.isBankrupt);
 
@@ -132,14 +152,16 @@ export const App: React.FC = () => {
   );
 
   useEffect(() => {
+    if (game.turnPhase === 'END_TURN') aiInvestmentDoneThisTurn.current = false;
     if (!activePlayer?.isAI || game.winner) return;
     if (game.railroadRaid?.attackerId === activePlayer.id) return;
 
     const timer = window.setTimeout(() => {
       switch (game.turnPhase) {
         case 'PRE_ROLL': {
-          if (!activePlayer.inJail) {
-            // Invest in the strongest available improvement before rolling.
+          if (!activePlayer.inJail && !aiInvestmentDoneThisTurn.current) {
+            // Make at most one investment per turn so the AI cannot chain-build
+            // repeatedly just because its own state update re-triggers this effect.
             const buildCandidates = BOARD_SPACES
               .filter((space) => game.canBuildHouse(activePlayer.id, space.id))
               .map((space) => {
@@ -152,12 +174,14 @@ export const App: React.FC = () => {
               .sort((left, right) => right.score - left.score);
             const bestBuild = buildCandidates[0];
             if (bestBuild && activePlayer.money - bestBuild.cost >= Math.max(300, activePlayer.money * 0.24) && bestBuild.score >= 0.16) {
+              aiInvestmentDoneThisTurn.current = true;
               game.buildHouse(bestBuild.space.id);
-            }
-
-            if (activePlayer.landmarkLevel < 5 &&
-                activePlayer.money >= game.landmarkUpgradeCost(activePlayer.id) + 450 &&
-                Math.random() < 0.18) {
+            } else if (
+              activePlayer.landmarkLevel < 5 &&
+              activePlayer.money >= game.landmarkUpgradeCost(activePlayer.id) + 450 &&
+              Math.random() < 0.18
+            ) {
+              aiInvestmentDoneThisTurn.current = true;
               game.upgradeLandmark();
             }
           }
@@ -242,6 +266,39 @@ export const App: React.FC = () => {
   }, [activePlayer, game.turnPhase, game.winner, game.pendingDebt, game.railroadRaid, game.gameSpeed]);
 
   useEffect(() => {
+    const auction = game.auction;
+    const bidder = auction
+      ? game.players.find((player) => player.id === auction.currentBidderId)
+      : undefined;
+    if (!auction || !bidder?.isAI) return;
+
+    const timer = window.setTimeout(() => {
+      const space = BOARD_SPACES[auction.spaceId];
+      const groupSpaces = BOARD_SPACES.filter((candidate) => candidate.colorGroup === space.colorGroup);
+      const ownedInGroup = groupSpaces.filter((candidate) =>
+        game.properties[candidate.id]?.ownerId === bidder.id
+      ).length;
+      const completesSet = groupSpaces.length > 0 && ownedInGroup + 1 === groupSpaces.length;
+      const alreadyInvested = ownedInGroup > 0;
+      const strategicMultiplier = completesSet ? 1.08 : alreadyInvested ? 0.82 : 0.62;
+      const cashReserve = Math.max(100, Math.min(350, Math.round(bidder.money * 0.2)));
+      const maxBid = Math.max(0, Math.min(
+        bidder.money - cashReserve,
+        Math.round((space.price ?? 0) * strategicMultiplier)
+      ));
+      const nextBid = auction.currentBid + 10;
+
+      if (nextBid <= maxBid && bidder.money >= nextBid) {
+        game.placeAuctionBid(10);
+      } else {
+        game.passAuction();
+      }
+    }, 720 / game.gameSpeed);
+
+    return () => window.clearTimeout(timer);
+  }, [game.auction, game.players, game.properties, game.gameSpeed]);
+
+  useEffect(() => {
     const raid = game.railroadRaid;
     if (!raid) return;
     const attacker = game.players.find((player) => player.id === raid.attackerId);
@@ -278,6 +335,7 @@ export const App: React.FC = () => {
     if (!activePlayer || activePlayer.isAI) return;
     setTradeTargetId(rivalPlayers[0]?.id ?? 1);
     setTradePropertyId(myTradableProperties[0] ? String(myTradableProperties[0].id) : '');
+    setTradeRequestPropertyId('');
     setTradeOfferCash('0');
     setTradeRequestCash('150');
     setTradeFeedback('');
@@ -294,7 +352,7 @@ export const App: React.FC = () => {
       offerCash,
       requestCash,
       offerProperties: tradePropertyId ? [Number(tradePropertyId)] : [],
-      requestProperties: [],
+      requestProperties: tradeRequestPropertyId ? [Number(tradeRequestPropertyId)] : [],
     };
     const result = game.proposeTrade(offer);
     setTradeFeedback(result.message);
@@ -393,7 +451,14 @@ export const App: React.FC = () => {
 
           <div className="active-player-note">
             <span className="note-icon"><Sparkles size={13} /></span>
-            <span><strong>{activePlayer?.name ?? 'Waiting'}</strong> is in control</span>
+            <span>
+              <strong>
+                {game.turnPhase === 'AUCTION'
+                  ? auctionBidder?.name ?? 'Auction'
+                  : activePlayer?.name ?? 'Waiting'}
+              </strong>
+              {game.turnPhase === 'AUCTION' ? ' is bidding' : ' is in control'}
+            </span>
           </div>
 
           <div className="player-list">
@@ -565,6 +630,38 @@ export const App: React.FC = () => {
             </>
           )}
 
+          {game.turnPhase === 'AUCTION' && game.auction && (
+            <>
+              <div className="debt-readout">
+                Top bid <strong>{money(game.auction.currentBid)}</strong>
+                {game.auction.highestBidderId !== null && (
+                  <span> · {game.players.find((player) => player.id === game.auction?.highestBidderId)?.name}</span>
+                )}
+              </div>
+              {auctionBidder && !auctionBidder.isAI ? (
+                <>
+                  <button
+                    className="console-button primary"
+                    disabled={auctionBidder.money < game.auction.currentBid + 10}
+                    onClick={() => game.placeAuctionBid(10)}
+                  >
+                    Bid {money(game.auction.currentBid + 10)}
+                  </button>
+                  <button
+                    className="console-button secondary"
+                    disabled={auctionBidder.money < game.auction.currentBid + 50}
+                    onClick={() => game.placeAuctionBid(50)}
+                  >
+                    Bid +$50
+                  </button>
+                  <button className="console-button danger" onClick={game.passAuction}>Pass</button>
+                </>
+              ) : (
+                <div className="console-wait"><span className="loading-orbit" /> {auctionBidder?.name ?? 'Players'} is considering a bid…</div>
+              )}
+            </>
+          )}
+
           {game.turnPhase === 'CARD_DRAWN' && game.activeCard && (
             <button className="console-button primary" disabled={activePlayer?.isAI} onClick={game.applyActiveCard}>
               <ScrollText size={15} /> Resolve card
@@ -622,14 +719,20 @@ export const App: React.FC = () => {
             <div className="modal-ornament"><Coins size={24} /></div>
             <div className="eyebrow">NEGOTIATION DESK</div>
             <h2 id="trade-title">Propose a trade</h2>
-            <p>Offer one of your properties and/or cash to an AI rival in exchange for cash.</p>
+            <p>Exchange cash and one property from each side. The rival evaluates the full offer, including color-set value.</p>
             {rivalPlayers.length === 0 ? (
               <p>No rival is available to trade with.</p>
             ) : (
               <>
                 <label className="trade-field">
                   <span>Trade with</span>
-                  <select value={tradeTargetId} onChange={(event) => setTradeTargetId(Number(event.target.value))}>
+                  <select
+                    value={tradeTargetId}
+                    onChange={(event) => {
+                      setTradeTargetId(Number(event.target.value));
+                      setTradeRequestPropertyId('');
+                    }}
+                  >
                     {rivalPlayers.map((player) => <option key={player.id} value={player.id}>{player.name} · {money(player.money)}</option>)}
                   </select>
                 </label>
@@ -638,6 +741,13 @@ export const App: React.FC = () => {
                   <select value={tradePropertyId} onChange={(event) => setTradePropertyId(event.target.value)}>
                     <option value="">Cash only — no property</option>
                     {myTradableProperties.map((space) => <option key={space.id} value={space.id}>{space.name} · {money(space.price ?? 0)}</option>)}
+                  </select>
+                </label>
+                <label className="trade-field">
+                  <span>Property to request</span>
+                  <select value={tradeRequestPropertyId} onChange={(event) => setTradeRequestPropertyId(event.target.value)}>
+                    <option value="">No property requested</option>
+                    {rivalTradableProperties.map((space) => <option key={space.id} value={space.id}>{space.name} · {money(space.price ?? 0)}</option>)}
                   </select>
                 </label>
                 <div className="trade-cash-grid">
@@ -653,7 +763,10 @@ export const App: React.FC = () => {
                 {tradeFeedback && <div className={`trade-feedback ${tradeFeedback.includes('accepted') ? 'is-success' : 'is-warning'}`}>{tradeFeedback}</div>}
                 <div className="trade-modal-actions">
                   <button className="console-button secondary" onClick={() => setShowTradeModal(false)}>Cancel</button>
-                  <button className="console-button primary" disabled={Number(tradeOfferCash) > activePlayer.money || (!tradePropertyId && Number(tradeOfferCash) <= 0 && Number(tradeRequestCash) <= 0)} onClick={handleTradeSubmit}>
+                  <button className="console-button primary" disabled={
+                    Number(tradeOfferCash) > activePlayer.money ||
+                    (!tradePropertyId && !tradeRequestPropertyId && Number(tradeOfferCash) <= 0 && Number(tradeRequestCash) <= 0)
+                  } onClick={handleTradeSubmit}>
                     Send offer <ArrowRight size={14} />
                   </button>
                 </div>
