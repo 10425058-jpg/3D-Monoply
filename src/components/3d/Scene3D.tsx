@@ -69,12 +69,14 @@ const CameraRig: React.FC = () => {
   );
 };
 
-export const Scene3D: React.FC = () => (
+type GraphicsQuality = 'low' | 'balanced' | 'high';
+
+export const Scene3D: React.FC<{ quality?: GraphicsQuality }> = ({ quality = 'balanced' }) => (
   <div className="relative h-full w-full">
     <Canvas
       camera={{ position: [0, 23.5, 26.5], fov: 38, near: 0.1, far: 1000 }}
-      shadows
-      dpr={[1, 1.35]}
+      shadows={quality === 'low' ? false : THREE.PCFSoftShadowMap}
+      dpr={quality === 'low' ? [0.72, 0.85] : quality === 'high' ? [1, 1.15] : [0.82, 1.0]}
       onCreated={({ gl }) => {
         gl.toneMapping = THREE.ACESFilmicToneMapping;
         gl.toneMappingExposure = 1.08;
@@ -96,9 +98,9 @@ export const Scene3D: React.FC = () => (
         intensity={2.5}
         color="#fff0d8"
         castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
-        shadow-radius={5}
+        shadow-mapSize-width={quality === 'high' ? 1536 : 1024}
+        shadow-mapSize-height={quality === 'high' ? 1536 : 1024}
+        shadow-radius={quality === 'high' ? 3 : 2}
         shadow-bias={-0.00018}
         shadow-camera-left={-21}
         shadow-camera-right={21}
@@ -109,7 +111,7 @@ export const Scene3D: React.FC = () => (
       <pointLight position={[0, 9, 0]} intensity={0.55} color="#65d8ff" distance={30} decay={2} />
 
       
-      <Sparkles count={58} scale={[27, 10, 27]} size={2.0} speed={0.22} opacity={0.34} color="#fff3d7" />
+      <Sparkles count={quality === 'low' ? 8 : quality === 'high' ? 36 : 18} scale={[27, 10, 27]} size={2.0} speed={quality === 'low' ? 0.08 : 0.16} opacity={0.28} color="#fff3d7" />
 
       <CameraRig />
       <Board3D />
@@ -117,10 +119,17 @@ export const Scene3D: React.FC = () => (
       <TokensAndBuildings />
       <Dice3D />
 
-      <EffectComposer multisampling={0}>
-        <N8AO aoRadius={0.68} distanceFalloff={1.1} intensity={0.78} halfRes />
-        <Bloom luminanceThreshold={0.78} luminanceSmoothing={0.2} intensity={0.42} mipmapBlur />
-      </EffectComposer>
+      {quality === 'high' && (
+        <EffectComposer multisampling={0}>
+          <N8AO aoRadius={0.58} distanceFalloff={1.05} intensity={0.58} halfRes />
+          <Bloom luminanceThreshold={0.82} luminanceSmoothing={0.2} intensity={0.3} mipmapBlur />
+        </EffectComposer>
+      )}
+      {quality === 'balanced' && (
+        <EffectComposer multisampling={0}>
+          <Bloom luminanceThreshold={0.86} luminanceSmoothing={0.22} intensity={0.2} mipmapBlur />
+        </EffectComposer>
+      )}
     </Canvas>
   </div>
 );
