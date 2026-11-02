@@ -7,6 +7,7 @@ import {
   LogEntry,
   MetaProgress,
   Player,
+  PropertyAuction,
   PropertyState,
   RailroadRaid,
   TokenType,
@@ -46,6 +47,7 @@ interface GameStore {
     reason: string;
     distribution?: { recipientIds: number[]; amountPerPlayer: number };
   } | null;
+  auction: PropertyAuction | null;
   railroadRaid: RailroadRaid | null;
   metaProgress: MetaProgress;
   lastWheelReward: WheelReward | null;
@@ -81,6 +83,8 @@ interface GameStore {
   useJailCard: () => void;
   buyCurrentProperty: () => void;
   auctionCurrentProperty: () => void;
+  placeAuctionBid: (increment?: number) => void;
+  passAuction: () => void;
   declineProperty: () => void;
   applyActiveCard: () => void;
   buildHouse: (spaceId: number) => void;
@@ -433,6 +437,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       },
     ],
     pendingDebt: null,
+    auction: null,
     railroadRaid: null,
     metaProgress: loadMetaProgress(),
     lastWheelReward: null,
@@ -470,6 +475,7 @@ export const useGameStore = create<GameStore>((set, get) => {
         selectedSpaceId: null,
         hoveredSpaceId: null,
         pendingDebt: null,
+        auction: null,
         railroadRaid: null,
         winner: null,
         isSetupModalOpen: false,
@@ -940,55 +946,131 @@ export const useGameStore = create<GameStore>((set, get) => {
       const property = state.properties[space.id];
       if (!player || player.isAI || !space.price || !property || property.ownerId !== null) return;
 
-      const purchasePrice = space.price ?? 0;
-      const bidderPlayers = state.players.filter((candidate) =>
-        candidate.id !== player.id && candidate.isAI && !candidate.isBankrupt
-      );
-      const groupSpaces = BOARD_SPACES.filter((candidate) => candidate.colorGroup === space.colorGroup);
-      const ownsInGroup = (bidderId: number) => groupSpaces.filter((candidate) =>
-        state.properties[candidate.id]?.ownerId === bidderId
-      ).length;
-      const bids = bidderPlayers
-        .map((bidder) => {
-          const completesSet = groupSpaces.length > 0 && ownsInGroup(bidder.id) + 1 === groupSpaces.length;
-          const alreadyInvested = ownsInGroup(bidder.id) > 0;
-          const strategicMultiplier = completesSet ? 1.08 : alreadyInvested ? 0.82 : 0.62;
-          const reserve = Math.max(50, Math.round(purchasePrice * 0.28));
-          const cashReserve = Math.max(100, Math.min(350, Math.round(bidder.money * 0.2)));
-          const maximum = Math.max(0, Math.min(
-            bidder.money - cashReserve,
-            Math.round(purchasePrice * strategicMultiplier)
-          ));
-          const bid = maximum >= reserve
-            ? Math.round((reserve + Math.random() * (maximum - reserve)) / 10) * 10
-            : 0;
-          return { bidder, bid };
-        })
-        .filter((entry) => entry.bid > 0)
-        .sort((left, right) => right.bid - left.bid);
-
-      const winner = bids[0];
-      if (!winner) {
-        addLog(`No rival bid on ${space.name}; it remains available from the bank.`, 'info');
+      const activePlayers = state.players.filter((candidate) => !candidate.isBankrupt);
+      if (activePlayers.length < 2) {
+        addLog('There are not enough active players to hold an auction.', 'info');
         set({ turnPhase: 'END_TURN' });
         return;
       }
 
-      set((current) => ({
-        players: current.players.map((candidate) =>
-          candidate.id === winner.bidder.id
-            ? { ...candidate, money: candidate.money - winner.bid }
-            : candidate
-        ),
-        properties: {
-          ...current.properties,
-          [space.id]: { ...current.properties[space.id], ownerId: winner.bidder.id },
+      set({
+        auction: {
+          spaceId: space.id,
+          currentBid: 0,
+          highestBidderId: null,
+          currentBidderId: player.id,
+          passedPlayerIds: [],
         },
-        turnPhase: 'END_TURN',
-      }));
-      addLog(`${winner.bidder.name} won the auction for ${space.name} with a bid of ${winner.bid}.`, 'property');
+        turnPhase: 'AUCTION',
+      });
+      addLog(`Auction started for ${space.name}. Opening bid is $10.`, 'property');
     },
 
+    placeAuctionBid: (increment = 10) => {
+      const state = get();
+      const auction = state.auction;
+      if (!auction || state.turnPhase !== 'AUCTION') return;
+      const bidderId = auction.currentBidderId;
+      const bidder = state.players.find((candidate) => candidate.id === bidderId);
+      if (!bidder || bidder.isBankrupt) return;
+
+      const safeIncrement = Number.isSafeInteger(increment) && increment > 0 ? increment : 10;
+      const nextBid = auction.currentBid + safeIncrement;
+      if (bidder.money < nextBid) {
+        addLog(`${bidder.name} cannot afford the next bid of $${nextBid}.`, 'alert');
+        return;
+      }
+
+      const nextAuction: PropertyAuction = {
+        ...auction,
+        currentBid: nextBid,
+        highestBidderId: bidder.id,
+        passedPlayerIds: [],
+        currentBidderId: null,
+      };
+      const afterIndex = state.players.findIndex((candidate) => candidate.id === bidder.id);
+      for (let offset = 1; offset <= state.players.length; offset += 1) {
+        const candidate = state.players[(afterIndex + offset) % state.players.length];
+        if (candidate.isBankrupt || candidate.id === bidder.id) continue;
+        nextAuction.currentBidderId = candidate.id;
+        break;
+      }
+
+      if (nextAuction.currentBidderId === null) {
+        const space = BOARD_SPACES[auction.spaceId];
+        set((current) => ({
+          players: current.players.map((candidate) =>
+            candidate.id === bidder.id ? { ...candidate, money: candidate.money - nextBid } : candidate
+          ),
+          properties: {
+            ...current.properties,
+            [space.id]: { ...current.properties[space.id], ownerId: bidder.id },
+          },
+          auction: null,
+          turnPhase: 'END_TURN',
+        }));
+        addLog(`${bidder.name} won ${space.name} for $${nextBid}.`, 'property');
+        return;
+      }
+
+      set({ auction: nextAuction });
+      addLog(`${bidder.name} bid $${nextBid} for ${BOARD_SPACES[auction.spaceId].name}.`, 'money');
+    },
+
+    passAuction: () => {
+      const state = get();
+      const auction = state.auction;
+      if (!auction || state.turnPhase !== 'AUCTION' || auction.currentBidderId === null) return;
+
+      const passingId = auction.currentBidderId;
+      const passedPlayerIds = [...new Set([...auction.passedPlayerIds, passingId])];
+      const nextAuction: PropertyAuction = {
+        ...auction,
+        passedPlayerIds,
+        currentBidderId: null,
+      };
+
+      const passingIndex = state.players.findIndex((candidate) => candidate.id === passingId);
+      for (let offset = 1; offset <= state.players.length; offset += 1) {
+        const candidate = state.players[(passingIndex + offset) % state.players.length];
+        if (
+          candidate.isBankrupt ||
+          candidate.id === auction.highestBidderId ||
+          passedPlayerIds.includes(candidate.id)
+        ) continue;
+        nextAuction.currentBidderId = candidate.id;
+        break;
+      }
+
+      if (nextAuction.currentBidderId !== null) {
+        set({ auction: nextAuction });
+        addLog(`${state.players.find((candidate) => candidate.id === passingId)?.name ?? 'Player'} passed on ${BOARD_SPACES[auction.spaceId].name}.`, 'info');
+        return;
+      }
+
+      const winner = auction.highestBidderId === null
+        ? null
+        : state.players.find((candidate) => candidate.id === auction.highestBidderId) ?? null;
+      const space = BOARD_SPACES[auction.spaceId];
+
+      if (winner) {
+        set((current) => ({
+          players: current.players.map((candidate) =>
+            candidate.id === winner.id ? { ...candidate, money: candidate.money - auction.currentBid } : candidate
+          ),
+          properties: {
+            ...current.properties,
+            [space.id]: { ...current.properties[space.id], ownerId: winner.id },
+          },
+          auction: null,
+          turnPhase: 'END_TURN',
+        }));
+        addLog(`${winner.name} won ${space.name} for $${auction.currentBid}.`, 'property');
+      } else {
+        set({ auction: null, turnPhase: 'END_TURN' });
+        addLog(`All players passed. ${space.name} remains unowned.`, 'info');
+      }
+    },
     declineProperty: () => {
       const state = get();
       if (state.turnPhase !== 'LANDED_ACTION') return;
