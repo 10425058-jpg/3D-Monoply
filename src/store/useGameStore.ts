@@ -6,8 +6,6 @@ import {
   DeckCard,
   LogEntry,
   MetaProgress,
-  MissionId,
-  MissionStat,
   Player,
   PropertyState,
   RailroadRaid,
@@ -17,7 +15,7 @@ import {
 } from '../types/game';
 import { BOARD_SPACES, COLOR_GROUP_TOTALS } from '../data/boardData';
 import { CHANCE_CARDS, COMMUNITY_CHEST_CARDS } from '../data/cardsData';
-import { DAILY_MISSIONS, DAILY_REWARD_CYCLE, LUCKY_WHEEL_REWARDS, STICKER_COLLECTION, type WheelReward } from '../data/metaGameData';
+import { DAILY_MISSIONS, DAILY_REWARD_CYCLE, LUCKY_WHEEL_REWARDS, STICKER_COLLECTION, type MissionId, type MissionStat, type WheelReward } from '../data/metaGameData';
 import confetti from 'canvas-confetti';
 
 interface PlayerSetupConfig {
