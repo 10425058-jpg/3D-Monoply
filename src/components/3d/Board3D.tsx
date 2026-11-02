@@ -15,15 +15,15 @@ export const Board3D: React.FC = () => {
   return (
     <group>
       {/* Dark walnut presentation table */}
-      <mesh position={[0, -0.45, 0]} receiveShadow>
+      <mesh position={[0, -0.45, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[21.5, 21.5, 0.7, 96]} />
         <meshStandardMaterial color="#352536" roughness={0.36} metalness={0.14} />
       </mesh>
-      <mesh position={[0, -0.86, 0]} receiveShadow>
+      <mesh position={[0, -0.86, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[20.9, 20.4, 0.5, 96]} />
         <meshStandardMaterial color="#1c1723" roughness={0.48} />
       </mesh>
-      <mesh position={[0, -1.12, 0]} receiveShadow>
+      <mesh position={[0, -1.12, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[19.8, 19.8, 0.045, 96]} />
         <meshStandardMaterial color="#0c1322" roughness={0.86} />
       </mesh>
