@@ -67,6 +67,14 @@ export interface RailroadRaid {
   vaultRewards: [number, number, number];
 }
 
+export interface PropertyAuction {
+  spaceId: number;
+  currentBid: number;
+  highestBidderId: number | null;
+  currentBidderId: number | null;
+  passedPlayerIds: number[];
+}
+
 export type CardActionType =
   | 'collect'
   | 'pay'
@@ -101,6 +109,7 @@ export type TurnPhase =
   | 'LANDED_ACTION'
   | 'CARD_DRAWN'
   | 'DEBT_RESOLUTION'
+  | 'AUCTION'
   | 'END_TURN'
   | 'GAME_OVER';
 
