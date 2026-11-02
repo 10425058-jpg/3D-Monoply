@@ -118,7 +118,7 @@ const Crystal: React.FC<{position: Pos}> = ({ position }) => {
 };
 
 const Castle: React.FC = () => (
-  <group position={[-0.9, 1.06, -2.28]}>
+  <group position={[-0.9, 1.61, -2.28]}>
     <RoundedBox args={[2.65, 2.25, 2.35]} radius={0.16} smoothness={5} position={[0, 1.18, 0]} castShadow receiveShadow>
       <meshStandardMaterial color="#f8d6b8" roughness={0.66} />
     </RoundedBox>
@@ -175,7 +175,7 @@ const Fountain: React.FC = () => {
     }
   });
   return (
-    <group position={[0.7, 0.42, 3.25]}>
+    <group position={[0.7, 0.72, 0.95]}>
       <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <circleGeometry args={[1.48, 40]} />
         <meshPhysicalMaterial color="#34c9ed" metalness={0.22} roughness={0.14} clearcoat={1} />
@@ -307,7 +307,7 @@ export const CenterCity3D: React.FC = () => {
     if (!boatRef.current) return;
     const t = clock.elapsedTime;
     boatRef.current.position.x = 3.0 + Math.sin(t * 0.42) * 0.24;
-    boatRef.current.position.y = 0.55 + Math.sin(t * 1.5) * 0.06;
+    boatRef.current.position.y = 0.78 + Math.sin(t * 1.5) * 0.06;
     boatRef.current.rotation.y = -0.3 + Math.sin(t * 0.42) * 0.08;
   });
 
@@ -332,20 +332,20 @@ export const CenterCity3D: React.FC = () => {
 
       {/* Castle district. */}
       <Castle />
-      <House position={[-5.0, 1.18, -1.65]} roof="#8b84d8" wall="#f7d9c3" scale={0.82} />
-      <House position={[-4.0, 1.18, -0.55]} roof="#ee7962" wall="#fff0d5" scale={0.78} awning />
-      <House position={[2.85, 1.22, -2.1]} roof="#8c80d5" wall="#ffdfbd" scale={0.86} />
-      <House position={[4.2, 1.22, -1.0]} roof="#eb795e" wall="#f9e4cc" scale={0.82} awning />
-      <House position={[-4.7, 1.08, 2.45]} roof="#ee7961" wall="#fff0d5" scale={0.75} awning />
-      <House position={[-3.45, 1.08, 3.6]} roof="#9686dc" wall="#f7dfc7" scale={0.72} />
-      <House position={[1.0, 1.11, 2.72]} roof="#ee8664" wall="#fff0d5" scale={0.73} awning />
-      <House position={[2.5, 1.11, 3.48]} roof="#f17c5e" wall="#ffdfbd" scale={0.75} />
+      <House position={[-5.0, 1.31, -1.65]} roof="#8b84d8" wall="#f7d9c3" scale={0.82} />
+      <House position={[-4.0, 1.31, -0.55]} roof="#ee7962" wall="#fff0d5" scale={0.78} awning />
+      <House position={[2.85, 1.37, -2.1]} roof="#8c80d5" wall="#ffdfbd" scale={0.86} />
+      <House position={[4.2, 1.37, -1.0]} roof="#eb795e" wall="#f9e4cc" scale={0.82} awning />
+      <House position={[-4.7, 1.21, 2.45]} roof="#ee7961" wall="#fff0d5" scale={0.75} awning />
+      <House position={[-3.45, 1.21, 3.6]} roof="#9686dc" wall="#f7dfc7" scale={0.72} />
+      <House position={[1.0, 1.24, 2.72]} roof="#ee8664" wall="#fff0d5" scale={0.73} awning />
+      <House position={[2.5, 1.24, 3.48]} roof="#f17c5e" wall="#ffdfbd" scale={0.75} />
 
       {/* Market stalls, planted beds and fruit trees bring scale to the village. */}
-      <MarketStall position={[0.0, 1.1, 4.0]} color="#8e8bdd" />
-      <MarketStall position={[1.35, 1.1, 4.15]} color="#ef8467" />
+      <MarketStall position={[0.0, 1.24, 4.0]} color="#8e8bdd" />
+      <MarketStall position={[1.35, 1.24, 4.15]} color="#ef8467" />
       {[-4.85, -4.1, -3.35].map((x, i) => (
-        <group key={i} position={[x, 1.12, 4.05]}>
+        <group key={i} position={[x, 1.21, 4.05]}>
           {[-0.32, 0.18, 0.68].map((z, j) => (
             <group key={j} position={[0, 0, z]}>
               <mesh position={[0, 0.16, 0]}>
@@ -366,23 +366,23 @@ export const CenterCity3D: React.FC = () => {
       ))}
 
       {/* Trees scattered around the house lanes. */}
-      <Tree position={[-6.25, 1.1, -2.0]} scale={0.74} tone="#57b34b" />
-      <Tree position={[-5.9, 1.08, 0.0]} scale={0.82} tone="#69c34e" />
-      <Tree position={[-2.75, 1.08, -4.3]} scale={0.8} tone="#65bb4a" />
-      <Tree position={[1.25, 1.1, -4.45]} scale={0.72} tone="#75c84e" />
-      <Tree position={[5.0, 1.1, -2.95]} scale={0.84} tone="#62ba4b" />
-      <Tree position={[5.9, 1.03, 1.6]} scale={0.88} tone="#72c64b" />
-      <Tree position={[3.85, 1.0, 4.15]} scale={0.72} tone="#65b94c" />
+      <Tree position={[-6.25, 1.31, -2.0]} scale={0.74} tone="#57b34b" />
+      <Tree position={[-5.9, 1.31, 0.0]} scale={0.82} tone="#69c34e" />
+      <Tree position={[-2.75, 1.61, -4.3]} scale={0.8} tone="#65bb4a" />
+      <Tree position={[1.25, 1.61, -4.45]} scale={0.72} tone="#75c84e" />
+      <Tree position={[5.0, 1.37, -2.95]} scale={0.84} tone="#62ba4b" />
+      <Tree position={[5.9, 1.26, 1.6]} scale={0.88} tone="#72c64b" />
+      <Tree position={[3.85, 1.24, 4.15]} scale={0.72} tone="#65b94c" />
       <Tree position={[-1.0, 0.98, 4.9]} scale={0.76} tone="#67c14e" />
 
       {/* A little blue fountain and arched bridges connect the districts. */}
       <Fountain />
-      <Bridge position={[2.55, 0.88, 1.28]} rotation={0.32} length={2.55} />
-      <Bridge position={[-2.72, 0.82, 1.05]} rotation={-0.28} length={2.3} />
-      <CannonFort position={[-5.55, 1.05, 3.3]} />
+      <Bridge position={[2.55, 1.22, 1.28]} rotation={0.32} length={2.55} />
+      <Bridge position={[-2.72, 1.18, 1.05]} rotation={-0.28} length={2.3} />
+      <CannonFort position={[-5.55, 1.21, 3.3]} />
 
       {/* A toy sailing boat gently rocks through the front-right channel. */}
-      <group ref={boatRef} position={[3, 0.55, 5.25]}>
+      <group ref={boatRef} position={[3, 0.78, 5.25]}>
         <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
           <coneGeometry args={[0.36, 1.05, 4]} />
           <meshStandardMaterial color="#fff0d8" roughness={0.42} />
@@ -407,14 +407,14 @@ export const CenterCity3D: React.FC = () => {
       ) : null)}
 
       {/* Puffy clouds and floating crystals make the city feel magical, not gothic. */}
-      <Cloud position={[-4.3, 5.0, -4.3]} scale={0.82} />
-      <Cloud position={[2.5, 5.25, -4.6]} scale={0.9} />
-      <Cloud position={[5.3, 4.4, 0.6]} scale={0.6} />
-      <mesh position={[0.1, 4.85, -2.2]}>
+      <Cloud position={[-4.3, 5.7, -4.3]} scale={0.82} />
+      <Cloud position={[2.5, 5.9, -4.6]} scale={0.9} />
+      <Cloud position={[5.3, 5.1, 0.6]} scale={0.6} />
+      <mesh position={[0.1, 5.4, -2.2]}>
         <octahedronGeometry args={[0.3, 0]} />
         <meshPhysicalMaterial color="#64eaff" emissive="#2ccfff" emissiveIntensity={1.2} roughness={0.12} />
       </mesh>
-      <pointLight position={[0, 4.3, -2.0]} color="#74eeff" intensity={1.1} distance={8} />
+      <pointLight position={[0, 4.9, -2.0]} color="#74eeff" intensity={1.1} distance={8} />
     </group>
   );
 };
