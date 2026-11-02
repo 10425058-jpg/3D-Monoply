@@ -1019,7 +1019,8 @@ export const useGameStore = create<GameStore>((set, get) => {
         return { players, pendingDebt: null, turnPhase: 'END_TURN' };
       });
 
-      addLog(`${player.name} settled their $${debt.amount} debt (${debt.reason}).`, 'money');
+      addLog(`${player.name} settled their ${debt.amount} debt (${debt.reason}).`, 'money');
+      if (BOARD_SPACES[player.position].type === 'railroad') openRailroadRaid(player.id);
     },
 
     declareBankruptcy: () => {
