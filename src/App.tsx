@@ -93,6 +93,7 @@ export const App: React.FC = () => {
   const [showTradeModal, setShowTradeModal] = useState(false);
   const [tradeTargetId, setTradeTargetId] = useState<number>(1);
   const [tradePropertyId, setTradePropertyId] = useState('');
+  const [tradeRequestPropertyId, setTradeRequestPropertyId] = useState('');
   const [tradeOfferCash, setTradeOfferCash] = useState('0');
   const [tradeRequestCash, setTradeRequestCash] = useState('150');
   const [tradeFeedback, setTradeFeedback] = useState('');
@@ -108,6 +109,15 @@ export const App: React.FC = () => {
   const myTradableProperties = useMemo(
     () => BOARD_SPACES.filter((space) => space.type === 'property' && game.properties[space.id]?.ownerId === activePlayer?.id && !game.properties[space.id]?.isMortgaged),
     [game.properties, activePlayer?.id]
+  );
+  const rivalTradableProperties = useMemo(
+    () => BOARD_SPACES.filter((space) => {
+      if (space.type !== 'property' || game.properties[space.id]?.ownerId !== tradeTargetId || game.properties[space.id]?.isMortgaged) return false;
+      return !BOARD_SPACES
+        .filter((candidate) => candidate.colorGroup === space.colorGroup)
+        .some((candidate) => (game.properties[candidate.id]?.houses ?? 0) > 0);
+    }),
+    [game.properties, tradeTargetId]
   );
   const rivalPlayers = game.players.filter((player) => player.id !== activePlayer?.id && player.isAI && !player.isBankrupt);
 
@@ -283,6 +293,7 @@ export const App: React.FC = () => {
     if (!activePlayer || activePlayer.isAI) return;
     setTradeTargetId(rivalPlayers[0]?.id ?? 1);
     setTradePropertyId(myTradableProperties[0] ? String(myTradableProperties[0].id) : '');
+    setTradeRequestPropertyId('');
     setTradeOfferCash('0');
     setTradeRequestCash('150');
     setTradeFeedback('');
@@ -299,7 +310,7 @@ export const App: React.FC = () => {
       offerCash,
       requestCash,
       offerProperties: tradePropertyId ? [Number(tradePropertyId)] : [],
-      requestProperties: [],
+      requestProperties: tradeRequestPropertyId ? [Number(tradeRequestPropertyId)] : [],
     };
     const result = game.proposeTrade(offer);
     setTradeFeedback(result.message);
@@ -627,14 +638,20 @@ export const App: React.FC = () => {
             <div className="modal-ornament"><Coins size={24} /></div>
             <div className="eyebrow">NEGOTIATION DESK</div>
             <h2 id="trade-title">Propose a trade</h2>
-            <p>Offer one of your properties and/or cash to an AI rival in exchange for cash.</p>
+            <p>Exchange cash and one property from each side. The rival evaluates the full offer, including color-set value.</p>
             {rivalPlayers.length === 0 ? (
               <p>No rival is available to trade with.</p>
             ) : (
               <>
                 <label className="trade-field">
                   <span>Trade with</span>
-                  <select value={tradeTargetId} onChange={(event) => setTradeTargetId(Number(event.target.value))}>
+                  <select
+                    value={tradeTargetId}
+                    onChange={(event) => {
+                      setTradeTargetId(Number(event.target.value));
+                      setTradeRequestPropertyId('');
+                    }}
+                  >
                     {rivalPlayers.map((player) => <option key={player.id} value={player.id}>{player.name} · {money(player.money)}</option>)}
                   </select>
                 </label>
@@ -643,6 +660,13 @@ export const App: React.FC = () => {
                   <select value={tradePropertyId} onChange={(event) => setTradePropertyId(event.target.value)}>
                     <option value="">Cash only — no property</option>
                     {myTradableProperties.map((space) => <option key={space.id} value={space.id}>{space.name} · {money(space.price ?? 0)}</option>)}
+                  </select>
+                </label>
+                <label className="trade-field">
+                  <span>Property to request</span>
+                  <select value={tradeRequestPropertyId} onChange={(event) => setTradeRequestPropertyId(event.target.value)}>
+                    <option value="">No property requested</option>
+                    {rivalTradableProperties.map((space) => <option key={space.id} value={space.id}>{space.name} · {money(space.price ?? 0)}</option>)}
                   </select>
                 </label>
                 <div className="trade-cash-grid">
@@ -658,7 +682,10 @@ export const App: React.FC = () => {
                 {tradeFeedback && <div className={`trade-feedback ${tradeFeedback.includes('accepted') ? 'is-success' : 'is-warning'}`}>{tradeFeedback}</div>}
                 <div className="trade-modal-actions">
                   <button className="console-button secondary" onClick={() => setShowTradeModal(false)}>Cancel</button>
-                  <button className="console-button primary" disabled={Number(tradeOfferCash) > activePlayer.money || (!tradePropertyId && Number(tradeOfferCash) <= 0 && Number(tradeRequestCash) <= 0)} onClick={handleTradeSubmit}>
+                  <button className="console-button primary" disabled={
+                    Number(tradeOfferCash) > activePlayer.money ||
+                    (!tradePropertyId && !tradeRequestPropertyId && Number(tradeOfferCash) <= 0 && Number(tradeRequestCash) <= 0)
+                  } onClick={handleTradeSubmit}>
                     Send offer <ArrowRight size={14} />
                   </button>
                 </div>
