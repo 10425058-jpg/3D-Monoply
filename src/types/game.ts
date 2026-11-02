@@ -58,6 +58,13 @@ export interface Player {
   jailTurns: number;
   getOutOfJailCards: number;
   isBankrupt: boolean;
+  landmarkLevel: number;
+}
+
+export interface RailroadRaid {
+  attackerId: number;
+  mode: 'choose' | 'heist';
+  vaultRewards: [number, number, number];
 }
 
 export type CardActionType =
