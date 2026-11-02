@@ -1519,3 +1519,138 @@
 @media (prefers-reduced-motion: reduce) {
   .lucky-wheel.is-spinning { animation-duration: .01ms; }
 }
+
+
+/* Quick actions, trading panel, tile ownership and hover details */
+.speed-action,
+.auto-roll-action {
+  min-width: 48px;
+  justify-content: center;
+  border-color: rgba(216,180,90,.23);
+  color: #d9c18a;
+  background: rgba(216,180,90,.055);
+  font-weight: 800;
+}
+.speed-action.is-active,
+.auto-roll-action.is-active {
+  border-color: rgba(238,202,119,.65);
+  color: #fff0c5;
+  background: rgba(216,180,90,.18);
+  box-shadow: 0 0 16px rgba(216,180,90,.1);
+}
+.inspector-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 10px;
+}
+.inspector-stats > span {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid rgba(255,255,255,.075);
+  border-radius: 8px;
+  background: rgba(255,255,255,.035);
+}
+.inspector-stats small {
+  color: #8290a3;
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+.inspector-stats strong {
+  overflow: hidden;
+  color: #f0dcaa;
+  font-size: 11px;
+  text-overflow: ellipsis;
+}
+.quick-build-button { border-color: rgba(91,179,122,.3); color: #a6dfb5; }
+.trade-action-button { border-color: rgba(108,159,215,.32); color: #b8d7f5; }
+.console-actions { flex-wrap: wrap; }
+.trade-modal {
+  width: min(100%, 470px);
+  text-align: left;
+}
+.trade-modal h2 {
+  margin: 4px 0 6px;
+  color: #f2e6d0;
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 23px;
+}
+.trade-modal > p {
+  max-width: none;
+  margin: 6px 0 18px;
+  color: #9ea8b8;
+  font-size: 10px;
+  line-height: 1.6;
+}
+.trade-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 10px 0;
+}
+.trade-field > span {
+  color: #d9c89e;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.trade-field select,
+.trade-field input {
+  width: 100%;
+  min-height: 39px;
+  padding: 0 11px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 9px;
+  outline: none;
+  color: #e7e9ef;
+  background: #172236;
+  font-size: 11px;
+}
+.trade-field select:focus,
+.trade-field input:focus {
+  border-color: rgba(219,184,103,.7);
+  box-shadow: 0 0 0 2px rgba(219,184,103,.1);
+}
+.trade-field option { color: #e7e9ef; background: #172236; }
+.trade-cash-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 11px;
+}
+.trade-feedback {
+  margin: 12px 0;
+  padding: 10px 11px;
+  border: 1px solid rgba(218,178,92,.22);
+  border-radius: 9px;
+  color: #f1d7a0;
+  background: rgba(218,178,92,.08);
+  font-size: 10px;
+  line-height: 1.45;
+}
+.trade-feedback.is-success {
+  border-color: rgba(109,191,135,.3);
+  color: #a9e3b8;
+  background: rgba(66,151,95,.1);
+}
+.trade-feedback.is-warning {
+  border-color: rgba(224,157,96,.26);
+  color: #e8bd8a;
+}
+.trade-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
+.trade-modal-actions .console-button { min-width: 110px; }
+@media (max-width: 640px) {
+  .speed-action, .auto-roll-action { min-width: 42px; padding-inline: 7px; }
+  .trade-cash-grid { grid-template-columns: 1fr; gap: 0; }
+  .inspector-stats { gap: 4px; }
+  .inspector-stats > span { padding: 6px; }
+}
