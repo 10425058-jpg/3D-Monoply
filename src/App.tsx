@@ -1,22 +1,78 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import {
+  ArrowRight,
+  Bot,
+  Camera,
+  Clock3,
+  Coins,
+  Crown,
+  Home,
+  Landmark,
+  RotateCcw,
+  ScrollText,
+  ShieldCheck,
+  Sparkles,
+  Trophy,
+  UserRound,
+  Wallet,
+  X,
+} from 'lucide-react';
+
 import { Scene3D } from './components/3d/Scene3D';
 import { BOARD_SPACES } from './data/boardData';
 import { useGameStore } from './store/useGameStore';
-import type { TokenType } from './types/game';
+import type { LogEntry, TokenType, TurnPhase } from './types/game';
+import './app-ui.css';
 
 const DEFAULT_SETUP = [
-  { name: 'You', isAI: false, token: 'top_hat' as TokenType, color: '#10b981' },
-  { name: 'Victoria', isAI: true, token: 'racecar' as TokenType, color: '#ef4444' },
-  { name: 'Arthur', isAI: true, token: 'scottie_dog' as TokenType, color: '#3b82f6' },
-  { name: 'Elena', isAI: true, token: 'yacht' as TokenType, color: '#f59e0b' },
+  { name: 'You', isAI: false, token: 'top_hat' as TokenType, color: '#d8b45a' },
+  { name: 'Victoria', isAI: true, token: 'racecar' as TokenType, color: '#e87979' },
+  { name: 'Arthur', isAI: true, token: 'scottie_dog' as TokenType, color: '#78a8ef' },
+  { name: 'Elena', isAI: true, token: 'yacht' as TokenType, color: '#e7ad54' },
 ];
 
-const money = (value: number) => `$${value.toLocaleString()}`;
+const money = (value: number) => `$${value.toLocaleString('en-US')}`;
+
+const PHASE_LABELS: Record<TurnPhase, string> = {
+  SETUP: 'Set up your table',
+  PRE_ROLL: 'Ready for your move',
+  ROLLING: 'The dice are rolling',
+  MOVING: 'Moving around the board',
+  LANDED_ACTION: 'A new opportunity',
+  CARD_DRAWN: 'A card has been drawn',
+  DEBT_RESOLUTION: 'A debt needs attention',
+  END_TURN: 'Turn complete',
+  GAME_OVER: 'Game over',
+};
+
+const TOKEN_MARKS: Record<TokenType, string> = {
+  top_hat: '♟',
+  racecar: '◈',
+  scottie_dog: '◆',
+  yacht: '⌁',
+};
+
+const logTone: Record<LogEntry['type'], string> = {
+  info: 'neutral',
+  money: 'gold',
+  property: 'green',
+  alert: 'red',
+  card: 'blue',
+};
+
+function LogMark({ type }: { type: LogEntry['type'] }) {
+  if (type === 'money') return <Coins size={14} />;
+  if (type === 'property') return <Landmark size={14} />;
+  if (type === 'alert') return <ShieldCheck size={14} />;
+  if (type === 'card') return <ScrollText size={14} />;
+  return <Sparkles size={14} />;
+}
 
 export const App: React.FC = () => {
   const game = useGameStore();
   const [showSetup, setShowSetup] = useState(true);
   const [showRules, setShowRules] = useState(false);
+
   const activePlayer = game.players[game.currentPlayerIndex];
   const selectedSpace = game.selectedSpaceId === null ? null : BOARD_SPACES[game.selectedSpaceId];
   const selectedState = selectedSpace ? game.properties[selectedSpace.id] : undefined;
@@ -24,13 +80,15 @@ export const App: React.FC = () => {
     ? undefined
     : game.players.find((player) => player.id === selectedState.ownerId);
 
-  const canBuy = game.turnPhase === 'LANDED_ACTION' && !!activePlayer &&
-    !!selectedSpace && activePlayer.position === selectedSpace.id &&
-    selectedState?.ownerId === null && !!selectedSpace.price &&
-    activePlayer.money >= selectedSpace.price;
+  const phaseLabel = useMemo(() => PHASE_LABELS[game.turnPhase], [game.turnPhase]);
+  const ownedCount = useMemo(
+    () => Object.values(game.properties).filter((property) => property.ownerId !== null).length,
+    [game.properties]
+  );
 
   useEffect(() => {
     if (!activePlayer?.isAI || game.winner) return;
+
     const timer = window.setTimeout(() => {
       switch (game.turnPhase) {
         case 'PRE_ROLL':
@@ -66,6 +124,7 @@ export const App: React.FC = () => {
           break;
       }
     }, 850);
+
     return () => window.clearTimeout(timer);
   }, [activePlayer, game.turnPhase, game.winner, game.pendingDebt]);
 
@@ -74,149 +133,318 @@ export const App: React.FC = () => {
     setShowSetup(false);
   };
 
-  const phaseLabel = useMemo(() => ({
-    SETUP: 'Set up your game',
-    PRE_ROLL: 'Ready to roll',
-    ROLLING: 'Rolling dice…',
-    MOVING: 'Moving around the board…',
-    LANDED_ACTION: 'Choose whether to buy',
-    CARD_DRAWN: 'Resolve your card',
-    DEBT_RESOLUTION: 'Debt must be settled',
-    END_TURN: 'Turn complete',
-    GAME_OVER: 'Game over',
-  }[game.turnPhase]), [game.turnPhase]);
+  const switchCamera = () => {
+    game.setCameraMode(game.cameraMode === 'top' ? 'isometric' : 'top');
+  };
+
+  const playerStatus = (player: (typeof game.players)[number]) => {
+    if (player.isBankrupt) return 'Eliminated';
+    if (player.inJail) return 'In jail';
+    return BOARD_SPACES[player.position]?.shortName ?? `Space ${player.position}`;
+  };
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-[#080d18] text-slate-100">
-      <div className="absolute inset-0">
+    <main className="monopoly-app">
+      <div className="world-layer">
         <Scene3D />
       </div>
+      <div className="world-vignette" aria-hidden="true" />
 
-      <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-center justify-between gap-3 p-3 sm:p-5">
-        <div className="pointer-events-auto rounded-2xl border border-amber-400/30 bg-slate-950/85 px-4 py-3 shadow-xl backdrop-blur">
-          <div className="text-xs font-bold uppercase tracking-[.22em] text-amber-300">3D Monopoly</div>
-          <div className="mt-1 text-sm text-slate-300">{phaseLabel}</div>
+      <header className="topbar">
+        <div className="brand-lockup">
+          <div className="brand-crest"><Crown size={21} strokeWidth={1.8} /></div>
+          <div className="brand-copy">
+            <div className="brand-title">MONOPOLY <span>3D</span></div>
+            <div className="brand-subtitle">Miniature City Edition</div>
+          </div>
+          <div className="brand-divider" />
+          <div className="phase-indicator">
+            <span className="phase-pulse" />
+            <span>{phaseLabel}</span>
+          </div>
         </div>
-        <div className="pointer-events-auto flex gap-2">
-          <button className="rounded-xl border border-white/15 bg-slate-950/85 px-3 py-2 text-sm hover:bg-slate-800" onClick={() => setShowRules(true)}>Rules</button>
-          <button className="rounded-xl border border-white/15 bg-slate-950/85 px-3 py-2 text-sm hover:bg-slate-800" onClick={() => setShowSetup(true)}>New game</button>
-          <button className="rounded-xl border border-white/15 bg-slate-950/85 px-3 py-2 text-sm hover:bg-slate-800" onClick={() => game.setCameraMode(game.cameraMode === 'top' ? 'isometric' : 'top')}>Camera</button>
-        </div>
+
+        <nav className="top-actions" aria-label="Game controls">
+          <button className="top-action" onClick={() => setShowRules(true)}>
+            <ScrollText size={15} /><span>Rules</span>
+          </button>
+          <button className="top-action" onClick={() => setShowSetup(true)}>
+            <RotateCcw size={15} /><span>New game</span>
+          </button>
+          <button className="top-action" onClick={switchCamera}>
+            <Camera size={15} /><span>{game.cameraMode === 'top' ? 'Isometric' : 'Top view'}</span>
+          </button>
+        </nav>
       </header>
 
-      <aside className="pointer-events-auto absolute left-3 top-24 z-20 flex max-h-[55vh] w-56 flex-col gap-2 overflow-y-auto sm:left-5 sm:w-64">
-        {game.players.map((player, index) => (
-          <div key={player.id} className={`rounded-xl border p-3 backdrop-blur-md ${index === game.currentPlayerIndex ? 'border-amber-300/70 bg-slate-950/95' : 'border-white/10 bg-slate-950/75'} ${player.isBankrupt ? 'opacity-40' : ''}`}>
-            <div className="flex items-center justify-between gap-2">
-              <span className="truncate text-sm font-semibold" style={{ color: player.color }}>{player.name}{player.isAI ? ' · AI' : ''}</span>
-              {index === game.currentPlayerIndex && <span className="text-[10px] uppercase text-amber-300">Turn</span>}
+      <div className="hud-columns">
+        <aside className="glass-panel players-panel">
+          <div className="panel-heading">
+            <div>
+              <div className="eyebrow">THE TABLE</div>
+              <h2>Players</h2>
             </div>
-            <div className="mt-1 font-mono text-lg">{money(player.money)}</div>
-            <div className="text-xs text-slate-400">Space {player.position} · {player.isBankrupt ? 'Bankrupt' : player.inJail ? 'In jail' : 'Active'}</div>
+            <span className="count-chip">{game.players.length} seats</span>
           </div>
-        ))}
-      </aside>
 
-      <aside className="pointer-events-auto absolute right-3 top-24 z-20 hidden w-64 rounded-xl border border-white/10 bg-slate-950/80 p-3 backdrop-blur-md sm:block">
-        <h2 className="mb-2 text-xs font-bold uppercase tracking-widest text-amber-300">Activity</h2>
-        <div className="max-h-64 space-y-2 overflow-y-auto">
-          {game.logs.slice(0, 12).map((entry) => (
-            <div key={entry.id} className="border-b border-white/5 pb-2 text-xs text-slate-300">
-              <span className="mr-2 text-slate-500">{entry.timestamp}</span>{entry.message}
+          <div className="active-player-note">
+            <span className="note-icon"><Sparkles size={13} /></span>
+            <span><strong>{activePlayer?.name ?? 'Waiting'}</strong> is in control</span>
+          </div>
+
+          <div className="player-list">
+            {game.players.map((player, index) => {
+              const isTurn = index === game.currentPlayerIndex;
+              const propertyCount = Object.values(game.properties).filter(
+                (property) => property.ownerId === player.id
+              ).length;
+
+              return (
+                <article
+                  key={player.id}
+                  className={`player-card ${isTurn ? 'is-active' : ''} ${player.isBankrupt ? 'is-bankrupt' : ''}`}
+                  style={{ '--player-accent': player.color } as React.CSSProperties}
+                >
+                  <div className="player-card-main">
+                    <div className="player-avatar">
+                      {player.isAI ? <Bot size={17} /> : <UserRound size={17} />}
+                    </div>
+                    <div className="player-identity">
+                      <div className="player-name">{player.name}</div>
+                      <div className="player-role">{player.isAI ? 'Computer rival' : 'You · Human player'}</div>
+                    </div>
+                    {isTurn ? <span className="turn-tag">TURN</span> : <span className="player-token">{TOKEN_MARKS[player.token]}</span>}
+                  </div>
+
+                  <div className="player-card-bottom">
+                    <div className="player-money"><Wallet size={14} /><strong>{money(player.money)}</strong></div>
+                    <div className="player-detail">
+                      <span>{player.isBankrupt ? 'Bankrupt' : player.inJail ? 'In jail' : `At ${playerStatus(player)}`}</span>
+                      <span className="property-count"><Landmark size={11} /> {propertyCount} properties</span>
+                    </div>
+                  </div>
+                  {isTurn && <div className="active-card-glow" />}
+                </article>
+              );
+            })}
+          </div>
+
+          <div className="panel-footnote">
+            <span className="footnote-dot" />
+            <span>{ownedCount} properties claimed across the board</span>
+          </div>
+        </aside>
+
+        <div className="board-clear-space" aria-hidden="true" />
+
+        <aside className="glass-panel activity-panel">
+          <div className="panel-heading activity-heading">
+            <div>
+              <div className="eyebrow">LIVE TABLE FEED</div>
+              <h2>Activity</h2>
             </div>
-          ))}
+            <span className="live-chip"><span /> LIVE</span>
+          </div>
+
+          <div className="activity-feed">
+            {game.logs.slice(0, 9).map((entry, index) => (
+              <div className={`activity-item tone-${logTone[entry.type]}`} key={entry.id}>
+                <div className="activity-mark"><LogMark type={entry.type} /></div>
+                <div className="activity-content">
+                  <p>{entry.message}</p>
+                  <time><Clock3 size={10} /> {entry.timestamp}</time>
+                </div>
+                {index === 0 && <span className="new-event-dot" />}
+              </div>
+            ))}
+          </div>
+          <div className="activity-footer">Latest moves appear here automatically</div>
+        </aside>
+      </div>
+
+      {selectedSpace && (
+        <section className="property-inspector glass-panel">
+          <button className="inspector-close" onClick={() => game.selectSpace(null)} aria-label="Close property details">
+            <X size={15} />
+          </button>
+          <div className="inspector-colorbar" style={{ background: selectedSpace.colorHex }} />
+          <div className="eyebrow">{selectedSpace.colorGroup.replace('_', ' ')} · SPACE {selectedSpace.id + 1}</div>
+          <h3>{selectedSpace.name}</h3>
+          {selectedSpace.price ? (
+            <div className="inspector-price">{money(selectedSpace.price)} <span>purchase price</span></div>
+          ) : (
+            <div className="inspector-price inspector-special">Special board space</div>
+          )}
+          <div className="inspector-owner">
+            <span className="owner-indicator" style={{ background: selectedOwner?.color ?? '#9ca3af' }} />
+            {selectedOwner ? `Owned by ${selectedOwner.name}` : selectedState ? 'Available from the bank' : 'Board location'}
+          </div>
+
+          {selectedState?.ownerId === activePlayer?.id && selectedSpace.type === 'property' && (
+            <div className="inspector-actions">
+              <button
+                className="mini-action mini-action-gold"
+                disabled={!game.canBuildHouse(activePlayer.id, selectedSpace.id)}
+                onClick={() => game.buildHouse(selectedSpace.id)}
+              ><Home size={13} /> Build</button>
+              <button
+                className="mini-action"
+                disabled={!game.canSellHouse(activePlayer.id, selectedSpace.id)}
+                onClick={() => game.sellHouse(selectedSpace.id)}
+              >Sell house</button>
+              <button className="mini-action" onClick={() => game.toggleMortgage(selectedSpace.id)}>
+                {selectedState.isMortgaged ? 'Unmortgage' : 'Mortgage'}
+              </button>
+            </div>
+          )}
+        </section>
+      )}
+
+      <footer className="bottom-console">
+        <div className="console-player">
+          <div className="console-avatar" style={{ '--player-accent': activePlayer?.color ?? '#d8b45a' } as React.CSSProperties}>
+            {activePlayer?.isAI ? <Bot size={18} /> : <UserRound size={18} />}
+          </div>
+          <div className="console-player-copy">
+            <span>NOW PLAYING</span>
+            <strong>{activePlayer?.name ?? 'Waiting for player'}</strong>
+          </div>
         </div>
-      </aside>
 
-      <footer className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex flex-wrap items-end justify-center gap-2 p-3 sm:p-5">
-        <div className="pointer-events-auto flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-amber-400/25 bg-slate-950/90 p-3 shadow-2xl backdrop-blur">
-          <div className="px-2 text-center">
-            <div className="text-[10px] uppercase tracking-widest text-slate-400">Dice</div>
-            <div className="font-mono text-xl font-bold">{game.dice[0]} + {game.dice[1]} = {game.dice[0] + game.dice[1]}</div>
+        <div className="console-divider" />
+
+        <div className="dice-summary">
+          <span className="dice-label">LAST ROLL</span>
+          <div className="dice-row">
+            <span className="die">{game.dice[0]}</span>
+            <span className="dice-plus">+</span>
+            <span className="die">{game.dice[1]}</span>
+            <span className="dice-equals">=</span>
+            <strong className="dice-total">{game.dice[0] + game.dice[1]}</strong>
           </div>
-          {game.turnPhase === 'PRE_ROLL' && <>
-            {activePlayer?.inJail && <button className="rounded-xl bg-amber-500 px-4 py-3 text-sm font-bold text-slate-950 disabled:opacity-40" disabled={activePlayer.money < 50} onClick={game.payJailBail}>Pay bail $50</button>}
-            {activePlayer?.inJail && activePlayer.getOutOfJailCards > 0 && <button className="rounded-xl bg-amber-500 px-4 py-3 text-sm font-bold text-slate-950" onClick={game.useJailCard}>Use jail card</button>}
-            <button className="rounded-xl bg-amber-300 px-5 py-3 text-sm font-extrabold text-slate-950 hover:bg-amber-200" onClick={game.rollDice}>Roll dice</button>
-          </>}
-          {game.turnPhase === 'LANDED_ACTION' && <>
-            <button className="rounded-xl bg-emerald-500 px-4 py-3 text-sm font-bold text-slate-950 disabled:opacity-40" disabled={!activePlayer || !BOARD_SPACES[activePlayer.position].price || activePlayer.money < (BOARD_SPACES[activePlayer.position].price || 0)} onClick={game.buyCurrentProperty}>Buy property</button>
-            <button className="rounded-xl bg-slate-700 px-4 py-3 text-sm font-semibold" onClick={game.declineProperty}>Pass</button>
-          </>}
-          {game.turnPhase === 'CARD_DRAWN' && game.activeCard && <button className="rounded-xl bg-sky-400 px-4 py-3 text-sm font-bold text-slate-950" onClick={game.applyActiveCard}>Resolve: {game.activeCard.title}</button>}
-          {game.turnPhase === 'DEBT_RESOLUTION' && game.pendingDebt && <>
-            <span className="px-2 text-sm text-rose-300">Debt: {money(game.pendingDebt.amount)}</span>
-            <button className="rounded-xl bg-emerald-500 px-4 py-3 text-sm font-bold text-slate-950 disabled:opacity-40" disabled={!activePlayer || activePlayer.money < game.pendingDebt.amount} onClick={game.settlePendingDebt}>Pay debt</button>
-            <button className="rounded-xl bg-rose-600 px-4 py-3 text-sm font-bold" onClick={game.declareBankruptcy}>Declare bankruptcy</button>
-          </>}
-          {game.turnPhase === 'END_TURN' && <button className="rounded-xl bg-amber-300 px-5 py-3 text-sm font-extrabold text-slate-950" onClick={game.endTurn}>End turn</button>}
-          <button className="rounded-xl border border-white/15 px-3 py-3 text-sm hover:bg-white/10" onClick={() => game.selectSpace(activePlayer?.position ?? null)}>My space</button>
+        </div>
+
+        <div className="console-actions">
+          {game.turnPhase === 'PRE_ROLL' && (
+            <>
+              {activePlayer?.inJail && (
+                <button className="console-button secondary" disabled={activePlayer.money < 50 || activePlayer.isAI} onClick={game.payJailBail}>
+                  Pay bail $50
+                </button>
+              )}
+              {activePlayer?.inJail && activePlayer.getOutOfJailCards > 0 && (
+                <button className="console-button secondary" disabled={activePlayer.isAI} onClick={game.useJailCard}>
+                  Use jail card
+                </button>
+              )}
+              <button className="console-button primary" disabled={activePlayer?.isAI} onClick={game.rollDice}>
+                <Sparkles size={16} /> Roll the dice <ArrowRight size={15} />
+              </button>
+            </>
+          )}
+
+          {game.turnPhase === 'LANDED_ACTION' && (
+            <>
+              <button
+                className="console-button primary"
+                disabled={!activePlayer || activePlayer.isAI || !BOARD_SPACES[activePlayer.position].price || activePlayer.money < (BOARD_SPACES[activePlayer.position].price || 0)}
+                onClick={game.buyCurrentProperty}
+              ><Landmark size={15} /> Buy property</button>
+              <button className="console-button secondary" disabled={activePlayer?.isAI} onClick={game.declineProperty}>Pass</button>
+            </>
+          )}
+
+          {game.turnPhase === 'CARD_DRAWN' && game.activeCard && (
+            <button className="console-button primary" disabled={activePlayer?.isAI} onClick={game.applyActiveCard}>
+              <ScrollText size={15} /> Resolve card
+            </button>
+          )}
+
+          {game.turnPhase === 'DEBT_RESOLUTION' && game.pendingDebt && (
+            <>
+              <div className="debt-readout">Debt <strong>{money(game.pendingDebt.amount)}</strong></div>
+              <button className="console-button primary" disabled={!activePlayer || activePlayer.isAI || activePlayer.money < game.pendingDebt.amount} onClick={game.settlePendingDebt}>Pay debt</button>
+              <button className="console-button danger" disabled={activePlayer?.isAI} onClick={game.declareBankruptcy}>Bankruptcy</button>
+            </>
+          )}
+
+          {game.turnPhase === 'END_TURN' && (
+            <button className="console-button primary" disabled={activePlayer?.isAI} onClick={game.endTurn}>
+              End turn <ArrowRight size={15} />
+            </button>
+          )}
+
+          {(game.turnPhase === 'ROLLING' || game.turnPhase === 'MOVING') && (
+            <div className="console-wait"><span className="loading-orbit" /> {game.turnPhase === 'ROLLING' ? 'Rolling…' : 'Moving…'}</div>
+          )}
+
+          <button className="console-button location-button" onClick={() => game.selectSpace(activePlayer?.position ?? null)}>
+            <Landmark size={14} /> My space
+          </button>
         </div>
       </footer>
 
-      {selectedSpace && selectedSpace.price && selectedState && (
-        <div className="pointer-events-auto absolute bottom-28 right-3 z-30 w-64 rounded-2xl border border-amber-400/30 bg-slate-950/95 p-4 shadow-2xl backdrop-blur sm:bottom-28 sm:right-5">
-          <button className="float-right text-slate-400 hover:text-white" onClick={() => game.selectSpace(null)} aria-label="Close property details">×</button>
-          <div className="text-[10px] uppercase tracking-widest text-amber-300">{selectedSpace.colorGroup}</div>
-          <h3 className="mt-1 font-semibold">{selectedSpace.name}</h3>
-          <div className="mt-2 text-lg font-mono">{money(selectedSpace.price)}</div>
-          <div className="mt-1 text-xs text-slate-400">{selectedOwner ? `Owned by ${selectedOwner.name}` : 'Unowned · Bank'}</div>
-          {selectedState.ownerId === activePlayer?.id && selectedSpace.type === 'property' && (
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold disabled:opacity-40" disabled={!game.canBuildHouse(activePlayer.id, selectedSpace.id)} onClick={() => game.buildHouse(selectedSpace.id)}>Build house</button>
-              <button className="rounded-lg bg-slate-700 px-3 py-2 text-xs font-bold disabled:opacity-40" disabled={!game.canSellHouse(activePlayer.id, selectedSpace.id)} onClick={() => game.sellHouse(selectedSpace.id)}>Sell house</button>
-              <button className="rounded-lg bg-slate-700 px-3 py-2 text-xs font-bold" onClick={() => game.toggleMortgage(selectedSpace.id)}>{selectedState.isMortgaged ? 'Unmortgage' : 'Mortgage'}</button>
-            </div>
-          )}
-        </div>
-      )}
-
       {showSetup && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-3xl border border-amber-400/30 bg-slate-950 p-7 text-center shadow-2xl">
-            <div className="text-xs font-bold uppercase tracking-[.25em] text-amber-300">Miniature City Edition</div>
-            <h1 className="mt-3 font-serif text-3xl font-bold">3D Monopoly</h1>
-            <p className="mt-3 text-sm leading-6 text-slate-400">Build your property empire, collect rent, and outlast three AI rivals.</p>
-            <button className="mt-6 w-full rounded-xl bg-amber-300 px-5 py-3 font-bold text-slate-950 hover:bg-amber-200" onClick={handleStart}>Start game</button>
+        <div className="modal-backdrop">
+          <div className="game-modal setup-modal" role="dialog" aria-modal="true" aria-labelledby="setup-title">
+            <div className="modal-ornament"><Crown size={25} /></div>
+            <div className="eyebrow">A CITY OF OPPORTUNITY</div>
+            <h1 id="setup-title">Your empire begins here.</h1>
+            <p>Build your property portfolio, collect rent, and outlast three rival tycoons in a living miniature city.</p>
+            <div className="setup-facts">
+              <div><UserRound size={15} /><strong>1</strong><span>Human player</span></div>
+              <div><Bot size={15} /><strong>3</strong><span>AI rivals</span></div>
+              <div><Wallet size={15} /><strong>$1,500</strong><span>Starting cash</span></div>
+            </div>
+            <button className="modal-primary" onClick={handleStart}>Enter the city <ArrowRight size={17} /></button>
+            <span className="modal-caption">The board is set. Fortune favors the bold.</span>
           </div>
         </div>
       )}
 
       {showRules && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
-          <div className="w-full max-w-lg rounded-2xl border border-amber-400/30 bg-slate-950 p-6">
-            <div className="flex items-center justify-between"><h2 className="text-xl font-bold text-amber-300">How to play</h2><button onClick={() => setShowRules(false)} aria-label="Close rules">×</button></div>
-            <ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-slate-300">
-              <li>Roll two dice and move clockwise around the board.</li>
-              <li>Buy unowned properties and collect rent from opponents.</li>
-              <li>Own every property in a color group to build houses and hotels.</li>
-              <li>Pay taxes, resolve cards, and avoid bankruptcy.</li>
-              <li>Rolling doubles grants another turn; three consecutive doubles send you to jail.</li>
-            </ul>
+        <div className="modal-backdrop" role="presentation" onClick={() => setShowRules(false)}>
+          <div className="game-modal rules-modal" role="dialog" aria-modal="true" aria-labelledby="rules-title" onClick={(event) => event.stopPropagation()}>
+            <button className="modal-close" onClick={() => setShowRules(false)} aria-label="Close rules"><X size={18} /></button>
+            <div className="eyebrow">THE TYCOON'S HANDBOOK</div>
+            <h2 id="rules-title">How to play</h2>
+            <p className="modal-intro">A few principles to keep your empire standing.</p>
+            <div className="rule-list">
+              <div><span>01</span><p><strong>Roll & move</strong>Roll two dice and travel clockwise around the board.</p></div>
+              <div><span>02</span><p><strong>Acquire property</strong>Buy unowned spaces and collect rent when rivals land on your holdings.</p></div>
+              <div><span>03</span><p><strong>Build your district</strong>Own every property in a color group to build houses and hotels.</p></div>
+              <div><span>04</span><p><strong>Manage your fortune</strong>Pay taxes, resolve cards, and use mortgages carefully to avoid bankruptcy.</p></div>
+              <div><span>05</span><p><strong>Watch the dice</strong>Rolling doubles grants another turn. Three consecutive doubles send you to jail.</p></div>
+            </div>
+            <button className="modal-primary" onClick={() => setShowRules(false)}>Back to the board <ArrowRight size={16} /></button>
           </div>
         </div>
       )}
 
       {game.activeCard && game.turnPhase === 'CARD_DRAWN' && !activePlayer?.isAI && (
-        <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/60 p-4">
-          <div className="w-full max-w-sm rounded-2xl border border-sky-400/30 bg-slate-950 p-6 text-center">
-            <div className="text-xs uppercase tracking-widest text-sky-300">{game.activeCard.deck === 'chance' ? 'Chance' : 'Community Chest'}</div>
-            <h2 className="mt-3 text-xl font-bold">{game.activeCard.title}</h2>
-            <p className="mt-2 text-sm text-slate-300">{game.activeCard.description}</p>
-            <button className="mt-5 rounded-xl bg-sky-400 px-5 py-3 font-bold text-slate-950" onClick={game.applyActiveCard}>Continue</button>
+        <div className="modal-backdrop">
+          <div className="game-modal card-modal" role="dialog" aria-modal="true">
+            <div className="card-stamp"><ScrollText size={21} /></div>
+            <div className="eyebrow">{game.activeCard.deck === 'chance' ? 'CHANCE' : 'COMMUNITY CHEST'}</div>
+            <h2>{game.activeCard.title}</h2>
+            <p>{game.activeCard.description}</p>
+            <button className="modal-primary" onClick={game.applyActiveCard}>Resolve this card <ArrowRight size={16} /></button>
           </div>
         </div>
       )}
 
       {game.winner && (
-        <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/75 p-4">
-          <div className="rounded-3xl border border-amber-300/40 bg-slate-950 p-8 text-center">
-            <div className="text-4xl">🏆</div><h2 className="mt-3 text-2xl font-bold">{game.winner.name} wins!</h2>
-            <button className="mt-5 rounded-xl bg-amber-300 px-5 py-3 font-bold text-slate-950" onClick={() => { setShowSetup(true); }}>New game</button>
+        <div className="modal-backdrop winner-backdrop">
+          <div className="game-modal winner-modal" role="dialog" aria-modal="true">
+            <div className="winner-trophy"><Trophy size={34} /></div>
+            <div className="eyebrow">THE CITY HAS A NEW RULER</div>
+            <h2>{game.winner.name} wins!</h2>
+            <p>The final empire remains standing. A new game is ready whenever you are.</p>
+            <button className="modal-primary" onClick={() => setShowSetup(true)}>Start a new game <RotateCcw size={16} /></button>
           </div>
         </div>
       )}
-    </div>
+    </main>
   );
 };
 
