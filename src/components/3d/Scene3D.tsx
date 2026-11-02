@@ -24,8 +24,39 @@ const CameraRig: React.FC = () => {
       controlsRef.current.target.lerp(new THREE.Vector3(0, 0, 0), delta * 4);
     } else if (cameraMode === 'follow') {
       const activePlayer = players[currentPlayerIndex];
+
+      if (!activePlayer) return;
+
       const tf = getSpaceTransform(activePlayer.position);
-      const targetPos = new THREE.Vector3(tf.position[0] * 1.45, 11.5, tf.position[2] * 1.45);
+
+      const targetPos = new THREE.Vector3(
+        tf.position[0] * 1.45,
+        11.5,
+        tf.position[2] * 1.45
+      );
+
       camera.position.lerp(targetPos, delta * 2.5);
+
       controlsRef.current.target.lerp(
-        new THREE.Vector3(tf.position[0] * 0.5, 0.5, tf.position
+        new THREE.Vector3(
+          tf.position[0] * 0.5,
+          0.5,
+          tf.position[2] * 0.5
+        ),
+        delta * 4
+      );
+    }
+  });
+
+  return (
+    <OrbitControls
+      ref={controlsRef}
+      enablePan={true}
+      enableZoom={true}
+      enableRotate={true}
+      maxPolarAngle={Math.PI / 2.1}
+      minDistance={10}
+      maxDistance={60}
+    />
+  );
+};
