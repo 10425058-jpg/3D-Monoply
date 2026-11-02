@@ -5,6 +5,9 @@ import { useGameStore } from '../../store/useGameStore';
 
 export const Board3D: React.FC = () => {
   const selectSpace = useGameStore((s) => s.selectSpace);
+  const setHoveredSpace = useGameStore((s) => s.setHoveredSpace);
+  const selectedSpaceId = useGameStore((s) => s.selectedSpaceId);
+  const hoveredSpaceId = useGameStore((s) => s.hoveredSpaceId);
   const properties = useGameStore((s) => s.properties);
   const players = useGameStore((s) => s.players);
   const [hoveredId, setHoveredId] = useState<number | null>(null);
@@ -12,15 +15,15 @@ export const Board3D: React.FC = () => {
   return (
     <group>
       {/* Dark walnut presentation table */}
-      <mesh position={[0, -0.45, 0]} receiveShadow>
+      <mesh position={[0, -0.45, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[21.5, 21.5, 0.7, 96]} />
         <meshStandardMaterial color="#352536" roughness={0.36} metalness={0.14} />
       </mesh>
-      <mesh position={[0, -0.86, 0]} receiveShadow>
+      <mesh position={[0, -0.86, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[20.9, 20.4, 0.5, 96]} />
         <meshStandardMaterial color="#1c1723" roughness={0.48} />
       </mesh>
-      <mesh position={[0, -1.12, 0]} receiveShadow>
+      <mesh position={[0, -1.12, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[19.8, 19.8, 0.045, 96]} />
         <meshStandardMaterial color="#0c1322" roughness={0.86} />
       </mesh>
@@ -33,34 +36,32 @@ export const Board3D: React.FC = () => {
         <meshStandardMaterial color="#bf9855" metalness={0.82} roughness={0.2} />
       </mesh>
 
-      {/* Chance and Community Chest decks sit on the upper corners of the board inset. */}
-      <group position={[-9.05, 0.42, -6.75]} rotation={[0, 0.18, 0]}>
+      {/* Compact card trays sit fully inside the lower blue inset, away from lane markings. */}
+      <group position={[7.0, 0.36, 7.1]} rotation={[0, -0.14, 0]}>
         <mesh castShadow receiveShadow>
-          <boxGeometry args={[1.55, 0.22, 1.12]} />
-          <meshStandardMaterial color="#a84b43" roughness={0.42} metalness={0.12} />
+          <boxGeometry args={[1.18, 0.18, 0.82]} />
+          <meshStandardMaterial color="#a84b43" roughness={0.4} metalness={0.16} />
         </mesh>
-        <mesh position={[0, 0.125, 0]}>
-          <boxGeometry args={[1.43, 0.035, 1.0]} />
+        <mesh position={[0, 0.105, 0]}>
+          <boxGeometry args={[1.08, 0.025, 0.72]} />
           <meshStandardMaterial color="#f1e6ce" roughness={0.62} />
         </mesh>
-        <Text position={[0, 0.15, 0]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.19} maxWidth={1.3} textAlign="center" color="#7d302d" anchorX="center" anchorY="middle" fontWeight="bold">
+        <Text position={[0, 0.125, 0]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.16} maxWidth={1.0} textAlign="center" color="#7d302d" anchorX="center" anchorY="middle" fontWeight="bold">
           CHANCE
         </Text>
       </group>
 
-      <group position={[9.05, 0.42, -6.75]} rotation={[0, -0.18, 0]}>
+      <group position={[-5.5, 0.36, 7.1]} rotation={[0, 0.14, 0]}>
         <mesh castShadow receiveShadow>
-          <boxGeometry args={[1.55, 0.22, 1.12]} />
-          <meshStandardMaterial color="#327a8e" roughness={0.42} metalness={0.12} />
+          <boxGeometry args={[1.18, 0.18, 0.82]} />
+          <meshStandardMaterial color="#327a8e" roughness={0.4} metalness={0.16} />
         </mesh>
-        <mesh position={[0, 0.125, 0]}>
-          <boxGeometry args={[1.43, 0.035, 1.0]} />
+        <mesh position={[0, 0.105, 0]}>
+          <boxGeometry args={[1.08, 0.025, 0.72]} />
           <meshStandardMaterial color="#f1e6ce" roughness={0.62} />
         </mesh>
-        <Text position={[0, 0.15, 0]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.13} maxWidth={1.3} textAlign="center" color="#1c596d" anchorX="center" anchorY="middle" fontWeight="bold">
-          COMMUNITY
-          {'\n'}
-          CHEST
+        <Text position={[0, 0.125, 0]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.105} maxWidth={1.0} textAlign="center" color="#1c596d" anchorX="center" anchorY="middle" fontWeight="bold">
+          COMMUNITY CHEST
         </Text>
       </group>
 
@@ -85,7 +86,9 @@ export const Board3D: React.FC = () => {
         const owner = property && property.ownerId !== null
           ? players.find((player) => player.id === property.ownerId)
           : null;
-        const isHovered = hoveredId === space.id;
+        const isHovered = hoveredId === space.id || hoveredSpaceId === space.id;
+        const isSelected = selectedSpaceId === space.id;
+        const isHighlighted = isHovered || isSelected;
         // Keep the text baseline aligned with the edge while correcting the far/bottom-facing sides.
         const flipLabel = (space.id >= 20 && space.id <= 29) || space.id >= 30;
         const labelRotation: [number, number, number] = [-Math.PI / 2, 0, flipLabel ? Math.PI : 0];
@@ -98,7 +101,7 @@ export const Board3D: React.FC = () => {
         return (
           <group
             key={space.id}
-            position={[transform.position[0], 0.24, transform.position[2]]}
+            position={[transform.position[0], isHovered ? 0.36 : isSelected ? 0.32 : 0.24, transform.position[2]]}
             rotation={[0, transform.rotationY, 0]}
           >
             {/* Dark bevel below each tile */}
@@ -118,10 +121,12 @@ export const Board3D: React.FC = () => {
               onPointerOver={(event) => {
                 event.stopPropagation();
                 setHoveredId(space.id);
+                setHoveredSpace(space.id);
                 document.body.style.cursor = 'pointer';
               }}
               onPointerOut={() => {
                 setHoveredId(null);
+                setHoveredSpace(null);
                 document.body.style.cursor = 'auto';
               }}
             >
@@ -134,6 +139,27 @@ export const Board3D: React.FC = () => {
               />
             </mesh>
 
+            {isHighlighted && (
+              <group position={[0, 0.055, 0]}>
+                <mesh position={[0, 0, -transform.depth / 2 + 0.055]}>
+                  <boxGeometry args={[transform.width - 0.08, 0.028, 0.055]} />
+                  <meshStandardMaterial color="#ffe7ad" emissive="#eab85e" emissiveIntensity={isSelected ? 0.95 : 0.68} />
+                </mesh>
+                <mesh position={[0, 0, transform.depth / 2 - 0.055]}>
+                  <boxGeometry args={[transform.width - 0.08, 0.028, 0.055]} />
+                  <meshStandardMaterial color="#ffe7ad" emissive="#eab85e" emissiveIntensity={isSelected ? 0.95 : 0.68} />
+                </mesh>
+                <mesh position={[-transform.width / 2 + 0.055, 0, 0]}>
+                  <boxGeometry args={[0.055, 0.028, transform.depth - 0.08]} />
+                  <meshStandardMaterial color="#ffe7ad" emissive="#eab85e" emissiveIntensity={isSelected ? 0.95 : 0.68} />
+                </mesh>
+                <mesh position={[transform.width / 2 - 0.055, 0, 0]}>
+                  <boxGeometry args={[0.055, 0.028, transform.depth - 0.08]} />
+                  <meshStandardMaterial color="#ffe7ad" emissive="#eab85e" emissiveIntensity={isSelected ? 0.95 : 0.68} />
+                </mesh>
+              </group>
+            )}
+
             {/* Inner property color strip */}
             {space.type === 'property' && (
               <mesh position={[0, 0.054, -transform.depth / 2 + 0.34]} castShadow>
@@ -144,14 +170,30 @@ export const Board3D: React.FC = () => {
 
             {/* Owner marker on the outer edge */}
             {owner && (
-              <mesh position={[0, 0.06, transform.depth / 2 - 0.14]}>
-                <boxGeometry args={[transform.width - 0.13, 0.045, 0.2]} />
-                <meshStandardMaterial
-                  color={owner.color}
-                  emissive={owner.color}
-                  emissiveIntensity={0.25}
-                />
-              </mesh>
+              <>
+                <mesh position={[0, 0.075, transform.depth / 2 - 0.13]}>
+                  <boxGeometry args={[transform.width - 0.13, 0.075, 0.22]} />
+                  <meshStandardMaterial color={owner.color} emissive={owner.color} emissiveIntensity={0.72} metalness={0.34} roughness={0.24} />
+                </mesh>
+                <group position={[0, 0.055, 0]}>
+                  <mesh position={[0, 0, -transform.depth / 2 + 0.045]}>
+                    <boxGeometry args={[transform.width - 0.12, 0.035, 0.045]} />
+                    <meshStandardMaterial color={owner.color} emissive={owner.color} emissiveIntensity={0.55} />
+                  </mesh>
+                  <mesh position={[0, 0, transform.depth / 2 - 0.045]}>
+                    <boxGeometry args={[transform.width - 0.12, 0.035, 0.045]} />
+                    <meshStandardMaterial color={owner.color} emissive={owner.color} emissiveIntensity={0.55} />
+                  </mesh>
+                  <mesh position={[-transform.width / 2 + 0.045, 0, 0]}>
+                    <boxGeometry args={[0.045, 0.035, transform.depth - 0.12]} />
+                    <meshStandardMaterial color={owner.color} emissive={owner.color} emissiveIntensity={0.55} />
+                  </mesh>
+                  <mesh position={[transform.width / 2 - 0.045, 0, 0]}>
+                    <boxGeometry args={[0.045, 0.035, transform.depth - 0.12]} />
+                    <meshStandardMaterial color={owner.color} emissive={owner.color} emissiveIntensity={0.55} />
+                  </mesh>
+                </group>
+              </>
             )}
 
             {/* Space label */}

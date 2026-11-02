@@ -82,7 +82,8 @@ const Die: React.FC<{
   value: number;
   rolling: boolean;
   index: number;
-}> = ({ value, rolling, index }) => {
+  speed: 1 | 2;
+}> = ({ value, rolling, index, speed }) => {
   const dieRef = useRef<THREE.Group>(null);
   const pipsRef = useRef<THREE.InstancedMesh>(null);
 
@@ -119,10 +120,10 @@ const Die: React.FC<{
 
     if (rolling) {
       const time = clock.getElapsedTime();
-      die.position.y = 0.95 + Math.abs(Math.sin(time * 17 + index * 1.7)) * 0.58;
-      die.rotation.x += delta * (7.2 + index * 0.8);
-      die.rotation.y += delta * (8.6 + index * 0.65);
-      die.rotation.z += delta * (6.4 + index * 0.45);
+      die.position.y = 0.95 + Math.abs(Math.sin(time * 17 * speed + index * 1.7)) * 0.58;
+      die.rotation.x += delta * speed * (7.2 + index * 0.8);
+      die.rotation.y += delta * speed * (8.6 + index * 0.65);
+      die.rotation.z += delta * speed * (6.4 + index * 0.45);
       return;
     }
 
@@ -159,12 +160,13 @@ const Die: React.FC<{
 export const Dice3D: React.FC = () => {
   const turnPhase = useGameStore((state) => state.turnPhase);
   const dice = useGameStore((state) => state.dice);
+  const gameSpeed = useGameStore((state) => state.gameSpeed);
   const rolling = turnPhase === 'ROLLING';
 
   return (
     <group position={[1.4, 0, 5.2]}>
-      <Die value={dice[0]} rolling={rolling} index={0} />
-      <Die value={dice[1]} rolling={rolling} index={1} />
+      <Die value={dice[0]} rolling={rolling} index={0} speed={gameSpeed} />
+      <Die value={dice[1]} rolling={rolling} index={1} speed={gameSpeed} />
     </group>
   );
 };
