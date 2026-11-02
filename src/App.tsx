@@ -3,7 +3,6 @@ import {
   ArrowRight,
   Bot,
   Camera,
-  CheckCircle2,
   Clock3,
   Coins,
   Crown,
