@@ -44,6 +44,8 @@ const DEFAULT_SETUP = [
   { name: 'Elena', isAI: true, token: 'yacht' as TokenType, color: '#e7ad54' },
 ];
 
+type GraphicsQuality = 'low' | 'balanced' | 'high';
+
 const money = (value: number) => `${value.toLocaleString('en-US')}`;
 
 const localDateKey = (date = new Date()) => {
@@ -98,6 +100,11 @@ export const App: React.FC = () => {
   const [lastPackReveal, setLastPackReveal] = useState<{ stickers: string[]; duplicateCount: number } | null>(null);
   const [isWheelSpinning, setIsWheelSpinning] = useState(false);
   const [autoRoll, setAutoRoll] = useState(false);
+  const [graphicsQuality, setGraphicsQuality] = useState<GraphicsQuality>(() => {
+    if (typeof window === 'undefined') return 'balanced';
+    const saved = window.localStorage.getItem('monopoly-graphics-quality');
+    return saved === 'low' || saved === 'high' ? saved : 'balanced';
+  });
   const [showTradeModal, setShowTradeModal] = useState(false);
   const [tradeTargetId, setTradeTargetId] = useState<number>(1);
   const [tradePropertyId, setTradePropertyId] = useState('');
@@ -387,6 +394,11 @@ export const App: React.FC = () => {
     window.setTimeout(() => setIsWheelSpinning(false), 1350);
   };
 
+  const handleGraphicsQualityChange = (quality: GraphicsQuality) => {
+    setGraphicsQuality(quality);
+    window.localStorage.setItem('monopoly-graphics-quality', quality);
+  };
+
   const handleStart = () => {
     game.startNewGame(DEFAULT_SETUP);
     setShowSetup(false);
@@ -405,7 +417,7 @@ export const App: React.FC = () => {
   return (
     <main className="monopoly-app">
       <div className="world-layer">
-        <Scene3D />
+        <Scene3D quality={graphicsQuality} />
       </div>
       <div className="world-vignette" aria-hidden="true" />
 
@@ -728,13 +740,21 @@ export const App: React.FC = () => {
       </footer>
 
       <div className="roll-controls">
-        <button className={`auto-roll-pill ${autoRoll ? 'is-active' : ''}`} onClick={() => setAutoRoll((value) => !value)}>
-          <span>Auto-roll</span><i />
-        </button>
+        <label className="quality-switch">
+          <span>Graphics</span>
+          <select value={graphicsQuality} onChange={(event) => handleGraphicsQualityChange(event.target.value as GraphicsQuality)} aria-label="Graphics quality">
+            <option value="low">Low · FPS</option>
+            <option value="balanced">Balanced</option>
+            <option value="high">High · Visuals</option>
+          </select>
+        </label>
         <div className="speed-switch">
           <button className={game.gameSpeed === 1 ? 'is-active' : ''} onClick={() => game.setGameSpeed(1)}>1x</button>
           <button className={game.gameSpeed === 2 ? 'is-active' : ''} onClick={() => game.setGameSpeed(2)}>2x</button>
         </div>
+        <button className={`auto-roll-pill ${autoRoll ? 'is-active' : ''}`} onClick={() => setAutoRoll((value) => !value)}>
+          <span>Auto-roll</span><i />
+        </button>
       </div>
 
       <button
