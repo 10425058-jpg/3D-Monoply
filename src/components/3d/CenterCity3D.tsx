@@ -743,6 +743,87 @@ export const CenterCity3D: React.FC = () => {
       <ParkIsland />
       <CircusTent />
 
+      {/* Foreground leisure district: pond, fountain, parking bays and a tree promenade. */}
+      <group position={[1.15, 0.34, 5.2]}>
+        <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={[1.6, 0.9, 1]}>
+          <circleGeometry args={[1.55, 48]} />
+          <meshPhysicalMaterial color="#167a91" metalness={0.42} roughness={0.16} clearcoat={1} clearcoatRoughness={0.08} emissive="#0a344c" emissiveIntensity={0.16} />
+        </mesh>
+        <mesh position={[0, 0.025, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={[1.6, 0.9, 1]}>
+          <torusGeometry args={[1.5, 0.12, 8, 48]} />
+          <meshStandardMaterial color="#d2b478" metalness={0.62} roughness={0.28} />
+        </mesh>
+        <mesh position={[-0.48, 0.2, 0.1]} castShadow>
+          <cylinderGeometry args={[0.24, 0.3, 0.32, 16]} />
+          <meshStandardMaterial color="#d8c79f" roughness={0.6} />
+        </mesh>
+        <mesh position={[-0.48, 0.43, 0.1]} castShadow>
+          <cylinderGeometry args={[0.34, 0.22, 0.12, 20]} />
+          <meshStandardMaterial color="#d6b978" metalness={0.5} roughness={0.3} />
+        </mesh>
+        <mesh position={[-0.48, 0.68, 0.1]}>
+          <sphereGeometry args={[0.085, 12, 12]} />
+          <meshStandardMaterial color="#dffaff" emissive="#62d9f0" emissiveIntensity={1.1} />
+        </mesh>
+        {[0, 1, 2, 3].map((index) => {
+          const angle = (index / 4) * Math.PI * 2;
+          return (
+            <mesh key={index} position={[-0.48 + Math.cos(angle) * 0.2, 0.52, 0.1 + Math.sin(angle) * 0.2]} rotation={[0, 0, angle]}>
+              <cylinderGeometry args={[0.025, 0.045, 0.28, 6]} />
+              <meshStandardMaterial color="#9cecff" emissive="#48bde4" emissiveIntensity={0.6} />
+            </mesh>
+          );
+        })}
+      </group>
+
+      <group position={[-4.15, 0.39, 5.05]} rotation={[0, -0.08, 0]}>
+        <mesh receiveShadow castShadow>
+          <boxGeometry args={[3.6, 0.16, 1.82]} />
+          <meshStandardMaterial color="#273746" roughness={0.84} />
+        </mesh>
+        {[-1.05, -0.35, 0.35, 1.05].map((x, index) => (
+          <group key={index} position={[x, 0.09, 0]}>
+            <mesh position={[0, 0.014, 0]}>
+              <boxGeometry args={[0.045, 0.012, 1.48]} />
+              <meshBasicMaterial color="#e7d69e" />
+            </mesh>
+            <mesh position={[0, 0.12, -0.28]}>
+              <boxGeometry args={[0.34, 0.14, 0.5]} />
+              <meshPhysicalMaterial color={['#b84d46', '#4e8dc0', '#c4a04e', '#4a916b'][index]} metalness={0.48} roughness={0.24} clearcoat={0.85} />
+            </mesh>
+            <mesh position={[0, 0.22, -0.28]}>
+              <boxGeometry args={[0.23, 0.09, 0.24]} />
+              <meshPhysicalMaterial color="#dbe8ef" metalness={0.48} roughness={0.18} clearcoat={1} />
+            </mesh>
+          </group>
+        ))}
+        <Text position={[0, 0.19, 0.72]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.16} color="#f1dfae" anchorX="center" anchorY="middle" fontWeight="bold">
+          MINI PARKING
+        </Text>
+      </group>
+
+      {[0, 1, 2, 3].map((index) => (
+        <Tree
+          key={`foreground-tree-${index}`}
+          position={[4.35 + index * 0.88, 0.42, 5.45 + (index % 2) * 0.18]}
+          scale={0.62 + (index % 2) * 0.08}
+          canopy={index % 2 === 0 ? '#287b51' : '#3b9659'}
+        />
+      ))}
+
+      <group position={[-1.1, 0.39, 4.72]}>
+        <mesh position={[0, 0.06, 0]} receiveShadow>
+          <boxGeometry args={[1.35, 0.12, 0.58]} />
+          <meshStandardMaterial color="#b7c0c4" roughness={0.52} />
+        </mesh>
+        {[-0.45, 0.45].map((x) => (
+          <mesh key={x} position={[x, 0.2, 0.22]}>
+            <cylinderGeometry args={[0.025, 0.025, 0.28, 8]} />
+            <meshStandardMaterial color="#caa45d" metalness={0.7} roughness={0.26} />
+          </mesh>
+        ))}
+      </group>
+
       {/* Small waterfront houses, kiosks and boats */}
       <group position={[-4.2, 0.42, -3.55]}>
         <mesh position={[0, 0.38, 0]} castShadow>
