@@ -13,6 +13,7 @@ import {
   Users,
   Gavel,
   Dices,
+  Flag,
   Crown,
   Home,
   Landmark,
@@ -611,80 +612,80 @@ export const App: React.FC = () => {
       </nav>
 
       <footer className="bottom-console">
-        <div className="console-player">
-          <div className="console-avatar" style={{ '--player-accent': activePlayer?.color ?? '#d8b45a' } as React.CSSProperties}>
-            {activePlayer?.isAI ? <Bot size={18} /> : <UserRound size={18} />}
-          </div>
-          <div className="console-player-copy">
-            <span>NOW PLAYING</span>
-            <strong>{activePlayer?.name ?? 'Waiting for player'}</strong>
-          </div>
-        </div>
-
-        <div className="console-divider" />
-
-        <div className="dice-summary">
-          <span className="dice-label">LAST ROLL</span>
-          <div className="dice-row">
-            <span className="die">{game.dice[0]}</span>
-            <span className="dice-plus">+</span>
-            <span className="die">{game.dice[1]}</span>
-            <span className="dice-equals">=</span>
-            <strong className="dice-total">{game.dice[0] + game.dice[1]}</strong>
-          </div>
-        </div>
-
         <div className="console-actions">
-          {game.turnPhase === 'PRE_ROLL' && (
+          <button
+            className="console-button dock-action"
+            disabled={!activePlayer || activePlayer.isAI || game.turnPhase !== 'LANDED_ACTION' ||
+              !BOARD_SPACES[activePlayer.position]?.price ||
+              activePlayer.money < (BOARD_SPACES[activePlayer.position]?.price ?? 0)}
+            onClick={game.buyCurrentProperty}
+          >
+            <Home size={22} /><span>Buy</span>
+          </button>
+          <button
+            className="console-button dock-action"
+            disabled={!activePlayer || activePlayer.isAI || !selectedSpace ||
+              selectedState?.ownerId !== activePlayer.id ||
+              selectedSpace.type !== 'property' || !game.canBuildHouse(activePlayer.id, selectedSpace.id)}
+            onClick={() => selectedSpace && game.buildHouse(selectedSpace.id)}
+          >
+            <Landmark size={22} /><span>Build</span>
+          </button>
+          <button
+            className="console-button dock-action"
+            disabled={!activePlayer || activePlayer.isAI || !selectedSpace?.mortgageValue ||
+              selectedState?.ownerId !== activePlayer.id || game.turnPhase === 'MOVING'}
+            onClick={() => selectedSpace && game.toggleMortgage(selectedSpace.id)}
+          >
+            <Wallet size={22} /><span>{selectedState?.isMortgaged ? 'Unmortgage' : 'Mortgage'}</span>
+          </button>
+          <button
+            className="console-button dock-action"
+            disabled={!activePlayer || activePlayer.isAI ||
+              (game.turnPhase !== 'PRE_ROLL' && game.turnPhase !== 'END_TURN')}
+            onClick={openTrade}
+          >
+            <Users size={22} /><span>Trade</span>
+          </button>
+          <button
+            className="console-button dock-action"
+            disabled={!activePlayer || activePlayer.isAI || game.turnPhase !== 'END_TURN'}
+            onClick={game.endTurn}
+          >
+            <Flag size={22} /><span>End Turn</span>
+          </button>
+
+          {game.turnPhase === 'PRE_ROLL' && activePlayer?.inJail && (
             <>
-              {activePlayer?.inJail && (
-                <button className="console-button secondary" disabled={activePlayer.money < 50 || activePlayer.isAI} onClick={game.payJailBail}>
-                  Pay bail $50
-                </button>
-              )}
-              {activePlayer?.inJail && activePlayer.getOutOfJailCards > 0 && (
+              <button className="console-button secondary" disabled={activePlayer.money < 50 || activePlayer.isAI} onClick={game.payJailBail}>
+                Pay bail $50
+              </button>
+              {activePlayer.getOutOfJailCards > 0 && (
                 <button className="console-button secondary" disabled={activePlayer.isAI} onClick={game.useJailCard}>
                   Use jail card
                 </button>
               )}
-
             </>
           )}
 
           {game.turnPhase === 'LANDED_ACTION' && (
             <>
-              <button
-                className="console-button primary"
-                disabled={!activePlayer || activePlayer.isAI || !BOARD_SPACES[activePlayer.position].price || activePlayer.money < (BOARD_SPACES[activePlayer.position].price || 0)}
-                onClick={game.buyCurrentProperty}
-              ><Landmark size={15} /> Buy property</button>
-              <button className="console-button secondary" disabled={activePlayer?.isAI} onClick={game.auctionCurrentProperty}>Auction</button>
+              <button className="console-button secondary" disabled={activePlayer?.isAI} onClick={game.auctionCurrentProperty}>
+                <Gavel size={18} /><span>Auction</span>
+              </button>
               <button className="console-button secondary" disabled={activePlayer?.isAI} onClick={game.declineProperty}>Pass</button>
             </>
           )}
 
           {game.turnPhase === 'AUCTION' && game.auction && (
             <>
-              <div className="debt-readout">
-                Top bid <strong>{money(game.auction.currentBid)}</strong>
-                {game.auction.highestBidderId !== null && (
-                  <span> · {game.players.find((player) => player.id === game.auction?.highestBidderId)?.name}</span>
-                )}
-              </div>
+              <div className="debt-readout">Top bid <strong>{money(game.auction.currentBid)}</strong></div>
               {auctionBidder && !auctionBidder.isAI ? (
                 <>
-                  <button
-                    className="console-button primary"
-                    disabled={auctionBidder.money < game.auction.currentBid + 10}
-                    onClick={() => game.placeAuctionBid(10)}
-                  >
+                  <button className="console-button primary" disabled={auctionBidder.money < game.auction.currentBid + 10} onClick={() => game.placeAuctionBid(10)}>
                     Bid {money(game.auction.currentBid + 10)}
                   </button>
-                  <button
-                    className="console-button secondary"
-                    disabled={auctionBidder.money < game.auction.currentBid + 50}
-                    onClick={() => game.placeAuctionBid(50)}
-                  >
+                  <button className="console-button secondary" disabled={auctionBidder.money < game.auction.currentBid + 50} onClick={() => game.placeAuctionBid(50)}>
                     Bid +$50
                   </button>
                   <button className="console-button danger" onClick={game.passAuction}>Pass</button>
@@ -697,7 +698,7 @@ export const App: React.FC = () => {
 
           {game.turnPhase === 'CARD_DRAWN' && game.activeCard && (
             <button className="console-button primary" disabled={activePlayer?.isAI} onClick={game.applyActiveCard}>
-              <ScrollText size={15} /> Resolve card
+              <ScrollText size={18} /><span>Resolve card</span>
             </button>
           )}
 
@@ -709,47 +710,42 @@ export const App: React.FC = () => {
             </>
           )}
 
-          {game.turnPhase === 'END_TURN' && (
-            <button className="console-button primary" disabled={activePlayer?.isAI} onClick={game.endTurn}>
-              End turn <ArrowRight size={15} />
-            </button>
-          )}
-
           {(game.turnPhase === 'ROLLING' || game.turnPhase === 'MOVING') && (
             <div className="console-wait"><span className="loading-orbit" /> {game.turnPhase === 'ROLLING' ? 'Rolling…' : 'Moving…'}</div>
           )}
 
           {activePlayer && !activePlayer.isAI && (
             <button
-              className="console-button landmark-upgrade-button"
-              disabled={activePlayer.landmarkLevel >= 5 || activePlayer.money < landmarkCost || (game.turnPhase !== 'PRE_ROLL' && game.turnPhase !== 'END_TURN')}
+              className="console-button secondary landmark-upgrade-button"
+              disabled={activePlayer.landmarkLevel >= 5 || activePlayer.money < landmarkCost ||
+                (game.turnPhase !== 'PRE_ROLL' && game.turnPhase !== 'END_TURN')}
               onClick={handleUpgradeLandmark}
             >
-              <Landmark size={14} />
-              {activePlayer.landmarkLevel >= 5 ? 'Landmark max' : `Upgrade Lv.${activePlayer.landmarkLevel + 1} · ${money(landmarkCost)}`}
+              <Landmark size={16} /><span>{activePlayer.landmarkLevel >= 5 ? 'Landmark max' : 'Upgrade'}</span>
             </button>
           )}
-          {selectedState?.ownerId === activePlayer?.id && selectedSpace?.type === 'property' && activePlayer && !activePlayer.isAI && (
-            <button className="console-button secondary quick-build-button" disabled={!game.canBuildHouse(activePlayer.id, selectedSpace.id)} onClick={() => game.buildHouse(selectedSpace.id)}>
-              <Home size={14} /> Build
-            </button>
-          )}
-          {activePlayer && !activePlayer.isAI && (game.turnPhase === 'PRE_ROLL' || game.turnPhase === 'END_TURN') && (
-            <button className="console-button secondary trade-action-button" onClick={openTrade}>
-              Trade
-            </button>
-          )}
-          <button className="console-button location-button" onClick={() => game.selectSpace(activePlayer?.position ?? null)}>
-            <Landmark size={14} /> My space
-          </button>
         </div>
       </footer>
 
-      {game.turnPhase === 'PRE_ROLL' && activePlayer && (
-        <button className="console-button primary roll-button" disabled={activePlayer.isAI} onClick={game.rollDice}>
-          <Dices size={32} /><span>ROLL</span>
+      <div className="roll-controls">
+        <button className={`auto-roll-pill ${autoRoll ? 'is-active' : ''}`} onClick={() => setAutoRoll((value) => !value)}>
+          <span>Auto-roll</span><i />
         </button>
-      )}
+        <div className="speed-switch">
+          <button className={game.gameSpeed === 1 ? 'is-active' : ''} onClick={() => game.setGameSpeed(1)}>1x</button>
+          <button className={game.gameSpeed === 2 ? 'is-active' : ''} onClick={() => game.setGameSpeed(2)}>2x</button>
+        </div>
+      </div>
+
+      <button
+        className="console-button primary roll-button"
+        disabled={!activePlayer || activePlayer.isAI || game.turnPhase !== 'PRE_ROLL'}
+        onClick={game.rollDice}
+        title={game.turnPhase === 'PRE_ROLL' ? 'Roll the dice' : phaseLabel}
+        aria-label="Roll dice"
+      >
+        <Dices size={38} /><span>ROLL</span>
+      </button>
 
       {showTradeModal && activePlayer && !activePlayer.isAI && (
         <div className="modal-backdrop">
