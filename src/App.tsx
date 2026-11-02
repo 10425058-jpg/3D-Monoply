@@ -407,7 +407,7 @@ export const App: React.FC = () => {
 
       {selectedSpace && (
         <section className="property-inspector glass-panel">
-          <button className="inspector-close" onClick={() => game.selectSpace(null)} aria-label="Close property details">
+          <button className="inspector-close" onClick={() => { game.selectSpace(null); game.setHoveredSpace(null); }} aria-label="Close property details">
             <X size={15} />
           </button>
           <div className="inspector-colorbar" style={{ background: selectedSpace.colorHex }} />
@@ -421,6 +421,11 @@ export const App: React.FC = () => {
           <div className="inspector-owner">
             <span className="owner-indicator" style={{ background: selectedOwner?.color ?? '#9ca3af' }} />
             {selectedOwner ? `Owned by ${selectedOwner.name}` : selectedState ? 'Available from the bank' : 'Board location'}
+          </div>
+          <div className="inspector-stats">
+            <span><small>Purchase</small><strong>{selectedSpace.price ? money(selectedSpace.price) : '—'}</strong></span>
+            <span><small>Base rent</small><strong>{selectedSpace.rent?.[0] ? money(selectedSpace.rent[0]) : '—'}</strong></span>
+            {selectedState && <span><small>Buildings</small><strong>{selectedState.houses}/5</strong></span>}
           </div>
 
           {selectedState?.ownerId === activePlayer?.id && selectedSpace.type === 'property' && (
@@ -493,6 +498,7 @@ export const App: React.FC = () => {
                 disabled={!activePlayer || activePlayer.isAI || !BOARD_SPACES[activePlayer.position].price || activePlayer.money < (BOARD_SPACES[activePlayer.position].price || 0)}
                 onClick={game.buyCurrentProperty}
               ><Landmark size={15} /> Buy property</button>
+              <button className="console-button secondary" disabled={activePlayer?.isAI} onClick={game.auctionCurrentProperty}>Auction</button>
               <button className="console-button secondary" disabled={activePlayer?.isAI} onClick={game.declineProperty}>Pass</button>
             </>
           )}
@@ -525,10 +531,20 @@ export const App: React.FC = () => {
             <button
               className="console-button landmark-upgrade-button"
               disabled={activePlayer.landmarkLevel >= 5 || activePlayer.money < landmarkCost || (game.turnPhase !== 'PRE_ROLL' && game.turnPhase !== 'END_TURN')}
-              onClick={game.upgradeLandmark}
+              onClick={handleUpgradeLandmark}
             >
               <Landmark size={14} />
               {activePlayer.landmarkLevel >= 5 ? 'Landmark max' : `Upgrade Lv.${activePlayer.landmarkLevel + 1} · ${money(landmarkCost)}`}
+            </button>
+          )}
+          {selectedState?.ownerId === activePlayer?.id && selectedSpace?.type === 'property' && activePlayer && !activePlayer.isAI && (
+            <button className="console-button secondary quick-build-button" disabled={!game.canBuildHouse(activePlayer.id, selectedSpace.id)} onClick={() => game.buildHouse(selectedSpace.id)}>
+              <Home size={14} /> Build
+            </button>
+          )}
+          {activePlayer && !activePlayer.isAI && (game.turnPhase === 'PRE_ROLL' || game.turnPhase === 'END_TURN') && (
+            <button className="console-button secondary trade-action-button" onClick={openTrade}>
+              Trade
             </button>
           )}
           <button className="console-button location-button" onClick={() => game.selectSpace(activePlayer?.position ?? null)}>
@@ -536,6 +552,54 @@ export const App: React.FC = () => {
           </button>
         </div>
       </footer>
+
+      {showTradeModal && activePlayer && !activePlayer.isAI && (
+        <div className="modal-backdrop">
+          <section className="game-modal trade-modal" role="dialog" aria-modal="true" aria-labelledby="trade-title">
+            <button className="modal-close" onClick={() => setShowTradeModal(false)} aria-label="Close trade"><X size={18} /></button>
+            <div className="modal-ornament"><Coins size={24} /></div>
+            <div className="eyebrow">NEGOTIATION DESK</div>
+            <h2 id="trade-title">Propose a trade</h2>
+            <p>Offer one of your properties and/or cash to an AI rival in exchange for cash.</p>
+            {rivalPlayers.length === 0 ? (
+              <p>No rival is available to trade with.</p>
+            ) : (
+              <>
+                <label className="trade-field">
+                  <span>Trade with</span>
+                  <select value={tradeTargetId} onChange={(event) => setTradeTargetId(Number(event.target.value))}>
+                    {rivalPlayers.map((player) => <option key={player.id} value={player.id}>{player.name} · {money(player.money)}</option>)}
+                  </select>
+                </label>
+                <label className="trade-field">
+                  <span>Property to offer</span>
+                  <select value={tradePropertyId} onChange={(event) => setTradePropertyId(event.target.value)}>
+                    <option value="">Cash only — no property</option>
+                    {myTradableProperties.map((space) => <option key={space.id} value={space.id}>{space.name} · {money(space.price ?? 0)}</option>)}
+                  </select>
+                </label>
+                <div className="trade-cash-grid">
+                  <label className="trade-field">
+                    <span>Your cash offer</span>
+                    <input type="number" min="0" step="10" max={activePlayer.money} value={tradeOfferCash} onChange={(event) => setTradeOfferCash(event.target.value)} />
+                  </label>
+                  <label className="trade-field">
+                    <span>Ask for cash</span>
+                    <input type="number" min="0" step="10" value={tradeRequestCash} onChange={(event) => setTradeRequestCash(event.target.value)} />
+                  </label>
+                </div>
+                {tradeFeedback && <div className={`trade-feedback ${tradeFeedback.includes('accepted') ? 'is-success' : 'is-warning'}`}>{tradeFeedback}</div>}
+                <div className="trade-modal-actions">
+                  <button className="console-button secondary" onClick={() => setShowTradeModal(false)}>Cancel</button>
+                  <button className="console-button primary" disabled={Number(tradeOfferCash) > activePlayer.money || (!tradePropertyId && Number(tradeOfferCash) <= 0 && Number(tradeRequestCash) <= 0)} onClick={handleTradeSubmit}>
+                    Send offer <ArrowRight size={14} />
+                  </button>
+                </div>
+              </>
+            )}
+          </section>
+        </div>
+      )}
 
       {game.railroadRaid && activePlayer?.id === game.railroadRaid.attackerId && !activePlayer.isAI && (
         <div className="modal-backdrop">
