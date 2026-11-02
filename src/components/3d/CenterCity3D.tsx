@@ -60,14 +60,22 @@ const Island: React.FC<{position: Pos; size: [number, number, number]; top?: str
 type TreeLayout = { position: Pos; scale: number; tone: string };
 
 const TREE_LAYOUT: TreeLayout[] = [
-  { position: [-6.25, 1.31, -2.0], scale: 0.74, tone: '#57b34b' },
-  { position: [-5.9, 1.31, 0.0], scale: 0.82, tone: '#69c34e' },
-  { position: [-2.75, 1.61, -4.3], scale: 0.8, tone: '#65bb4a' },
-  { position: [1.25, 1.61, -4.45], scale: 0.72, tone: '#75c84e' },
-  { position: [5.0, 1.37, -2.95], scale: 0.84, tone: '#62ba4b' },
-  { position: [5.9, 1.26, 1.6], scale: 0.88, tone: '#72c64b' },
-  { position: [3.85, 1.24, 4.15], scale: 0.72, tone: '#65b94c' },
-  { position: [-1.0, 0.98, 4.9], scale: 0.76, tone: '#67c14e' },
+  { position: [-5.85, 1.31, -2.6], scale: 0.66, tone: '#55ad4b' },
+  { position: [-5.9, 1.31, 0.1], scale: 0.78, tone: '#69c34e' },
+  { position: [-4.65, 1.31, 2.0], scale: 0.64, tone: '#78c64f' },
+  { position: [-3.25, 1.31, -4.55], scale: 0.68, tone: '#62b84b' },
+  { position: [-2.8, 1.31, 4.75], scale: 0.68, tone: '#70bd4d' },
+  { position: [-1.8, 1.31, 0.2], scale: 0.54, tone: '#8acb57' },
+  { position: [1.85, 1.31, -4.45], scale: 0.62, tone: '#6aba50' },
+  { position: [3.4, 1.31, -3.15], scale: 0.75, tone: '#62b34b' },
+  { position: [5.4, 1.31, -2.8], scale: 0.7, tone: '#75c34e' },
+  { position: [5.7, 1.31, 0.2], scale: 0.8, tone: '#5db34a' },
+  { position: [5.2, 1.31, 3.3], scale: 0.7, tone: '#77c850' },
+  { position: [3.7, 1.31, 4.7], scale: 0.6, tone: '#64b74b' },
+  { position: [1.7, 1.31, 4.55], scale: 0.62, tone: '#82c957' },
+  { position: [-4.8, 1.31, -0.3], scale: 0.55, tone: '#7acb55' },
+  { position: [2.7, 1.31, -0.3], scale: 0.56, tone: '#6fbd4a' },
+  { position: [-0.2, 1.31, 4.95], scale: 0.6, tone: '#5fb24a' },
 ];
 
 const TreeInstances: React.FC = () => {
@@ -84,13 +92,24 @@ const TreeInstances: React.FC = () => {
       dummy.updateMatrix();
       trunks.current?.setMatrixAt(index, dummy.matrix);
 
-      dummy.position.set(x, y + 0.83 * tree.scale, z);
-      dummy.updateMatrix();
-      canopies.current?.setMatrixAt(index, dummy.matrix);
-      canopies.current?.setColorAt(index, new THREE.Color(tree.tone));
+      const canopyOffsets: Array<[number, number, number, number, string]> = [
+        [0, 0.82, 0, 0.52, tree.tone],
+        [-0.30, 0.70, 0.10, 0.34, '#86c95b'],
+        [0.29, 0.72, -0.08, 0.33, '#4fa747'],
+      ];
+      canopyOffsets.forEach(([ox, oy, oz, size, tint], canopyIndex) => {
+        const instanceIndex = index * 3 + canopyIndex;
+        dummy.position.set(x + ox * tree.scale, y + oy * tree.scale, z + oz * tree.scale);
+        dummy.scale.set(size * tree.scale, size * tree.scale * 0.92, size * tree.scale);
+        dummy.rotation.set(0, (index + canopyIndex) * 0.31, 0);
+        dummy.updateMatrix();
+        canopies.current?.setMatrixAt(instanceIndex, dummy.matrix);
+        canopies.current?.setColorAt(instanceIndex, new THREE.Color(tint));
+      });
 
-      dummy.position.set(x + 0.22 * tree.scale, y + 1.0 * tree.scale, z + 0.08 * tree.scale);
-      dummy.scale.setScalar(tree.scale * 0.56);
+      dummy.position.set(x + 0.18 * tree.scale, y + 1.02 * tree.scale, z + 0.1 * tree.scale);
+      dummy.scale.setScalar(tree.scale * 0.33);
+      dummy.rotation.set(0, 0, 0);
       dummy.updateMatrix();
       highlights.current?.setMatrixAt(index, dummy.matrix);
     });
@@ -108,7 +127,7 @@ const TreeInstances: React.FC = () => {
         <cylinderGeometry args={[0.075, 0.13, 0.64, 7]} />
         <meshStandardMaterial color="#996044" roughness={0.9} />
       </instancedMesh>
-      <instancedMesh ref={canopies} args={[undefined, undefined, TREE_LAYOUT.length]} frustumCulled={false}>
+      <instancedMesh ref={canopies} args={[undefined, undefined, TREE_LAYOUT.length * 3]} frustumCulled={false}>
         <dodecahedronGeometry args={[0.48, 1]} />
         <meshStandardMaterial roughness={0.82} />
       </instancedMesh>
@@ -456,35 +475,116 @@ const MarketStall: React.FC<{position: Pos; color: string}> = ({ position, color
 
 const PATH_POINTS: Pos[][] = [
   [
-    [-5.55, 1.36, 0.55], [-4.45, 1.36, 1.2], [-3.15, 1.37, 1.28],
-    [-1.85, 1.38, 0.62], [-0.15, 1.38, 0.55], [1.5, 1.37, 1.15], [3.25, 1.35, 1.0], [5.15, 1.34, 0.15],
+    [-5.1, 0, -4.35], [-4.3, 0, -4.0], [-3.25, 0, -3.95],
+    [-2.1, 0, -4.15], [-0.95, 0, -4.45], [0.4, 0, -4.35],
+    [1.7, 0, -3.95], [3.0, 0, -3.4], [4.45, 0, -2.75],
   ],
   [
-    [-1.55, 1.68, -4.65], [-0.75, 1.7, -3.65], [-0.15, 1.69, -2.35],
-    [1.35, 1.67, -1.85], [2.85, 1.62, -2.15], [4.25, 1.58, -1.7],
+    [-5.2, 0, -0.6], [-5.45, 0, 0.6], [-5.0, 0, 1.85],
+    [-4.3, 0, 2.9], [-3.35, 0, 3.8], [-2.0, 0, 4.2],
   ],
   [
-    [-4.65, 1.35, 2.55], [-3.55, 1.36, 3.45], [-2.05, 1.37, 3.92],
-    [-0.25, 1.36, 3.72], [1.3, 1.35, 3.3], [3.25, 1.34, 3.15],
+    [-3.3, 0, 4.55], [-2.1, 0, 4.68], [-0.7, 0, 4.62],
+    [0.85, 0, 4.45], [2.25, 0, 4.0], [3.45, 0, 3.35],
+    [4.35, 0, 2.35],
+  ],
+  [
+    [4.65, 0, -2.3], [5.1, 0, -1.1], [5.25, 0, 0.2],
+    [5.05, 0, 1.3], [4.45, 0, 2.35],
   ],
 ];
 
 const CityPaths: React.FC = () => {
   const geometries = useMemo(() => PATH_POINTS.map((points) => {
     const curve = new THREE.CatmullRomCurve3(points.map((point) => new THREE.Vector3(...point)));
-    return new THREE.TubeGeometry(curve, 48, 0.25, 8, false);
+    return new THREE.TubeGeometry(curve, 56, 0.42, 8, false);
   }), []);
 
   return (
-    <group>
+    <group position={[0, 1.43, 0]}>
       {geometries.map((geometry, index) => (
-        <mesh key={index} geometry={geometry} scale={[1, 0.42, 1]} receiveShadow>
+        <mesh key={index} geometry={geometry} scale={[1, 0.13, 1]} receiveShadow>
           <meshStandardMaterial
-            color={index === 1 ? '#f5dfc1' : '#ead2ae'}
-            roughness={0.92}
+            color={index % 2 === 0 ? '#ead4b5' : '#f5e3c8'}
+            roughness={0.95}
           />
         </mesh>
       ))}
+    </group>
+  );
+};
+
+const FlowerGarden: React.FC = () => {
+  const planters = useRef<THREE.InstancedMesh>(null);
+  const stems = useRef<THREE.InstancedMesh>(null);
+  const blooms = useRef<THREE.InstancedMesh>(null);
+  const leafClumps = useRef<THREE.InstancedMesh>(null);
+  const beds = useMemo(() => [
+    { x: -2.75, z: -1.0, rotation: 0.22 },
+    { x: 2.45, z: -0.65, rotation: -0.28 },
+    { x: -1.25, z: 3.0, rotation: -0.18 },
+    { x: 3.3, z: 2.65, rotation: 0.32 },
+  ], []);
+  const flowers = useMemo(() => beds.flatMap((bed, bedIndex) =>
+    Array.from({ length: 5 }, (_, index) => ({
+      x: bed.x + (index - 2) * 0.24,
+      z: bed.z + Math.sin(index * 1.8 + bedIndex) * 0.18,
+      color: ['#f58a77', '#ffd36c', '#9b8cdb', '#f6a3c5', '#fff0d8'][(index + bedIndex) % 5],
+    }))
+  ), [beds]);
+
+  useLayoutEffect(() => {
+    const dummy = new THREE.Object3D();
+    beds.forEach((bed, index) => {
+      dummy.position.set(bed.x, 1.38, bed.z);
+      dummy.rotation.set(0, bed.rotation, 0);
+      dummy.scale.set(1.48, 0.12, 0.62);
+      dummy.updateMatrix();
+      planters.current?.setMatrixAt(index, dummy.matrix);
+    });
+    flowers.forEach((flower, index) => {
+      dummy.position.set(flower.x, 1.58, flower.z);
+      dummy.rotation.set(0, 0, index * 0.2);
+      dummy.scale.set(0.045, 0.36, 0.045);
+      dummy.updateMatrix();
+      stems.current?.setMatrixAt(index, dummy.matrix);
+
+      dummy.position.set(flower.x, 1.80, flower.z);
+      dummy.scale.setScalar(0.13);
+      dummy.updateMatrix();
+      blooms.current?.setMatrixAt(index, dummy.matrix);
+      blooms.current?.setColorAt(index, new THREE.Color(flower.color));
+
+      dummy.position.set(flower.x - 0.13, 1.51, flower.z + 0.05);
+      dummy.scale.set(0.18, 0.07, 0.10);
+      dummy.updateMatrix();
+      leafClumps.current?.setMatrixAt(index, dummy.matrix);
+    });
+    [planters.current, stems.current, blooms.current, leafClumps.current].forEach((mesh) => {
+      if (!mesh) return;
+      mesh.instanceMatrix.needsUpdate = true;
+      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    });
+  }, [beds, flowers]);
+
+  return (
+    <group>
+      <instancedMesh ref={planters} args={[undefined, undefined, beds.length]} frustumCulled={false}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial color="#b98268" roughness={0.88} />
+      </instancedMesh>
+      <instancedMesh ref={stems} args={[undefined, undefined, flowers.length]} frustumCulled={false}>
+        <cylinderGeometry args={[1, 1, 1, 5]} />
+        <meshStandardMaterial color="#5a9f4f" roughness={0.9} />
+      </instancedMesh>
+      <instancedMesh ref={blooms} args={[undefined, undefined, flowers.length]} frustumCulled={false}>
+        <dodecahedronGeometry args={[1, 0]} />
+        <meshStandardMaterial roughness={0.72} />
+      </instancedMesh>
+      <instancedMesh ref={leafClumps} args={[undefined, undefined, flowers.length]} frustumCulled={false}>
+        <sphereGeometry args={[1, 7, 6]} />
+        <meshStandardMaterial color="#74bb57" roughness={0.88} />
+      </instancedMesh>
     </group>
   );
 };
@@ -576,13 +676,21 @@ export const CenterCity3D: React.FC = () => {
       <House position={[-2.55, 1.26, -3.75]} roof="#e98a65" wall="#ffead0" scale={0.66} />
       <House position={[4.75, 1.18, 1.7]} roof="#8b84d8" wall="#f8ddc5" scale={0.68} />
       <House position={[0.15, 1.20, 4.55]} roof="#f18b68" wall="#fff0d5" scale={0.62} />
+      <House position={[-5.15, 1.22, -3.25]} roof="#f08a62" wall="#fff0d5" scale={0.58} awning />
+      <House position={[-3.55, 1.22, -4.65]} roof="#8d83d6" wall="#f8dfc5" scale={0.57} />
+      <House position={[3.55, 1.22, -3.75]} roof="#ee805f" wall="#fff0d5" scale={0.62} awning />
+      <House position={[5.15, 1.18, 0.85]} roof="#9684d8" wall="#ffe3c5" scale={0.58} />
+      <House position={[3.85, 1.18, 4.8]} roof="#ed8669" wall="#fff0d5" scale={0.56} />
 
       {/* A compact market street and orchard make the town read as one place. */}
       <MarketStall position={[-1.05, 1.24, 4.0]} color="#8e8bdd" />
       <MarketStall position={[0.25, 1.24, 4.18]} color="#ef8467" />
       <MarketStall position={[1.55, 1.24, 4.1]} color="#f2b15f" />
       <MarketStall position={[5.0, 1.17, 2.6]} color="#e87c69" />
+      <MarketStall position={[-4.5, 1.18, 1.35]} color="#f0ad5d" />
+      <MarketStall position={[3.8, 1.18, 0.8]} color="#8d88d7" />
       <OrchardInstances />
+      <FlowerGarden />
 
       {/* Trees scattered around the house lanes. */}
       <TreeInstances />
