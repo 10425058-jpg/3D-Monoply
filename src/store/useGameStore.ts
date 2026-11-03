@@ -189,10 +189,10 @@ function createInitialProperties(): Record<number, PropertyState> {
 }
 
 const DEFAULT_PLAYERS: PlayerSetupConfig[] = [
-  { name: 'You (Tycoon)', isAI: false, token: 'top_hat', color: '#10b981' },
-  { name: 'Victoria AI', isAI: true, token: 'racecar', color: '#ef4444' },
-  { name: 'Arthur AI', isAI: true, token: 'scottie_dog', color: '#3b82f6' },
-  { name: 'Elena AI', isAI: true, token: 'yacht', color: '#f59e0b' },
+  { name: 'You', isAI: false, token: 'rubber_duck', color: '#f59e0b' },
+  { name: 'Victoria', isAI: true, token: 'cat', color: '#ec4899' },
+  { name: 'Arthur', isAI: true, token: 'racecar', color: '#3b82f6' },
+  { name: 'Elena', isAI: true, token: 'yacht', color: '#10b981' },
 ];
 
 export const useGameStore = create<GameStore>((set, get) => {

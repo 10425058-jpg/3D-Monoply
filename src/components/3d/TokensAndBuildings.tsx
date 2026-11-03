@@ -67,6 +67,73 @@ const TokenMesh: React.FC<{ token: TokenType; color: string }> = ({ token, color
   const gold = '#e9c36d';
 
   switch (token) {
+    case 'rubber_duck':
+      return (
+        <group>
+          {/* Plump Golden Duck Body */}
+          <mesh position={[0, 0.18, 0]} scale={[0.26, 0.22, 0.35]} castShadow>
+            <sphereGeometry args={[1, 24, 18]} />
+            <meshPhysicalMaterial color="#fbbf24" metalness={0.65} roughness={0.18} clearcoat={1} clearcoatRoughness={0.1} />
+          </mesh>
+          {/* Duck Tail Tip */}
+          <mesh position={[0, 0.24, -0.28]} rotation={[0.6, 0, 0]} castShadow>
+            <coneGeometry args={[0.09, 0.18, 12]} />
+            <meshPhysicalMaterial color="#fbbf24" metalness={0.65} roughness={0.18} clearcoat={1} />
+          </mesh>
+          {/* Cute Duck Head */}
+          <mesh position={[0, 0.38, 0.16]} scale={[0.18, 0.18, 0.18]} castShadow>
+            <sphereGeometry args={[1, 24, 18]} />
+            <meshPhysicalMaterial color="#fbbf24" metalness={0.65} roughness={0.18} clearcoat={1} />
+          </mesh>
+          {/* Orange Beak */}
+          <mesh position={[0, 0.35, 0.33]} rotation={[0.2, 0, 0]} scale={[1, 1, 0.45]} castShadow>
+            <coneGeometry args={[0.09, 0.18, 12]} />
+            <meshStandardMaterial color="#f97316" roughness={0.3} />
+          </mesh>
+          {/* Cute Black Eyes */}
+          {[-1, 1].map((side) => (
+            <mesh key={`eye-${side}`} position={[side * 0.11, 0.42, 0.24]}>
+              <sphereGeometry args={[0.032, 10, 10]} />
+              <meshStandardMaterial color="#0f172a" roughness={0.1} />
+            </mesh>
+          ))}
+        </group>
+      );
+
+    case 'cat':
+      return (
+        <group>
+          {/* Seated Cat Body */}
+          <mesh position={[0, 0.2, 0]} scale={[0.22, 0.24, 0.26]} castShadow>
+            <sphereGeometry args={[1, 24, 18]} />
+            <meshPhysicalMaterial color="#ffffff" roughness={0.2} metalness={0.1} clearcoat={0.9} />
+          </mesh>
+          {/* Cute Round Cat Head */}
+          <mesh position={[0, 0.38, 0.08]} scale={[0.18, 0.17, 0.18]} castShadow>
+            <sphereGeometry args={[1, 24, 18]} />
+            <meshPhysicalMaterial color="#ffffff" roughness={0.2} metalness={0.1} clearcoat={0.9} />
+          </mesh>
+          {/* Pointed Cat Ears */}
+          {[-1, 1].map((side) => (
+            <mesh key={`ear-${side}`} position={[side * 0.11, 0.51, 0.06]} rotation={[0, 0, side * -0.3]} castShadow>
+              <coneGeometry args={[0.07, 0.15, 8]} />
+              <meshStandardMaterial color="#fbcfe8" roughness={0.3} />
+            </mesh>
+          ))}
+          {/* Dark Eyes & Pink Nose */}
+          {[-1, 1].map((side) => (
+            <mesh key={`cat-eye-${side}`} position={[side * 0.08, 0.4, 0.22]}>
+              <sphereGeometry args={[0.026, 10, 10]} />
+              <meshStandardMaterial color="#1e293b" />
+            </mesh>
+          ))}
+          <mesh position={[0, 0.36, 0.25]}>
+            <sphereGeometry args={[0.02, 8, 8]} />
+            <meshStandardMaterial color="#f472b6" />
+          </mesh>
+        </group>
+      );
+
     case 'top_hat':
       return (
         <group>
