@@ -23,7 +23,7 @@ export type ColorGroup =
   | 'utility'
   | 'none';
 
-export type TokenType = 'top_hat' | 'racecar' | 'scottie_dog' | 'yacht';
+export type TokenType = 'top_hat' | 'racecar' | 'scottie_dog' | 'yacht' | 'rubber_duck' | 'cat';
 
 export interface BoardSpace {
   id: number;

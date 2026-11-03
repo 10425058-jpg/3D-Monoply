@@ -13,6 +13,7 @@
   "dependencies": {
     "@react-three/drei": "^9.105.4",
     "@react-three/fiber": "^8.16.2",
+    "@react-three/postprocessing": "2.16.3",
     "canvas-confetti": "^1.9.3",
     "clsx": "^2.1.1",
     "framer-motion": "^11.2.10",
@@ -20,8 +21,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "three": "^0.164.1",
-    "zustand": "^4.5.2",
-    "@react-three/postprocessing": "2.16.3"
+    "zustand": "^4.5.2"
   },
   "devDependencies": {
     "@types/canvas-confetti": "^1.6.4",
@@ -32,6 +32,7 @@
     "@vitejs/plugin-react": "^4.3.0",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",
+    "puppeteer-core": "^25.16.0",
     "tailwindcss": "^3.4.3",
     "typescript": "^5.4.5",
     "vite": "^5.2.11"
