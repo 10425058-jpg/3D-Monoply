@@ -3,20 +3,8 @@ import confetti from 'canvas-confetti';
 import {
   ArrowRight,
   Bot,
-  Camera,
-  Clock3,
   Coins,
-  Gem,
-  Settings,
-  BarChart3,
-  BookOpen,
-  Users,
-  Gavel,
-  Dices,
-  Flag,
   Crown,
-  Home,
-  Landmark,
   Gift,
   Star,
   PackageOpen,
@@ -34,14 +22,21 @@ import { Scene3D } from './components/3d/Scene3D';
 import { BOARD_SPACES } from './data/boardData';
 import { useGameStore } from './store/useGameStore';
 import { DAILY_MISSIONS, DAILY_REWARD_CYCLE, LUCKY_WHEEL_REWARDS, STICKER_COLLECTION } from './data/metaGameData';
-import type { LogEntry, TokenType, TradeOffer, TurnPhase } from './types/game';
+import type { TokenType, TradeOffer } from './types/game';
+import { TopHeader } from './components/ui/TopHeader';
+import { PlayerSidebar } from './components/ui/PlayerSidebar';
+import { RightActivityNav } from './components/ui/RightActivityNav';
+import { BottomActionDock } from './components/ui/BottomActionDock';
+import { PropertyCard } from './components/ui/PropertyCard';
+import { StatsModal } from './components/ui/StatsModal';
+import { sounds } from './utils/audio';
 import './app-ui.css';
 
 const DEFAULT_SETUP = [
-  { name: 'You', isAI: false, token: 'top_hat' as TokenType, color: '#d8b45a' },
-  { name: 'Victoria', isAI: true, token: 'racecar' as TokenType, color: '#e87979' },
-  { name: 'Arthur', isAI: true, token: 'scottie_dog' as TokenType, color: '#78a8ef' },
-  { name: 'Elena', isAI: true, token: 'yacht' as TokenType, color: '#e7ad54' },
+  { name: 'You', isAI: false, token: 'rubber_duck' as TokenType, color: '#f59e0b' },
+  { name: 'Victoria', isAI: true, token: 'cat' as TokenType, color: '#ec4899' },
+  { name: 'Arthur', isAI: true, token: 'racecar' as TokenType, color: '#3b82f6' },
+  { name: 'Elena', isAI: true, token: 'yacht' as TokenType, color: '#10b981' },
 ];
 
 type GraphicsQuality = 'low' | 'balanced' | 'high';
@@ -52,14 +47,14 @@ const getInitialGraphicsQuality = (): GraphicsQuality => {
     const saved = window.localStorage.getItem('monopoly-graphics-quality');
     if (saved === 'low' || saved === 'balanced' || saved === 'high') return saved;
   } catch {
-    // Storage may be unavailable in private browsing; use device heuristics instead.
+    // Storage fallback
   }
   const cores = window.navigator.hardwareConcurrency || 8;
   const memory = (window.navigator as Navigator & { deviceMemory?: number }).deviceMemory || 8;
   return cores <= 4 || memory <= 4 ? 'low' : 'balanced';
 };
 
-const money = (value: number) => `${value.toLocaleString('en-US')}`;
+const money = (value: number) => `$${value.toLocaleString('en-US')}`;
 
 const localDateKey = (date = new Date()) => {
   const year = date.getFullYear();
@@ -68,212 +63,103 @@ const localDateKey = (date = new Date()) => {
   return `${year}-${month}-${day}`;
 };
 
-const PHASE_LABELS: Record<TurnPhase, string> = {
-  SETUP: 'Set up your table',
-  PRE_ROLL: 'Ready for your move',
-  ROLLING: 'The dice are rolling',
-  MOVING: 'Moving around the board',
-  LANDED_ACTION: 'A new opportunity',
-  CARD_DRAWN: 'A card has been drawn',
-  DEBT_RESOLUTION: 'A debt needs attention',
-  AUCTION: 'Property auction',
-  END_TURN: 'Turn complete',
-  GAME_OVER: 'Game over',
-};
-
-const TOKEN_MARKS: Record<TokenType, string> = {
-  top_hat: '♟',
-  racecar: '◈',
-  scottie_dog: '◆',
-  yacht: '⌁',
-};
-
-const logTone: Record<LogEntry['type'], string> = {
-  info: 'neutral',
-  money: 'gold',
-  property: 'green',
-  alert: 'red',
-  card: 'blue',
-};
-
-function LogMark({ type }: { type: LogEntry['type'] }) {
-  if (type === 'money') return <Coins size={14} />;
-  if (type === 'property') return <Landmark size={14} />;
-  if (type === 'alert') return <ShieldCheck size={14} />;
-  if (type === 'card') return <ScrollText size={14} />;
-  return <Sparkles size={14} />;
-}
-
 export const App: React.FC = () => {
   const game = useGameStore();
-  const [showSetup, setShowSetup] = useState(true);
+  const [showSetup, setShowSetup] = useState(false);
   const [showRules, setShowRules] = useState(false);
+  const [showStats, setShowStats] = useState(false);
   const [showMetaHub, setShowMetaHub] = useState(false);
   const [metaTab, setMetaTab] = useState<'daily' | 'missions' | 'album'>('daily');
-  const [lastPackReveal, setLastPackReveal] = useState<{ stickers: string[]; duplicateCount: number } | null>(null);
-  const [isWheelSpinning, setIsWheelSpinning] = useState(false);
-  const [autoRoll, setAutoRoll] = useState(false);
-  const [graphicsQuality, setGraphicsQuality] = useState<GraphicsQuality>(getInitialGraphicsQuality);
   const [showTradeModal, setShowTradeModal] = useState(false);
   const [tradeTargetId, setTradeTargetId] = useState<number>(1);
-  const [tradePropertyId, setTradePropertyId] = useState('');
-  const [tradeRequestPropertyId, setTradeRequestPropertyId] = useState('');
-  const [tradeOfferCash, setTradeOfferCash] = useState('0');
-  const [tradeRequestCash, setTradeRequestCash] = useState('150');
-  const [tradeFeedback, setTradeFeedback] = useState('');
-  const aiInvestmentDoneThisTurn = useRef(false);
+  const [tradePropertyId, setTradePropertyId] = useState<string>('');
+  const [tradeRequestPropertyId, setTradeRequestPropertyId] = useState<string>('');
+  const [tradeOfferCash, setTradeOfferCash] = useState<string>('0');
+  const [tradeRequestCash, setTradeRequestCash] = useState<string>('150');
+  const [tradeFeedback, setTradeFeedback] = useState<string>('');
+  const [autoRoll, setAutoRoll] = useState(false);
+  const [graphicsQuality, setGraphicsQuality] = useState<GraphicsQuality>(getInitialGraphicsQuality);
+  const [isWheelSpinning, setIsWheelSpinning] = useState(false);
+  const [lastPackReveal, setLastPackReveal] = useState<{ stickers: string[]; duplicateCount: number } | null>(null);
 
   const activePlayer = game.players[game.currentPlayerIndex];
-  const auctionBidder = game.auction
-    ? game.players.find((player) => player.id === game.auction?.currentBidderId)
-    : undefined;
   const inspectorSpaceId = game.hoveredSpaceId ?? game.selectedSpaceId;
   const selectedSpace = inspectorSpaceId === null ? null : BOARD_SPACES[inspectorSpaceId];
   const selectedState = selectedSpace ? game.properties[selectedSpace.id] : undefined;
   const selectedOwner = selectedState?.ownerId === null || selectedState?.ownerId === undefined
     ? undefined
     : game.players.find((player) => player.id === selectedState.ownerId);
-  const myTradableProperties = useMemo(
-    () => BOARD_SPACES.filter((space) => {
-      if (space.type !== 'property' || game.properties[space.id]?.ownerId !== activePlayer?.id || game.properties[space.id]?.isMortgaged) return false;
-      return !BOARD_SPACES
-        .filter((candidate) => candidate.colorGroup === space.colorGroup)
-        .some((candidate) => (game.properties[candidate.id]?.houses ?? 0) > 0);
-    }),
-    [game.properties, activePlayer?.id]
-  );
-  const rivalTradableProperties = useMemo(
-    () => BOARD_SPACES.filter((space) => {
-      if (space.type !== 'property' || game.properties[space.id]?.ownerId !== tradeTargetId || game.properties[space.id]?.isMortgaged) return false;
-      return !BOARD_SPACES
-        .filter((candidate) => candidate.colorGroup === space.colorGroup)
-        .some((candidate) => (game.properties[candidate.id]?.houses ?? 0) > 0);
-    }),
-    [game.properties, tradeTargetId]
-  );
-  const rivalPlayers = game.players.filter((player) => player.id !== activePlayer?.id && player.isAI && !player.isBankrupt);
 
-  const phaseLabel = useMemo(() => PHASE_LABELS[game.turnPhase], [game.turnPhase]);
+  const rivalPlayers = useMemo(
+    () => game.players.filter((player) => !player.isBankrupt && player.id !== activePlayer?.id),
+    [game.players, activePlayer?.id]
+  );
+
+  const myTradableProperties = useMemo(() => {
+    if (!activePlayer) return [];
+    return BOARD_SPACES.filter((space) => {
+      const state = game.properties[space.id];
+      return state?.ownerId === activePlayer.id && !state.isMortgaged && (state.houses ?? 0) === 0;
+    });
+  }, [activePlayer, game.properties]);
+
+  const rivalTradableProperties = useMemo(() => {
+    if (!activePlayer) return [];
+    return BOARD_SPACES.filter((space) => {
+      const state = game.properties[space.id];
+      return state?.ownerId === tradeTargetId && !state.isMortgaged && (state.houses ?? 0) === 0;
+    });
+  }, [activePlayer, tradeTargetId, game.properties]);
+
   const todayKey = localDateKey();
   const dailyClaimedToday = game.metaProgress.lastDailyClaimDate === todayKey;
   const wheelUsedToday = game.metaProgress.lastWheelSpinDate === todayKey;
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  const expectedStreak = game.metaProgress.lastDailyClaimDate === localDateKey(yesterday)
-    ? game.metaProgress.dailyStreak + 1
-    : dailyClaimedToday ? game.metaProgress.dailyStreak : 1;
-  const rewardDay = dailyClaimedToday
-    ? ((game.metaProgress.dailyStreak - 1) % DAILY_REWARD_CYCLE.length) + 1
-    : ((expectedStreak - 1) % DAILY_REWARD_CYCLE.length) + 1;
-  const nextDailyReward = DAILY_REWARD_CYCLE[rewardDay - 1];
-  const stickerCount = STICKER_COLLECTION.filter((sticker) => (game.metaProgress.stickers[sticker.id] ?? 0) > 0).length;
-  const albumComplete = stickerCount === STICKER_COLLECTION.length;
-  const landmarkCost = activePlayer ? game.landmarkUpgradeCost(activePlayer.id) : Infinity;
-  const ownedCount = useMemo(
-    () => Object.values(game.properties).filter((property) => property.ownerId !== null).length,
-    [game.properties]
-  );
+  const rewardDay = ((game.metaProgress.dailyStreak) % 7) + 1;
+  const nextDailyReward = DAILY_REWARD_CYCLE.find((item) => item.day === rewardDay) || DAILY_REWARD_CYCLE[0];
+  const stickerCount = Object.keys(game.metaProgress.stickers).length;
+  const albumComplete = stickerCount >= STICKER_COLLECTION.length;
 
+  // AI Turn handler
   useEffect(() => {
-    if (game.turnPhase === 'END_TURN') aiInvestmentDoneThisTurn.current = false;
-    if (!activePlayer?.isAI || game.winner) return;
-    if (game.railroadRaid?.attackerId === activePlayer.id) return;
+    if (!activePlayer || !activePlayer.isAI || activePlayer.isBankrupt || game.winner) return;
 
     const timer = window.setTimeout(() => {
       switch (game.turnPhase) {
-        case 'PRE_ROLL': {
-          if (!activePlayer.inJail && !aiInvestmentDoneThisTurn.current) {
-            // Make at most one investment per turn so the AI cannot chain-build
-            // repeatedly just because its own state update re-triggers this effect.
-            const buildCandidates = BOARD_SPACES
-              .filter((space) => game.canBuildHouse(activePlayer.id, space.id))
-              .map((space) => {
-                const property = game.properties[space.id];
-                const currentRent = game.calculateRent(space.id, 7);
-                const nextRent = space.rent?.[Math.min(5, (property?.houses ?? 0) + 1)] ?? currentRent;
-                const cost = space.houseCost ?? 100;
-                return { space, cost, score: (nextRent - currentRent) / cost };
-              })
-              .sort((left, right) => right.score - left.score);
-            const bestBuild = buildCandidates[0];
-            if (bestBuild && activePlayer.money - bestBuild.cost >= Math.max(300, activePlayer.money * 0.24) && bestBuild.score >= 0.16) {
-              aiInvestmentDoneThisTurn.current = true;
-              game.buildHouse(bestBuild.space.id);
-            } else if (
-              activePlayer.landmarkLevel < 5 &&
-              activePlayer.money >= game.landmarkUpgradeCost(activePlayer.id) + 450 &&
-              Math.random() < 0.18
-            ) {
-              aiInvestmentDoneThisTurn.current = true;
-              game.upgradeLandmark();
-            }
-          }
-
-          if (activePlayer.inJail && activePlayer.money >= 50 && activePlayer.jailTurns >= 2) {
-            game.payJailBail();
-          } else if (activePlayer.inJail && activePlayer.getOutOfJailCards > 0 && activePlayer.jailTurns >= 1) {
-            game.useJailCard();
-          } else {
-            game.rollDice();
-          }
+        case 'PRE_ROLL':
+          game.rollDice();
           break;
-        }
-        case 'LANDED_ACTION': {
-          const space = BOARD_SPACES[activePlayer.position];
-          const property = game.properties[space.id];
-          if (!space.price || !property || property.ownerId !== null) {
-            game.declineProperty();
-            break;
-          }
-
-          const sameGroup = BOARD_SPACES.filter((candidate) => candidate.colorGroup === space.colorGroup);
-          const ownedInGroup = sameGroup.filter((candidate) => game.properties[candidate.id]?.ownerId === activePlayer.id).length;
-          const completesSet = sameGroup.length > 0 && ownedInGroup + 1 === sameGroup.length;
-          const reserve = activePlayer.money < 650 ? 100 : activePlayer.money < 1100 ? 220 : 320;
-          const baseRent = space.rent?.[0] ?? (space.type === 'railroad' ? 25 : 18);
-          const rentalYield = baseRent / space.price;
-          const canCompleteSet = completesSet && activePlayer.money - space.price >= 75;
-          const canAffordStrategically = activePlayer.money - space.price >= reserve && rentalYield >= 0.065;
-          const canMakePremiumPurchase = activePlayer.money >= space.price * 1.7 && rentalYield >= 0.045;
-
-          if (canCompleteSet || canAffordStrategically || canMakePremiumPurchase) {
-            game.buyCurrentProperty();
-          } else {
-            game.declineProperty();
-          }
-          break;
-        }
         case 'CARD_DRAWN':
           game.applyActiveCard();
           break;
-        case 'DEBT_RESOLUTION': {
-          if (!game.pendingDebt) break;
-          if (activePlayer.money >= game.pendingDebt.amount) {
-            game.settlePendingDebt();
-            break;
-          }
-
-          // The AI liquidates assets before declaring bankruptcy: buildings first,
-          // then mortgage-free properties that have no houses in their color group.
-          const sellableBuilding = BOARD_SPACES
-            .filter((space) => game.canSellHouse(activePlayer.id, space.id))
-            .sort((left, right) => (right.houseCost ?? 0) - (left.houseCost ?? 0))[0];
-          if (sellableBuilding) {
-            game.sellHouse(sellableBuilding.id);
-            break;
-          }
-
-          const mortgageCandidate = BOARD_SPACES.find((space) => {
-            const property = game.properties[space.id];
-            if (!space.mortgageValue || !property || property.ownerId !== activePlayer.id || property.isMortgaged) return false;
-            return !BOARD_SPACES
-              .filter((candidate) => candidate.colorGroup === space.colorGroup)
-              .some((candidate) => (game.properties[candidate.id]?.houses ?? 0) > 0);
-          });
-          if (mortgageCandidate) {
-            game.toggleMortgage(mortgageCandidate.id);
+        case 'LANDED_ACTION': {
+          const space = BOARD_SPACES[activePlayer.position];
+          const property = game.properties[space.id];
+          if (space.price && property?.ownerId === null && activePlayer.money >= space.price) {
+            if (activePlayer.money - space.price >= 120 || Math.random() < 0.85) {
+              game.buyCurrentProperty();
+            } else {
+              game.auctionCurrentProperty();
+            }
           } else {
-            game.declareBankruptcy();
+            game.declineProperty();
+          }
+          break;
+        }
+        case 'DEBT_RESOLUTION': {
+          const debt = game.pendingDebt;
+          if (!debt) return;
+          if (activePlayer.money >= debt.amount) {
+            game.settlePendingDebt();
+          } else {
+            const mortgagable = BOARD_SPACES.filter((space) => {
+              const state = game.properties[space.id];
+              return state?.ownerId === activePlayer.id && !state.isMortgaged && (state.houses ?? 0) === 0;
+            });
+            if (mortgagable.length > 0) {
+              game.toggleMortgage(mortgagable[0].id);
+            } else {
+              game.declareBankruptcy();
+            }
           }
           break;
         }
@@ -288,6 +174,7 @@ export const App: React.FC = () => {
     return () => window.clearTimeout(timer);
   }, [activePlayer, game.turnPhase, game.winner, game.pendingDebt, game.railroadRaid, game.gameSpeed]);
 
+  // AI Auction handler
   useEffect(() => {
     const auction = game.auction;
     const bidder = auction
@@ -302,8 +189,7 @@ export const App: React.FC = () => {
         game.properties[candidate.id]?.ownerId === bidder.id
       ).length;
       const completesSet = groupSpaces.length > 0 && ownedInGroup + 1 === groupSpaces.length;
-      const alreadyInvested = ownedInGroup > 0;
-      const strategicMultiplier = completesSet ? 1.08 : alreadyInvested ? 0.82 : 0.62;
+      const strategicMultiplier = completesSet ? 1.08 : ownedInGroup > 0 ? 0.82 : 0.62;
       const cashReserve = Math.max(100, Math.min(350, Math.round(bidder.money * 0.2)));
       const maxBid = Math.max(0, Math.min(
         bidder.money - cashReserve,
@@ -321,6 +207,7 @@ export const App: React.FC = () => {
     return () => window.clearTimeout(timer);
   }, [game.auction, game.players, game.properties, game.gameSpeed]);
 
+  // AI Railroad Raid handler
   useEffect(() => {
     const raid = game.railroadRaid;
     if (!raid) return;
@@ -347,6 +234,7 @@ export const App: React.FC = () => {
     return () => window.clearTimeout(timer);
   }, [game.railroadRaid, game.players, game.gameSpeed]);
 
+  // Auto-roll handler
   useEffect(() => {
     if (!autoRoll || !activePlayer || activePlayer.isAI || activePlayer.isBankrupt || game.winner) return;
     if (game.turnPhase !== 'PRE_ROLL' || game.railroadRaid || showTradeModal || showMetaHub || showRules || showSetup) return;
@@ -379,407 +267,78 @@ export const App: React.FC = () => {
     };
     const result = game.proposeTrade(offer);
     setTradeFeedback(result.message);
-    if (result.accepted) window.setTimeout(() => setShowTradeModal(false), 1100);
+    if (result.accepted) {
+      sounds.playPurchase();
+      window.setTimeout(() => setShowTradeModal(false), 1100);
+    }
   };
 
-  const handleUpgradeLandmark = () => {
-    if (!activePlayer || activePlayer.isAI || activePlayer.money < landmarkCost ||
-        (game.turnPhase !== 'PRE_ROLL' && game.turnPhase !== 'END_TURN') || activePlayer.landmarkLevel >= 5) return;
-    game.upgradeLandmark();
-    confetti({
-      particleCount: 58,
-      spread: 62,
-      startVelocity: 30,
-      origin: { y: 0.62 },
-      colors: [activePlayer.color, '#e9c879', '#fff4d6', '#81c8df'],
-      ticks: 130,
-      scalar: 0.85,
-    });
-  };
   const handleWheelSpin = () => {
     if (wheelUsedToday || isWheelSpinning) return;
+    sounds.playUpgrade();
     setIsWheelSpinning(true);
     game.spinLuckyWheel();
     window.setTimeout(() => setIsWheelSpinning(false), 1350);
   };
 
-  const handleGraphicsQualityChange = (quality: GraphicsQuality) => {
-    setGraphicsQuality(quality);
-    try {
-      window.localStorage.setItem('monopoly-graphics-quality', quality);
-    } catch {
-      // The setting remains active for this session even when storage is blocked.
-    }
-  };
-
   const handleStart = () => {
+    sounds.playPurchase();
     game.startNewGame(DEFAULT_SETUP);
     setShowSetup(false);
   };
 
-  const switchCamera = () => {
-    game.setCameraMode(game.cameraMode === 'top' ? 'isometric' : 'top');
-  };
-
-  const playerStatus = (player: (typeof game.players)[number]) => {
-    if (player.isBankrupt) return 'Eliminated';
-    if (player.inJail) return 'In jail';
-    return BOARD_SPACES[player.position]?.shortName ?? `Space ${player.position}`;
-  };
-
   return (
     <main className="monopoly-app">
+      {/* 3D Scene Layer */}
       <div className="world-layer">
         <Scene3D quality={graphicsQuality} />
       </div>
       <div className="world-vignette" aria-hidden="true" />
 
-      <header className="topbar">
-        <div className="brand-lockup">
-          <div className="brand-crest"><Crown size={21} strokeWidth={1.8} /></div>
-          <div className="brand-copy">
-            <div className="brand-title">MONOPOLY <span>3D</span></div>
-            <div className="brand-subtitle">Miniature City Edition</div>
-          </div>
-          <div className="brand-divider" />
-          <div className="phase-indicator">
-            <span className="phase-pulse" />
-            <span>{phaseLabel}</span>
-          </div>
-        </div>
+      {/* 1. TOP HUD */}
+      <TopHeader onOpenSettings={() => setShowSetup(true)} />
 
-        <nav className="top-actions" aria-label="Game status and settings">
-          <div className="currency-pill cash-pill">
-            <Wallet size={22} />
-            <strong>${money(activePlayer?.money ?? 0)}</strong>
-            <span className="currency-plus">+</span>
-          </div>
-          <div className="currency-pill gem-pill">
-            <Gem size={22} />
-            <strong>{game.metaProgress.stickerStars}</strong>
-            <span className="currency-plus">+</span>
-          </div>
-          <button className="top-action icon-only" onClick={switchCamera} title={game.cameraMode === 'top' ? 'Switch to isometric camera' : 'Switch to top camera'}>
-            <Camera size={20} />
-          </button>
-          <button className="top-action icon-only settings-action" onClick={() => setShowSetup(true)} title="Start a new game">
-            <Settings size={20} />
-          </button>
-        </nav>
-      </header>
+      {/* 2. LEFT PLAYER SIDEBAR */}
+      <PlayerSidebar />
 
-      <div className="hud-columns">
-        <aside className="glass-panel players-panel">
-          <div className="panel-heading">
-            <div>
-              <div className="eyebrow">THE TABLE</div>
-              <h2>Players</h2>
-            </div>
-            <span className="count-chip">{game.players.length} seats</span>
-          </div>
+      {/* 3. RIGHT ACTIVITY NAVIGATION */}
+      <RightActivityNav
+        onOpenDaily={() => { setMetaTab('daily'); setShowMetaHub(true); }}
+        onOpenSpin={() => { setMetaTab('daily'); setShowMetaHub(true); }}
+        onOpenAlbum={() => { setMetaTab('album'); setShowMetaHub(true); }}
+        onOpenMissions={() => { setMetaTab('missions'); setShowMetaHub(true); }}
+      />
 
-          <div className="active-player-note">
-            <span className="note-icon"><Sparkles size={13} /></span>
-            <span>
-              <strong>
-                {game.turnPhase === 'AUCTION'
-                  ? auctionBidder?.name ?? 'Auction'
-                  : activePlayer?.name ?? 'Waiting'}
-              </strong>
-              {game.turnPhase === 'AUCTION' ? ' is bidding' : ' is in control'}
-            </span>
-          </div>
+      {/* 4. BOTTOM ACTION DOCK */}
+      <BottomActionDock
+        onOpenStats={() => setShowStats(true)}
+        onOpenRules={() => setShowRules(true)}
+        onOpenTrade={openTrade}
+        onOpenAuction={game.auctionCurrentProperty}
+        autoRoll={autoRoll}
+        onToggleAutoRoll={() => setAutoRoll((v) => !v)}
+      />
 
-          <div className="player-list">
-            {game.players.map((player, index) => {
-              const isTurn = index === game.currentPlayerIndex;
-              const propertyCount = Object.values(game.properties).filter(
-                (property) => property.ownerId === player.id
-              ).length;
-
-              return (
-                <article
-                  key={player.id}
-                  className={`player-card ${isTurn ? 'is-active' : ''} ${player.isBankrupt ? 'is-bankrupt' : ''}`}
-                  style={{ '--player-accent': player.color } as React.CSSProperties}
-                >
-                  <div className="player-card-main">
-                    <div className="player-avatar">
-                      {player.isAI ? <Bot size={17} /> : <UserRound size={17} />}
-                    </div>
-                    <div className="player-identity">
-                      <div className="player-name">{player.name}</div>
-                      <div className="player-role">{player.isAI ? 'Computer rival' : 'You · Human player'}</div>
-                    </div>
-                    {isTurn ? <span className="turn-tag">TURN</span> : <span className="player-token">{TOKEN_MARKS[player.token]}</span>}
-                  </div>
-
-                  <div className="player-card-bottom">
-                    <div className="player-money"><Wallet size={14} /><strong>{money(player.money)}</strong></div>
-                    <div className="player-detail">
-                      <span>{player.isBankrupt ? 'Bankrupt' : player.inJail ? 'In jail' : `At ${playerStatus(player)}`}</span>
-                      <span className="property-count"><Landmark size={11} /> {propertyCount} properties</span>
-                      <span className="landmark-level">CITY LV {player.landmarkLevel}/5</span>
-                    </div>
-                  </div>
-                  {isTurn && <div className="active-card-glow" />}
-                </article>
-              );
-            })}
-          </div>
-
-          <div className="panel-footnote">
-            <span className="footnote-dot" />
-            <span>{ownedCount} properties claimed across the board</span>
-          </div>
-        </aside>
-
-        <div className="board-clear-space" aria-hidden="true" />
-
-        <aside className="glass-panel activity-panel">
-          <div className="panel-heading activity-heading">
-            <div>
-              <div className="eyebrow">LIVE TABLE FEED</div>
-              <h2>Activity</h2>
-            </div>
-            <span className="live-chip"><span /> LIVE</span>
-          </div>
-
-          <div className="activity-feed">
-            {game.logs.slice(0, 9).map((entry, index) => (
-              <div className={`activity-item tone-${logTone[entry.type]}`} key={entry.id}>
-                <div className="activity-mark"><LogMark type={entry.type} /></div>
-                <div className="activity-content">
-                  <p>{entry.message}</p>
-                  <time><Clock3 size={10} /> {entry.timestamp}</time>
-                </div>
-                {index === 0 && <span className="new-event-dot" />}
-              </div>
-            ))}
-          </div>
-          <div className="activity-footer">Latest moves appear here automatically</div>
-        </aside>
-      </div>
-
-      <nav className="right-rail" aria-label="Daily rewards and collections">
-        <button className="rail-button" onClick={() => { setMetaTab('daily'); setShowMetaHub(true); }}>
-          <span className="rail-icon daily-icon"><Gift size={24} /></span><strong>Daily</strong>
-          {(!dailyClaimedToday || !wheelUsedToday) && <i className="rail-alert" />}
-        </button>
-        <button className="rail-button" onClick={() => { setMetaTab('daily'); setShowMetaHub(true); handleWheelSpin(); }}>
-          <span className="rail-icon spin-icon"><Sparkles size={24} /></span><strong>Spin</strong>
-        </button>
-        <button className="rail-button" onClick={() => { setMetaTab('album'); setShowMetaHub(true); }}>
-          <span className="rail-icon album-icon"><BookOpen size={24} /></span><strong>Album</strong>
-        </button>
-        <button className="rail-button" onClick={() => { setMetaTab('missions'); setShowMetaHub(true); }}>
-          <span className="rail-icon missions-icon"><Trophy size={24} /></span><strong>Missions</strong>
-          {game.metaProgress.missionClaimed.length < DAILY_MISSIONS.length && <i className="rail-alert" />}
-        </button>
-      </nav>
-
+      {/* 5. PROPERTY DEED INSPECTOR CARD */}
       {selectedSpace && (
-        <section className="property-inspector glass-panel">
-          <button className="inspector-close" onClick={() => { game.selectSpace(null); game.setHoveredSpace(null); }} aria-label="Close property details">
-            <X size={15} />
-          </button>
-          <div className="inspector-colorbar" style={{ background: selectedSpace.colorHex }} />
-          <div className="eyebrow">{selectedSpace.colorGroup.replace('_', ' ')} · SPACE {selectedSpace.id + 1}</div>
-          <h3>{selectedSpace.name}</h3>
-          {selectedSpace.price ? (
-            <div className="inspector-price">{money(selectedSpace.price)} <span>purchase price</span></div>
-          ) : (
-            <div className="inspector-price inspector-special">Special board space</div>
-          )}
-          <div className="inspector-owner">
-            <span className="owner-indicator" style={{ background: selectedOwner?.color ?? '#9ca3af' }} />
-            {selectedOwner ? `Owned by ${selectedOwner.name}` : selectedState ? 'Available from the bank' : 'Board location'}
-          </div>
-          <div className="inspector-stats">
-            <span><small>Purchase</small><strong>{selectedSpace.price ? money(selectedSpace.price) : '—'}</strong></span>
-            <span><small>Base rent</small><strong>{selectedSpace.rent?.[0] ? money(selectedSpace.rent[0]) : '—'}</strong></span>
-            {selectedState && <span><small>Buildings</small><strong>{selectedState.houses}/5</strong></span>}
-          </div>
-
-          {selectedState?.ownerId === activePlayer?.id && selectedSpace.type === 'property' && (
-            <div className="inspector-actions">
-              <button
-                className="mini-action mini-action-gold"
-                disabled={!game.canBuildHouse(activePlayer.id, selectedSpace.id)}
-                onClick={() => game.buildHouse(selectedSpace.id)}
-              ><Home size={13} /> Build</button>
-              <button
-                className="mini-action"
-                disabled={!game.canSellHouse(activePlayer.id, selectedSpace.id)}
-                onClick={() => game.sellHouse(selectedSpace.id)}
-              >Sell house</button>
-              <button className="mini-action" onClick={() => game.toggleMortgage(selectedSpace.id)}>
-                {selectedState.isMortgaged ? 'Unmortgage' : 'Mortgage'}
-              </button>
-            </div>
-          )}
-        </section>
+        <PropertyCard
+          space={selectedSpace}
+          state={selectedState}
+          owner={selectedOwner}
+          onClose={() => {
+            game.selectSpace(null);
+            game.setHoveredSpace(null);
+          }}
+        />
       )}
 
-      <nav className="bottom-utilities" aria-label="Quick game actions">
-        <button className="utility-button" onClick={() => game.selectSpace(activePlayer?.position ?? null)}>
-          <BarChart3 size={23} /><span>Stats</span>
-        </button>
-        <button className="utility-button" onClick={() => setShowRules(true)}>
-          <BookOpen size={23} /><span>Rules</span>
-        </button>
-        <button className="utility-button" disabled={!activePlayer || activePlayer.isAI || (game.turnPhase !== 'PRE_ROLL' && game.turnPhase !== 'END_TURN')} onClick={openTrade}>
-          <Users size={23} /><span>Trade</span>
-        </button>
-        <button className="utility-button" disabled={game.turnPhase !== 'LANDED_ACTION' || !activePlayer || activePlayer.isAI || !BOARD_SPACES[activePlayer.position]?.price} onClick={game.auctionCurrentProperty}>
-          <Gavel size={23} /><span>Auction</span>
-        </button>
-      </nav>
+      {/* 6. STATS & PORTFOLIO MODAL */}
+      <StatsModal isOpen={showStats} onClose={() => setShowStats(false)} />
 
-      <footer className="bottom-console">
-        <div className="console-actions">
-          <button
-            className="console-button dock-action"
-            disabled={!activePlayer || activePlayer.isAI || game.turnPhase !== 'LANDED_ACTION' ||
-              !BOARD_SPACES[activePlayer.position]?.price ||
-              activePlayer.money < (BOARD_SPACES[activePlayer.position]?.price ?? 0)}
-            onClick={game.buyCurrentProperty}
-          >
-            <Home size={22} /><span>Buy</span>
-          </button>
-          <button
-            className="console-button dock-action"
-            disabled={!activePlayer || activePlayer.isAI || !selectedSpace ||
-              selectedState?.ownerId !== activePlayer.id ||
-              selectedSpace.type !== 'property' || !game.canBuildHouse(activePlayer.id, selectedSpace.id)}
-            onClick={() => selectedSpace && game.buildHouse(selectedSpace.id)}
-          >
-            <Landmark size={22} /><span>Build</span>
-          </button>
-          <button
-            className="console-button dock-action"
-            disabled={!activePlayer || activePlayer.isAI || !selectedSpace?.mortgageValue ||
-              selectedState?.ownerId !== activePlayer.id || game.turnPhase === 'MOVING'}
-            onClick={() => selectedSpace && game.toggleMortgage(selectedSpace.id)}
-          >
-            <Wallet size={22} /><span>{selectedState?.isMortgaged ? 'Unmortgage' : 'Mortgage'}</span>
-          </button>
-          <button
-            className="console-button dock-action"
-            disabled={!activePlayer || activePlayer.isAI ||
-              (game.turnPhase !== 'PRE_ROLL' && game.turnPhase !== 'END_TURN')}
-            onClick={openTrade}
-          >
-            <Users size={22} /><span>Trade</span>
-          </button>
-          <button
-            className="console-button dock-action"
-            disabled={!activePlayer || activePlayer.isAI || game.turnPhase !== 'END_TURN'}
-            onClick={game.endTurn}
-          >
-            <Flag size={22} /><span>End Turn</span>
-          </button>
-
-          {game.turnPhase === 'PRE_ROLL' && activePlayer?.inJail && (
-            <>
-              <button className="console-button secondary" disabled={activePlayer.money < 50 || activePlayer.isAI} onClick={game.payJailBail}>
-                Pay bail $50
-              </button>
-              {activePlayer.getOutOfJailCards > 0 && (
-                <button className="console-button secondary" disabled={activePlayer.isAI} onClick={game.useJailCard}>
-                  Use jail card
-                </button>
-              )}
-            </>
-          )}
-
-          {game.turnPhase === 'LANDED_ACTION' && (
-            <>
-              <button className="console-button secondary" disabled={activePlayer?.isAI} onClick={game.auctionCurrentProperty}>
-                <Gavel size={18} /><span>Auction</span>
-              </button>
-              <button className="console-button secondary" disabled={activePlayer?.isAI} onClick={game.declineProperty}>Pass</button>
-            </>
-          )}
-
-          {game.turnPhase === 'AUCTION' && game.auction && (
-            <>
-              <div className="debt-readout">Top bid <strong>{money(game.auction.currentBid)}</strong></div>
-              {auctionBidder && !auctionBidder.isAI ? (
-                <>
-                  <button className="console-button primary" disabled={auctionBidder.money < game.auction.currentBid + 10} onClick={() => game.placeAuctionBid(10)}>
-                    Bid {money(game.auction.currentBid + 10)}
-                  </button>
-                  <button className="console-button secondary" disabled={auctionBidder.money < game.auction.currentBid + 50} onClick={() => game.placeAuctionBid(50)}>
-                    Bid +$50
-                  </button>
-                  <button className="console-button danger" onClick={game.passAuction}>Pass</button>
-                </>
-              ) : (
-                <div className="console-wait"><span className="loading-orbit" /> {auctionBidder?.name ?? 'Players'} is considering a bid…</div>
-              )}
-            </>
-          )}
-
-          {game.turnPhase === 'CARD_DRAWN' && game.activeCard && (
-            <button className="console-button primary" disabled={activePlayer?.isAI} onClick={game.applyActiveCard}>
-              <ScrollText size={18} /><span>Resolve card</span>
-            </button>
-          )}
-
-          {game.turnPhase === 'DEBT_RESOLUTION' && game.pendingDebt && (
-            <>
-              <div className="debt-readout">Debt <strong>{money(game.pendingDebt.amount)}</strong></div>
-              <button className="console-button primary" disabled={!activePlayer || activePlayer.isAI || activePlayer.money < game.pendingDebt.amount} onClick={game.settlePendingDebt}>Pay debt</button>
-              <button className="console-button danger" disabled={activePlayer?.isAI} onClick={game.declareBankruptcy}>Bankruptcy</button>
-            </>
-          )}
-
-          {(game.turnPhase === 'ROLLING' || game.turnPhase === 'MOVING') && (
-            <div className="console-wait"><span className="loading-orbit" /> {game.turnPhase === 'ROLLING' ? 'Rolling…' : 'Moving…'}</div>
-          )}
-
-          {activePlayer && !activePlayer.isAI && (
-            <button
-              className="console-button secondary landmark-upgrade-button"
-              disabled={activePlayer.landmarkLevel >= 5 || activePlayer.money < landmarkCost ||
-                (game.turnPhase !== 'PRE_ROLL' && game.turnPhase !== 'END_TURN')}
-              onClick={handleUpgradeLandmark}
-            >
-              <Landmark size={16} /><span>{activePlayer.landmarkLevel >= 5 ? 'Landmark max' : 'Upgrade'}</span>
-            </button>
-          )}
-        </div>
-      </footer>
-
-      <div className="roll-controls">
-        <label className="quality-switch">
-          <span>Graphics</span>
-          <select value={graphicsQuality} onChange={(event) => handleGraphicsQualityChange(event.target.value as GraphicsQuality)} aria-label="Graphics quality">
-            <option value="low">Low · FPS</option>
-            <option value="balanced">Balanced</option>
-            <option value="high">High · Visuals</option>
-          </select>
-        </label>
-        <div className="speed-switch">
-          <button className={game.gameSpeed === 1 ? 'is-active' : ''} onClick={() => game.setGameSpeed(1)}>1x</button>
-          <button className={game.gameSpeed === 2 ? 'is-active' : ''} onClick={() => game.setGameSpeed(2)}>2x</button>
-        </div>
-        <button className={`auto-roll-pill ${autoRoll ? 'is-active' : ''}`} onClick={() => setAutoRoll((value) => !value)}>
-          <span>Auto-roll</span><i />
-        </button>
-      </div>
-
-      <button
-        className="console-button primary roll-button"
-        disabled={!activePlayer || activePlayer.isAI || game.turnPhase !== 'PRE_ROLL'}
-        onClick={game.rollDice}
-        title={game.turnPhase === 'PRE_ROLL' ? 'Roll the dice' : phaseLabel}
-        aria-label="Roll dice"
-      >
-        <Dices size={38} /><span>ROLL</span>
-      </button>
-
+      {/* ============================================================== */}
+      {/* 7. GAME MODALS                                                 */}
+      {/* ============================================================== */}
+      {/* Trade Modal */}
       {showTradeModal && activePlayer && !activePlayer.isAI && (
         <div className="modal-backdrop">
           <section className="game-modal trade-modal" role="dialog" aria-modal="true" aria-labelledby="trade-title">
@@ -844,6 +403,7 @@ export const App: React.FC = () => {
         </div>
       )}
 
+      {/* Railroad Raid Modal */}
       {game.railroadRaid && activePlayer?.id === game.railroadRaid.attackerId && !activePlayer.isAI && (
         <div className="modal-backdrop">
           <div className="game-modal raid-modal" role="dialog" aria-modal="true" aria-labelledby="raid-title">
@@ -892,6 +452,7 @@ export const App: React.FC = () => {
         </div>
       )}
 
+      {/* Meta Hub (Daily, Missions, Album) */}
       {showMetaHub && (
         <div className="modal-backdrop meta-backdrop" role="presentation" onClick={() => setShowMetaHub(false)}>
           <section className="meta-hub game-modal" role="dialog" aria-modal="true" aria-labelledby="meta-hub-title" onClick={(event) => event.stopPropagation()}>
@@ -906,7 +467,7 @@ export const App: React.FC = () => {
             <div className="meta-tabs">
               <button className={metaTab === 'daily' ? 'is-selected' : ''} onClick={() => setMetaTab('daily')}><Gift size={14} /> Daily</button>
               <button className={metaTab === 'missions' ? 'is-selected' : ''} onClick={() => setMetaTab('missions')}><Star size={14} /> Missions</button>
-              <button className={metaTab === 'album' ? 'is-selected' : ''} onClick={() => setMetaTab('album')}><BookOpen size={14} /> Album <span>{stickerCount}/{STICKER_COLLECTION.length}</span></button>
+              <button className={metaTab === 'album' ? 'is-selected' : ''} onClick={() => setMetaTab('album')}><Star size={14} /> Album <span>{stickerCount}/{STICKER_COLLECTION.length}</span></button>
             </div>
 
             {metaTab === 'daily' && (
@@ -937,7 +498,7 @@ export const App: React.FC = () => {
                   })}
                 </div>
 
-                <button className="meta-primary-button" disabled={dailyClaimedToday} onClick={game.claimDailyReward}>
+                <button className="meta-primary-button" disabled={dailyClaimedToday} onClick={() => { sounds.playPurchase(); game.claimDailyReward(); }}>
                   <Gift size={16} /> {dailyClaimedToday ? 'Daily reward claimed' : `Claim day ${rewardDay} · ${money(nextDailyReward.cash)}${nextDailyReward.packs ? ' + Sticker Pack' : ''}`}
                 </button>
 
@@ -984,7 +545,7 @@ export const App: React.FC = () => {
                           <div className="mission-progress-track"><i style={{ width: `${(progress / mission.target) * 100}%` }} /></div>
                           <small>{progress}/{mission.target} complete · Reward {money(mission.cashReward)}{mission.packReward ? ' + Sticker Pack' : ''}</small>
                         </div>
-                        <button className="mission-claim" disabled={!complete || claimed} onClick={() => game.claimMissionReward(mission.id)}>
+                        <button className="mission-claim" disabled={!complete || claimed} onClick={() => { sounds.playPurchase(); game.claimMissionReward(mission.id); }}>
                           {claimed ? 'Claimed' : complete ? 'Claim' : 'In progress'}
                         </button>
                       </article>
@@ -1024,9 +585,9 @@ export const App: React.FC = () => {
                 })}
                 <div className="album-footer">
                   <div><span className="eyebrow">DUPLICATE EXCHANGE</span><strong><Star size={14} fill="currentColor" /> {game.metaProgress.stickerStars} stars</strong><small>10 stars can be exchanged for 1 Sticker Pack.</small></div>
-                  <button className="meta-secondary-button" disabled={game.metaProgress.stickerStars < 10} onClick={game.redeemStickerStars}>Exchange 10 ★</button>
+                  <button className="meta-secondary-button" disabled={game.metaProgress.stickerStars < 10} onClick={() => { sounds.playPurchase(); game.redeemStickerStars(); }}>Exchange 10 ★</button>
                 </div>
-                <button className="meta-primary-button" disabled={game.metaProgress.stickerPacks <= 0} onClick={() => setLastPackReveal(game.openStickerPack())}>
+                <button className="meta-primary-button" disabled={game.metaProgress.stickerPacks <= 0} onClick={() => { sounds.playCardDraw(); setLastPackReveal(game.openStickerPack()); }}>
                   <PackageOpen size={16} /> Open Sticker Pack ({game.metaProgress.stickerPacks})
                 </button>
                 {lastPackReveal && (
@@ -1042,7 +603,7 @@ export const App: React.FC = () => {
                   </div>
                 )}
                 {albumComplete && (
-                  <button className="meta-primary-button album-grand-prize" disabled={game.metaProgress.albumBonusClaimed} onClick={game.claimStickerAlbumReward}>
+                  <button className="meta-primary-button album-grand-prize" disabled={game.metaProgress.albumBonusClaimed} onClick={() => { sounds.playUpgrade(); game.claimStickerAlbumReward(); }}>
                     <Trophy size={16} /> {game.metaProgress.albumBonusClaimed ? 'Album prize claimed' : 'Claim grand prize · $2,500'}
                   </button>
                 )}
@@ -1052,6 +613,7 @@ export const App: React.FC = () => {
         </div>
       )}
 
+      {/* Setup / New Game Modal */}
       {showSetup && (
         <div className="modal-backdrop">
           <div className="game-modal setup-modal" role="dialog" aria-modal="true" aria-labelledby="setup-title">
@@ -1070,6 +632,7 @@ export const App: React.FC = () => {
         </div>
       )}
 
+      {/* Rulebook Modal */}
       {showRules && (
         <div className="modal-backdrop" role="presentation" onClick={() => setShowRules(false)}>
           <div className="game-modal rules-modal" role="dialog" aria-modal="true" aria-labelledby="rules-title" onClick={(event) => event.stopPropagation()}>
@@ -1091,6 +654,7 @@ export const App: React.FC = () => {
         </div>
       )}
 
+      {/* Active Card Modal (Chance & Community Chest) */}
       {game.activeCard && game.turnPhase === 'CARD_DRAWN' && !activePlayer?.isAI && (
         <div className="modal-backdrop">
           <div className="game-modal card-modal" role="dialog" aria-modal="true">
@@ -1098,11 +662,14 @@ export const App: React.FC = () => {
             <div className="eyebrow">{game.activeCard.deck === 'chance' ? 'CHANCE' : 'COMMUNITY CHEST'}</div>
             <h2>{game.activeCard.title}</h2>
             <p>{game.activeCard.description}</p>
-            <button className="modal-primary" onClick={game.applyActiveCard}>Resolve this card <ArrowRight size={16} /></button>
+            <button className="modal-primary" onClick={() => { sounds.playCardDraw(); game.applyActiveCard(); }}>
+              Resolve this card <ArrowRight size={16} />
+            </button>
           </div>
         </div>
       )}
 
+      {/* Winner / Game Over Modal */}
       {game.winner && (
         <div className="modal-backdrop winner-backdrop">
           <div className="game-modal winner-modal" role="dialog" aria-modal="true">
@@ -1110,7 +677,9 @@ export const App: React.FC = () => {
             <div className="eyebrow">THE CITY HAS A NEW RULER</div>
             <h2>{game.winner.name} wins!</h2>
             <p>The final empire remains standing. A new game is ready whenever you are.</p>
-            <button className="modal-primary" onClick={() => setShowSetup(true)}>Start a new game <RotateCcw size={16} /></button>
+            <button className="modal-primary" onClick={() => { sounds.playUpgrade(); setShowSetup(true); }}>
+              Start a new game <RotateCcw size={16} />
+            </button>
           </div>
         </div>
       )}
