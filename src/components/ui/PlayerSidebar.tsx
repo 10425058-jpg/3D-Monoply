@@ -101,7 +101,7 @@ export const PlayerSidebar: React.FC = () => {
                     <span className="text-xs sm:text-sm font-black text-white truncate drop-shadow-sm">
                       {player.name}
                     </span>
-                    {isTurn && (
+                    {(isTurn || player.id === 0) && (
                       <Crown size={14} className="text-amber-400 fill-amber-400 shrink-0" />
                     )}
                   </div>

@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
+// Stylized Material Palettes
 const ROOF_TERRACOTTA = '#e0533c';
 const ROOF_TEAL = '#1e7b85';
 const ROOF_PURPLE = '#704284';
@@ -24,6 +25,7 @@ export const CityDistricts: React.FC = () => {
 
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
+    // Gentle bobbing and rock for the sailboat
     if (boatRef.current) {
       boatRef.current.position.y = 0.28 + Math.sin(t * 1.6) * 0.02;
       boatRef.current.rotation.z = Math.sin(t * 1.4) * 0.04;
@@ -33,13 +35,17 @@ export const CityDistricts: React.FC = () => {
 
   return (
     <group>
-      {/* 1. CENTRAL PLAZA & FOUNTAIN */}
+      {/* ============================================================== */}
+      {/* 1. CENTRAL PLAZA & GRAND MULTI-TIER FOUNTAIN                   */}
+      {/* ============================================================== */}
       <group position={[0, 0.32, -0.2]}>
+        {/* Outer Circular Plaza Paver Ring */}
         <mesh position={[0, 0.02, 0]} receiveShadow>
           <cylinderGeometry args={[2.0, 2.05, 0.06, 32]} />
           <meshStandardMaterial color={STONE_PAVEMENT} roughness={0.7} />
         </mesh>
 
+        {/* Fountain Outer Stone Basin */}
         <mesh position={[0, 0.14, 0]} castShadow receiveShadow>
           <cylinderGeometry args={[1.35, 1.42, 0.2, 32]} />
           <meshStandardMaterial color={STONE_BALUSTRADE} roughness={0.5} />
@@ -49,6 +55,7 @@ export const CityDistricts: React.FC = () => {
           <meshStandardMaterial color={STONE_BALUSTRADE} roughness={0.4} />
         </mesh>
 
+        {/* Fountain Basin Water Pool */}
         <mesh position={[0, 0.21, 0]}>
           <cylinderGeometry args={[1.28, 1.28, 0.04, 32]} />
           <meshPhysicalMaterial
@@ -61,11 +68,13 @@ export const CityDistricts: React.FC = () => {
           />
         </mesh>
 
+        {/* Central Pedestal Tier 1 */}
         <mesh position={[0, 0.38, 0]} castShadow>
           <cylinderGeometry args={[0.32, 0.38, 0.36, 16]} />
           <meshStandardMaterial color={STONE_BALUSTRADE} roughness={0.5} />
         </mesh>
 
+        {/* Upper Basin Tier 2 */}
         <mesh position={[0, 0.58, 0]} castShadow>
           <cylinderGeometry args={[0.72, 0.62, 0.14, 24]} />
           <meshStandardMaterial color={STONE_BALUSTRADE} roughness={0.5} />
@@ -75,18 +84,22 @@ export const CityDistricts: React.FC = () => {
           <meshPhysicalMaterial color={WATER_TURQUOISE} roughness={0.06} transmission={0.6} clearcoat={1} />
         </mesh>
 
+        {/* Central Fountain Spire & Water Jets */}
         <mesh position={[0, 0.82, 0]} castShadow>
           <cylinderGeometry args={[0.16, 0.24, 0.38, 16]} />
           <meshStandardMaterial color={STONE_BALUSTRADE} roughness={0.5} />
         </mesh>
+        {/* Spouting Water Column */}
         <mesh position={[0, 1.1, 0]}>
           <cylinderGeometry args={[0.08, 0.14, 0.45, 12]} />
           <meshStandardMaterial color="#bae6fd" transparent opacity={0.85} roughness={0.1} />
         </mesh>
+        {/* Spray Foam Dome */}
         <mesh position={[0, 1.34, 0]}>
           <sphereGeometry args={[0.18, 12, 12]} />
           <meshStandardMaterial color="#ffffff" transparent opacity={0.9} roughness={0.1} />
         </mesh>
+        {/* 4 Cascading Arch Water Jets into outer basin */}
         {[0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2].map((angle, jidx) => (
           <group key={`jet-${jidx}`} rotation={[0, angle, 0]}>
             <mesh position={[0.48, 0.6, 0]} rotation={[0, 0, -Math.PI / 4]}>
@@ -97,8 +110,11 @@ export const CityDistricts: React.FC = () => {
         ))}
       </group>
 
-      {/* 2. CANAL & HARBOR */}
+      {/* ============================================================== */}
+      {/* 2. WINDING CANAL WATERWAY & HARBOR                             */}
+      {/* ============================================================== */}
       <group position={[0, 0.26, 2.2]}>
+        {/* Main Turquoise Canal Water Channel */}
         <mesh ref={waterRef} position={[0, 0.02, 0]} receiveShadow>
           <boxGeometry args={[13.6, 0.06, 2.6]} />
           <meshPhysicalMaterial
@@ -112,6 +128,7 @@ export const CityDistricts: React.FC = () => {
           />
         </mesh>
 
+        {/* Stone Canal Banks / Quays */}
         <mesh position={[0, 0.06, -1.35]} receiveShadow>
           <boxGeometry args={[13.8, 0.1, 0.16]} />
           <meshStandardMaterial color={STONE_PAVEMENT} roughness={0.7} />
@@ -121,15 +138,18 @@ export const CityDistricts: React.FC = () => {
           <meshStandardMaterial color={STONE_PAVEMENT} roughness={0.7} />
         </mesh>
 
+        {/* West Arched Stone Bridge */}
         <group position={[-3.6, 0.08, 0]}>
           <mesh position={[0, 0.16, 0]} castShadow receiveShadow>
             <boxGeometry args={[1.6, 0.16, 2.9]} />
             <meshStandardMaterial color={STONE_BALUSTRADE} roughness={0.6} />
           </mesh>
+          {/* Bridge Stone Arch Cutout */}
           <mesh position={[0, 0.04, 0]} rotation={[0, 0, Math.PI / 2]}>
             <cylinderGeometry args={[0.6, 0.6, 1.65, 16, 1, false, 0, Math.PI]} />
             <meshStandardMaterial color={STONE_BALUSTRADE} roughness={0.6} />
           </mesh>
+          {/* Bridge Parapets / Stone Railings */}
           {[-0.75, 0.75].map((bx, bi) => (
             <mesh key={`bridge-w-rail-${bi}`} position={[bx, 0.32, 0]} castShadow>
               <boxGeometry args={[0.1, 0.18, 2.8]} />
@@ -138,15 +158,18 @@ export const CityDistricts: React.FC = () => {
           ))}
         </group>
 
+        {/* East Arched Stone Bridge */}
         <group position={[3.6, 0.08, 0]}>
           <mesh position={[0, 0.16, 0]} castShadow receiveShadow>
             <boxGeometry args={[1.6, 0.16, 2.9]} />
             <meshStandardMaterial color={STONE_BALUSTRADE} roughness={0.6} />
           </mesh>
+          {/* Bridge Stone Arch Cutout */}
           <mesh position={[0, 0.04, 0]} rotation={[0, 0, Math.PI / 2]}>
             <cylinderGeometry args={[0.6, 0.6, 1.65, 16, 1, false, 0, Math.PI]} />
             <meshStandardMaterial color={STONE_BALUSTRADE} roughness={0.6} />
           </mesh>
+          {/* Bridge Parapets */}
           {[-0.75, 0.75].map((bx, bi) => (
             <mesh key={`bridge-e-rail-${bi}`} position={[bx, 0.32, 0]} castShadow>
               <boxGeometry args={[0.1, 0.18, 2.8]} />
@@ -155,11 +178,13 @@ export const CityDistricts: React.FC = () => {
           ))}
         </group>
 
+        {/* Wooden Harbor Dock / Pier on the right */}
         <group position={[1.8, 0.06, 0.6]}>
           <mesh position={[0, 0.05, 0]} castShadow receiveShadow>
             <boxGeometry args={[1.2, 0.08, 1.4]} />
             <meshStandardMaterial color={WOOD_DECK} roughness={0.8} />
           </mesh>
+          {/* Dock Piling Posts */}
           {[-0.52, 0.52].map((px, pi) => (
             <mesh key={`post-${pi}`} position={[px, 0.14, 0.62]} castShadow>
               <cylinderGeometry args={[0.05, 0.05, 0.32, 8]} />
@@ -168,23 +193,29 @@ export const CityDistricts: React.FC = () => {
           ))}
         </group>
 
+        {/* Miniature White Sailboat */}
         <group ref={boatRef} position={[-0.8, 0.02, 0.1]} rotation={[0, 0.25, 0]}>
+          {/* Hull */}
           <mesh position={[0, 0.04, 0]} castShadow>
             <boxGeometry args={[0.42, 0.16, 1.1]} />
             <meshStandardMaterial color="#ffffff" roughness={0.3} />
           </mesh>
+          {/* Wood Deck Inset */}
           <mesh position={[0, 0.125, 0]}>
             <boxGeometry args={[0.36, 0.02, 0.98]} />
             <meshStandardMaterial color="#d4a373" roughness={0.7} />
           </mesh>
+          {/* Mast */}
           <mesh position={[0, 0.72, 0.05]} castShadow>
             <cylinderGeometry args={[0.025, 0.03, 1.25, 8]} />
             <meshStandardMaterial color={WOOD_DARK} roughness={0.7} />
           </mesh>
+          {/* Main White Triangular Sail */}
           <mesh position={[0, 0.75, -0.22]} rotation={[0, 0.1, 0]} castShadow>
             <coneGeometry args={[0.36, 0.95, 3]} />
             <meshStandardMaterial color="#fefefe" roughness={0.4} />
           </mesh>
+          {/* Jib Sail */}
           <mesh position={[0, 0.65, 0.28]} rotation={[Math.PI, 0, 0]} castShadow>
             <coneGeometry args={[0.22, 0.7, 3]} />
             <meshStandardMaterial color="#fefefe" roughness={0.4} />
@@ -192,30 +223,39 @@ export const CityDistricts: React.FC = () => {
         </group>
       </group>
 
-      {/* 3. RESIDENTIAL CAFE DISTRICT */}
+      {/* ============================================================== */}
+      {/* 3. RESIDENTIAL DISTRICT & COZY CAFE (WEST / LEFT)              */}
+      {/* ============================================================== */}
       <group position={[-4.5, 0.34, -0.4]}>
+        {/* Main 2-Story Cafe Building */}
         <group position={[0, 0, 0]}>
+          {/* Ground Floor Wall */}
           <mesh position={[0, 0.7, 0]} castShadow receiveShadow>
             <boxGeometry args={[2.4, 1.4, 2.2]} />
             <meshStandardMaterial color={WALL_CREAM} roughness={0.6} />
           </mesh>
+          {/* Second Floor Wall */}
           <mesh position={[0, 1.85, 0]} castShadow receiveShadow>
             <boxGeometry args={[2.3, 0.9, 2.1]} />
             <meshStandardMaterial color={WALL_WARM} roughness={0.6} />
           </mesh>
+          {/* Terracotta Pitched Roof */}
           <mesh position={[0, 2.65, 0]} rotation={[0, 0, 0]} castShadow>
             <coneGeometry args={[1.8, 1.1, 4]} />
             <meshStandardMaterial color={ROOF_TERRACOTTA} roughness={0.4} />
           </mesh>
+          {/* Red Brick Chimney */}
           <mesh position={[0.7, 2.8, -0.4]} castShadow>
             <boxGeometry args={[0.32, 0.9, 0.32]} />
             <meshStandardMaterial color={WALL_BRICK} roughness={0.7} />
           </mesh>
 
+          {/* Storefront Cafe Burgundy/Pink Awning */}
           <mesh position={[0, 1.15, 1.2]} rotation={[0.3, 0, 0]} castShadow>
             <boxGeometry args={[2.1, 0.12, 0.65]} />
             <meshStandardMaterial color="#be185d" roughness={0.4} />
           </mesh>
+          {/* Awning White Stripes */}
           {[-0.6, 0, 0.6].map((sx, si) => (
             <mesh key={`awning-s-${si}`} position={[sx, 1.17, 1.2]} rotation={[0.3, 0, 0]}>
               <boxGeometry args={[0.22, 0.13, 0.66]} />
@@ -223,16 +263,19 @@ export const CityDistricts: React.FC = () => {
             </mesh>
           ))}
 
+          {/* Windows with Flower Boxes */}
           {[-0.6, 0.6].map((wx, wi) => (
             <group key={`win-box-${wi}`} position={[wx, 1.7, 1.08]}>
               <mesh castShadow>
                 <boxGeometry args={[0.42, 0.5, 0.05]} />
                 <meshStandardMaterial color="#38bdf8" roughness={0.2} />
               </mesh>
+              {/* Wooden Flower Box */}
               <mesh position={[0, -0.3, 0.08]} castShadow>
                 <boxGeometry args={[0.48, 0.14, 0.14]} />
                 <meshStandardMaterial color={WOOD_DARK} roughness={0.8} />
               </mesh>
+              {/* Pink Blossom Flowers */}
               <mesh position={[0, -0.22, 0.09]}>
                 <sphereGeometry args={[0.09, 8, 8]} />
                 <meshStandardMaterial color="#f472b6" roughness={0.6} />
@@ -241,30 +284,38 @@ export const CityDistricts: React.FC = () => {
           ))}
         </group>
 
+        {/* Outdoor Cafe Terrace Patio with Parasols */}
         <group position={[0.4, 0.02, 1.8]}>
+          {/* Cobblestone Patio Base */}
           <mesh position={[0, 0.02, 0]} receiveShadow>
             <boxGeometry args={[2.4, 0.04, 1.8]} />
             <meshStandardMaterial color={STONE_PAVEMENT} roughness={0.75} />
           </mesh>
 
+          {/* 2 Striped Cafe Parasols (Umbrellas) */}
           {[-0.65, 0.65].map((ux, ui) => (
             <group key={`parasol-${ui}`} position={[ux, 0, ui === 0 ? 0.35 : -0.25]} rotation={[0, ui * 0.4, 0.08]}>
+              {/* Pole */}
               <mesh position={[0, 0.65, 0]} castShadow>
                 <cylinderGeometry args={[0.025, 0.025, 1.3, 8]} />
                 <meshStandardMaterial color={WOOD_DARK} roughness={0.6} />
               </mesh>
+              {/* Parasol Canopy (Pink & White alternating) */}
               <mesh position={[0, 1.25, 0]} castShadow>
                 <coneGeometry args={[0.65, 0.35, 12]} />
                 <meshStandardMaterial color="#f43f5e" roughness={0.35} />
               </mesh>
+              {/* Parasol White Trim */}
               <mesh position={[0, 1.12, 0]} rotation={[Math.PI / 2, 0, 0]}>
                 <torusGeometry args={[0.64, 0.03, 8, 16]} />
                 <meshStandardMaterial color="#ffffff" />
               </mesh>
+              {/* Small Bistro Table */}
               <mesh position={[0, 0.32, 0]} castShadow>
                 <cylinderGeometry args={[0.22, 0.22, 0.04, 12]} />
                 <meshStandardMaterial color="#ffffff" roughness={0.3} />
               </mesh>
+              {/* Tiny Chairs */}
               {[-0.26, 0.26].map((cx, ci) => (
                 <mesh key={`chair-${ci}`} position={[cx, 0.18, 0]} castShadow>
                   <boxGeometry args={[0.12, 0.22, 0.12]} />
@@ -276,20 +327,27 @@ export const CityDistricts: React.FC = () => {
         </group>
       </group>
 
-      {/* 4. COMMERCIAL DISTRICT & BANK */}
+      {/* ============================================================== */}
+      {/* 4. COMMERCIAL DISTRICT & GRAND BANK (EAST / RIGHT)             */}
+      {/* ============================================================== */}
       <group position={[4.6, 0.34, -0.4]}>
+        {/* Classical Grand Bank Building */}
         <group position={[0, 0, 0]}>
+          {/* Main Bank Hall */}
           <mesh position={[0, 1.0, 0]} castShadow receiveShadow>
             <boxGeometry args={[2.5, 2.0, 2.2]} />
             <meshStandardMaterial color={WALL_CREAM} roughness={0.5} />
           </mesh>
 
+          {/* Classical Portico Pediment (Triangular Gable Roof) */}
           <mesh position={[0, 2.45, 0.2]} rotation={[0, 0, 0]} castShadow>
             <coneGeometry args={[1.9, 0.9, 4]} />
             <meshStandardMaterial color={ROOF_TERRACOTTA} roughness={0.4} />
           </mesh>
 
+          {/* Gleaming 3D Golden Dollar '$' Sign Mounted on Roof */}
           <group position={[0, 2.95, 0.6]}>
+            {/* Outer Golden Disc Emblem */}
             <mesh castShadow>
               <cylinderGeometry args={[0.42, 0.42, 0.1, 24]} />
               <meshPhysicalMaterial
@@ -301,20 +359,24 @@ export const CityDistricts: React.FC = () => {
                 emissiveIntensity={0.2}
               />
             </mesh>
+            {/* Dollar '$' vertical bar */}
             <mesh position={[0, 0, 0.06]}>
               <boxGeometry args={[0.08, 0.58, 0.04]} />
               <meshStandardMaterial color="#78350f" metalness={0.5} />
             </mesh>
+            {/* S curve bars */}
             <mesh position={[0, 0.12, 0.06]}>
               <boxGeometry args={[0.26, 0.07, 0.04]} />
               <meshStandardMaterial color="#78350f" />
             </mesh>
+            {/* S curve bars */}
             <mesh position={[0, -0.12, 0.06]}>
               <boxGeometry args={[0.26, 0.07, 0.04]} />
               <meshStandardMaterial color="#78350f" />
             </mesh>
           </group>
 
+          {/* 4 Classical Neoclassical White Columns */}
           {[-0.9, -0.3, 0.3, 0.9].map((colX, cIdx) => (
             <mesh key={`col-${cIdx}`} position={[colX, 0.95, 1.15]} castShadow>
               <cylinderGeometry args={[0.1, 0.12, 1.9, 12]} />
@@ -322,6 +384,7 @@ export const CityDistricts: React.FC = () => {
             </mesh>
           ))}
 
+          {/* Bank Grand Steps */}
           {[0, 1, 2].map((stepIdx) => (
             <mesh key={`bstep-${stepIdx}`} position={[0, 0.04 * (3 - stepIdx), 1.25 + stepIdx * 0.16]} receiveShadow>
               <boxGeometry args={[2.3, 0.06, 0.18]} />
@@ -330,11 +393,13 @@ export const CityDistricts: React.FC = () => {
           ))}
         </group>
 
+        {/* Adjoining Market Stall with Colorful Canopy */}
         <group position={[-0.4, 0.02, 1.8]}>
           <mesh position={[0, 0.35, 0]} castShadow receiveShadow>
             <boxGeometry args={[1.6, 0.7, 1.1]} />
             <meshStandardMaterial color={WALL_WARM} roughness={0.6} />
           </mesh>
+          {/* Striped Canopy (Yellow & Red) */}
           <mesh position={[0, 0.85, 0.2]} rotation={[0.25, 0, 0]} castShadow>
             <boxGeometry args={[1.7, 0.1, 0.9]} />
             <meshStandardMaterial color="#f59e0b" roughness={0.4} />
@@ -348,12 +413,17 @@ export const CityDistricts: React.FC = () => {
         </group>
       </group>
 
-      {/* 5. GARDEN PAVILION & SAKURA */}
+      {/* ============================================================== */}
+      {/* 5. GARDEN PAVILION & BLOOMING SAKURA TREES                     */}
+      {/* ============================================================== */}
+      {/* Classical Domed Gazebo Pavilion (Foreground Right) */}
       <group position={[2.6, 0.34, 0.6]}>
+        {/* Gazebo Base */}
         <mesh position={[0, 0.06, 0]} receiveShadow castShadow>
           <cylinderGeometry args={[1.1, 1.15, 0.12, 24]} />
           <meshStandardMaterial color={STONE_BALUSTRADE} roughness={0.5} />
         </mesh>
+        {/* 6 Ring Columns */}
         {[0, 1, 2, 3, 4, 5].map((idx) => {
           const angle = (idx * Math.PI * 2) / 6;
           const gx = Math.cos(angle) * 0.82;
@@ -365,6 +435,7 @@ export const CityDistricts: React.FC = () => {
             </mesh>
           );
         })}
+        {/* Gazebo Emerald/Teal Dome Roof */}
         <mesh position={[0, 1.62, 0]} castShadow>
           <sphereGeometry args={[0.92, 20, 16, 0, Math.PI * 2, 0, Math.PI / 2]} />
           <meshPhysicalMaterial
@@ -374,24 +445,33 @@ export const CityDistricts: React.FC = () => {
             clearcoat={0.8}
           />
         </mesh>
+        {/* Golden Finial on top */}
         <mesh position={[0, 2.58, 0]}>
           <sphereGeometry args={[0.1, 12, 12]} />
           <meshStandardMaterial color={GOLD_ACCENT} metalness={0.9} roughness={0.2} />
         </mesh>
       </group>
 
+      {/* Blooming Cherry Blossom (Sakura) Trees matching concept image */}
       {[
+        // Left palace flank
         { position: [-2.4, 0.36, -2.2], scale: 1.15 },
+        // Right palace flank
         { position: [2.4, 0.36, -2.2], scale: 1.15 },
+        // Plaza south-west garden
         { position: [-1.8, 0.32, 0.4], scale: 0.95 },
+        // Gazebo background accent
         { position: [4.4, 0.32, 1.4], scale: 0.9 },
+        // Far west residential edge
         { position: [-6.2, 0.32, -0.6], scale: 1.0 },
       ].map((tree, tidx) => (
         <group key={`sakura-${tidx}`} position={tree.position as any} scale={tree.scale}>
+          {/* Stylized Brown Trunk */}
           <mesh position={[0, 0.5, 0]} castShadow>
             <cylinderGeometry args={[0.14, 0.22, 1.0, 8]} />
             <meshStandardMaterial color="#6b4423" roughness={0.85} />
           </mesh>
+          {/* Main Canopy Blossom Spheres */}
           <mesh position={[0, 1.35, 0]} castShadow>
             <sphereGeometry args={[0.78, 12, 12]} />
             <meshStandardMaterial color={SAKURA_PINK_LIGHT} roughness={0.8} flatShading />
@@ -411,6 +491,7 @@ export const CityDistricts: React.FC = () => {
         </group>
       ))}
 
+      {/* Victorian Lampposts with Warm Golden Glow */}
       {[
         [-1.6, 0.32, -0.8],
         [1.6, 0.32, -0.8],
@@ -420,18 +501,47 @@ export const CityDistricts: React.FC = () => {
         [3.6, 0.32, 1.0],
       ].map((lPos, lIdx) => (
         <group key={`lamp-${lIdx}`} position={lPos as any}>
+          {/* Post */}
           <mesh position={[0, 0.5, 0]} castShadow>
             <cylinderGeometry args={[0.035, 0.05, 1.0, 8]} />
             <meshStandardMaterial color="#1f2937" metalness={0.7} roughness={0.3} />
           </mesh>
+          {/* Lantern Head */}
           <mesh position={[0, 1.05, 0]} castShadow>
             <cylinderGeometry args={[0.1, 0.06, 0.18, 6]} />
             <meshStandardMaterial color="#1f2937" metalness={0.8} />
           </mesh>
+          {/* Glowing Warm Core */}
           <mesh position={[0, 1.05, 0]}>
             <sphereGeometry args={[0.075, 8, 8]} />
             <meshStandardMaterial color="#fef08a" emissive="#f59e0b" emissiveIntensity={1.2} />
           </mesh>
+        </group>
+      ))}
+
+      {/* Wooden Park Benches around the central fountain promenade */}
+      {[
+        { pos: [-1.45, 0.32, 0.65], rot: 0 },
+        { pos: [1.45, 0.32, 0.65], rot: 0 },
+      ].map((bench, bIdx) => (
+        <group key={`pbench-${bIdx}`} position={bench.pos as any} rotation={[0, bench.rot, 0]}>
+          {/* Wooden Seat Slats */}
+          <mesh position={[0, 0.16, 0]} castShadow>
+            <boxGeometry args={[0.95, 0.04, 0.28]} />
+            <meshStandardMaterial color="#b45309" roughness={0.7} />
+          </mesh>
+          {/* Backrest */}
+          <mesh position={[0, 0.32, -0.12]} rotation={[-0.15, 0, 0]} castShadow>
+            <boxGeometry args={[0.95, 0.22, 0.04]} />
+            <meshStandardMaterial color="#b45309" roughness={0.7} />
+          </mesh>
+          {/* Cast Iron Legs */}
+          {[-0.38, 0.38].map((lx, li) => (
+            <mesh key={`bleg-${li}`} position={[lx, 0.1, 0]} castShadow>
+              <boxGeometry args={[0.04, 0.2, 0.26]} />
+              <meshStandardMaterial color="#1e293b" metalness={0.8} />
+            </mesh>
+          ))}
         </group>
       ))}
     </group>

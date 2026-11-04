@@ -9,6 +9,7 @@ export const CharacterAvatar: React.FC<{
     switch (character.toLowerCase()) {
       case 'you':
       case 'you (tycoon)':
+        // Smiling boy with brown hair in blue hoodie
         return (
           <svg viewBox="0 0 100 100" width={size} height={size} className="overflow-visible">
             <defs>
@@ -18,14 +19,19 @@ export const CharacterAvatar: React.FC<{
               </linearGradient>
             </defs>
             <circle cx="50" cy="50" r="46" fill="url(#bg-you)" stroke="#fbbf24" strokeWidth="4" />
+            {/* Body / Shirt */}
             <path d="M22 88 Q50 68 78 88 Z" fill="#1e40af" />
             <path d="M38 78 L50 88 L62 78 Z" fill="#f87171" />
+            {/* Head & Neck */}
             <circle cx="50" cy="46" r="23" fill="#fed7aa" />
+            {/* Hair */}
             <path d="M27 42 Q50 18 73 42 Q70 28 50 25 Q30 28 27 42 Z" fill="#78350f" />
             <path d="M27 42 Q32 30 50 32 Q42 36 34 46 Z" fill="#92400e" />
+            {/* Eyes & Smile */}
             <circle cx="43" cy="45" r="2.8" fill="#1e293b" />
             <circle cx="57" cy="45" r="2.8" fill="#1e293b" />
             <path d="M45 54 Q50 59 55 54" stroke="#b91c1c" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+            {/* Cheeks */}
             <circle cx="39" cy="50" r="3" fill="#fca5a5" opacity="0.6" />
             <circle cx="61" cy="50" r="3" fill="#fca5a5" opacity="0.6" />
           </svg>
@@ -33,6 +39,7 @@ export const CharacterAvatar: React.FC<{
 
       case 'victoria':
       case 'victoria ai':
+        // Cool girl with pink cap, stylish sunglasses and pink jacket
         return (
           <svg viewBox="0 0 100 100" width={size} height={size} className="overflow-visible">
             <defs>
@@ -42,21 +49,28 @@ export const CharacterAvatar: React.FC<{
               </linearGradient>
             </defs>
             <circle cx="50" cy="50" r="46" fill="url(#bg-vic)" stroke="#fbcfe8" strokeWidth="4" />
+            {/* Body */}
             <path d="M22 88 Q50 68 78 88 Z" fill="#9d174d" />
+            {/* Blonde Hair below cap */}
             <path d="M24 46 Q20 72 32 76" stroke="#fcd34d" strokeWidth="7" fill="none" strokeLinecap="round" />
             <path d="M76 46 Q80 72 68 76" stroke="#fcd34d" strokeWidth="7" fill="none" strokeLinecap="round" />
+            {/* Face */}
             <circle cx="50" cy="46" r="22" fill="#fed7aa" />
+            {/* Pink Cap */}
             <path d="M26 38 Q50 16 74 38 Z" fill="#ec4899" />
             <path d="M24 38 Q50 32 76 38 Q50 42 24 38 Z" fill="#f43f5e" />
+            {/* Cool Sunglasses */}
             <rect x="34" y="42" width="14" height="9" rx="3" fill="#1e1b4b" stroke="#f472b6" strokeWidth="1.5" />
             <rect x="52" y="42" width="14" height="9" rx="3" fill="#1e1b4b" stroke="#f472b6" strokeWidth="1.5" />
             <line x1="48" y1="46" x2="52" y2="46" stroke="#f472b6" strokeWidth="2" />
+            {/* Smile */}
             <path d="M46 56 Q50 60 54 56" stroke="#be123c" strokeWidth="2.5" fill="none" strokeLinecap="round" />
           </svg>
         );
 
       case 'arthur':
       case 'arthur ai':
+        // Smart boy with dark hair, glasses and green sweater matching concept art
         return (
           <svg viewBox="0 0 100 100" width={size} height={size} className="overflow-visible">
             <defs>
@@ -66,21 +80,32 @@ export const CharacterAvatar: React.FC<{
               </linearGradient>
             </defs>
             <circle cx="50" cy="50" r="46" fill="url(#bg-art)" stroke="#a7f3d0" strokeWidth="4" />
-            <path d="M22 88 Q50 68 78 88 Z" fill="#334155" />
-            <polygon points="46,75 50,88 54,75" fill="#dc2626" />
-            <circle cx="50" cy="48" r="22" fill="#fed7aa" />
-            <ellipse cx="50" cy="30" rx="20" ry="14" fill="#573a27" />
-            <ellipse cx="50" cy="35" rx="28" ry="5" fill="#3e281b" />
-            <rect x="32" y="32" width="36" height="4" fill="#fbbf24" />
-            <circle cx="43" cy="46" r="2.5" fill="#1e293b" />
-            <circle cx="57" cy="46" r="2.5" fill="#1e293b" />
-            <path d="M38 54 Q44 48 50 53 Q56 48 62 54 Q56 59 50 55 Q44 59 38 54 Z" fill="#475569" />
+            {/* Green Sweater */}
+            <path d="M22 88 Q50 68 78 88 Z" fill="#047857" />
+            <path d="M38 78 L50 88 L62 78 Z" fill="#6ee7b7" />
+            {/* Face */}
+            <circle cx="50" cy="46" r="23" fill="#fed7aa" />
+            {/* Dark Hair */}
+            <path d="M26 42 Q50 18 74 42 Q70 26 50 24 Q30 26 26 42 Z" fill="#1e293b" />
+            {/* Eyes */}
+            <circle cx="42" cy="46" r="2.8" fill="#1e293b" />
+            <circle cx="58" cy="46" r="2.8" fill="#1e293b" />
+            {/* Round Glasses */}
+            <circle cx="42" cy="46" r="8" fill="none" stroke="#0f172a" strokeWidth="2.5" />
+            <circle cx="58" cy="46" r="8" fill="none" stroke="#0f172a" strokeWidth="2.5" />
+            <line x1="50" y1="46" x2="50" y2="46" stroke="#0f172a" strokeWidth="2.5" />
+            {/* Smile */}
+            <path d="M45 57 Q50 61 55 57" stroke="#b91c1c" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+            {/* Cheeks */}
+            <circle cx="36" cy="52" r="3" fill="#fca5a5" opacity="0.6" />
+            <circle cx="64" cy="52" r="3" fill="#fca5a5" opacity="0.6" />
           </svg>
         );
 
       case 'elena':
       case 'elena ai':
       default:
+        // Cute blonde girl with golden hair and green sweater matching concept art
         return (
           <svg viewBox="0 0 100 100" width={size} height={size} className="overflow-visible">
             <defs>
@@ -90,13 +115,19 @@ export const CharacterAvatar: React.FC<{
               </linearGradient>
             </defs>
             <circle cx="50" cy="50" r="46" fill="url(#bg-ele)" stroke="#fde68a" strokeWidth="4" />
-            <path d="M22 88 Q50 68 78 88 Z" fill="#0284c7" />
-            <circle cx="50" cy="45" r="26" fill="#fde047" />
+            {/* Green Sweater */}
+            <path d="M22 88 Q50 68 78 88 Z" fill="#15803d" />
+            <path d="M38 78 L50 88 L62 78 Z" fill="#86efac" />
+            {/* Blonde Hair */}
+            <circle cx="50" cy="45" r="26" fill="#facc15" />
+            {/* Face */}
             <circle cx="50" cy="47" r="21" fill="#fed7aa" />
-            <path d="M29 36 Q50 20 71 36" stroke="#0284c7" strokeWidth="6" fill="none" strokeLinecap="round" />
-            <path d="M32 38 Q45 28 50 38 Q55 28 68 38 Z" fill="#facc15" />
+            {/* Hair bangs */}
+            <path d="M28 40 Q40 28 50 38 Q60 28 72 40 Z" fill="#eab308" />
+            {/* Eyes */}
             <circle cx="43" cy="47" r="2.8" fill="#0369a1" />
             <circle cx="57" cy="47" r="2.8" fill="#0369a1" />
+            {/* Smile */}
             <path d="M46 56 Q50 60 54 56" stroke="#e11d48" strokeWidth="2.5" fill="none" strokeLinecap="round" />
             <circle cx="39" cy="51" r="3" fill="#fca5a5" opacity="0.6" />
             <circle cx="61" cy="51" r="3" fill="#fca5a5" opacity="0.6" />

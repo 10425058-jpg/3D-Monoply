@@ -186,7 +186,7 @@ export const BottomActionDock: React.FC<{
         {/* TRADE BUTTON */}
         <button
           onClick={() => { sounds.playClick(); onOpenTrade(); }}
-          className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-bold text-[10px] sm:text-xs transition-all bg-purple-800 text-white hover:bg-purple-700 shadow border border-purple-400/50 active:scale-95"
+          className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-bold text-[10px] sm:text-xs transition-all bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600 text-white hover:from-fuchsia-500 hover:to-indigo-500 shadow-[0_0_14px_rgba(217,70,239,0.45)] border border-fuchsia-300/70 active:scale-95"
           title="Open Trade with Rivals"
         >
           <ArrowLeftRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -284,8 +284,9 @@ export const BottomActionDock: React.FC<{
                 </div>
                 {/* Die 2 */}
                 <div className="w-4 h-4 sm:w-7 sm:h-7 rounded-md sm:rounded-lg bg-white border border-slate-200 shadow-[0_2px_4px_rgba(0,0,0,0.3)] flex items-center justify-center transform rotate-12">
-                  <div className="flex items-center justify-center">
-                    <div className="w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-rose-600" />
+                  <div className="flex flex-col justify-between w-full h-full p-1 sm:p-1.5">
+                    <div className="w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full bg-rose-600 self-start" />
+                    <div className="w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full bg-rose-600 self-end" />
                   </div>
                 </div>
               </div>
