@@ -36,6 +36,7 @@ export const BottomActionDock: React.FC<{
   const setGameSpeed = useGameStore((s) => s.setGameSpeed);
   const selectedSpaceId = useGameStore((s) => s.selectedSpaceId);
 
+  // Store actions
   const rollDice = useGameStore((s) => s.rollDice);
   const buyCurrentProperty = useGameStore((s) => s.buyCurrentProperty);
   const endTurn = useGameStore((s) => s.endTurn);
@@ -50,9 +51,12 @@ export const BottomActionDock: React.FC<{
   const isLandedAction = isHumanTurn && turnPhase === 'LANDED_ACTION';
   const isEndTurn = isHumanTurn && turnPhase === 'END_TURN';
 
+  // Current landed space info
   const currentSpace = activePlayer ? BOARD_SPACES[activePlayer.position] : null;
   const currentPropertyState = currentSpace ? properties[currentSpace.id] : null;
   const canBuy = isLandedAction && currentSpace && currentPropertyState?.ownerId === null && activePlayer.money >= (currentSpace.price || 0);
+
+  // Selected space building capabilities
   const canBuildOnSelected = selectedSpaceId !== null && isHumanTurn && canBuildHouse(activePlayer.id, selectedSpaceId);
 
   const handleRoll = () => {
@@ -89,6 +93,9 @@ export const BottomActionDock: React.FC<{
 
   return (
     <footer className="fixed bottom-2 sm:bottom-3 left-2 sm:left-4 right-2 sm:right-4 z-20 flex items-end justify-between pointer-events-none select-none gap-2">
+      {/* ============================================================== */}
+      {/* 1. BOTTOM LEFT: UTILITY PILLS (Stats, Rules, Trade, Auction)   */}
+      {/* ============================================================== */}
       <div className="pointer-events-auto flex items-center gap-1 sm:gap-2 mb-1">
         <button
           onClick={() => { sounds.playClick(); onOpenStats(); }}
@@ -127,7 +134,11 @@ export const BottomActionDock: React.FC<{
         </button>
       </div>
 
+      {/* ============================================================== */}
+      {/* 2. BOTTOM CENTER: PRIMARY ACTION CAPSULE DOCK                  */}
+      {/* ============================================================== */}
       <div className="pointer-events-auto flex items-center p-1 sm:p-1.5 rounded-full bg-purple-950/85 backdrop-blur-lg border border-purple-400/40 shadow-[0_12px_36px_rgba(0,0,0,0.45),inset_0_1px_rgba(255,255,255,0.2)] mb-1 overflow-x-auto">
+        {/* BUY BUTTON */}
         <button
           onClick={handleBuy}
           disabled={!canBuy}
@@ -142,6 +153,7 @@ export const BottomActionDock: React.FC<{
           <span>Buy</span>
         </button>
 
+        {/* BUILD BUTTON */}
         <button
           onClick={handleBuild}
           disabled={!canBuildOnSelected}
@@ -156,6 +168,7 @@ export const BottomActionDock: React.FC<{
           <span>Build</span>
         </button>
 
+        {/* MORTGAGE BUTTON */}
         <button
           onClick={handleMortgage}
           disabled={selectedSpaceId === null}
@@ -170,6 +183,17 @@ export const BottomActionDock: React.FC<{
           <span>Mortgage</span>
         </button>
 
+        {/* TRADE BUTTON */}
+        <button
+          onClick={() => { sounds.playClick(); onOpenTrade(); }}
+          className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-bold text-[10px] sm:text-xs transition-all bg-purple-800 text-white hover:bg-purple-700 shadow border border-purple-400/50 active:scale-95"
+          title="Open Trade with Rivals"
+        >
+          <ArrowLeftRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <span>Trade</span>
+        </button>
+
+        {/* END TURN BUTTON */}
         <button
           onClick={handleEndTurn}
           disabled={!isEndTurn}
@@ -184,7 +208,11 @@ export const BottomActionDock: React.FC<{
         </button>
       </div>
 
+      {/* ============================================================== */}
+      {/* 3. BOTTOM RIGHT: AUTO-ROLL & JUICY 3D GOLDEN ROLL BUTTON       */}
+      {/* ============================================================== */}
       <div className="pointer-events-auto flex items-center gap-1.5 sm:gap-3">
+        {/* Auto-roll capsule & Speed 1x / 2x selector */}
         <div className="flex flex-col items-end gap-1 p-1 sm:p-2 rounded-xl sm:rounded-2xl bg-purple-950/80 backdrop-blur-md border border-purple-400/35 shadow-lg">
           <div className="flex items-center gap-1 sm:gap-2">
             <span className="text-[8px] sm:text-[10px] font-bold text-purple-200">Auto-roll</span>
@@ -222,6 +250,9 @@ export const BottomActionDock: React.FC<{
           </div>
         </div>
 
+        {/* ============================================================ */}
+        {/* THE JUICY 3D GOLDEN ROLL BUTTON                              */}
+        {/* ============================================================ */}
         <button
           onClick={handleRoll}
           disabled={!isPreRoll}
@@ -231,13 +262,18 @@ export const BottomActionDock: React.FC<{
               : 'opacity-50 grayscale cursor-not-allowed'
           }`}
         >
+          {/* Outer Glowing Pulsing Golden Rings */}
           {isPreRoll && (
             <div className="absolute inset-0 rounded-full border-4 border-amber-300/40 animate-ping pointer-events-none" />
           )}
 
+          {/* Golden 3D Beveled Disc Rim */}
           <div className="absolute inset-0 rounded-full bg-gradient-to-b from-yellow-300 via-amber-500 to-amber-700 p-1 sm:p-1.5 shadow-[inset_0_3px_rgba(255,255,255,0.7),inset_0_-4px_rgba(180,83,9,0.8)]">
+            {/* Inner Vibrant Orange-Gold Core */}
             <div className="w-full h-full rounded-full bg-gradient-to-b from-amber-400 via-amber-500 to-orange-600 flex flex-col items-center justify-center shadow-[inset_0_4px_12px_rgba(255,255,255,0.5),inset_0_-4px_8px_rgba(0,0,0,0.3)]">
+              {/* Pair of 3D Stylized White Dice */}
               <div className="flex items-center gap-0.5 sm:gap-1 mb-0.5 transform -rotate-6 group-hover:rotate-0 transition-transform">
+                {/* Die 1 */}
                 <div className="w-4 h-4 sm:w-7 sm:h-7 rounded-md sm:rounded-lg bg-white border border-slate-200 shadow-[0_2px_4px_rgba(0,0,0,0.3)] flex items-center justify-center">
                   <div className="grid grid-cols-2 gap-0.5 sm:gap-1 p-0.5 sm:p-1">
                     <div className="w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full bg-slate-900" />
@@ -246,6 +282,7 @@ export const BottomActionDock: React.FC<{
                     <div className="w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full bg-slate-900" />
                   </div>
                 </div>
+                {/* Die 2 */}
                 <div className="w-4 h-4 sm:w-7 sm:h-7 rounded-md sm:rounded-lg bg-white border border-slate-200 shadow-[0_2px_4px_rgba(0,0,0,0.3)] flex items-center justify-center transform rotate-12">
                   <div className="flex items-center justify-center">
                     <div className="w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-rose-600" />
@@ -253,6 +290,7 @@ export const BottomActionDock: React.FC<{
                 </div>
               </div>
 
+              {/* Bold Embossed ROLL Text */}
               <span className="text-sm sm:text-2xl font-black tracking-wider text-white drop-shadow-[0_2px_4px_rgba(180,83,9,0.9)]">
                 {isRolling ? 'ROLL...' : 'ROLL'}
               </span>
@@ -263,3 +301,5 @@ export const BottomActionDock: React.FC<{
     </footer>
   );
 };
+
+export default BottomActionDock;

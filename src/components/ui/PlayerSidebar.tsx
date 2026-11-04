@@ -14,17 +14,22 @@ export const PlayerSidebar: React.FC = () => {
 
   return (
     <aside className="fixed left-3 sm:left-4 top-16 sm:top-20 z-20 pointer-events-none select-none">
+      {/* ============================================================== */}
+      {/* MOBILE COMPACT BAR (< sm)                                      */}
+      {/* ============================================================== */}
       <div className="sm:hidden pointer-events-auto flex flex-col gap-1">
+        {/* Compact Toggle Chip */}
         <button
           onClick={() => { sounds.playClick(); setMobileExpanded(!mobileExpanded); }}
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-purple-950/85 backdrop-blur-md border border-purple-400/40 shadow-lg text-white"
         >
-          <CharacterAvatar character={activePlayer.name} size={24} hasCrown={false} />
+          <CharacterAvatar character={activePlayer.name} size={24} hasCrown={activePlayer.id === 0} />
           <span className="text-xs font-black truncate max-w-[70px]">{activePlayer.name}</span>
           <span className="text-xs font-black text-emerald-400">${activePlayer.money}</span>
           {mobileExpanded ? <ChevronUp size={14} className="text-purple-300" /> : <ChevronDown size={14} className="text-purple-300" />}
         </button>
 
+        {/* Mobile Dropdown when expanded */}
         {mobileExpanded && (
           <div className="w-56 p-2 rounded-2xl bg-purple-950/95 backdrop-blur-md border border-purple-400/40 shadow-2xl flex flex-col gap-1 animate-in fade-in zoom-in-95 duration-150">
             {players.map((player, idx) => {
@@ -36,7 +41,7 @@ export const PlayerSidebar: React.FC = () => {
                     isTurn ? 'bg-purple-800/80 border border-amber-400' : 'bg-purple-900/40'
                   }`}
                 >
-                  <CharacterAvatar character={player.name} size={30} hasCrown={false} />
+                  <CharacterAvatar character={player.name} size={30} hasCrown={player.id === 0} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-white truncate">{player.name}</span>
@@ -51,7 +56,11 @@ export const PlayerSidebar: React.FC = () => {
         )}
       </div>
 
+      {/* ============================================================== */}
+      {/* DESKTOP FULL CARD PANEL (>= sm)                                */}
+      {/* ============================================================== */}
       <div className="hidden sm:flex pointer-events-auto w-52 sm:w-56 p-2.5 rounded-3xl bg-purple-950/75 backdrop-blur-md border border-purple-400/35 shadow-[0_12px_36px_rgba(0,0,0,0.4),inset_0_1px_rgba(255,255,255,0.15)] flex-col gap-2">
+        {/* Header: Players 4/4 */}
         <div className="flex items-center justify-between px-2 pt-0.5 pb-1">
           <div className="flex items-center gap-1.5 text-purple-200">
             <Users size={16} className="text-purple-300" />
@@ -62,6 +71,7 @@ export const PlayerSidebar: React.FC = () => {
           </span>
         </div>
 
+        {/* Player Cards */}
         <div className="flex flex-col gap-1.5">
           {players.map((player, idx) => {
             const isTurn = idx === currentPlayerIndex;
@@ -78,11 +88,14 @@ export const PlayerSidebar: React.FC = () => {
                     : 'bg-purple-900/40 hover:bg-purple-900/60 border border-purple-500/20'
                 }`}
               >
+                {/* Avatar Portrait */}
                 <CharacterAvatar
                   character={player.name}
                   size={42}
-                  hasCrown={false}
+                  hasCrown={player.id === 0}
                 />
+
+                {/* Info: Name & Money */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1">
                     <span className="text-xs sm:text-sm font-black text-white truncate drop-shadow-sm">
@@ -92,6 +105,7 @@ export const PlayerSidebar: React.FC = () => {
                       <Crown size={14} className="text-amber-400 fill-amber-400 shrink-0" />
                     )}
                   </div>
+
                   <div className="flex items-center justify-between mt-0.5">
                     <span className="text-xs sm:text-sm font-black tracking-tight text-emerald-400 drop-shadow">
                       ${player.money.toLocaleString()}
