@@ -234,25 +234,45 @@ export const Board3D: React.FC = () => {
         <meshStandardMaterial color={CLIFF_GRASS} roughness={0.75} />
       </mesh>
 
-      {/* Hanging Foliage & Pink Flowers around the cliff rim */}
-      {[-12.2, -6, 0, 6, 12.2].map((fx, fidx) => (
-        <React.Fragment key={`foliage-${fidx}`}>
+      {/* Under-Board Magical Neon Cyan/White Rim Glow Strip */}
+      <mesh position={[0, -0.32, 0]}>
+        <boxGeometry args={[25.0, 0.06, 25.0]} />
+        <meshStandardMaterial
+          color="#38bdf8"
+          emissive="#38bdf8"
+          emissiveIntensity={1.4}
+          roughness={0.1}
+        />
+      </mesh>
+
+      {/* Hanging Lush Foliage & Pink Blossoms cascading off the cliff rim */}
+      {[-11.5, -8.5, -5.5, -2.5, 0.5, 3.5, 6.5, 9.5, 11.5].map((fx, fidx) => (
+        <React.Fragment key={`foliage-ns-${fidx}`}>
           {/* North and South hanging vines */}
-          <mesh position={[fx, -0.85, 12.7]} castShadow>
-            <sphereGeometry args={[0.35 + (fidx % 2) * 0.12, 10, 10]} />
-            <meshStandardMaterial color="#4da843" roughness={0.7} />
+          <mesh position={[fx, -0.85 - (fidx % 3) * 0.12, 12.7]} castShadow>
+            <sphereGeometry args={[0.32 + (fidx % 2) * 0.14, 10, 10]} />
+            <meshStandardMaterial color={fidx % 2 === 0 ? '#4da843' : '#388e3c'} roughness={0.7} />
           </mesh>
-          <mesh position={[fx + 0.15, -0.95, 12.8]}>
-            <sphereGeometry args={[0.16, 8, 8]} />
+          <mesh position={[fx + 0.12, -0.98 - (fidx % 3) * 0.12, 12.8]}>
+            <sphereGeometry args={[0.15, 8, 8]} />
             <meshStandardMaterial color="#ff9bb2" roughness={0.5} />
           </mesh>
-          <mesh position={[fx, -0.85, -12.7]} castShadow>
-            <sphereGeometry args={[0.35 + (fidx % 2) * 0.12, 10, 10]} />
-            <meshStandardMaterial color="#4da843" roughness={0.7} />
+          <mesh position={[fx, -0.85 - ((fidx + 1) % 3) * 0.12, -12.7]} castShadow>
+            <sphereGeometry args={[0.32 + (fidx % 2) * 0.14, 10, 10]} />
+            <meshStandardMaterial color={fidx % 2 === 0 ? '#4da843' : '#388e3c'} roughness={0.7} />
           </mesh>
-          <mesh position={[fx - 0.15, -0.95, -12.8]}>
-            <sphereGeometry args={[0.16, 8, 8]} />
+          <mesh position={[fx - 0.12, -0.98 - ((fidx + 1) % 3) * 0.12, -12.8]}>
+            <sphereGeometry args={[0.15, 8, 8]} />
             <meshStandardMaterial color="#ff9bb2" roughness={0.5} />
+          </mesh>
+          {/* East and West hanging vines */}
+          <mesh position={[12.7, -0.85 - (fidx % 3) * 0.12, fx]} castShadow>
+            <sphereGeometry args={[0.32 + (fidx % 2) * 0.14, 10, 10]} />
+            <meshStandardMaterial color={fidx % 2 === 0 ? '#4da843' : '#388e3c'} roughness={0.7} />
+          </mesh>
+          <mesh position={[-12.7, -0.85 - ((fidx + 2) % 3) * 0.12, fx]} castShadow>
+            <sphereGeometry args={[0.32 + (fidx % 2) * 0.14, 10, 10]} />
+            <meshStandardMaterial color={fidx % 2 === 0 ? '#4da843' : '#388e3c'} roughness={0.7} />
           </mesh>
         </React.Fragment>
       ))}
@@ -285,18 +305,55 @@ export const Board3D: React.FC = () => {
         <meshStandardMaterial color="#faecd9" roughness={0.6} />
       </mesh>
 
-      {/* Golden Street Lanterns mounted on the Golden Rim */}
+      {/* ============================================================== */}
+      {/* 2B. PERIMETER FAIRY LIGHTS ON GOLDEN RAIL                      */}
+      {/* (Evenly spaced glowing golden bulbs around the board rail)     */}
+      {/* ============================================================== */}
+      {useMemo(() => {
+        const lights: Array<[number, number, number]> = [];
+        const count = 7;
+        const span = 23.6;
+        const step = span / (count - 1);
+        for (let i = 0; i < count; i++) {
+          const coord = -span / 2 + i * step;
+          // North edge
+          lights.push([coord, 0.23, -12.18]);
+          // South edge
+          lights.push([coord, 0.23, 12.18]);
+          // West edge (skip corners already added)
+          if (i > 0 && i < count - 1) lights.push([-12.18, 0.23, coord]);
+          // East edge (skip corners already added)
+          if (i > 0 && i < count - 1) lights.push([12.18, 0.23, coord]);
+        }
+        return lights;
+      }, []).map((lPos, lIdx) => (
+        <group key={`fairy-light-${lIdx}`} position={lPos}>
+          {/* Miniature Golden Brass Socket Post */}
+          <mesh position={[0, 0.04, 0]} castShadow>
+            <cylinderGeometry args={[0.07, 0.09, 0.1, 10]} />
+            <meshPhysicalMaterial color={GOLD_ACCENT} metalness={0.95} roughness={0.15} />
+          </mesh>
+          {/* Glowing Warm Amber/Golden Bulb */}
+          <mesh position={[0, 0.14, 0]}>
+            <sphereGeometry args={[0.08, 12, 10]} />
+            <meshStandardMaterial
+              color="#fffbeb"
+              emissive="#f59e0b"
+              emissiveIntensity={2.4}
+              roughness={0.1}
+            />
+          </mesh>
+        </group>
+      ))}
+
+      {/* Golden Corner Street Lanterns */}
       {[
-        [-12.1, 0.28, 12.1],
-        [12.1, 0.28, 12.1],
-        [-12.1, 0.28, -12.1],
-        [12.1, 0.28, -12.1],
-        [-12.2, 0.28, 0],
-        [12.2, 0.28, 0],
-        [0, 0.28, -12.2],
-        [0, 0.28, 12.2],
+        [-12.05, 0.28, 12.05],
+        [12.05, 0.28, 12.05],
+        [-12.05, 0.28, -12.05],
+        [12.05, 0.28, -12.05],
       ].map((lPos, lIdx) => (
-        <group key={`rim-lantern-${lIdx}`} position={lPos as any}>
+        <group key={`corner-lantern-${lIdx}`} position={lPos as any}>
           {/* Golden Lamp Post */}
           <mesh position={[0, 0.65, 0]} castShadow>
             <cylinderGeometry args={[0.045, 0.08, 1.3, 12]} />
@@ -310,7 +367,7 @@ export const Board3D: React.FC = () => {
           {/* Glowing Warm Core */}
           <mesh position={[0, 1.25, 0]}>
             <sphereGeometry args={[0.09, 8, 8]} />
-            <meshStandardMaterial color="#fef08a" emissive="#f59e0b" emissiveIntensity={1.6} />
+            <meshStandardMaterial color="#fef08a" emissive="#f59e0b" emissiveIntensity={1.8} />
           </mesh>
         </group>
       ))}
