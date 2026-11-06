@@ -12,6 +12,7 @@ import { FantasySkyBackground } from './FantasySkyBackground';
 import { useGameStore } from '../../store/useGameStore';
 import { getSpaceTransform } from '../../data/boardData';
 
+// Responsive Camera Controller to ensure the board is fully framed on both desktop and mobile
 const ResponsiveCamera: React.FC = () => {
   const { size, camera } = useThree();
 
@@ -20,12 +21,15 @@ const ResponsiveCamera: React.FC = () => {
     const persCamera = camera as THREE.PerspectiveCamera;
 
     if (aspect < 0.7) {
+      // Ultra-narrow mobile portrait (e.g. 390x844)
       persCamera.fov = 58;
       persCamera.position.set(0, 22.5, 30.5);
     } else if (aspect < 1.0) {
+      // Standard mobile portrait / tablet
       persCamera.fov = 50;
       persCamera.position.set(0, 19.5, 27.5);
     } else {
+      // Desktop / Landscape (e.g. 1920x1080)
       persCamera.fov = 40;
       persCamera.position.set(0, 16.5, 25.5);
     }
@@ -113,22 +117,25 @@ export const Scene3D: React.FC<{ quality?: GraphicsQuality }> = ({ quality = 'ba
       <fog attach="fog" args={['#58427e', 65, 220]} />
       <FantasySkyBackground quality={quality} />
 
-      <ambientLight intensity={0.95} />
-      <hemisphereLight args={['#fff4fb', '#5ca843', 0.95]} />
+      <ambientLight intensity={0.45} color="#fff8ee" />
+      <hemisphereLight args={['#ede9fe', '#bbf7d0', 0.45]} />
       <directionalLight
-        position={[-12, 26, 16]}
-        intensity={2.3}
-        color="#fff4e0"
+        position={[-14, 24, 18]}
+        intensity={1.85}
+        color="#fffaf0"
         castShadow
         shadow-mapSize-width={quality === 'high' ? 2048 : 1024}
         shadow-mapSize-height={quality === 'high' ? 2048 : 1024}
-        shadow-bias={-0.0003}
+        shadow-bias={-0.0002}
       >
-        <orthographicCamera attach="shadow-camera" args={[-16, 16, 16, -16, 0.5, 75]} />
+        <orthographicCamera attach="shadow-camera" args={[-14, 14, 14, -14, 0.5, 75]} />
       </directionalLight>
 
-      <directionalLight position={[8, 12, -25]} intensity={1.1} color="#fed194" />
-      <directionalLight position={[0, 6, 22]} intensity={0.5} color="#dbeafe" />
+      {/* Warm Golden Sunset Rim Light from the rear horizon */}
+      <directionalLight position={[10, 14, -22]} intensity={1.15} color="#fed194" />
+
+      {/* Gentle Fill Light for front facades */}
+      <directionalLight position={[0, 8, 20]} intensity={0.38} color="#dbeafe" />
 
       <CameraRig />
       <Board3D />
