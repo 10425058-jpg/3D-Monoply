@@ -17,6 +17,7 @@ import {
   RoyalStandingBanner,
   ClassicParkBench,
   StoneFlowerPlanter,
+  WoodenBarrel,
   GoldStoneBollard,
 } from './castle/CastleProps';
 
@@ -35,7 +36,7 @@ export const CenterCity3D: React.FC = () => {
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
     if (crystalRef.current) {
-      crystalRef.current.position.y = 7.8 + Math.sin(t * 1.8) * 0.15;
+      crystalRef.current.position.y = 8.1 + Math.sin(t * 1.8) * 0.15;
       crystalRef.current.rotation.y = t * 0.9;
     }
   });
@@ -154,14 +155,14 @@ export const CenterCity3D: React.FC = () => {
       </group>
 
       {/* ============================================================== */}
-      {/* 2. THE GRAND CENTRAL FANTASY CASTLE (Milestone 1 Main Target)  */}
+      {/* 2. THE GRAND CENTRAL FANTASY CASTLE (Milestone 1.2 Refined)    */}
       {/* ============================================================== */}
       <CentralCastle level={landmarkLevel} />
 
       {/* Floating Magic Crystal above the High Spire */}
-      <group ref={crystalRef} position={[0, 7.8, -2.2]}>
+      <group ref={crystalRef} position={[0, 8.1, -2.2]}>
         <mesh>
-          <octahedronGeometry args={[0.32, 0]} />
+          <octahedronGeometry args={[0.34, 0]} />
           <meshPhysicalMaterial
             color="#6feaff"
             emissive="#38d4f0"
@@ -186,21 +187,21 @@ export const CenterCity3D: React.FC = () => {
       <RightTownhouseBoutique position={[4.5, 0.34, 0.2]} rotation={[0, -0.15, 0]} />
 
       {/* ============================================================== */}
-      {/* 5. GARDENS, SAKURA TREES & VEGETATION                          */}
+      {/* 5. GARDENS, SCULPTED SAKURA & CYPRESS TREES                    */}
       {/* ============================================================== */}
       {/* Stylized Sakura (Cherry Blossom) Trees */}
-      <StylizedSakuraTree position={[-4.8, 0.36, -2.6]} scale={1.2} rotationY={0.3} />
-      <StylizedSakuraTree position={[4.8, 0.36, -2.6]} scale={1.2} rotationY={-0.3} />
-      <StylizedSakuraTree position={[-2.8, 0.36, -1.8]} scale={1.05} rotationY={0.6} />
-      <StylizedSakuraTree position={[2.8, 0.36, -1.8]} scale={1.05} rotationY={-0.5} />
-      <StylizedSakuraTree position={[-3.2, 0.32, 2.0]} scale={0.95} rotationY={1.2} />
-      <StylizedSakuraTree position={[3.2, 0.32, 2.0]} scale={0.95} rotationY={-1.0} />
-      <StylizedSakuraTree position={[-5.4, 0.32, 5.8]} scale={1.05} rotationY={0.2} />
-      <StylizedSakuraTree position={[5.4, 0.32, 5.8]} scale={1.05} rotationY={-0.4} />
+      <StylizedSakuraTree position={[-4.8, 0.36, -2.6]} scale={1.22} rotationY={0.3} />
+      <StylizedSakuraTree position={[4.8, 0.36, -2.6]} scale={1.22} rotationY={-0.3} />
+      <StylizedSakuraTree position={[-2.8, 0.36, -1.8]} scale={1.08} rotationY={0.6} />
+      <StylizedSakuraTree position={[2.8, 0.36, -1.8]} scale={1.08} rotationY={-0.5} />
+      <StylizedSakuraTree position={[-3.2, 0.32, 2.0]} scale={0.98} rotationY={1.2} />
+      <StylizedSakuraTree position={[3.2, 0.32, 2.0]} scale={0.98} rotationY={-1.0} />
+      <StylizedSakuraTree position={[-5.4, 0.32, 5.8]} scale={1.08} rotationY={0.2} />
+      <StylizedSakuraTree position={[5.4, 0.32, 5.8]} scale={1.08} rotationY={-0.4} />
 
-      {/* Stylized Cypress / Pine Trees */}
-      <StylizedCypressTree position={[-2.4, 0.36, -0.6]} scale={0.95} />
-      <StylizedCypressTree position={[2.4, 0.36, -0.6]} scale={0.95} />
+      {/* Stylized Cypress / Pine Trees with Drooping Tips */}
+      <StylizedCypressTree position={[-2.4, 0.36, -0.6]} scale={0.96} />
+      <StylizedCypressTree position={[2.4, 0.36, -0.6]} scale={0.96} />
       <StylizedCypressTree position={[-1.8, 0.32, 2.6]} scale={0.88} />
       <StylizedCypressTree position={[1.8, 0.32, 2.6]} scale={0.88} />
       <StylizedCypressTree position={[-1.8, 0.32, 5.8]} scale={0.88} />
@@ -232,7 +233,7 @@ export const CenterCity3D: React.FC = () => {
       ))}
 
       {/* ============================================================== */}
-      {/* 6. MODULAR DECORATIVE PROPS & LIGHTING                         */}
+      {/* 6. MODULAR DECORATIVE PROPS, BARRELS & LIGHTING                */}
       {/* ============================================================== */}
       {/* Victorian Street Lampposts */}
       <VictorianStreetLamp position={[-2.2, 0.36, -0.2]} scale={0.95} />
@@ -261,6 +262,11 @@ export const CenterCity3D: React.FC = () => {
       <StoneFlowerPlanter position={[2.6, 0.32, 2.8]} scale={0.9} />
       <StoneFlowerPlanter position={[-3.6, 0.32, 6.6]} scale={0.9} />
       <StoneFlowerPlanter position={[3.6, 0.32, 6.6]} scale={0.9} />
+
+      {/* Rustic Wooden Barrels (Café Patio & Boutique Entrance) */}
+      <WoodenBarrel position={[-3.1, 0.32, 1.6]} rotationY={0.4} scale={0.9} />
+      <WoodenBarrel position={[-3.3, 0.32, 1.8]} rotationY={-0.3} scale={0.8} />
+      <WoodenBarrel position={[3.1, 0.32, 1.6]} rotationY={-0.5} scale={0.9} />
 
       {/* Gold-Tipped Stone Bollards along South Promenade boundary */}
       {[-4.6, -3.2, -1.8, 1.8, 3.2, 4.6].map((bx, bi) => (

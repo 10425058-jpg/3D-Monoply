@@ -1,28 +1,41 @@
 // Color palettes & material definitions for the 3D Fantasy Central Castle
-// Inspired by the 10-panel reference art (Panel 06 & Panel 08)
+// Refined for Milestone 1.2 Asset Refinement (Panel 06 & Panel 08)
 
 export const CASTLE_COLORS = {
   // Stone Architecture (Rich Warm French Ivory Limestone)
   stoneWall: '#f8edd9',        // Rich buttery ivory stone
   stoneTrim: '#ecd3b4',        // Warm beveled stone trims & voussoirs
   stoneDark: '#ceb48f',        // Plinths, basements & cornices
+  stoneQuoin: '#f0dfc8',       // Corner rusticated ashlar stones
   stonePavement: '#f5e8d3',    // Plaza pavers
   stonePaverDark: '#decaa8',   // Paver border rings & star compass inlays
+  stonePaverAccent: '#bfa382', // Darker contrasting border pavers
   compassStarGold: '#f59e0b',  // Inlaid star compass gold accent
+  carpetRoyalBlue: '#1e3a8a',  // Ceremonial staircase carpet runner
+  carpetTrimGold: '#fbbf24',   // Staircase carpet gold border trim
 
   // Roofs (Vibrant Toy Miniature Saturation)
   roofRoyalBlue: '#1d4ed8',    // Dominant spires & high roofs (royal blue)
   roofRoyalDark: '#1e40af',    // Tower eaves & flared conical rims
+  roofRoyalTileLight: '#2563eb', // Stepped tile highlight rings
+  roofRoyalTileDark: '#1e3a8a',  // Shadow tile underside rings
   roofRoyalAccent: '#172554',  // Deep shading
   roofTerracotta: '#ea580c',   // Supporting buildings warm terracotta orange/red
   roofTerracottaDark: '#c2410c',
+  roofTerracottaTile: '#f97316', // Shingle edge highlight
   roofTealDome: '#0d9488',     // Garden pavilion dome
 
   // Gold & Metals (Polished Brass & Gilt)
   goldPolished: '#f59e0b',     // Crown medallion, finials, weather vane
   goldHighlight: '#fbbf24',    // Medallion raised relief & trim
+  goldFiligree: '#d97706',     // Deep relief gold filigree shadow
   bronzeLamp: '#1e293b',       // Lamppost cast iron/bronze
   ironHardware: '#334155',     // Door hinges & studs
+
+  // Gems & Jewels
+  gemRuby: '#ef4444',
+  gemSapphire: '#3b82f6',
+  gemEmerald: '#10b981',
 
   // Wood
   woodDoor: '#78350f',         // Castle heavy oak double doors
