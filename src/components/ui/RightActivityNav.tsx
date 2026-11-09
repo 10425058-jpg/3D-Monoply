@@ -1,112 +1,25 @@
 import React from 'react';
-import { Calendar, Disc3, Layers, ClipboardCheck } from 'lucide-react';
+import { Gift, Disc3, Layers, ClipboardCheck } from 'lucide-react';
 import { useGameStore } from '../../store/useGameStore';
+import { DAILY_MISSIONS } from '../../data/metaGameData';
 import { sounds } from '../../utils/audio';
 
 export const RightActivityNav: React.FC<{
-  onOpenDaily: () => void;
-  onOpenSpin: () => void;
-  onOpenAlbum: () => void;
-  onOpenMissions: () => void;
-}> = ({
-  onOpenDaily,
-  onOpenSpin,
-  onOpenAlbum,
-  onOpenMissions,
-}) => {
-  const metaProgress = useGameStore((s) => s.metaProgress);
-
-  // Check if daily reward is available today
-  const hasDailyAvailable = React.useMemo(() => {
-    if (!metaProgress || !metaProgress.lastDailyClaimDate) return true;
-    const today = new Date().toISOString().split('T')[0];
-    return metaProgress.lastDailyClaimDate !== today;
-  }, [metaProgress]);
-
-  // Check if missions have claimable rewards
-  const hasMissionsAvailable = React.useMemo(() => {
-    if (!metaProgress) return true;
-    const progress = metaProgress.missionProgress || { rolls: 0, purchases: 0, railroadEvents: 0 };
-    return progress.rolls >= 1 || progress.purchases >= 1;
-  }, [metaProgress]);
-
-  const navItems = [
-    {
-      id: 'daily',
-      label: 'Daily',
-      icon: <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-white" />,
-      bg: 'from-red-500 via-rose-500 to-pink-600',
-      border: 'border-red-300/40',
-      shadow: 'shadow-[0_4px_16px_rgba(239,68,68,0.4)]',
-      hasBadge: hasDailyAvailable,
-      onClick: onOpenDaily,
-    },
-    {
-      id: 'spin',
-      label: 'Spin',
-      icon: <Disc3 className="w-4 h-4 sm:w-5 sm:h-5 text-amber-950" />,
-      bg: 'from-amber-300 via-amber-400 to-yellow-500',
-      border: 'border-amber-200',
-      shadow: 'shadow-[0_4px_16px_rgba(245,158,11,0.4)]',
-      hasBadge: false,
-      onClick: onOpenSpin,
-    },
-    {
-      id: 'album',
-      label: 'Album',
-      icon: <Layers className="w-4 h-4 sm:w-5 sm:h-5 text-white" />,
-      bg: 'from-indigo-500 via-purple-500 to-purple-600',
-      border: 'border-indigo-300/40',
-      shadow: 'shadow-[0_4px_16px_rgba(99,102,241,0.4)]',
-      hasBadge: false,
-      onClick: onOpenAlbum,
-    },
-    {
-      id: 'missions',
-      label: 'Missions',
-      icon: <ClipboardCheck className="w-4 h-4 sm:w-5 sm:h-5 text-white" />,
-      bg: 'from-emerald-500 via-green-500 to-emerald-600',
-      border: 'border-emerald-300/40',
-      shadow: 'shadow-[0_4px_16px_rgba(16,185,129,0.4)]',
-      hasBadge: hasMissionsAvailable,
-      onClick: onOpenMissions,
-    },
+  onOpenDaily: () => void; onOpenSpin: () => void; onOpenAlbum: () => void; onOpenMissions: () => void;
+}> = ({ onOpenDaily, onOpenSpin, onOpenAlbum, onOpenMissions }) => {
+  const progress = useGameStore(s => s.metaProgress);
+  const date = new Date();
+  const today = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  const missionsReady = progress.missionDate === today && DAILY_MISSIONS.some(m =>
+    !progress.missionClaimed.includes(m.id) && progress.missionProgress[m.stat] >= m.target);
+  const items = [
+    { name: 'Daily', Icon: Gift, action: onOpenDaily, badge: progress.lastDailyClaimDate !== today },
+    { name: 'Spin', Icon: Disc3, action: onOpenSpin, badge: false },
+    { name: 'Album', Icon: Layers, action: onOpenAlbum, badge: false },
+    { name: 'Missions', Icon: ClipboardCheck, action: onOpenMissions, badge: missionsReady },
   ];
-
-  return (
-    <nav className="fixed right-2.5 sm:right-4 top-24 sm:top-24 z-20 flex flex-col gap-2 sm:gap-3 select-none pointer-events-auto">
-      {navItems.map((item) => (
-        <button
-          key={item.id}
-          onClick={() => {
-            sounds.playClick();
-            item.onClick();
-          }}
-          className="relative flex flex-col items-center justify-center w-11 h-13 sm:w-16 sm:h-18 p-1 rounded-2xl bg-purple-950/75 backdrop-blur-md border border-purple-400/30 hover:border-purple-300/60 shadow-[0_6px_20px_rgba(0,0,0,0.35)] transition-all duration-200 hover:scale-105 active:scale-95 group"
-        >
-          {/* Notification Pip */}
-          {item.hasBadge && (
-            <span className="absolute -top-1 -right-1 flex h-3 w-3 sm:h-3.5 sm:w-3.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 sm:h-3.5 sm:w-3.5 bg-rose-500 border-2 border-white"></span>
-            </span>
-          )}
-
-          {/* Icon Box */}
-          <div
-            className={`w-7 h-7 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-b ${item.bg} border ${item.border} ${item.shadow} flex items-center justify-center transition-transform group-hover:rotate-6`}
-          >
-            {item.icon}
-          </div>
-
-          {/* Label */}
-          <span className="mt-0.5 text-[8px] sm:text-[11px] font-black text-purple-200 group-hover:text-white tracking-wide">
-            {item.label}
-          </span>
-        </button>
-      ))}
-    </nav>
-  );
+  return <nav className="fantasy-shortcuts" aria-label="City activities">{items.map(({ name, Icon, action, badge }) =>
+    <button className="royal-shortcut" key={name} aria-label={name} aria-describedby={badge ? `reward-${name}` : undefined} onClick={() => { sounds.playClick(); action(); }}>
+      <Icon aria-hidden="true" /><span>{name}</span>{badge && <><i className="reward-dot" aria-hidden="true" /><span className="sr-only" id={`reward-${name}`}>Reward available</span></>}
+    </button>)}</nav>;
 };
-
-export default RightActivityNav;

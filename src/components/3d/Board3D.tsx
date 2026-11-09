@@ -10,7 +10,7 @@ const GOLD_FRAME = '#e8b84d';
 const GOLD_ACCENT = '#ffd978';
 const CLIFF_STONE = '#5c4e78';
 const CLIFF_GRASS = '#78b84d';
-const TILE_IVORY = '#ffffff';
+const TILE_IVORY = '#f6efdf';
 const TILE_BORDER = '#eedfc8';
 
 // Space Icons & Special Renderers
@@ -148,7 +148,7 @@ export const Board3D: React.FC = () => {
   }), []);
 
   const topMaterial = useMemo(() => new THREE.MeshPhysicalMaterial({
-    color: TILE_IVORY, roughness: 0.22, metalness: 0.05, clearcoat: 0.8, clearcoatRoughness: 0.15,
+    color: TILE_IVORY, roughness: 0.62, metalness: 0.02, clearcoat: 0.15, clearcoatRoughness: 0.55,
   }), []);
 
   const cornerBase = useRef<THREE.InstancedMesh>(null);
@@ -240,7 +240,7 @@ export const Board3D: React.FC = () => {
         <meshStandardMaterial
           color="#38bdf8"
           emissive="#38bdf8"
-          emissiveIntensity={1.4}
+          emissiveIntensity={0.35}
           roughness={0.1}
         />
       </mesh>

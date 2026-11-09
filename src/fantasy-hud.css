@@ -1,0 +1,237 @@
+/* Fantasy Miniature City HUD. Scoped classes leave the existing dialogs intact. */
+:root {
+  --royal-purple: #321451;
+  --royal-deep: #1b1035;
+  --royal-gold: #d8a84d;
+  --royal-bright: #ffd76a;
+  --royal-parchment: #fff0d0;
+  --royal-emerald: #45e3a1;
+  --royal-pink: #f3a5d8;
+  --hud-left: clamp(220px, 15vw, 280px);
+  --hud-deed: clamp(292px, 22vw, 360px);
+}
+.fantasy-header, .fantasy-players, .fantasy-shortcuts, .fantasy-dock, .fantasy-deed {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: var(--royal-parchment);
+  position: fixed;
+  box-sizing: border-box;
+}
+.fantasy-header button, .fantasy-players button, .fantasy-shortcuts button,
+.fantasy-dock button, .fantasy-deed button { -webkit-tap-highlight-color: transparent; }
+.fantasy-header button:focus-visible, .fantasy-players button:focus-visible,
+.fantasy-shortcuts button:focus-visible, .fantasy-dock button:focus-visible, .fantasy-deed button:focus-visible {
+  outline: 3px solid var(--royal-bright); outline-offset: 4px;
+}
+.royal-panel { background: linear-gradient(145deg, #43205aee, #211333f5); border: 1px solid #c89d5c; box-shadow: inset 0 0 0 3px #321b46, 0 8px 24px #11082255; }
+.fantasy-header { inset: 16px 20px auto; z-index: 30; display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; pointer-events: none; }
+.kingdom-brand { width: var(--hud-left); min-height: 76px; border: 1px solid var(--royal-gold); border-radius: 26px 10px; background: linear-gradient(135deg, #4c225f, #211132); box-shadow: inset 0 0 0 3px #4f3555, 0 5px 16px #160b2544; position: relative; text-align: center; padding: 13px 8px 8px; }
+.kingdom-brand > svg { width: 26px; height: 24px; position: absolute; top: -14px; left: calc(50% - 13px); color: var(--royal-bright); fill: #8d5d29; }
+.kingdom-brand strong { font: 700 clamp(18px, 1.6vw, 28px)/1.1 'Cinzel', Georgia, serif; color: var(--royal-bright); white-space: nowrap; letter-spacing: -.7px; }
+.kingdom-brand span { display: block; width: fit-content; margin: 6px auto 0; padding: 3px 12px; background: #ebc474; color: #39213b; border-radius: 3px 3px 9px 9px; font-size: 9px; font-weight: 800; letter-spacing: 1px; }
+.resource-bar { display: flex; gap: 9px; align-items: center; pointer-events: auto; padding: 5px; border: 1px solid #c99f5a; border-radius: 16px; background: #241333ed; box-shadow: inset 0 0 0 3px #513052; }
+.resource-pill { display: flex; align-items: center; gap: 10px; min-height: 42px; padding: 5px 16px; border: 1px solid #785076; border-radius: 30px; background: #39174e; color: #fff7df; font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.resource-pill > svg { color: var(--royal-emerald); width: 27px; height: 27px; }
+.resource-pill.stars > svg { color: #73d9f5; }
+.resource-pill small { font-size: 10px; color: #decde5; font-weight: 500; }
+.resource-value { animation: royal-value .25s ease-out; }
+.royal-icon { display: grid; place-items: center; width: 42px; height: 42px; padding: 9px; border: 1px solid #bf9858; border-radius: 12px; background: #3a1d50; color: #f7d790; transition: background .15s, transform .15s; }
+.royal-icon svg { width: 21px; height: 21px; }
+.royal-icon:hover { background: #603368; }
+.fantasy-players { left: 20px; top: 114px; width: var(--hud-left); z-index: 20; padding: 12px; border-radius: 22px 8px; }
+.panel-heading { display: flex; align-items: center; gap: 8px; padding: 1px 4px 12px; color: #f8dfa6; }
+.panel-heading h2 { flex: 1; font: 600 17px 'Cinzel', Georgia, serif; margin: 0; }
+.panel-heading > span { color: #e4cce9; font-size: 12px; }
+.kingdom-player-list { display: grid; gap: 10px; }
+.kingdom-player { display: flex; align-items: center; gap: 10px; position: relative; min-width: 0; padding: 12px 9px; border: 1px solid #8d5f8b; border-radius: 17px 7px; background: linear-gradient(115deg, #51265f, #321b48); transition: border-color .2s, box-shadow .2s, background .2s; }
+.kingdom-player.is-active { border-color: var(--royal-bright); box-shadow: inset 0 0 0 1px #ffd76a66, 0 0 14px #efbc4a33; background: linear-gradient(115deg, #723564, #472154); }
+.kingdom-player.is-bankrupt { opacity: .6; filter: grayscale(.7); }
+.player-portrait { flex: 0 0 48px; border-radius: 50%; box-shadow: 0 0 0 2px var(--player-color); }
+.player-portrait svg { display: block; }
+.player-details { min-width: 0; flex: 1; }
+.player-name { display: flex; gap: 6px; align-items: center; font-weight: 700; font-size: 15px; overflow-wrap: anywhere; }
+.player-name svg { color: var(--royal-bright); flex-shrink: 0; }
+.player-money { display: block; color: var(--royal-emerald); font-size: 17px; line-height: 1.5; font-variant-numeric: tabular-nums; animation: royal-value .25s ease-out; }
+.player-status { display: block; color: #dfc9e6; font-size: 10px; }
+.turn-badge { position: absolute; right: 9px; top: -7px; border-radius: 20px; background: #f0c96f; color: #3a1c40; font-size: 9px; font-weight: 800; padding: 1px 7px; }
+.panel-seal { display: flex; gap: 8px; align-items: center; justify-content: center; color: #dcb676; margin-top: 12px; }
+.panel-seal span { width: 40px; height: 1px; background: #98704e; }
+.players-collapse { display: none; }
+.fantasy-shortcuts { right: 20px; top: 114px; display: grid; gap: 12px; z-index: 20; }
+.royal-shortcut { position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 7px; width: 72px; min-height: 78px; border: 1px solid #d4a45b; border-radius: 20px 8px; background: linear-gradient(145deg, #502560, #211335); box-shadow: inset 0 0 0 3px #62405b, 0 4px 12px #150c2844; transition: transform .15s, background .15s; color: #f9dea3; }
+.royal-shortcut > svg { width: 29px; height: 29px; stroke-width: 1.65; }
+.royal-shortcut > span { font-size: 12px; font-weight: 700; }
+.royal-shortcut:hover { transform: translateY(-2px); background: #59305f; }
+.reward-dot { width: 11px; height: 11px; position: absolute; right: -3px; top: -3px; border: 2px solid #fff0d0; background: #e85a83; border-radius: 50%; }
+.fantasy-dock { z-index: 25; left: 20px; right: 20px; bottom: 16px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: end; gap: 22px; pointer-events: none; }
+.fantasy-dock > * { pointer-events: auto; }
+.dock-utilities { display: flex; gap: 8px; padding-bottom: 6px; }
+.royal-utility { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; color: #ffe4ab; width: 52px; min-height: 60px; border: 1px solid var(--royal-gold); border-radius: 24px 24px 16px 16px; background: #321b4a; font-size: 11px; font-weight: 700; }
+.royal-utility svg { width: 21px; height: 21px; }
+.action-tray { position: relative; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 7px; padding: 12px; border: 2px solid var(--royal-gold); border-radius: 24px 10px; background: linear-gradient(135deg, #fff0d0, #e2bd7c); box-shadow: inset 0 0 0 3px #fff6dd, 0 6px 22px #12072566; }
+.dock-crest { position: absolute; left: calc(50% - 20px); top: -18px; display: grid; place-items: center; width: 40px; height: 29px; background: #3e2050; color: #ffd76a; border: 1px solid #d8a84d; border-radius: 4px 4px 14px 14px; }
+.royal-action { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 8px 10px; border: 1px solid #a77450; border-radius: 12px; color: #fff1d0; background: linear-gradient(150deg, #543057, #321c45); font-weight: 700; font-size: 12px; box-shadow: inset 0 1px #fff3; transition: transform .15s, background .15s, box-shadow .15s; }
+.royal-action:not(:disabled):hover { background: #654061; box-shadow: inset 0 1px #fff3, 0 2px 8px #32145144; transform: translateY(-2px); }
+.royal-action:not(:disabled):active, .royal-icon:active, .royal-shortcut:active { transform: scale(.97); }
+.royal-action:disabled { color: #d0c5d2; background: #463c4e; border-color: #8a7889; box-shadow: none; cursor: not-allowed; }
+.royal-action.is-primary { color: #fff5d6; background: linear-gradient(140deg, #26755c, #17513f); border-color: #cba459; }
+.dock-action { flex-direction: column; min-height: 67px; padding: 6px 4px; white-space: nowrap; font-size: clamp(10px, .9vw, 14px); }
+.dock-action svg { width: 25px; height: 25px; color: #edc679; stroke-width: 1.7; }
+.dock-action:disabled svg { color: #b3a6b4; }
+.dice-controls { display: flex; align-items: end; gap: 13px; }
+.roll-options { padding: 12px; border-radius: 18px 7px; margin-bottom: 6px; min-width: 120px; }
+.auto-roll-label { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12px; font-weight: 700; }
+.auto-roll-label button { width: 37px; height: 23px; border: 1px solid #ac7c9a; border-radius: 20px; background: #432549; padding: 3px; }
+.auto-roll-label button i { display: block; background: #fff0d0; width: 15px; height: 15px; border-radius: 50%; transition: transform .15s; }
+.auto-roll-label button[aria-checked=true] { background: #306d56; }
+.auto-roll-label button[aria-checked=true] i { transform: translateX(13px); }
+.speed-options { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 8px; }
+.speed-options button { color: #e6c9e4; background: #281537; min-height: 32px; border: 1px solid #78516c; border-radius: 10px; font-size: 13px; font-weight: 800; }
+.speed-options button[aria-pressed=true] { background: #efc571; color: #382039; border-color: #ffe2a0; }
+.fantasy-roll { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; width: 132px; height: 132px; border: 5px solid #e4b557; border-radius: 50%; color: #fff0d0; background: radial-gradient(circle at 40% 30%, #854586, #431d61 65%, #241235); box-shadow: inset 0 0 0 2px #ffe9a0, inset 0 0 0 8px #9b6a45, 0 5px 18px #15092188; transition: transform .15s, filter .2s; }
+.fantasy-roll::after { content: '✦'; position: absolute; bottom: -16px; left: calc(50% - 9px); color: #ffdf81; font-size: 25px; text-shadow: 0 1px #6e452a; }
+.fantasy-roll:disabled { filter: saturate(.35); color: #dfd1e5; cursor: not-allowed; }
+.fantasy-roll:not(:disabled):hover { transform: translateY(-3px); filter: brightness(1.12); }
+.fantasy-roll:not(:disabled):active { transform: scale(.96); }
+.roll-crown { position: absolute; top: -19px; left: calc(50% - 12px); color: #ffe29b; fill: #845e38; }
+.roll-dice-icons { display: flex; gap: 3px; margin-top: 3px; }
+.roll-dice-icons svg { width: 33px; height: 33px; fill: #fff2dc; color: #402343; transform: rotate(-12deg); stroke-width: 1.8; }
+.roll-dice-icons svg + svg { transform: rotate(14deg); }
+.fantasy-roll strong { font: 700 25px 'Cinzel', Georgia, serif; text-shadow: 0 2px #241329; margin-top: 3px; }
+.fantasy-roll.is-rolling .roll-dice-icons { animation: royal-dice .7s ease-in-out infinite alternate; }
+.fantasy-deed { z-index: 24; top: 114px; right: 110px; width: var(--hud-deed); max-height: calc(100dvh - 276px); display: flex; flex-direction: column; border: 2px solid #d5a14f; border-radius: 25px 9px 25px 9px; padding: 7px; background: #f6e4c0; color: #3d2637; box-shadow: inset 0 0 0 2px #fff3d3, inset 0 0 0 5px #bf925b, 0 12px 28px #170a304d; }
+.fantasy-deed::before, .fantasy-deed::after { content: '❧'; position: absolute; color: #b67d32; font-size: 29px; line-height: 1; pointer-events: none; z-index: 1; }
+.fantasy-deed::before { top: 3px; left: 7px; }
+.fantasy-deed::after { bottom: 3px; right: 7px; transform: rotate(180deg); }
+.deed-crown { position: absolute; top: -20px; left: calc(50% - 22px); width: 44px; height: 30px; border: 1px solid #d5a14f; border-radius: 10px 10px 18px 18px; background: #3d1f52; color: #ffdc84; display: grid; place-items: center; z-index: 2; }
+.deed-close { position: absolute; right: -12px; top: -14px; border-radius: 50%; z-index: 3; width: 36px; height: 36px; padding: 7px; }
+.deed-header { flex-shrink: 0; border: 1px solid #b8884f; background: linear-gradient(130deg, #502459, #27113c); color: #fff0d0; padding: 12px 18px 11px; text-align: center; border-radius: 18px 7px; }
+.deed-header > span { font-size: 10px; color: #f4ce84; letter-spacing: 3px; }
+.deed-header h2 { font: 700 clamp(17px, 1.4vw, 23px)/1.2 'Cinzel', Georgia, serif; margin: 5px 0 0; overflow-wrap: anywhere; }
+.deed-scroll { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #c49861 #f8e8c9; padding: 8px 10px 0; min-height: 0; }
+.deed-group { display: flex; justify-content: center; align-items: center; gap: 7px; font-size: 11px; font-weight: 800; text-transform: capitalize; margin: 0 0 8px; color: #654451; }
+.deed-group i { background: var(--property-color); width: 12px; height: 12px; border: 1px solid #79574d; border-radius: 3px; }
+.deed-illustration { border: 1px solid #b58a52; border-radius: 15px 4px; overflow: hidden; margin-bottom: 8px; }
+.deed-artwork { display: block; width: 100%; height: auto; max-height: 84px; }
+.deed-facts { margin: 0; padding: 0; font-size: 12px; }
+.deed-facts > div { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 4px 0; border-bottom: 1px solid #b99c7040; }
+.deed-facts dt { color: #6a4b48; }
+.deed-facts dd { margin: 0; text-align: right; font-weight: 800; overflow-wrap: anywhere; }
+.deed-facts .has-owner { color: #285d49; }
+.deed-rents h3 { display: flex; align-items: center; justify-content: center; gap: 8px; font: 700 16px 'Cinzel', Georgia, serif; color: #f6dfa5; background: #4a2355; border: 1px solid #ba8c4d; border-radius: 10px 3px; margin: 10px 0 4px; padding: 5px; }
+.deed-rents table { border-collapse: collapse; width: 100%; font-size: 12px; font-variant-numeric: tabular-nums; }
+.deed-rents tr + tr { border-top: 1px solid #b99c7040; }
+.deed-rents tr:last-child { background: #e9cb9455; }
+.deed-rents th { text-align: left; font-weight: 500; padding: 5px 3px; }
+.deed-rents td { text-align: right; font-weight: 800; white-space: nowrap; padding: 5px 3px; }
+.deed-rents p { font-size: 10px; line-height: 1.45; color: #775544; margin: 7px 0; }
+.deed-warning { color: #87394b; background: #eac7b3; padding: 5px 8px; border-radius: 6px; font-weight: 800; font-size: 11px; }
+.deed-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0 0; }
+.deed-actions:empty { display: none; }
+.deed-actions .is-primary, .deed-mortgage { grid-column: 1 / -1; }
+.deed-footer { text-align: center; color: #a77439; font-size: 13px; line-height: 20px; flex-shrink: 0; }
+/* Keep the existing sky continuous; panels overlay the existing full-screen scene. */
+.monopoly-app .world-layer { inset: 0; }
+.monopoly-app .camera-toolbar { top: 96px; white-space: nowrap; }
+@keyframes royal-value { from { opacity: .65; } to { opacity: 1; } }
+@keyframes royal-dice { to { transform: rotate(8deg) translateY(-2px); } }
+@media (min-width: 1600px) {
+  .fantasy-dock { gap: 32px; }
+  .action-tray { max-width: 900px; width: 100%; justify-self: center; padding: 15px; }
+  .dock-action { min-height: 78px; font-size: 15px; }
+  .fantasy-roll { width: 154px; height: 154px; }
+  .fantasy-roll strong { font-size: 30px; }
+  .kingdom-player { padding: 16px 10px; }
+  .fantasy-deed { max-height: calc(100dvh - 300px); }
+}
+@media (max-width: 1150px) {
+  :root { --hud-left: 206px; --hud-deed: 280px; }
+  .fantasy-header { inset: 14px 14px auto; }
+  .fantasy-players { left: 14px; top: 108px; padding: 9px; }
+  .kingdom-player { gap: 8px; padding: 11px 7px; }
+  .player-name { font-size: 13px; }
+  .player-money { font-size: 15px; }
+  .player-status { font-size: 9px; }
+  .fantasy-shortcuts { right: 14px; top: 108px; gap: 10px; }
+  .royal-shortcut { width: 58px; min-height: 64px; }
+  .royal-shortcut > svg { width: 24px; height: 24px; }
+  .royal-shortcut > span { font-size: 10px; }
+  .fantasy-deed { right: 84px; top: 108px; max-height: calc(100dvh - 262px); }
+  .fantasy-dock { left: 14px; right: 14px; gap: 12px; }
+  .action-tray { padding: 9px; gap: 4px; }
+  .dock-action { min-height: 63px; font-size: 10px; }
+  .roll-options { min-width: 104px; padding: 9px; }
+  .dice-controls { gap: 8px; }
+  .fantasy-roll { width: 112px; height: 112px; }
+  .fantasy-roll strong { font-size: 21px; }
+  .royal-utility { width: 42px; min-height: 55px; }
+  .monopoly-app:has(.fantasy-deed) .fantasy-players { width: 190px; }
+}
+@media (max-width: 760px) {
+  .fantasy-header { inset: 8px 10px auto; display: grid; grid-template-columns: 1fr; gap: 8px; }
+  .kingdom-brand { width: auto; min-height: 30px; padding: 2px 28px; border-radius: 12px 4px; justify-self: center; }
+  .kingdom-brand > svg { left: 8px; top: 3px; width: 17px; height: 19px; }
+  .kingdom-brand strong { font-size: 14px; letter-spacing: 0; }
+  .kingdom-brand span { font-size: 7px; padding: 1px 5px; margin-top: 1px; letter-spacing: .7px; background: none; color: #f4d68f; }
+  .resource-bar { justify-self: center; gap: 6px; padding: 4px; }
+  .resource-pill { font-size: 17px; min-height: 36px; padding: 4px 9px; gap: 7px; }
+  .resource-pill > svg { width: 20px; height: 20px; }
+  .resource-pill small { font-size: 8px; }
+  .royal-icon { width: 36px; height: 36px; padding: 7px; }
+  .resource-bar .camera-toggle { display: none; }
+  .fantasy-players, .monopoly-app:has(.fantasy-deed) .fantasy-players { top: 104px; left: 10px; width: auto; max-width: calc(100% - 20px); padding: 4px; border-radius: 12px; z-index: 28; }
+  .players-collapse { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #ffe5ad; padding: 6px 8px; min-height: 32px; width: 100%; }
+  .players-collapse strong { color: var(--royal-emerald); font-variant-numeric: tabular-nums; }
+  .players-content { display: none; }
+  .fantasy-players.is-expanded { width: 236px; }
+  .is-expanded .players-content { display: block; padding: 7px; max-height: 40dvh; overflow-y: auto; }
+  .is-expanded .players-collapse > svg:last-child { transform: rotate(180deg); }
+  .fantasy-shortcuts { top: 153px; left: 10px; right: auto; display: flex; gap: 6px; }
+  .royal-shortcut { width: 40px; min-height: 43px; border-radius: 13px 5px; gap: 3px; }
+  .royal-shortcut > svg { width: 19px; height: 19px; }
+  .royal-shortcut > span { font-size: 8px; }
+  .fantasy-dock { left: 8px; right: 8px; bottom: max(8px, env(safe-area-inset-bottom)); grid-template-columns: auto 1fr; gap: 10px; }
+  .dock-utilities { grid-column: 1; grid-row: 1; align-self: end; gap: 6px; padding: 0; }
+  .royal-utility { width: 42px; min-height: 48px; font-size: 9px; border-radius: 15px; gap: 3px; }
+  .action-tray { grid-column: 1 / -1; grid-row: 2; padding: 7px; border-radius: 17px 6px; gap: 4px; }
+  .dock-crest { display: none; }
+  .dock-action { min-width: 0; font-size: 9px; min-height: 51px; gap: 4px; padding: 4px 1px; }
+  .dock-action svg { width: 20px; height: 20px; }
+  .dice-controls { grid-column: 2; grid-row: 1; justify-self: end; gap: 10px; }
+  .fantasy-roll { width: 84px; height: 84px; border-width: 3px; box-shadow: inset 0 0 0 2px #ffe9a0, inset 0 0 0 6px #9b6a45, 0 5px 18px #15092166; }
+  .fantasy-roll strong { font-size: 17px; margin-top: 1px; }
+  .roll-dice-icons svg { width: 23px; height: 23px; }
+  .roll-crown { top: -14px; width: 19px; }
+  .fantasy-roll::after { bottom: -13px; font-size: 20px; }
+  .roll-options { padding: 7px; min-width: 115px; margin: 0; }
+  .auto-roll-label { font-size: 10px; }
+  .speed-options { margin-top: 5px; }
+  .speed-options button { min-height: 28px; font-size: 11px; }
+  .fantasy-deed { top: auto; bottom: 178px; left: 10px; right: 10px; width: auto; max-height: min(32dvh, 300px); border-radius: 20px 7px; }
+  .deed-header { padding: 7px 24px; }
+  .deed-header h2 { font-size: 16px; margin-top: 1px; }
+  .deed-header > span { font-size: 8px; letter-spacing: 2px; }
+  .deed-scroll { padding: 6px 8px 0; }
+  .deed-illustration { float: left; width: 33%; margin-right: 10px; }
+  .deed-artwork { min-height: 60px; object-fit: cover; }
+  .deed-group { margin-bottom: 5px; }
+  .deed-facts { font-size: 11px; }
+  .deed-facts > div { padding: 4px 0; }
+  .deed-rents { clear: both; }
+  .deed-rents h3 { margin-top: 7px; font-size: 14px; }
+  .deed-rents table { font-size: 11px; }
+  .deed-rents td, .deed-rents th { padding: 4px 3px; }
+  .deed-footer { line-height: 13px; }
+  .deed-close { right: -5px; top: -10px; width: 32px; height: 32px; }
+  .deed-crown { height: 22px; top: -16px; }
+  .deed-crown svg { width: 17px; }
+  .monopoly-app .camera-toolbar { position: fixed; top: 153px; right: 10px; left: auto; transform: none; padding: 3px; border-radius: 8px; width: 174px; max-width: calc(100% - 210px); }
+  .camera-toolbar select, .camera-toolbar button { font-size: 9px; padding: 2px 4px; min-height: 27px; }
+  .camera-toolbar select { width: 92px; max-width: 100%; }
+  /* Lift the selected tile above the bottom sheet while retaining the scene. */
+  .monopoly-app:has(.fantasy-deed) { background: #433068; }
+  .monopoly-app:has(.fantasy-deed) .world-layer { transform: translateY(-110px); }
+  .monopoly-app:has(.fantasy-deed) .camera-toolbar { top: 263px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fantasy-header *, .fantasy-dock *, .fantasy-players *, .fantasy-shortcuts *, .fantasy-deed * { animation: none !important; transition: none !important; }
+}

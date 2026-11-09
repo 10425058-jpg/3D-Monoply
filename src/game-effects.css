@@ -1,0 +1,43 @@
+.gameplay-feedback { position: fixed; inset: 0; pointer-events: none; z-index: 29; color: #fff0d0; }
+.turn-announcement { position: absolute; top: 158px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; padding: 12px 24px; max-width: min(420px, 70vw); border: 1px solid #ffd76a; border-radius: 22px 5px; background: linear-gradient(120deg, #5c2a64f5, #29143ff5); box-shadow: 0 4px 22px #d8a84d33; font: 700 21px 'Cinzel', Georgia, serif; text-align: center; animation: turn-reveal 1.7s both; }
+.turn-announcement svg { color: #ffd76a; flex-shrink: 0; }
+.dice-result { position: absolute; bottom: 168px; left: 50%; transform: translateX(-50%); padding: 7px 19px; border: 1px solid #d8a84d; border-radius: 30px; background: #29143feb; text-align: center; animation: receipt-reveal .22s ease-out; }
+.dice-result span { display: block; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: #dfcaac; }
+.dice-result strong { font-size: 18px; font-variant-numeric: tabular-nums; }
+.feedback-notices { position: absolute; top: 230px; left: 50%; transform: translateX(-50%); width: min(320px, 65vw); display: grid; gap: 7px; }
+.effect-notice { display: flex; gap: 10px; align-items: center; padding: 9px 15px; background: #2c193ff2; border: 1px solid #b99459; border-radius: 14px 4px; box-shadow: 0 3px 15px #1b103544; animation: receipt-reveal .2s ease-out; }
+.effect-notice > svg { color: #ffd76a; flex-shrink: 0; }
+.effect-notice strong, .effect-notice span { display: block; font-size: 12px; }
+.effect-notice span { color: #e8cda7; font-size: 10px; margin-top: 2px; }
+.effect-bankrupt { border-color: #de93a7; }
+.money-receipts { position: absolute; left: calc(var(--hud-left) + 38px); top: 116px; display: grid; gap: 5px; max-width: min(260px, 45vw); }
+.money-receipt { display: flex; align-items: center; gap: 7px; padding: 6px 10px; background: #241535eb; border-radius: 20px; border: 1px solid #80624e; font-size: 11px; animation: receipt-reveal .2s ease-out; }
+.money-receipt strong { font-variant-numeric: tabular-nums; font-size: 13px; }
+.money-receipt.is-positive strong { color: #72edb3; }
+.money-receipt.is-negative strong { color: #ffb0bc; }
+.audio-settings { display: flex; gap: 16px; align-items: center; justify-content: center; margin: 14px 0; padding: 12px; border: 1px solid #ad8c5e66; border-radius: 12px; }
+.audio-settings label { display: block; flex: 1; max-width: 240px; font-size: 12px; }
+.audio-settings label span { float: right; color: #ead2a2; }
+.audio-settings input { display: block; width: 100%; margin-top: 7px; accent-color: #d8a84d; min-height: 24px; }
+.audio-quick-control { display: flex; }
+.card-reveal-backdrop { perspective: 1000px; }
+.card-reveal { animation: none; backface-visibility: hidden; border: 1px solid #d8a84d; }
+.card-reveal-spark { position: absolute; right: 20px; top: 23px; color: #e7bc62; animation: card-spark .55s ease-out both; pointer-events: none; }
+@keyframes turn-reveal { 0% { opacity: 0; margin-top: 8px; } 15%, 75% { opacity: 1; margin-top: 0; } 100% { opacity: 0; } }
+@keyframes receipt-reveal { from { opacity: 0; translate: 0 5px; } to { opacity: 1; translate: 0 0; } }
+@keyframes card-spark { from { opacity: 0; scale: .7; rotate: -15deg; } 50% { opacity: 1; } to { opacity: .6; scale: 1; rotate: 0deg; } }
+@media (max-width: 760px) {
+  .resource-bar { gap: 4px; }
+  .resource-pill { padding-inline: 7px; gap: 5px; }
+  .resource-bar .royal-icon { width: 32px; height: 34px; }
+  .turn-announcement { top: 205px; font-size: 15px; padding: 8px 15px; max-width: 86vw; }
+  .feedback-notices { top: 252px; width: min(270px, 75vw); }
+  .money-receipts { top: 204px; left: 10px; max-width: 155px; }
+  .money-receipt { padding: 4px 7px; font-size: 9px; gap: 4px; }
+  .money-receipt strong { font-size: 11px; }
+  .money-receipt svg { display: none; }
+  .dice-result { bottom: 183px; padding: 5px 15px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gameplay-feedback *, .card-reveal-spark { animation: none !important; transition: none !important; }
+}

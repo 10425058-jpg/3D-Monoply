@@ -1,67 +1,27 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Text } from '@react-three/drei';
+import { AnimatedToken } from './AnimatedToken';
+import { useMotionPreferences } from '../../presentation/useMotionPreferences';
 import * as THREE from 'three';
 import { useGameStore } from '../../store/useGameStore';
 import { BOARD_SPACES, getSpaceTransform } from '../../data/boardData';
 import { TokenType } from '../../types/game';
 
-type FloatingMoneyEvent = {
-  id: number;
-  text: string;
-  position: [number, number, number];
-  positive: boolean;
-};
-
-const PopInGroup: React.FC<{ position: [number, number, number]; children: React.ReactNode }> = ({ position, children }) => {
+const PopInGroup: React.FC<{ position: [number, number, number]; reduced: boolean; children: React.ReactNode }> = ({ position, reduced, children }) => {
   const groupRef = useRef<THREE.Group>(null);
-  const startedAt = useRef<number | null>(null);
-
-  useFrame(({ clock }) => {
+  const startedAt = useRef(performance.now());
+  const settled = useRef(false);
+  useFrame(() => {
     const group = groupRef.current;
-    if (!group) return;
-    if (startedAt.current === null) startedAt.current = clock.elapsedTime;
-    const progress = Math.min(1, (clock.elapsedTime - startedAt.current) / 0.34);
+    if (!group || settled.current || document.hidden) return;
+    const progress = reduced ? 1 : Math.min(1, (performance.now() - startedAt.current) / 340);
     const eased = 1 - Math.pow(1 - progress, 3);
-    const overshoot = progress < 1 ? Math.sin(progress * Math.PI) * 0.12 : 0;
-    group.scale.setScalar(0.12 + eased * 0.88 + overshoot);
+    group.scale.setScalar(0.12 + eased * 0.88 + Math.sin(progress * Math.PI) * 0.08);
+    group.position.y = position[1] + (1 - eased) * 0.18;
+    if (progress === 1) settled.current = true;
   });
-
   return <group ref={groupRef} position={position}>{children}</group>;
 };
-
-const FloatingMoneyLabel: React.FC<{ event: FloatingMoneyEvent }> = ({ event }) => {
-  const groupRef = useRef<THREE.Group>(null);
-  const startedAt = useRef<number | null>(null);
-
-  useFrame(({ clock }) => {
-    const group = groupRef.current;
-    if (!group) return;
-    if (startedAt.current === null) startedAt.current = clock.elapsedTime;
-    const elapsed = clock.elapsedTime - startedAt.current;
-    group.position.y = event.position[1] + elapsed * 0.78;
-    const pop = Math.min(1, elapsed / 0.12);
-    group.scale.setScalar(0.72 + pop * 0.28);
-  });
-
-  return (
-    <group ref={groupRef} position={event.position}>
-      <Text
-        fontSize={event.text.length > 8 ? 0.27 : 0.43}
-        color={event.positive ? '#9df0b4' : '#ff9999'}
-        anchorX="center"
-        anchorY="middle"
-        outlineWidth={0.025}
-        outlineColor="#102033"
-        fontWeight="bold"
-        fillOpacity={1}
-      >
-        {event.text}
-      </Text>
-    </group>
-  );
-};
-
 const TokenMesh: React.FC<{ token: TokenType; color: string }> = ({ token, color }) => {
   const enamel = { metalness: 0.62, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.1 };
   const gold = '#e9c36d';
@@ -279,159 +239,25 @@ const TokenMesh: React.FC<{ token: TokenType; color: string }> = ({ token, color
   }
 };
 
-export const TokensAndBuildings: React.FC = () => {
+export const TokensAndBuildings: React.FC<{ quality?: string }> = ({ quality = 'balanced' }) => {
   const players = useGameStore((s) => s.players);
   const currentPlayerIndex = useGameStore((s) => s.currentPlayerIndex);
   const properties = useGameStore((s) => s.properties);
-  const gameSpeed = useGameStore((s) => s.gameSpeed);
-  const [moneyPopups, setMoneyPopups] = useState<FloatingMoneyEvent[]>([]);
-  const previousMoney = useRef<Record<number, number>>({});
-  const previousProperties = useRef<Record<number, { ownerId: number | null; houses: number }>>({});
-  const popupId = useRef(0);
-  const previousPositions = useRef<Record<number, number>>({});
-  const jumpStartedAt = useRef<Record<number, number>>({});
-
-  const tokenRefs = useRef<Record<number, THREE.Group | null>>({});
-
-  useEffect(() => {
-    const previous = previousMoney.current;
-    const next: Record<number, number> = {};
-    const events: FloatingMoneyEvent[] = [];
-
-    players.forEach((player) => {
-      next[player.id] = player.money;
-      const prior = previous[player.id];
-      if (prior === undefined || prior === player.money) return;
-      const delta = player.money - prior;
-      const transform = getSpaceTransform(player.position);
-      events.push({
-        id: ++popupId.current,
-        text: `${delta > 0 ? '+' : '−'}${Math.abs(delta).toLocaleString('en-US')}`,
-        position: [transform.position[0], 1.55, transform.position[2]],
-        positive: delta > 0,
-      });
-    });
-
-    previousMoney.current = next;
-    if (events.length > 0) {
-      setMoneyPopups((current) => [...current, ...events]);
-      events.forEach((event) => {
-        window.setTimeout(() => {
-          setMoneyPopups((current) => current.filter((popup) => popup.id !== event.id));
-        }, 1250);
-      });
-    }
-  }, [players]);
-
-  useEffect(() => {
-    const previous = previousProperties.current;
-    const next: Record<number, { ownerId: number | null; houses: number }> = {};
-    const events: FloatingMoneyEvent[] = [];
-
-    Object.values(properties).forEach((property) => {
-      next[property.spaceId] = { ownerId: property.ownerId, houses: property.houses };
-      const before = previous[property.spaceId];
-      if (!before) return;
-
-      const transform = getSpaceTransform(property.spaceId);
-      if (before.ownerId === null && property.ownerId !== null) {
-        events.push({
-          id: ++popupId.current,
-          text: 'PROPERTY WON',
-          position: [transform.position[0], 0.95, transform.position[2]],
-          positive: true,
-        });
-      } else if (property.ownerId !== null && property.houses > before.houses) {
-        events.push({
-          id: ++popupId.current,
-          text: property.houses === 5 ? 'HOTEL BUILT' : 'HOUSE BUILT',
-          position: [transform.position[0], 0.95, transform.position[2]],
-          positive: true,
-        });
-      }
-    });
-
-    previousProperties.current = next;
-    if (events.length > 0) {
-      setMoneyPopups((current) => [...current, ...events]);
-      events.forEach((event) => {
-        window.setTimeout(() => {
-          setMoneyPopups((current) => current.filter((popup) => popup.id !== event.id));
-        }, 1150);
-      });
-    }
-  }, [properties]);
-
-  useFrame(({ clock }, delta) => {
-    const t = clock.getElapsedTime();
-    players.forEach((player, idx) => {
-      const group = tokenRefs.current[player.id];
-      if (!group) return;
-
-      const previousPosition = previousPositions.current[player.id];
-      if (previousPosition !== undefined && previousPosition !== player.position) {
-        jumpStartedAt.current[player.id] = t;
-      }
-      previousPositions.current[player.id] = player.position;
-
-      const tf = getSpaceTransform(player.position);
-      // Offset each player slightly so multiple tokens on the same space never overlap.
-      const angle = (idx * Math.PI) / 2 + Math.PI / 4;
-      const offsetRadius = 0.38;
-      const targetX = tf.position[0] + Math.cos(angle) * offsetRadius;
-      const targetZ = tf.position[2] + Math.sin(angle) * offsetRadius;
-      const isCurrent = idx === currentPlayerIndex;
-      const jumpDuration = 0.2 / gameSpeed;
-      const jumpElapsed = t - (jumpStartedAt.current[player.id] ?? -10);
-      const jumpProgress = jumpElapsed >= 0 && jumpElapsed < jumpDuration ? jumpElapsed / jumpDuration : 0;
-      const jumpWave = jumpProgress > 0 ? Math.sin(jumpProgress * Math.PI) : 0;
-      const jumpHeight = jumpWave * 0.62;
-      const targetY = 0.22 + jumpHeight + (isCurrent ? Math.abs(Math.sin(t * 4.5)) * 0.075 : 0);
-      const targetRotation = (isCurrent ? Math.sin(t * 0.8 + idx) * 0.025 : 0) + jumpWave * 0.42;
-      const baseScale = tf.isCorner ? 1.2 : 1.06;
-      const landingPulse = 1 + jumpWave * 0.13;
-      const isSettled =
-        Math.abs(group.position.x - targetX) < 0.002 &&
-        Math.abs(group.position.z - targetZ) < 0.002 &&
-        Math.abs(group.position.y - targetY) < 0.003 &&
-        Math.abs(group.rotation.y - targetRotation) < 0.002;
-
-      // Park inactive tokens once they reach their space; only the active token keeps its idle bob.
-      if (!isCurrent && jumpWave === 0 && isSettled) return;
-
-      group.position.x = THREE.MathUtils.damp(group.position.x, targetX, 11, delta);
-      group.position.z = THREE.MathUtils.damp(group.position.z, targetZ, 11, delta);
-      group.position.y = THREE.MathUtils.damp(group.position.y, targetY, 17, delta);
-      group.rotation.y = THREE.MathUtils.damp(group.rotation.y, targetRotation, 13, delta);
-      group.rotation.z = THREE.MathUtils.damp(group.rotation.z, jumpWave * 0.08, 13, delta);
-      group.scale.setScalar(baseScale * landingPulse);
-    });
-  });
-
+  const { reducedMotion, visible } = useMotionPreferences();
   return (
     <group>
-      {/* Floating money feedback appears above the player's current board location. */}
-      {moneyPopups.map((event) => <FloatingMoneyLabel key={event.id} event={event} />)}
-
       {/* Player Tokens */}
-      {players.map((player) => {
+      {players.map((player, index) => {
         if (player.isBankrupt) return null;
         return (
-          <group
-            key={player.id}
-            ref={(el) => {
-              tokenRefs.current[player.id] = el;
-            }}
-            position={[9.5, 0.22, 9.5]}
-            scale={getSpaceTransform(player.position).isCorner ? 1.2 : 1.06}
-          >
+          <AnimatedToken key={player.id} player={player} index={index} reduced={reducedMotion} visible={visible} trails={quality !== 'low' && !reducedMotion}>
             <TokenMesh token={player.token} color={player.color} />
             {/* Coloured Player Ring Indicator */}
             <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
               <ringGeometry args={[0.42, 0.54, 32]} />
-              <meshStandardMaterial color={player.color} emissive={player.color} emissiveIntensity={0.9} metalness={0.18} roughness={0.25} side={THREE.DoubleSide} />
+              <meshStandardMaterial color={player.color} emissive={player.color} emissiveIntensity={index === currentPlayerIndex ? 0.9 : 0.2} metalness={0.18} roughness={0.25} side={THREE.DoubleSide} />
             </mesh>
-          </group>
+          </AnimatedToken>
         );
       })}
 
@@ -444,12 +270,13 @@ export const TokensAndBuildings: React.FC = () => {
         return (
           <group
             key={`bld-${space.id}`}
+            name={`buildings-${space.id}`}
             position={[tf.position[0], 0.22, tf.position[2]]}
             rotation={[0, tf.rotationY, 0]}
           >
             {prop.houses === 5 ? (
               /* Red 3D Hotel */
-              <PopInGroup position={[0, 0.18, -tf.depth / 2 + 0.34]}>
+              <PopInGroup reduced={reducedMotion} position={[0, 0.18, -tf.depth / 2 + 0.34]}>
                 <mesh castShadow receiveShadow>
                   <boxGeometry args={[0.58, 0.38, 0.42]} />
                   <meshPhysicalMaterial color="#a92337" metalness={0.35} roughness={0.24} clearcoat={0.9} />
@@ -483,7 +310,7 @@ export const TokensAndBuildings: React.FC = () => {
                 const spacing = 0.38;
                 const startX = -((prop.houses - 1) * spacing) / 2;
                 return (
-                  <PopInGroup
+                  <PopInGroup reduced={reducedMotion}
                     key={hIdx}
                     position={[startX + hIdx * spacing, 0.13, -tf.depth / 2 + 0.34]}
                   >
