@@ -20,6 +20,7 @@ export const StatsModal: React.FC<{
       onClick={() => { sounds.playClick(); onClose(); }}
     >
       <div
+        role="dialog" aria-modal="true" aria-label="Empire Statistics"
         className="relative w-full max-w-2xl max-h-[85vh] overflow-hidden rounded-3xl bg-gradient-to-b from-purple-900/95 via-purple-950/95 to-slate-950/95 border-2 border-purple-400/50 shadow-[0_20px_50px_rgba(0,0,0,0.6),inset_0_1px_rgba(255,255,255,0.2)] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
@@ -34,6 +35,7 @@ export const StatsModal: React.FC<{
             </div>
           </div>
           <button
+            aria-label="Close statistics"
             onClick={() => { sounds.playClick(); onClose(); }}
             className="w-8 h-8 rounded-full bg-purple-800/60 hover:bg-purple-700 text-purple-200 hover:text-white flex items-center justify-center transition-transform active:scale-90"
           >

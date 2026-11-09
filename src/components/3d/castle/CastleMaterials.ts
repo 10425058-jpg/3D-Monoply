@@ -10,23 +10,23 @@ export const CASTLE_COLORS = {
   stonePavement: '#f5e8d3',    // Plaza pavers
   stonePaverDark: '#decaa8',   // Paver border rings & star compass inlays
   stonePaverAccent: '#bfa382', // Darker contrasting border pavers
-  compassStarGold: '#f59e0b',  // Inlaid star compass gold accent
+  compassStarGold: '#d6ad62',  // Inlaid star compass gold accent
   carpetRoyalBlue: '#1e3a8a',  // Ceremonial staircase carpet runner
   carpetTrimGold: '#fbbf24',   // Staircase carpet gold border trim
 
   // Roofs (Vibrant Toy Miniature Saturation)
-  roofRoyalBlue: '#1d4ed8',    // Dominant spires & high roofs (royal blue)
+  roofRoyalBlue: '#3157a4',    // Dominant spires & high roofs (royal blue)
   roofRoyalDark: '#1e40af',    // Tower eaves & flared conical rims
-  roofRoyalTileLight: '#2563eb', // Stepped tile highlight rings
+  roofRoyalTileLight: '#5278bc', // Stepped tile highlight rings
   roofRoyalTileDark: '#1e3a8a',  // Shadow tile underside rings
   roofRoyalAccent: '#172554',  // Deep shading
-  roofTerracotta: '#ea580c',   // Supporting buildings warm terracotta orange/red
-  roofTerracottaDark: '#c2410c',
-  roofTerracottaTile: '#f97316', // Shingle edge highlight
+  roofTerracotta: '#a84f56',   // Supporting buildings warm terracotta orange/red
+  roofTerracottaDark: '#773746',
+  roofTerracottaTile: '#c47470', // Shingle edge highlight
   roofTealDome: '#0d9488',     // Garden pavilion dome
 
   // Gold & Metals (Polished Brass & Gilt)
-  goldPolished: '#f59e0b',     // Crown medallion, finials, weather vane
+  goldPolished: '#d6ad62',     // Crown medallion, finials, weather vane
   goldHighlight: '#fbbf24',    // Medallion raised relief & trim
   goldFiligree: '#d97706',     // Deep relief gold filigree shadow
   bronzeLamp: '#1e293b',       // Lamppost cast iron/bronze
@@ -44,7 +44,7 @@ export const CASTLE_COLORS = {
   woodDark: '#451a03',         // Window mullions & structural beams
 
   // Heraldry & Fabrics
-  bannerBlue: '#1d4ed8',       // Royal heraldic blue
+  bannerBlue: '#3157a4',       // Royal heraldic blue
   bannerPurple: '#7e22ce',     // Royal purple
   bannerRed: '#dc2626',        // Tower pennant flags
   awningRed: '#e11d48',        // Shop & cafe awnings
@@ -52,7 +52,7 @@ export const CASTLE_COLORS = {
 
   // Lighting & Glass
   lightWarmInterior: '#fef08a',
-  lightGlowEmissive: '#f59e0b',
+  lightGlowEmissive: '#d6ad62',
   windowGlass: '#bae6fd',
 
   // Water & Foam
@@ -63,13 +63,13 @@ export const CASTLE_COLORS = {
 
   // Vegetation (Lush Harmonious Pastels)
   sakuraLight: '#fbcfe8',      // Soft pastel pink blossoms
-  sakuraMid: '#f472b6',        // Bright blossom
-  sakuraDeep: '#ec4899',       // Deep rose-magenta
+  sakuraMid: '#e9a3c4',        // Bright blossom
+  sakuraDeep: '#c878a1',       // Deep rose-magenta
   sakuraTrunk: '#5c3a21',
   pineFoliage: '#15803d',      // Evergreen cypress
-  pineFoliageLight: '#22c55e',
+  pineFoliageLight: '#66a66c',
   hedgeGreen: '#4d9b2b',
-  grassLush: '#5ba338',
+  grassLush: '#598858',
   flowerRose: '#f43f5e',
   flowerYellow: '#facc15',
   flowerLavender: '#c084fc',

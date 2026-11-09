@@ -66,49 +66,49 @@ export const StylizedSakuraTree: React.FC<{
       {/* Rich Multi-Tonal Blossom Canopy (Cloud-Like Fluffy Clusters) */}
       <group ref={canopyRef} position={[0, 1.45, 0]}>
         {/* Core Upper Crown (Bright Vivid Blossom) */}
-        <mesh position={[0, 0.52, 0]} castShadow>
+        <mesh position={[0, 0.52, 0]} scale={[1, 0.82, 0.94]} castShadow>
           <sphereGeometry args={[0.88, 16, 16]} />
-          <meshStandardMaterial color={CASTLE_COLORS.sakuraMid} roughness={0.65} />
+          <meshStandardMaterial color={CASTLE_COLORS.sakuraMid} roughness={0.92} />
         </mesh>
 
         {/* Top Highlight Dome (Pastel Soft Blossom) */}
         <mesh position={[0.06, 0.95, 0.04]} castShadow>
           <sphereGeometry args={[0.54, 14, 14]} />
-          <meshStandardMaterial color={CASTLE_COLORS.sakuraLight} roughness={0.65} />
+          <meshStandardMaterial color={CASTLE_COLORS.sakuraLight} roughness={0.92} />
         </mesh>
 
         {/* Left Side Cluster (Deep Rose Petal Shadow) */}
-        <mesh position={[-0.58, 0.3, 0.25]} castShadow>
+        <mesh position={[-0.58, 0.3, 0.25]} scale={[1.08, 0.78, 0.9]} castShadow>
           <sphereGeometry args={[0.72, 14, 14]} />
-          <meshStandardMaterial color={CASTLE_COLORS.sakuraDeep} roughness={0.65} />
+          <meshStandardMaterial color={CASTLE_COLORS.sakuraDeep} roughness={0.92} />
         </mesh>
 
         {/* Right Side Cluster (Vivid Blossom Pink) */}
         <mesh position={[0.6, 0.32, -0.22]} castShadow>
           <sphereGeometry args={[0.74, 14, 14]} />
-          <meshStandardMaterial color={CASTLE_COLORS.sakuraMid} roughness={0.65} />
+          <meshStandardMaterial color={CASTLE_COLORS.sakuraMid} roughness={0.92} />
         </mesh>
 
         {/* Front Foreground Puff (Soft Pastel Blossom) */}
         <mesh position={[0.22, 0.1, 0.54]} castShadow>
           <sphereGeometry args={[0.64, 14, 14]} />
-          <meshStandardMaterial color={CASTLE_COLORS.sakuraLight} roughness={0.65} />
+          <meshStandardMaterial color={CASTLE_COLORS.sakuraLight} roughness={0.92} />
         </mesh>
 
         {/* Rear Accent Puff (Deep Magenta) */}
         <mesh position={[-0.28, 0.2, -0.52]} castShadow>
           <sphereGeometry args={[0.66, 14, 14]} />
-          <meshStandardMaterial color={CASTLE_COLORS.sakuraDeep} roughness={0.65} />
+          <meshStandardMaterial color={CASTLE_COLORS.sakuraDeep} roughness={0.92} />
         </mesh>
 
         {/* Flanking Side Puffs */}
         <mesh position={[-0.45, 0.65, -0.2]} castShadow>
           <sphereGeometry args={[0.48, 12, 12]} />
-          <meshStandardMaterial color={CASTLE_COLORS.sakuraLight} roughness={0.65} />
+          <meshStandardMaterial color={CASTLE_COLORS.sakuraLight} roughness={0.92} />
         </mesh>
         <mesh position={[0.42, 0.68, 0.18]} castShadow>
           <sphereGeometry args={[0.5, 12, 12]} />
-          <meshStandardMaterial color={CASTLE_COLORS.sakuraMid} roughness={0.65} />
+          <meshStandardMaterial color={CASTLE_COLORS.sakuraMid} roughness={0.92} />
         </mesh>
 
         {/* Fresh Leaf Sprigs peeking through blossoms */}
@@ -205,7 +205,7 @@ export const GardenRoseArbor: React.FC<{
           </mesh>
           <mesh position={[0, -0.74, 0]} castShadow>
             <boxGeometry args={[0.24, 0.14, 0.24]} />
-            <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.65} />
+            <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.92} />
           </mesh>
         </group>
       ))}

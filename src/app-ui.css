@@ -2493,3 +2493,35 @@
 @media (max-width: 760px) {
   .roll-controls { display: none; }
 }
+/* Camera controls stay above the world and clear of the primary action dock. */
+.camera-toolbar {
+  position: absolute;
+  left: 50%;
+  top: 96px;
+  transform: translateX(-50%);
+  z-index: 21;
+  display: flex;
+  gap: 6px;
+  padding: 5px;
+  border: 1px solid #c9a86b;
+  border-radius: 12px;
+  background: rgba(37, 25, 59, 0.92);
+  box-shadow: 0 4px 18px #160e2833;
+  pointer-events: auto;
+}
+.camera-toolbar select, .camera-toolbar button {
+  color: #fff1d4;
+  background: #38264d;
+  border: 1px solid #79634c;
+  border-radius: 7px;
+  min-height: 34px;
+  padding: 5px 9px;
+  font: inherit;
+  font-size: 12px;
+}
+.camera-toolbar button:hover { background: #594068; }
+.camera-toolbar :focus-visible { outline: 2px solid #f5d58c; outline-offset: 3px; }
+@media (max-width: 640px) {
+  .camera-toolbar { top: 110px; max-width: calc(100% - 24px); }
+  .camera-toolbar select { max-width: 170px; }
+}

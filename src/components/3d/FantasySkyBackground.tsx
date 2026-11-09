@@ -78,10 +78,10 @@ const ISLAND_CONFIGS: Array<{ position: Vec3; scale: number; rotY: number }> = [
   { position: [14, 12.0, -27], scale: 1.15, rotY: -0.6 },
 ];
 
-const BackgroundIslands: React.FC<{ quality: Quality }> = () => {
+const BackgroundIslands: React.FC<{ quality: Quality }> = ({ quality }) => {
   return (
     <group>
-      {ISLAND_CONFIGS.map((island, idx) => (
+      {ISLAND_CONFIGS.slice(0, quality === 'low' ? 2 : quality === 'high' ? 6 : 4).map((island, idx) => (
         <group key={`bg-island-${idx}`} position={island.position} scale={island.scale} rotation={[0, island.rotY, 0]}>
           {/* Island Rock Plinth Base */}
           <mesh position={[0, -1.3, 0]} rotation={[Math.PI, 0, 0]} castShadow>
@@ -275,10 +275,10 @@ const CLOUD_CONFIGS: Array<{ position: Vec3; scale: number }> = [
   { position: [18, 0.1, 14], scale: 2.0 },
 ];
 
-const FluffyClouds: React.FC<{ quality: Quality }> = () => {
+const FluffyClouds: React.FC<{ quality: Quality }> = ({ quality }) => {
   return (
     <group>
-      {CLOUD_CONFIGS.map((c, cidx) => (
+      {CLOUD_CONFIGS.slice(0, quality === 'low' ? 2 : quality === 'high' ? 8 : 4).map((c, cidx) => (
         <group key={`cloud-${cidx}`} position={c.position} scale={c.scale}>
           <mesh position={[0, 0, 0]}>
             <sphereGeometry args={[1.2, 12, 10]} />
@@ -305,7 +305,7 @@ const FluffyClouds: React.FC<{ quality: Quality }> = () => {
 export const FantasySkyBackground: React.FC<{ quality?: Quality }> = ({ quality = 'balanced' }) => (
   <group>
     <SkyDome />
-    <FantasyRainbow />
+    {quality === 'high' && <FantasyRainbow />}
     <BackgroundIslands quality={quality} />
     <HotAirBalloon />
     <FluffyClouds quality={quality} />

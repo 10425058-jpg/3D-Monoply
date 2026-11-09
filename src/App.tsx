@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import confetti from 'canvas-confetti';
+import { AnimatePresence } from 'framer-motion';
 import {
   ArrowRight,
   Bot,
@@ -31,6 +32,11 @@ import { PropertyCard } from './components/ui/PropertyCard';
 import { StatsModal } from './components/ui/StatsModal';
 import { sounds } from './utils/audio';
 import './app-ui.css';
+import './fantasy-hud.css';
+import './game-effects.css';
+import { GameplayFeedback } from './components/ui/GameplayFeedback';
+import { CardReveal } from './components/ui/CardReveal';
+import { AudioControls } from './components/ui/AudioControls';
 
 const DEFAULT_SETUP = [
   { name: 'You', isAI: false, token: 'rubber_duck' as TokenType, color: '#f59e0b' },
@@ -83,7 +89,7 @@ export const App: React.FC = () => {
   const [lastPackReveal, setLastPackReveal] = useState<{ stickers: string[]; duplicateCount: number } | null>(null);
 
   const activePlayer = game.players[game.currentPlayerIndex];
-  const inspectorSpaceId = game.hoveredSpaceId ?? game.selectedSpaceId;
+  const inspectorSpaceId = game.selectedSpaceId ?? game.hoveredSpaceId;
   const selectedSpace = inspectorSpaceId === null ? null : BOARD_SPACES[inspectorSpaceId];
   const selectedState = selectedSpace ? game.properties[selectedSpace.id] : undefined;
   const selectedOwner = selectedState?.ownerId === null || selectedState?.ownerId === undefined
@@ -268,7 +274,6 @@ export const App: React.FC = () => {
     const result = game.proposeTrade(offer);
     setTradeFeedback(result.message);
     if (result.accepted) {
-      sounds.playPurchase();
       window.setTimeout(() => setShowTradeModal(false), 1100);
     }
   };
@@ -289,6 +294,7 @@ export const App: React.FC = () => {
 
   return (
     <main className="monopoly-app">
+      <GameplayFeedback />
       {/* 3D Scene Layer */}
       <div className="world-layer">
         <Scene3D quality={graphicsQuality} />
@@ -320,8 +326,10 @@ export const App: React.FC = () => {
       />
 
       {/* 5. PROPERTY DEED INSPECTOR CARD */}
+      <AnimatePresence mode="wait">
       {selectedSpace && (
         <PropertyCard
+          key={selectedSpace.id}
           space={selectedSpace}
           state={selectedState}
           owner={selectedOwner}
@@ -331,6 +339,7 @@ export const App: React.FC = () => {
           }}
         />
       )}
+      </AnimatePresence>
 
       {/* 6. STATS & PORTFOLIO MODAL */}
       <StatsModal isOpen={showStats} onClose={() => setShowStats(false)} />
@@ -498,7 +507,7 @@ export const App: React.FC = () => {
                   })}
                 </div>
 
-                <button className="meta-primary-button" disabled={dailyClaimedToday} onClick={() => { sounds.playPurchase(); game.claimDailyReward(); }}>
+                <button className="meta-primary-button" disabled={dailyClaimedToday} onClick={() => { game.claimDailyReward(); }}>
                   <Gift size={16} /> {dailyClaimedToday ? 'Daily reward claimed' : `Claim day ${rewardDay} · ${money(nextDailyReward.cash)}${nextDailyReward.packs ? ' + Sticker Pack' : ''}`}
                 </button>
 
@@ -545,7 +554,7 @@ export const App: React.FC = () => {
                           <div className="mission-progress-track"><i style={{ width: `${(progress / mission.target) * 100}%` }} /></div>
                           <small>{progress}/{mission.target} complete · Reward {money(mission.cashReward)}{mission.packReward ? ' + Sticker Pack' : ''}</small>
                         </div>
-                        <button className="mission-claim" disabled={!complete || claimed} onClick={() => { sounds.playPurchase(); game.claimMissionReward(mission.id); }}>
+                        <button className="mission-claim" disabled={!complete || claimed} onClick={() => { game.claimMissionReward(mission.id); }}>
                           {claimed ? 'Claimed' : complete ? 'Claim' : 'In progress'}
                         </button>
                       </article>
@@ -585,7 +594,7 @@ export const App: React.FC = () => {
                 })}
                 <div className="album-footer">
                   <div><span className="eyebrow">DUPLICATE EXCHANGE</span><strong><Star size={14} fill="currentColor" /> {game.metaProgress.stickerStars} stars</strong><small>10 stars can be exchanged for 1 Sticker Pack.</small></div>
-                  <button className="meta-secondary-button" disabled={game.metaProgress.stickerStars < 10} onClick={() => { sounds.playPurchase(); game.redeemStickerStars(); }}>Exchange 10 ★</button>
+                  <button className="meta-secondary-button" disabled={game.metaProgress.stickerStars < 10} onClick={() => { game.redeemStickerStars(); }}>Exchange 10 ★</button>
                 </div>
                 <button className="meta-primary-button" disabled={game.metaProgress.stickerPacks <= 0} onClick={() => { sounds.playCardDraw(); setLastPackReveal(game.openStickerPack()); }}>
                   <PackageOpen size={16} /> Open Sticker Pack ({game.metaProgress.stickerPacks})
@@ -603,7 +612,7 @@ export const App: React.FC = () => {
                   </div>
                 )}
                 {albumComplete && (
-                  <button className="meta-primary-button album-grand-prize" disabled={game.metaProgress.albumBonusClaimed} onClick={() => { sounds.playUpgrade(); game.claimStickerAlbumReward(); }}>
+                  <button className="meta-primary-button album-grand-prize" disabled={game.metaProgress.albumBonusClaimed} onClick={() => { game.claimStickerAlbumReward(); }}>
                     <Trophy size={16} /> {game.metaProgress.albumBonusClaimed ? 'Album prize claimed' : 'Claim grand prize · $2,500'}
                   </button>
                 )}
@@ -617,10 +626,12 @@ export const App: React.FC = () => {
       {showSetup && (
         <div className="modal-backdrop">
           <div className="game-modal setup-modal" role="dialog" aria-modal="true" aria-labelledby="setup-title">
+            <button className="modal-close" onClick={() => setShowSetup(false)} aria-label="Close settings"><X size={18} /></button>
             <div className="modal-ornament"><Crown size={25} /></div>
             <div className="eyebrow">A CITY OF OPPORTUNITY</div>
             <h1 id="setup-title">Your empire begins here.</h1>
             <p>Build your property portfolio, collect rent, and outlast three rival tycoons in a living miniature city.</p>
+            <AudioControls />
             <div className="setup-facts">
               <div><UserRound size={15} /><strong>1</strong><span>Human player</span></div>
               <div><Bot size={15} /><strong>3</strong><span>AI rivals</span></div>
@@ -655,19 +666,11 @@ export const App: React.FC = () => {
       )}
 
       {/* Active Card Modal (Chance & Community Chest) */}
-      {game.activeCard && game.turnPhase === 'CARD_DRAWN' && !activePlayer?.isAI && (
-        <div className="modal-backdrop">
-          <div className="game-modal card-modal" role="dialog" aria-modal="true">
-            <div className="card-stamp"><ScrollText size={21} /></div>
-            <div className="eyebrow">{game.activeCard.deck === 'chance' ? 'CHANCE' : 'COMMUNITY CHEST'}</div>
-            <h2>{game.activeCard.title}</h2>
-            <p>{game.activeCard.description}</p>
-            <button className="modal-primary" onClick={() => { sounds.playCardDraw(); game.applyActiveCard(); }}>
-              Resolve this card <ArrowRight size={16} />
-            </button>
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {game.activeCard && game.turnPhase === 'CARD_DRAWN' && !activePlayer?.isAI && (
+          <CardReveal key={game.activeCard.id} card={game.activeCard} onResolve={game.applyActiveCard} />
+        )}
+      </AnimatePresence>
 
       {/* Winner / Game Over Modal */}
       {game.winner && (

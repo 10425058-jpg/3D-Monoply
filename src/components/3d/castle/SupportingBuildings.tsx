@@ -288,7 +288,7 @@ export const LeftTownhouseCafe: React.FC<{
             {/* Round Bistro Table */}
             <mesh position={[0, 0.36, 0]} castShadow>
               <cylinderGeometry args={[0.28, 0.28, 0.04, 14]} />
-              <meshStandardMaterial color="#ffffff" roughness={0.3} />
+              <meshStandardMaterial color="#ffffff" roughness={0.55} />
             </mesh>
             <mesh position={[0, 0.18, 0]} castShadow>
               <cylinderGeometry args={[0.026, 0.036, 0.36, 8]} />
@@ -378,7 +378,7 @@ export const RightTownhouseBoutique: React.FC<{
         {[-0.45, 0.45].map((rx, ri) => (
           <mesh key={`rfinial-boutique-${ri}`} position={[rx, 1.25, 0]}>
             <sphereGeometry args={[0.045, 8, 8]} />
-            <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.98} />
+            <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.65} />
           </mesh>
         ))}
       </group>
