@@ -44,6 +44,7 @@ interface MatchState {
   winnerPlayerId:Id|null;
   finishReason:"LAST_PLAYER"|"TURN_LIMIT"|null;
   stateVersion:number; pausedAt:string|null; pauseReason:string|null;
+  allPlayersOfflineSince:string|null;
   startedAt:string; updatedAt:string;
 }
 interface RoomMember {
