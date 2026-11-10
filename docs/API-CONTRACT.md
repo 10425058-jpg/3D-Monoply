@@ -54,6 +54,7 @@ For a private room: generate cryptographically random high-entropy invite code (
 | `pay-jail-bail` | none | PRE_ROLL with inJail, cash >=50 |
 | `use-jail-card` | `cardId:string` | PRE_ROLL with inJail, held card |
 | `forfeit` | none | active or paused match participant (not already eliminated) |
+| `forfeit-player` | `targetPlayerId:string` | connected current host, PAUSED, target disconnected continuously >=120 seconds |
 
 Mini-v1 intentionally has **no enabled** auction, trade, build, sell, mortgage or debt-resolution endpoints; those require a new ruleset and versioned API change. Do not show them as usable in online mode. Server resolves Chance/Chest and all landings **within roll-dice**; no client `resolve-card` authority.
 
