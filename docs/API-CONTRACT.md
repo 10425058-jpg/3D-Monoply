@@ -1,481 +1,101 @@
-# 3D Monopoly — API Contract
+# 3D Monopoly — REST API Contract v1.0.0
 
-**Status:** Implementation baseline approved by project owner (team review via PR)  
-**Version:** 1.0.0  
-**Target backend:** NestJS + TypeScript  
-**Transport:** REST over HTTP for request/response operations; Socket.IO for live match events  
-**Database:** PostgreSQL via Prisma
+**Status:** Team review / implementation specification (not a claim of implemented backend)
+**Backend:** NestJS + TypeScript | **Database:** PostgreSQL + Prisma
+**Transport:** REST commands; Socket.IO notifications (see [SOCKET-EVENTS.md](./SOCKET-EVENTS.md))
+**Version:** 1.0.0 | **Date:** 2026-11-10
 
-> This document is the shared agreement between Frontend and Backend. It describes the proposed interface; it is not an implementation. Items marked **Decision needed** must be agreed by the team before implementation.
+## 1. Single source of truth and launch scope
 
-## 1. Project context and integration principles
+This file is normative for REST endpoints, errors and authentication. [GAME-STATE.md](./GAME-STATE.md) defines public game types and rules; [SOCKET-EVENTS.md](./SOCKET-EVENTS.md) defines subscriptions and events; [DATABASE-DESIGN.md](./DATABASE-DESIGN.md) defines durable storage; [INTEGRATION-PLAN.md](./INTEGRATION-PLAN.md) sets implementation milestones. No "Decision needed" alternatives are active in v1.
 
-The current repository is a React + TypeScript + Vite + Three.js application. The current game state is managed in `src/store/useGameStore.ts` with Zustand. It includes local players (including AI), properties, current player index, turn phase, dice, cards, auctions, trades, debt resolution, and meta progression.
+**21-day online MVP:** authenticated 2–4 human players; one map `central-castle`; ruleset `classic-v1`; content version `central-castle@1`; lobby, start, snapshot, roll, buy/decline property, rent, end turn, event synchronization and reconnect. This does not claim full classic rules or multiplayer are currently implemented. **Deferred online:** auctions, trades, buildings, mortgage, jail/cards/debt/bankruptcy, server AI and meta progression until rule-complete and tested. Existing local/AI frontend must remain functional.
 
-The current game is primarily client-side/local. The online backend described here is a new capability. Do not assume the current Zustand store is already connected to a server.
+**Authority:** Backend chooses dice, validates actions, calculates prices/rent, manages ownership, money, turns, versioning and outcome; client is presentation only (camera, hover, modals, VFX, animation, settings). Board content is backend-owned and versioned. Board IDs are integers 0–39. Match/player/user/room IDs are opaque strings.
 
-Principles:
+## 2. Common HTTP conventions
 
-1. The server is authoritative for online match state, dice results, turns, money, ownership, rent, auctions, trades, bankruptcy, and winner.
-2. The client may animate and render a server-approved result, but must not decide authoritative game outcomes.
-3. Keep rendering/UI state (camera mode, hovered/selected board space, graphics quality, modal visibility, animation progress) on the client.
-4. Keep board definitions and card definitions as versioned game content. Agree whether these are initially bundled in the backend or shared as versioned data.
-5. Use stable string IDs for users, rooms, matches, and online players. Existing local numeric player indexes are not suitable as persistent identity.
-6. Never send database credentials, password hashes, JWT secrets, or server-only values to the browser.
+Base URL: `http://localhost:3000/api/v1` in development. Production URL via environment configuration. JSON `camelCase`; timestamps ISO 8601 UTC; money non-negative or debt-specific **safe integers** represented as JSON numbers and TypeScript `number`, bounded by **-2,147,483,648 to 2,147,483,647** to match PostgreSQL `INTEGER`. Validate `Number.isSafeInteger` and the database range on every relevant operation; never serialize JS `bigint` to JSON money.
 
-## 2. Base URL, versioning, and common conventions
+All successful responses use `{ "data": <value>, "meta": {} }` (meta may include requestId). Error responses use `{ "error": { "code": "VALIDATION_ERROR", "message": "Readable explanation", "details": {} } }`. Never return bare resources. Action responses return the committed `stateVersion` and action result; client can obtain full authoritative snapshot via GET.
 
-Development base URL: `http://localhost:3000/api/v1`  
-Production base URL: provided by deployment configuration.
-
-All JSON responses use UTF-8. Dates use ISO 8601 UTC strings. Money is an integer in the game's currency unit (no floating point).
-
-### Authentication
-
-Protected REST requests use:
-
-```http
-Authorization: Bearer <accessToken>
-Content-Type: application/json
-```
-
-The server derives the authenticated user from the token. Do not trust a client-supplied `userId` or `playerId` as proof of identity.
-
-### Standard success shape
-
-All successful responses MUST use the following envelope (no bare resources):
-
-```json
-{
-  "data": {},
-  "meta": {}
-}
-```
-
-### Standard error shape
-
-```json
-{
-  "error": {
-    "code": "ROOM_NOT_FOUND",
-    "message": "The requested room does not exist.",
-    "details": {}
-  }
-}
-```
-
-Common HTTP status codes:
-
-| Status | Meaning |
+HTTP status and stable codes:
+| Status | Codes |
 |---|---|
-| 400 | Invalid request / validation error |
-| 401 | Missing or invalid authentication |
-| 403 | Authenticated but not allowed |
-| 404 | Resource not found |
-| 409 | State conflict (wrong turn, room full, already started) |
-| 429 | Rate limit exceeded |
-| 500 | Unexpected server error |
+| 400 | `VALIDATION_ERROR` |
+| 401 | `UNAUTHORIZED`, `INVALID_CREDENTIALS` |
+| 403 | `FORBIDDEN` |
+| 404 | `ROOM_NOT_FOUND`, `MATCH_NOT_FOUND` |
+| 409 | `ROOM_FULL`, `ROOM_ALREADY_STARTED`, `NOT_YOUR_TURN`, `INVALID_PHASE`, `STATE_VERSION_CONFLICT`, `CONTENT_VERSION_MISMATCH`, `INSUFFICIENT_FUNDS`, `INVALID_ACTION` |
+| 429 | `RATE_LIMITED` |
+| 500 | `INTERNAL_ERROR` |
 
-Error codes should be stable machine-readable strings. Frontend should use the code for behavior and the message for display.
+## 3. Authentication
 
-## 3. Authentication and user endpoints
+- `POST /auth/register`: `{username,email,password}` → 201 `{data:{user,accessToken,expiresIn:900},meta:{}}`.
+- `POST /auth/login`: `{email,password}` → 200 same envelope; reject invalid credentials with 401.
+- `POST /auth/refresh`: refresh cookie + CSRF token → 200 `{data:{accessToken,expiresIn:900},meta:{}}`; rotates refresh cookie.
+- `POST /auth/logout`: refresh cookie + CSRF token → 200 `{data:{success:true},meta:{}}`; revoke refresh session.
+- `GET /users/me`: bearer-authenticated profile, with `data:{id,username,email,avatarUrl,createdAt}`.
+- `PATCH /users/me`: bearer-authenticated `{username?,avatarUrl?}`; only allowlisted fields, never balance/level/rewards supplied by client.
 
-### 3.1 Register
+Protected REST endpoints require `Authorization: Bearer <accessToken>`. JWT access token lifetime 15 minutes, kept **in memory** on frontend. Rotating opaque refresh token (maximum 7 days) is only in a `Secure; HttpOnly; SameSite=Lax` cookie; localhost HTTP dev may omit Secure. Backend stores a **hash** of refresh credentials with revocation/expiry. Refresh/logout require CSRF defense (validated `X-CSRF-Token`, tied to session and delivered via a non-HttpOnly CSRF cookie or a safe bootstrap flow), strict allowed Origin and CORS; cross-site deployment needs separately reviewed cookie/CSRF settings. Do not use localStorage or query strings for credentials. Socket.IO `/game` receives access token in handshake `auth.token`.
 
-`POST /auth/register` — Public
+## 4. Rooms / lobby
 
-Request:
+Room has `roomId`, `status` (`WAITING|IN_PROGRESS|CLOSED`), `hostUserId`, `mapId`, `maxPlayers`, `members` and `matchId`. Creator is a member and host. 2–4 **human** players; host implicitly ready; others must be ready. On host leaving a waiting room, longest-present active member becomes host; empty room closes.
 
-```json
-{
-  "username": "PlayerOne",
-  "email": "player@example.com",
-  "password": "a-strong-password"
-}
-```
+| Method | Endpoint | Request | Success |
+|---|---|---|---|
+| POST | `/rooms` | `{mapId:"central-castle",maxPlayers:4,isPrivate:false}` | 201 room in `data` |
+| GET | `/rooms/:roomId` | — | room in `data` |
+| POST | `/rooms/:roomId/join` | `{inviteCode?}` | updated room |
+| POST | `/rooms/:roomId/leave` | `{}` | `{success:true}` |
+| PATCH | `/rooms/:roomId/ready` | `{isReady:boolean}` | updated room |
+| POST | `/rooms/:roomId/start` | `{rulesetId:"classic-v1",contentVersion:"central-castle@1"}` | 201 `{matchId,stateVersion,status,mapId}` |
 
-Response (201):
+Only host starts, after minimum players and readiness checks. Server checks membership and private invite code (do not trust `userId` in request body).
 
-```json
-{
-  "data": {
-    "user": {
-      "id": "usr_123",
-      "username": "PlayerOne",
-      "email": "player@example.com",
-      "avatarUrl": null,
-      "createdAt": "2026-11-09T10:00:00.000Z"
-    },
-    "accessToken": "<token>",
-    "expiresIn": 3600
-  }
-}
-```
+## 5. Match reads and action requests
 
-Validation: username and email format; password policy; reject duplicate email/username. Never return password hash.
+`GET /matches/:matchId`: authorized member receives `{data: MatchState, meta:{}}` per [GAME-STATE.md](./GAME-STATE.md), including `stateVersion`, `contentVersion`, durable transient states (auction/debt if enabled), connection state and phase.
 
-### 3.2 Login
+**Every match mutation** is an authenticated REST POST and includes **`clientActionId` (UUID string)**, **`expectedStateVersion` (integer)** and **`contentVersion:"central-castle@1"`**. Payload includes only listed action-specific fields. Backend validates authorization, membership, action against phase and version; server computes effects; commits state, game events and idempotency record in one atomic transaction; returns original response for exact duplicate `clientActionId` without applying again. If the same action ID is reused with a different request payload, return `409 INVALID_ACTION`; avoid duplicate writes even across retries, crashes and multiple backend instances. Stale new actions get `409 STATE_VERSION_CONFLICT`, and client refreshes GET snapshot. Backend may broadcast events after commit; delivery must be recoverable by snapshot/outbox.
 
-`POST /auth/login` — Public
+| POST action route under `/matches/:matchId/actions/` | Additional request fields | Rollout |
+|---|---|---|
+| `roll-dice` | none | MVP |
+| `buy-property` | `spaceId:number` | MVP |
+| `decline-property` | `spaceId:number` | MVP; no auction until auction rules enabled |
+| `end-turn` | none | MVP |
+| `auction/bid` | `amount:number` | Deferred |
+| `auction/pass` | none | Deferred |
+| `build`, `sell-house`, `mortgage` | `spaceId:number` | Deferred |
+| `trades` | `toPlayerId,offerCash,requestCash,offerPropertyIds,requestPropertyIds` | Deferred: creates pending proposal |
+| `trades/:tradeId/accept`, `trades/:tradeId/reject` | none | Deferred: atomic accepted trade |
+| `settle-debt`, `declare-bankruptcy` | rule-specific documented schema required before enabling | Deferred |
+| `pay-jail-bail`, `use-jail-card`, `resolve-card` | rule-specific documented schema required before enabling | Deferred |
 
-Request:
-
-```json
-{
-  "email": "player@example.com",
-  "password": "a-strong-password"
-}
-```
-
-Response (200): same shape as register.
-
-Errors: `INVALID_CREDENTIALS`, `ACCOUNT_DISABLED`, `VALIDATION_ERROR`.
-
-### 3.3 Logout
-
-`POST /auth/logout` — Authenticated
-
-Response (200): `{ "data": { "success": true } }`.
-
-Implementation note: if access tokens are stateless, logout behavior and refresh-token revocation must be explicitly designed. Locked: rotating refresh token in an HttpOnly cookie and short-lived JWT access token; see section "Contract v1.0.0 — locked implementation decisions".
-
-### 3.4 Current profile
-
-`GET /users/me` — Authenticated
-
-Response:
+**Example roll request** `POST /api/v1/matches/match_xyz/actions/roll-dice`:
 
 ```json
-{
-  "data": {
-    "id": "usr_123",
-    "username": "PlayerOne",
-    "email": "player@example.com",
-    "avatarUrl": null,
-    "level": 1,
-    "experience": 0,
-    "coins": 0,
-    "createdAt": "2026-11-09T10:00:00.000Z"
-  }
-}
+{"clientActionId":"f7399e8e-96b5-4a5a-a418-e7411a73cdd8","expectedStateVersion":17,"contentVersion":"central-castle@1"}
 ```
 
-### 3.5 Update profile
-
-`PATCH /users/me` — Authenticated
-
-Request (all fields optional):
-
+**Response** `200`:
 ```json
-{
-  "username": "NewName",
-  "avatarUrl": "https://cdn.example.com/avatar.png"
-}
+{"data":{"actionId":"act_001","matchId":"match_xyz","playerId":"mp_001","dice":[3,4],"total":7,"fromPosition":5,"toPosition":12,"turnPhase":"LANDED_ACTION","stateVersion":18},"meta":{}}
 ```
 
-Only allowlisted profile fields can be updated. Coins, level, wins, and other rewards cannot be set directly by the client.
+The frontend must **not** send dice values or claimed money, player position, prices or resulting ownership. On repeated action ID, server returns the same response without a second roll. No Socket.IO gameplay command may mutate server state.
 
-## 4. Room endpoints
+## 6. Snapshot and synchronization rules
 
-A room is a lobby before a match. A match is the actual game session. The room may retain a reference to its match after starting.
+- First connect/reconnect: authorize socket `match:join`; server emits full `match:snapshot`. Also support REST `GET /matches/:matchId` to recover after gaps.
+- Each accepted gameplay command advances `stateVersion` exactly once; a command may yield **multiple events with the same version**. Events have unique `eventId`, are deduplicated, and do not independently increment state versions.
+- Disconnect grace period **120 seconds**. After expiry, match becomes paused with persisted pause reason; no automatic forfeit. Unpause policy must be explicitly implemented/tested before enabling automatic resumption.
+- Only one map `central-castle`, one ruleset `classic-v1` for MVP. Server validates content version and returns 409 `CONTENT_VERSION_MISMATCH` for incompatible clients.
 
-### 4.1 Create room
+## 7. Change management
 
-`POST /rooms` — Authenticated
-
-Request:
-
-```json
-{
-  "mapId": "central-castle",
-  "maxPlayers": 4,
-  "isPrivate": false
-}
-```
-
-Response (201):
-
-```json
-{
-  "data": {
-    "id": "room_abc123",
-    "status": "WAITING",
-    "mapId": "central-castle",
-    "maxPlayers": 4,
-    "isPrivate": false,
-    "hostUserId": "usr_123",
-    "players": [],
-    "createdAt": "2026-11-09T10:00:00.000Z"
-  }
-}
-```
-
-Rules: creator becomes host and room member; maxPlayers must be within the agreed range (proposed 2–4); mapId must be supported.
-
-### 4.2 Get room
-
-`GET /rooms/:roomId` — Authenticated room member (or public-room policy)
-
-Returns room details, members, ready states, and match ID if started.
-
-### 4.3 Join room
-
-`POST /rooms/:roomId/join` — Authenticated
-
-Request:
-
-```json
-{
-  "inviteCode": "optional-for-private-room"
-}
-```
-
-Response: updated room resource.
-
-Errors: `ROOM_NOT_FOUND`, `ROOM_FULL`, `ROOM_ALREADY_STARTED`, `INVALID_INVITE_CODE`, `ALREADY_IN_ROOM`.
-
-### 4.4 Leave room
-
-`POST /rooms/:roomId/leave` — Authenticated
-
-Response: `{ "data": { "success": true } }`.
-
-Locked: transfer host to longest-present active member in a waiting room, or close when room becomes empty.
-
-### 4.5 Ready state
-
-`PATCH /rooms/:roomId/ready` — Authenticated
-
-Request:
-
-```json
-{ "isReady": true }
-```
-
-Response: updated room state.
-
-### 4.6 Start match
-
-`POST /rooms/:roomId/start` — Authenticated host only
-
-Request:
-
-```json
-{ "rulesetId": "classic-v1" }
-```
-
-Response (201):
-
-```json
-{
-  "data": {
-    "matchId": "match_xyz789",
-    "status": "IN_PROGRESS",
-    "mapId": "central-castle",
-    "currentTurnPlayerId": "mp_001",
-    "stateVersion": 1
-  }
-}
-```
-
-The server validates minimum player count and ready states before starting.
-
-## 5. Match and gameplay endpoints
-
-REST endpoints are suitable for commands that need a clear response. Socket.IO broadcasts the resulting state/events to all players. The server must validate every command against the current match state.
-
-### 5.1 Get match snapshot
-
-`GET /matches/:matchId` — Authenticated match member
-
-Returns the current authoritative snapshot. Used when joining/reconnecting or recovering after missed events.
-
-### 5.2 Roll dice
-
-`POST /matches/:matchId/actions/roll-dice` — Authenticated match member
-
-Request:
-
-```json
-{ "clientActionId": "uuid-generated-by-client" }
-```
-
-The client does not send dice values or desired movement. Server verifies current turn and phase, generates dice securely, applies game rules, and returns the result.
-
-Response:
-
-```json
-{
-  "data": {
-    "actionId": "act_001",
-    "dice": [3, 4],
-    "total": 7,
-    "playerId": "mp_001",
-    "fromPosition": 5,
-    "toPosition": 12,
-    "turnPhase": "LANDED_ACTION",
-    "stateVersion": 18
-  }
-}
-```
-
-### 5.3 Buy property
-
-`POST /matches/:matchId/actions/buy-property`
-
-Request:
-
-```json
-{
-  "spaceId": 12,
-  "clientActionId": "uuid-generated-by-client"
-}
-```
-
-Server checks that it is the player's turn, the player is on that space, the property is purchasable and unowned, and the player has enough money. Price comes from server-side board rules, not the client.
-
-### 5.4 Decline property / auction
-
-`POST /matches/:matchId/actions/decline-property`  
-`POST /matches/:matchId/actions/auction`
-
-Auction actions:
-
-- `POST /matches/:matchId/actions/auction/bid` — request includes integer `amount` and `clientActionId`.
-- `POST /matches/:matchId/actions/auction/pass`.
-
-Server controls bid order, minimum increments, available funds, and auction completion.
-
-### 5.5 Build / sell / mortgage
-
-`POST /matches/:matchId/actions/build` — `{ "spaceId": 12, "clientActionId": "..." }`  
-`POST /matches/:matchId/actions/sell-house` — same shape  
-`POST /matches/:matchId/actions/mortgage` — same shape
-
-Server validates ownership, even building rules, house/hotel limits, mortgage state, and money.
-
-### 5.6 Trade
-
-`POST /matches/:matchId/actions/trades`
-
-Request:
-
-```json
-{
-  "toPlayerId": "mp_002",
-  "offerCash": 100,
-  "requestCash": 50,
-  "offerPropertyIds": [3],
-  "requestPropertyIds": [8],
-  "clientActionId": "uuid-generated-by-client"
-}
-```
-
-Locked: create trade proposal, then recipient accepts or rejects. Acceptance is atomic.
-
-### 5.7 Debt, jail, cards, and turn
-
-Proposed command endpoints:
-
-- `POST /matches/:matchId/actions/settle-debt`
-- `POST /matches/:matchId/actions/declare-bankruptcy`
-- `POST /matches/:matchId/actions/pay-jail-bail`
-- `POST /matches/:matchId/actions/use-jail-card`
-- `POST /matches/:matchId/actions/resolve-card`
-- `POST /matches/:matchId/actions/end-turn`
-
-The exact command payloads depend on the final ruleset. Server owns all calculations and phase transitions.
-
-### 5.8 Common action response
-
-Successful actions should return the authoritative result and current state version. A compact action response may be returned over HTTP while the complete update is broadcast over Socket.IO.
-
-All state-changing commands should support an idempotency key such as `clientActionId` so a retry does not apply the same purchase, payment, or roll twice.
-
-## 6. Match state and identifiers
-
-- `userId`: persistent account ID.
-- `playerId`: player seat/participant ID within one match.
-- `roomId`: lobby ID.
-- `matchId`: game session ID.
-- `spaceId`: stable integer from the board definition (the current frontend uses board-space IDs).
-- `stateVersion`: monotonically increasing integer per match; helps clients ignore stale/out-of-order updates.
-
-Do not treat the current local `Player.id` numeric index as a global user ID.
-
-## 7. Frontend integration responsibilities
-
-Frontend should:
-
-1. Keep camera, selection, hover, modal, sound, graphics quality, and animation state locally.
-2. Use API responses and Socket.IO snapshots/events to update online gameplay state.
-3. Show loading, success, and error states for commands.
-4. Never optimistically award money, assign property ownership, or choose dice results as final truth.
-5. Re-fetch `GET /matches/:matchId` when state versions indicate a gap or after reconnect.
-6. Keep the existing local/AI mode working while online mode is developed separately.
-
-Suggested frontend modules (add when integration begins):
-
-```text
-src/
-  services/
-    apiClient.ts
-    authService.ts
-    roomService.ts
-    matchService.ts
-  socket/
-    socketClient.ts
-  types/
-    api.ts
-```
-
-## 8. Decisions resolved for implementation
-
-The project-owner-approved decisions and MVP scope are locked in **Contract v1.0.0 — locked implementation decisions** below. Any changes require a reviewed contract PR. Unimplemented features are not implicitly supported.
-
-## 9. Scope recommendation
-
-Implement in increments:
-
-1. Backend foundation + health check + Prisma connection.
-2. Authentication + user profile.
-3. Room lifecycle and lobby.
-4. Match snapshot + server-authoritative core turn/dice/property actions.
-5. Socket.IO synchronization and reconnect.
-6. Remaining rules (auction, trades, debt, jail, cards, bankruptcy).
-7. Meta progression and leaderboard.
-
-Do not attempt to migrate every existing local feature into multiplayer in the first backend pull request.
-
----
-
-## Contract v1.0.0 — locked implementation decisions (2026-11-10)
-
-**Status: Project-owner implementation baseline.** This section resolves the former `Decision needed` items for the 21-day delivery. If older draft examples below differ, **this section takes precedence**. Changing a contract field, command, event, or policy requires a reviewed docs PR and version bump. Documentation approval does **not** mean backend code is implemented.
-
-| Area | Locked decision |
-|---|---|
-| Backend | NestJS + TypeScript, PostgreSQL + Prisma. Frontend stays in repository root; backend starts in `backend/`. |
-| Transport | **REST is the sole path for mutating gameplay commands.** Socket.IO is used for lobby/match broadcasts, presence and snapshot recovery only. Do not implement `game:roll_dice`, `game:buy_property`, `game:end_turn` or generic `game:action` as write-capable socket handlers. |
-| REST response | All successful resources/actions use `{ "data": ..., "meta": {} }`; all errors use `{ "error": { "code": "...", "message": "...", "details": {} } }`. No bare-resource responses. |
-| API paths | Base `/api/v1`; the resource is `/matches/:matchId` (not `/games/:id`). Use the explicitly listed action endpoints in API-CONTRACT.md. |
-| Identity | Authenticated JWT Bearer access token (15-minute lifetime); rotating refresh token via Secure, HttpOnly, SameSite=Lax cookie (7-day maximum), with backend-stored hashed refresh-token identifiers and revocation on logout. Cookie CSRF protection is required for refresh/logout operations. Local development may relax Secure only over HTTP localhost. Never store tokens in localStorage or URL parameters. |
-| Auth endpoints | `POST /auth/register`, `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout`, `GET /users/me`. Refresh response returns `data.accessToken` and `data.expiresIn`; cookie is set/rotated via Set-Cookie. Login/register set refresh cookie and return access token. |
-| Lobby | 2–4 human players; host is creator; when host leaves a waiting room, transfer host to the longest-present active member, otherwise close room. Room start requires all members ready except host (host is implicitly ready). |
-| First map/rules | `mapId=central-castle`, `rulesetId=classic-v1`, board space IDs 0–39 and integer game currency. This is a compatibility contract, not a claim that existing custom rules already match classic Monopoly. Backend must define/test exact card lists, building, jail and auction rules before enabling those features online. |
-| Content ownership | Backend owns one versioned board/ruleset dataset `central-castle@1`. Frontend renders the same board IDs and sends its declared content version; backend rejects unsupported versions with `CONTENT_VERSION_MISMATCH`. No client-supplied prices or card outcomes. A shared package can follow later; no duplicate independent rule definitions. |
-| IDs | User, room, match and match-player IDs are opaque strings; `spaceId` is integer. Server resolves user identity from auth, never from user-supplied IDs. |
-| State | Server owns money, ownership, turn, dice, cards, debt and outcome; client owns camera/UI/animation. Every accepted state-changing command increments `stateVersion` and has idempotent `clientActionId` UUID. |
-| Trade | Proposal → recipient accepts/rejects; acceptance is an atomic server transaction with renewed validity checks. Do not implement single-step unconfirmed trades. |
-| AI | No server-controlled AI seats in first online release. Existing local vs AI mode is preserved. |
-| Reconnect | A disconnected player remains in match for 120 seconds. Rejoin via authorized `match:join` triggers full `match:snapshot`; version gaps require snapshot. After grace expires, mark player absent and pause the match pending explicit room policy; do **not** auto-forfeit or silently transfer ownership in v1. |
-| Meta progression | Daily rewards, wheel, stickers, missions, leaderboards and cosmetics are **out of scope** for the 21-day online MVP. The existing local implementation remains untouched. |
-| Online MVP slice | Auth, room create/join/ready/start, match snapshot, roll-dice, buy/decline property, rent resolution, end-turn, authoritative broadcasts and reconnect. Auctions, trades, building, mortgage, advanced jail/cards/debt/bankruptcy and full classic-rules parity remain specified but must not be advertised as implemented until tested end-to-end. |
-| Error and consistency | `VALIDATION_ERROR`=400, `UNAUTHORIZED`=401, `FORBIDDEN`=403, `ROOM_NOT_FOUND`/`MATCH_NOT_FOUND`=404, `NOT_YOUR_TURN`/`INVALID_PHASE`/`ROOM_FULL`/`CONTENT_VERSION_MISMATCH`/`STATE_VERSION_CONFLICT`=409, `RATE_LIMITED`=429. Client retries safe reads and idempotent writes with same `clientActionId`. |
-
-**Command delivery:** the client sends `clientActionId` and `expectedStateVersion` in the JSON body of every gameplay mutation (plus action-specific fields); the backend authenticates, authorizes, validates, transactionally commits, returns `{data:{...,stateVersion},meta:{}}` and then broadcasts the resulting event(s). A replay of the same action ID returns the original outcome without applying it again. On state conflict, client fetches `GET /matches/:matchId` and re-renders. Server never accepts dice values, money totals, or ownership changes from a client.
-
-**Socket ordering:** every custom server event uses `{eventId,matchId,stateVersion,occurredAt,payload}`. Socket emits are **notifications, not commands**. The only allowed client socket messages are `match:join`, `match:leave` and connection/presence operations; ready state changes use REST `PATCH /rooms/:roomId/ready`. Match snapshots are authoritative; clients deduplicate `eventId`, reject stale versions, and recover gaps by REST GET.
-
-**Compatibility rules:** legacy draft examples without `expectedStateVersion` or `meta` illustrate gameplay but must be updated by implementers to follow this locked baseline. Never break local/AI mode when integrating online services.
-
+Any API change needs a reviewed PR and semver update; frontend and backend use shared contract tests (or validated schemas) and keep old local AI behavior isolated from online services. Do not interpret this contract as evidence of completed implementation.
