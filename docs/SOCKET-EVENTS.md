@@ -36,7 +36,8 @@ For lobby messages `roomId` is required and `roomRevision` is included inside th
 | Name | Payload / purpose |
 |---|---|
 | `room:snapshot` | authorized room's full RoomState; initial lobby subscribe |
-| `room:updated` | updated RoomState after REST join/leave/ready/host change |
+| `room:updated` | updated RoomState after REST join/leave/ready/host change and terminal closure |
+| `room:host_changed` | `{roomId,previousHostUserId,newHostUserId,roomRevision}` on room host failover |
 | `match:started` | `{matchId,snapshot:MatchState}` delivered to subscribed lobby users; then subscribe match channel |
 | `match:snapshot` | full authorized MatchState on match join/recovery, without private deck order |
 | `game:dice_rolled` | `{playerId,dice,total,fromPosition,toPosition}` |
