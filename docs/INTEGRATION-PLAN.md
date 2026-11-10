@@ -13,7 +13,7 @@ Keep current React/TypeScript/Vite/R3F frontend in root, keep its local/AI game 
 - Money: JSON/TS safe integer `number` within [0,2147483647], DB `INTEGER CHECK(money >= 0)`; immediate bankruptcy on unaffordable obligations.
 - JWT access: 15 minutes, in memory. Login/register set 7-day max rotating HttpOnly refresh cookie plus return an in-memory CSRF token; credentialed refresh rotates both; `GET /auth/csrf` bootstrap after page reload. Socket reconnect uses freshly refreshed JWT and re-subscribes.
 - Private rooms return raw code once on creation and allow host rotation, DB stores only hash. Authenticated GET /rooms browses public waiting rooms.
-- 120-second disconnect grace, PAUSED on timeout, resume when all remaining solvent players reconnect; otherwise authorized host can abandon. No timeout auto-bankruptcy/forfeit.
+- 120-second disconnect grace, PAUSED on timeout, resume when all remaining solvent players reconnect; otherwise connected current host can forfeit an overdue absent player or abandon, and all-offline 24h auto-abandon applies. No disconnect-only auto-bankruptcy.
 - All actions: UUID clientActionId, expectedStateVersion, contentVersion. Idempotency lookup **before** state-version check; transaction writes state/action result/events.
 - Match turn rules: full mini-v1 coverage for Chance/Chest, Jail, GO, doubles, rent, taxes, bankruptcy, and deterministic terminal condition at last solvent player or 80 completed turns. No exposed auctions, trades, builds, mortgages or manual debt actions in this simplified online ruleset.
 - Ended/abandoned match has null currentPlayerId; active/paused match has non-null currentPlayerId; secrets such as deck order never in snapshots.
@@ -58,3 +58,11 @@ Mandatory test groups:
 8. Verify current local game and frontend build still pass.
 
 **Definition of done:** These are tests that must be implemented and run by the development team; documentation updates alone cannot certify a working application.
+
+## 6. No-deadlock host and match lifecycle gates (v1.1.1)
+
+- Host privilege is defined during WAITING, IN_PROGRESS and PAUSED. After host's >120s disconnected period elect connected, solvent lowest-seat replacement. Log and broadcast change; a returning former host does not auto-regain privilege.
+- While paused, connected current host can explicitly forfeit another player offline >=120s. Server verifies continued absence transactionally and emits bankruptcy plus resumed/finished outcome. Normal players may voluntarily forfeit. No automatic player bankruptcy on mere disconnection.
+- After 24 hours with **zero eligible connected players continuously**, restart-safe auto-abandon closes game and room even if no host is online. Other cases: all survivors reconnect → resume; host may abandon paused game. Do not leave orphaned PAUSED forever when nobody is online.
+- FINISHED or ABANDONED closes the parent room. No rematch in same room in mini-v1; new room required. Preserve result snapshots and ensure GET /rooms excludes closed rooms.
+- E2E scenarios: host leaves during match; host unavailable and another player gets role; previously absent host reconnects; host forfeit overdue disconnected current player; race between return and forced forfeit; only one survivor wins; no players online 24h; DB restart before timeout; terminal room closes and rejects ready/join/start.

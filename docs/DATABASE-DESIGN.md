@@ -16,7 +16,7 @@ Use PostgreSQL + Prisma. Opaque entity IDs are UUIDs. Money **INTEGER NOT NULL C
 `id UUID PK, user_id UUID REFERENCES users(id), refresh_token_hash TEXT UNIQUE NOT NULL, csrf_token_hash TEXT NOT NULL, rotated_from_id UUID NULL REFERENCES user_sessions(id), expires_at TIMESTAMPTZ NOT NULL, revoked_at TIMESTAMPTZ NULL, created_at TIMESTAMPTZ NOT NULL`. Refresh is rotated atomically and limited to 7 days maximum. No raw refresh token or raw CSRF secret persisted. Client receives refresh via HttpOnly cookie, CSRF token via login/register or bootstrap; see API contract.
 
 **rooms**
-`id UUID PK, host_user_id UUID REFERENCES users(id), status VARCHAR(20) NOT NULL, map_id VARCHAR(80) NOT NULL, max_players SMALLINT NOT NULL CHECK(max_players BETWEEN 2 AND 4), is_private BOOLEAN NOT NULL DEFAULT false, invite_code_hash TEXT NULL, room_revision INTEGER NOT NULL DEFAULT 0, created_at TIMESTAMPTZ NOT NULL, updated_at TIMESTAMPTZ NOT NULL`. Only the **one-time response** to creating private room (or rotating invite code) contains raw invite code; DB stores hash. Host change is transactionally synchronized with membership.
+`id UUID PK, host_user_id UUID REFERENCES users(id), status VARCHAR(20) NOT NULL, map_id VARCHAR(80) NOT NULL, max_players SMALLINT NOT NULL CHECK(max_players BETWEEN 2 AND 4), is_private BOOLEAN NOT NULL DEFAULT false, invite_code_hash TEXT NULL, room_revision INTEGER NOT NULL DEFAULT 0, match_id UUID NULL, created_at TIMESTAMPTZ NOT NULL, updated_at TIMESTAMPTZ NOT NULL`. Only the **one-time response** to creating private room (or rotating invite code) contains raw invite code; DB stores hash. Host change is transactionally synchronized with membership.
 
 **room_members**
 `id UUID PK, room_id UUID REFERENCES rooms(id), user_id UUID REFERENCES users(id), is_ready BOOLEAN NOT NULL DEFAULT false, is_host BOOLEAN NOT NULL DEFAULT false, joined_at TIMESTAMPTZ NOT NULL, left_at TIMESTAMPTZ NULL`. Enforce one active membership per (room,user), host consistently present; host implied ready. Room revision increments on membership/ready/host changes.
@@ -42,11 +42,12 @@ winner_player_id UUID NULL, -- match_players FK added after tables
 finish_reason VARCHAR(24) NULL, -- LAST_PLAYER | TURN_LIMIT
 paused_at TIMESTAMPTZ NULL,
 pause_reason VARCHAR(80) NULL,
+all_players_offline_since TIMESTAMPTZ NULL,
 started_at TIMESTAMPTZ NOT NULL,
 updated_at TIMESTAMPTZ NOT NULL,
 ended_at TIMESTAMPTZ NULL
 ```
-`current_player_id` must be non-null in IN_PROGRESS/PAUSED (CHECK or transactional app invariant) and becomes null in FINISHED/ABANDONED. Winner nullable on ABANDONED, required on FINISHED. `pending_purchase_space_id` non-null only during LANDED_ACTION. Match remains PAUSED until all eligible participants reconnect; host can abandon.
+`current_player_id` must be non-null in IN_PROGRESS/PAUSED (CHECK or transactional app invariant) and becomes null in FINISHED/ABANDONED. Winner nullable on ABANDONED, required on FINISHED. `pending_purchase_space_id` non-null only during LANDED_ACTION. Match remains PAUSED until all eligible participants reconnect, a connected host resolves overdue absences or abandons, or 24h all-offline auto-abandon occurs (see §6).
 
 **match_players**
 `id UUID PK, match_id UUID REFERENCES matches(id), user_id UUID NOT NULL REFERENCES users(id), seat_order SMALLINT NOT NULL, username_snapshot VARCHAR(24) NOT NULL, token VARCHAR(64) NOT NULL, color VARCHAR(16) NOT NULL, position SMALLINT NOT NULL DEFAULT 0 CHECK(position BETWEEN 0 AND 39), money INTEGER NOT NULL DEFAULT 1500 CHECK(money >= 0), in_jail BOOLEAN NOT NULL DEFAULT false, jail_turns SMALLINT NOT NULL DEFAULT 0, held_jail_card_ids JSONB NOT NULL DEFAULT '[]', is_bankrupt BOOLEAN NOT NULL DEFAULT false, connection_status VARCHAR(16) NOT NULL DEFAULT 'CONNECTED', disconnected_at TIMESTAMPTZ NULL, final_rank SMALLINT NULL`. Unique (match_id,seat_order) and (match_id,user_id); no server AI seats in mini-v1. Held Jail card IDs are validated as string arrays.
@@ -79,7 +80,7 @@ Check processed action (same actor + canonical request hash) **before** expected
 
 - Check session + authorized room/match, validate payload and nonce, query processed_actions first, then content/expected version and phase. Lock match row (or optimistic transaction with retry) during command; commit money transfers, property change, deck draw, completedTurns, stateVersion, processed_actions and game_events atomically.
 - Rent/payment insolvency causes **immediate bankruptcy** per ONLINE-MVP-RULES; no negative balances or inaccessible DEBT_RESOLUTION. Pay remaining cash and transfer/unown deeds within one transaction.
-- On socket disconnect, persist presence only when last active socket is gone; `disconnected_at` starts 120-second grace. Once expired, persist status PAUSED; when all solvent/active player connections return, atomically set IN_PROGRESS and emit resumed. Forfeiture is never caused solely by expiry.
+- On socket disconnect, persist presence only when last active socket is gone; `disconnected_at` starts 120-second grace. Once expired, persist status PAUSED; when all solvent/active player connections return, atomically set IN_PROGRESS and emit resumed. No automatic forfeiture solely from timeout; connected current host may deliberately forfeit an overdue player after grace, and all-offline 24h triggers abandonment.
 - For match finish, persist winner, finishReason, endedAt and null currentPlayerId. For abandon, set ABANDONED with null winner and currentPlayerId. A match whose player reconnects cannot overwrite terminal status.
 - Health `GET /api/v1/health` (alias only if explicitly configured) returns 503 DEPENDENCY_UNAVAILABLE when DB down.
 - Validate user/session lifespan; refresh cookie + CSRF. Store only hashed invite code (one-time plaintext response to host), token hashes, password hashes and no secrets in game events.
@@ -91,3 +92,13 @@ Advanced online auctions/trades/mortgages/building/debt and profile progression 
 ## 5. Migration verification
 
 Tests required: unsigned/overdrawn money rejected by DB, card deck persistence/replay, duplicate action unique conflict, stale replay returns original response, simultaneous rolls commit once, reconnect after restart restores turn and pause, terminal statuses nullable currentPlayerId, rooms hash invite code and refresh cookie/CSRF lifecycle.
+
+## 6. Durable host and lifecycle transitions (v1.1.1)
+
+**Required matches column (included in the matches definition above):** `all_players_offline_since TIMESTAMPTZ NULL`. When last eligible player disconnects, set it; clear it on eligible reconnection. A scheduled worker/job checks for **24 continuous hours** offline before atomically setting `matches.status=ABANDONED`, `current_player_id=NULL`, `winner_player_id=NULL` and parent `rooms.status=CLOSED`. Restart-safe deadline must not depend on an in-memory timer. These updates and emitted event log rows are transactional; only broadcast after commit.
+
+**Host failover:** during an IN_PROGRESS or PAUSED match, when host is disconnected >120s, transactionally lock `rooms` and relevant `room_members` / `match_players`; choose connected non-bankrupt participant with **smallest seat_order**, set `rooms.host_user_id`, update exactly one `room_members.is_host`, and increment `room_revision`. When no eligible candidate exists, retain previous host until a candidate reconnects; reassess host transfer then. Log audited host change and broadcast `room:host_changed` and `room:updated` after commit. Only authenticated current connected host may forcibly forfeit another player's >120s uninterrupted absence.
+
+**Forced absence forfeit:** transact action idempotency, authorization/eligibility, liquidation to Bank, player bankruptcy, turn recomputation, match version, events and optional auto-resume/finish. Don't allow forfeit when the player has reconnected or when absence has not exceeded grace. On finish/host abandon/24h auto-abandon, close room in same transaction, increment room revision, and keep `rooms.match_id` or a unique room→match association for read-only final results. The original schema's `matches.room_id` is the reverse FK; **use `rooms.match_id UUID NULL`** (included above) and apply its foreign key after `matches` exists to resolve cyclic ordering. Never reopen a CLOSED room in mini-v1.
+
+**DB tests:** host transfer with simultaneous reconnections, forced forfeit racing rejoin, single room host after transfer, 24h offline deadline across process restart, terminal room closure, idempotency on host-forfeit/abandon, terminal current_player_id null.
