@@ -1,4 +1,4 @@
-# 3D Monopoly — Socket.IO Contract v1.1.0
+# 3D Monopoly — Socket.IO Contract v1.1.2
 
 **Status:** Proposed normative specification. Mutations occur **only via REST**, not Socket.IO. See [API-CONTRACT.md](./API-CONTRACT.md), [GAME-STATE.md](./GAME-STATE.md), [ONLINE-MVP-RULES.md](./ONLINE-MVP-RULES.md).
 
@@ -38,18 +38,18 @@ For lobby messages `roomId` is required and `roomRevision` is included inside th
 | `room:snapshot` | authorized room's full RoomState; initial lobby subscribe |
 | `room:updated` | updated RoomState after REST join/leave/ready/host change and terminal closure |
 | `room:host_changed` | `{roomId,previousHostUserId,newHostUserId,roomRevision}` on room host failover |
-| `match:started` | `{matchId,snapshot:MatchState}` delivered to subscribed lobby users; then subscribe match channel |
-| `match:snapshot` | full authorized MatchState on match join/recovery, without private deck order |
+| `match:started` | `{matchId,stateVersion}` delivered to subscribed lobby users; then subscribe match channel for a private viewer-specific snapshot |
+| `match:snapshot` | **unicast** authenticated viewer-specific MatchState on join/recovery, including that viewer's `allowedActions`, excluding private future deck order |
 | `game:dice_rolled` | `{playerId,dice,total,fromPosition,toPosition}` |
 | `game:player_moved` | `{playerId,fromPosition,toPosition}` |
 | `game:property_purchased` | `{playerId,spaceId,price,balance}` |
 | `game:rent_paid` | `{payerPlayerId,ownerPlayerId,spaceId,amount}` |
-| `game:card_resolved` | `{playerId,cardId,deck,effects}` (only revealed card; no future deck order) |
+| `game:card_resolved` | `{playerId,cardId,deck,effects,resolvedAt}` (only revealed card, matches persisted `lastCardResolved`; no future deck order) |
 | `game:jail_changed` | `{playerId,inJail,jailTurns}` |
-| `game:player_bankrupt` | `{playerId,creditorPlayerId:null|string}` |
+| `game:player_bankrupt` | `{playerId,creditorPlayerId:null|string,reason:"INSOLVENT_TO_BANK"|"INSOLVENT_TO_PLAYER"|"VOLUNTARY_FORFEIT"|"HOST_FORFEIT_ABSENT"}`; reason required |
 | `game:turn_changed` | `{currentPlayerId,turnPhase}` |
 | `game:paused` | `{pausedAt,reason}` |
-| `game:resumed` | `{snapshot:MatchState}` |
+| `game:resumed` | `{matchId,stateVersion}` broadcast; each client fetches personalized snapshot |
 | `game:finished` | `{winnerPlayerId,finishReason,standings}` |
 | `game:abandoned` | `{reason}` |
 | `player:connection_changed` | `{playerId,connectionStatus,disconnectedAt}` |
@@ -62,23 +62,25 @@ Only broadcast committed backend-approved results; include event envelope. A mat
 1. User logs in (receives access JWT, refresh cookie and csrf token). User creates or joins room with REST.
 2. User sends `room:join {roomId}`; server authorizes membership then emits `room:snapshot`.
 3. Another player joins/gets ready via REST → all subscribed players receive `room:updated`.
-4. Host uses REST `POST /rooms/:roomId/start`. Room subscribers receive `match:started {matchId,snapshot}` **even if they have no match subscription yet**.
+4. Host uses REST `POST /rooms/:roomId/start`. Room subscribers receive `match:started {matchId,stateVersion}` **even if they have no match subscription yet**; then subscribe to get the individually authorized MatchState.
 5. Each player emits `match:join {matchId}`; server returns match snapshot. Player rolls by REST; receives action response; server broadcasts sequenced events; clients animate and reconcile state.
 
 ## 5. Refresh, disconnection, resume
 
 Access JWT expires in 15 minutes. Before/after expiry, client refreshes with HTTP-only refresh cookie and CSRF header (see API-CONTRACT), then **reconnects** Socket.IO with the new JWT, re-subscribes to authorized room/match and obtains snapshots. On 401/refresh failure, require login, not automatic match forfeit. Do not rely on an old socket handshake token beyond expiry; server may disconnect expired sockets and must validate on join.
 
-Track each player's last active authenticated socket connection across tabs; only mark DISCONNECTED after all their match sockets are gone. 120-second grace starts on disconnect. Active player disconnect blocks their turn; after grace server marks PAUSED and broadcasts `game:paused`. When **all remaining solvent players** rejoin, server atomically restores IN_PROGRESS and broadcasts `game:resumed` with snapshot. If not all reconnect, the connected current host may explicitly forfeit overdue disconnected participants or abandon via REST; host failover and 24-hour all-offline auto-abandon are defined in §7. Never automatically bankrupt disconnected player. Reconnect snapshots, not event retransmission, are the recovery source.
+Track each player's last active authenticated socket connection across tabs; only mark DISCONNECTED after all their match sockets are gone. 120-second grace starts on disconnect. Active player disconnect blocks their turn; after grace server marks PAUSED and broadcasts `game:paused`. When **all remaining solvent players** rejoin, server atomically restores IN_PROGRESS and broadcasts `game:resumed` with match ID/version; each participant fetches an authorized personalized snapshot. If not all reconnect, the connected current host may explicitly forfeit overdue disconnected participants or abandon via REST; host failover and 24-hour all-offline auto-abandon are defined in §7. Never automatically bankrupt disconnected player. Reconnect snapshots, not event retransmission, are the recovery source.
 
 ## 6. Security
 
 Authorize room/match events and channel membership, validate payload size, rate-limit joins, never log tokens or invite codes, never broadcast private deck order, account email or hashed credentials. Socket notifications don't confer action authority. The client must not send dice or money updates.
 
-## 7. Host failover and room closure notifications (v1.1.1)
+## 7. Host failover, terminal room and viewer-safe snapshots
 
-This section supersedes the earlier shorthand "host may abandon if not all reconnect" wherever that could imply an absent host can act. In an IN_PROGRESS/PAUSED room whose host is absent for more than 120 seconds, backend reassigns host to the **connected, non-bankrupt lowest-seat participant**, atomically updating room state. Existing host role persists if no connected eligible player remains until reconnect triggers election. Server broadcasts `room:host_changed` payload `{roomId,previousHostUserId,newHostUserId,roomRevision}` and `room:updated` to authenticated `room:<roomId>` subscribers. Client updates host controls from the new authoritative RoomState.
+During IN_PROGRESS/PAUSED when the room host stays offline for >=120 seconds, the server transfers host authority to the connected, solvent participant with lowest seatOrder. It atomically increments roomRevision and sends `room:host_changed {roomId,previousHostUserId,newHostUserId,roomRevision}` and `room:updated` to authenticated lobby subscribers. The returning former host does not reclaim the role.
 
-While PAUSED, host may use **REST** `POST /matches/:matchId/actions/forfeit-player` to eliminate a participant continuously disconnected for >=120 seconds; it is not a socket command. Backend broadcasts `game:player_bankrupt` with reason `HOST_FORFEIT_ABSENT`, and either `game:resumed` if remaining participants are connected, or `game:finished` if one remains. Regular player `forfeit` and host REST `/matches/:matchId/abandon` retain their own authorization.
+A connected current host may invoke **REST** `POST /matches/:matchId/actions/forfeit-player` while PAUSED against a continuously disconnected other player beyond 120 seconds; the resulting `game:player_bankrupt` event includes the **mandatory** `reason:"HOST_FORFEIT_ABSENT"`. When all surviving players are connected, a game may resume, otherwise remain paused; the 24-hour all-offline deadline may auto-abandon. `game:finished` or `game:abandoned` closes its room and triggers `room:updated` with `status:CLOSED`; there is no same-room rematch.
 
-If nobody eligible is connected continuously for 24h, backend emits `game:abandoned` upon automatic abandonment; there may be no active subscribers, so GET snapshot is the recovery path. `game:finished` and `game:abandoned` result in server `room:updated` with `status:CLOSED`. The room is read-only thereafter; there is no `room:rematch` event in mini-v1. All events use existing envelopes and match/room version rules.
+**Viewer privacy:** `allowedActions` depends on authenticated viewer and must **never** be sent inside a global `game:resumed` or `match:started` broadcast. Use `match:snapshot` unicast on authorized subscription and authenticated `GET /matches/:matchId` for a per-viewer projection. `room:snapshot` and `room:updated` have a common room view with server-assigned member seatOrder, token and color.
+
+**Event/DB correspondence:** after revealing a card, backend persists `matches.last_card_resolved` and emits the same public effect in `game:card_resolved`; a reconnect snapshot exposes the last card but never the private future deck.

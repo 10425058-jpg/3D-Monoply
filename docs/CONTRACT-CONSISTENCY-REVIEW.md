@@ -1,55 +1,44 @@
-# Frontend–Backend Contract Review and Acceptance Matrix — v1.1.0
+# 3D Monopoly — Cross-Document Contract Consistency Review v1.1.2
 
-**Scope:** Seven documentation files in the `docs/` integration bundle (API-CONTRACT, SOCKET-EVENTS, GAME-STATE, DATABASE-DESIGN, INTEGRATION-PLAN, ONLINE-MVP-RULES and this review). **Docs checked; real backend and migrations NOT tested.**
+**Scope:** Exactly seven contract documents: API-CONTRACT, SOCKET-EVENTS, GAME-STATE, DATABASE-DESIGN, ONLINE-MVP-RULES, INTEGRATION-PLAN, and this review. **Documentation audit only; no actual backend implementation, Prisma migration, E2E run or build verification.**
 
-## 1. Findings resolved in the contract
+## 1. Resolved findings (canonical definitions, not later overrides)
 
-| Reported gap | Normative resolution | Cross-check |
+| Finding | Resolution | Source of truth |
 |---|---|---|
-| Lobby events unreachable before match exists | Socket `room:join` / `room:leave` and `room:snapshot` on `room:<roomId>`, independent of match; room:updated and match:started broadcast to waiting subscribers | API §3, Socket §1–4, Integration §3 |
-| PAUSED cannot resume | At 120s disconnected match enters PAUSED; when all solvent players reconnect server resumes atomically and broadcasts game:resumed. Host can abandon paused match if they cannot reconnect | API §5, Socket §5, State §1, DB §3 |
-| Unimplemented core Monopoly spaces/rules | New explicit **mini-v1** finite online ruleset covers all board types, all 10 supported card actions, doubles, GO, jail, bankrupt, rent, terminal result. No pretending to offer full classic-v1 | ONLINE-MVP-RULES §§1–7, API §§1/4 |
-| Private room code cannot be shared | Cryptographically strong invite code returned once in private room create response, host-only rotate; stored hashed, never listed/broadcast | API §3, DB §2 |
-| Refresh token never issued | Login/register issue Set-Cookie refresh token and data.csrfToken; refresh/logout use cookie and CSRF header; csrf bootstrap after reload | API §2, DB §2, Integration §2 |
-| Missing errors / health | Explicit INVALID_INVITE_CODE, USERNAME_TAKEN, EMAIL_TAKEN, CSRF_INVALID, DEPENDENCY_UNAVAILABLE and 503 health | API §6, Integration §5 |
-| Retry order conflicts | Authenticate/validate, lookup processed_actions **first**, replay original response, then check expected version for new IDs | API §4, DB §3, State §4 |
-| currentPlayerId nullability | Nullable in state and DB; required non-null when IN_PROGRESS/PAUSED; null in FINISHED/ABANDONED | State §1–2, DB §2 |
-| Negative money | `INTEGER NOT NULL CHECK(money >= 0)` and atomic bankruptcy transfers | Rules §6, State §1, DB §1–3 |
-| Socket token expires mid-game | Client refreshes access token using HttpOnly cookie+CSRF, reconnects socket with new JWT, re-subscribes and snapshots | API §5, Socket §5 |
-| Can't browse public rooms | `GET /api/v1/rooms` paginated, public waiting rooms only | API §3 |
-| Doc count wrong | Seven files consistently enumerated in this review and Integration Plan | Integration introduction |
+| Lobby unreachable before match | Socket `room:join` / `room:snapshot`, `room:updated` and `match:started` prior to `match:join` | Socket §1–4 |
+| PAUSED match deadlock / absent host | 120s grace, connected eligible host failover, overdue host-forfeit, automatic resume when all survivors connected, 24h all-offline ABANDONED | API §5, Socket §5/7, Rules §8, DB §6 |
+| Room after terminal match | FINISHED/ABANDONED sets CLOSED, results read-only; next game requires new room | API §5, State §7, DB §6 |
+| Full gameplay holes | Explicit simplified `mini-v1` supports all board types and **11 supported card action types**, jail, doubles, bankruptcy, GO, rent, tax and deterministic finish | Online Rules §§1–7 |
+| `MatchState.allowedActions` omitted | Server computes per authenticated requesting viewer, not persisted; returned by personalized REST GET and unicast match:snapshot, never broadcast globally | State §§2/4, API §4, Socket §§3/7, Integration §2 |
+| Last card resolved omitted | Public `lastCardResolved:LastCardResolved|null` with card/deck/player/effects/version/timestamp; stored `matches.last_card_resolved JSONB` | State §§2–4, DB §2, Rules §4, Socket §3 |
+| Card action count | **11**, matching `src/types/game.ts` and `src/data/cardsData.ts` | Rules §4 |
+| Chance nearest utility rent ambiguity | **10 × dice values of the original roll that landed on Chance**, no second roll; matches local code `state.dice[0]+state.dice[1]` | Rules §4; local `src/store/useGameStore.ts` |
+| Turn counter ambiguity | turnNumber starts at 1 and counts started player turns; completedTurns starts 0 and counts completed turns; doubles do not increment | State §4, Rules §1, DB §2 |
+| Seat/token/color selection | Stable lowest-free seatOrder 0..3 assigned on joining; fixed unique seat palette based on current local defaults, freeze after start | State §§2/4; API §3; DB §2 |
+| Missing error codes | `PLAYER_NOT_ELIGIBLE_FOR_FORFEIT`, `ROOM_CLOSED`, `MATCH_ALREADY_TERMINAL` now in main HTTP 409 table | API §6 |
+| Bankruptcy socket reason missing | Mandatory reason enum, including `HOST_FORFEIT_ABSENT`; optional `creditorPlayerId` | Socket §3 |
+| Two-way room ↔ match FK ambiguity | Only **`matches.room_id UUID UNIQUE`** persisted; derive public `RoomState.matchId` by lookup. No `rooms.match_id` | DB §§2/6; State §7 |
+| Abandon path inconsistent | `POST /api/v1/matches/:matchId/actions/abandon` (standard action body and idempotency) | API §§4/5 |
+| Duplicated lifecycle appendices | Consolidated lifecycle and role rules into core API §5, Socket §7, State §7, DB §6, Rules §8; removed text claiming later sections supersede older text | All 7 docs |
 
-## 2. Additional risks and safeguards
+## 2. Previously agreed essentials also preserved
 
-- Mini-v1 is explicitly **not** classic Monopoly: no auctions, trades, builds/mortgages, manual debt resolution. These actions are hidden/disabled in online mode, not silently no-ops.
-- Every completed player turn increments `completedTurns`; after 80 turns compare net worth, cash, owned deeds then seat order to choose winner. One solvent player wins instantly.
-- Server deck state survives restart; held Jail cards are removed from draw pile. Preview responses never reveal future deck order.
-- Server reserves access to rule code; client renders results but cannot choose dice, cards or price.
-- Return original action response on identical UUID retry, even with now-stale expectedVersion. Unique DB constraint prevents concurrent duplicate actions.
-- Current local game uses its own rules and IDs; adapter must not break local/AI gameplay.
+- REST for all mutations; Socket.IO subscriptions and broadcasts only. One shared `{data,meta}` success envelope; `{error:{code,message,details}}` on errors.
+- JWT access in memory, rotating HttpOnly refresh cookie, CSRF and Origin validation. Private room code returned once to host; hash only in DB.
+- Money is a nonnegative TypeScript/JSON integer `number`, stored PostgreSQL `INTEGER CHECK(money >= 0)`.
+- `processed_actions` with unique `(match_id,client_action_id)` and replay check **before** version conflict. One stateVersion per committed mutation; events may share a version.
+- Human-only mini-v1, one map `central-castle@1`, no online builds/trades/auctions or server AI.
 
-## 3. Verification ledger
+## 3. Required executable tests (not run)
 
-| Check | Documentation | Runtime |
-|---|---|---|
-| Consistent transport, room lifecycle, match lifecycle and event names | Specified | **Not run** |
-| Money type, non-negative check, idempotency, deck storage | Specified | **Not run** |
-| Auth login refresh cookie/CSRF and socket expiry recovery | Specified | **Not run** |
-| Every board type and every card action resolves | Specified | **Not run** |
-| Paused game resumes or can be explicitly abandoned | Specified | **Not run** |
-| Full two-browser end-to-end match | Required | **Not run** |
-| Existing frontend build and local/AI regression | Required | **Not run** |
+1. GET and unicast match snapshot differ in `allowedActions` between current player, opponent, host and terminal viewer; global events leak no viewer action list.
+2. Two players draw different Chance/Chest cards; `last_card_resolved` updates exactly once per committed resolution and survives reconnect and server restart, while secret deck order never leaks.
+3. Card action count 11; Chance nearest utility uses exactly the initiating turn's saved `DiceState.total`, not fresh randomness.
+4. turnNumber/completedTurns remain consistent across doubles, purchase/decline, normal end turn, active bankruptcy/forfeit and 80-turn finish.
+5. Server assigns seatOrder, token and color; duplicate seat prevented; vacancy is reused before start and not after.
+6. All error codes, including three newly added 409 lifecycle errors, match their intended HTTP status; end points use the same `/actions/` family.
+7. Room is linked to a match only through `matches.room_id`; DB unique constraint allows one match per room, snapshots project match ID.
+8. Host absence, host transfer, disconnected-player forfeit, exact resume and 24h offline terminal across backend restart; closed room cannot be reopened.
 
-No claim of zero bugs or of a complete backend is made by a docs-only PR. If schemas/semantics change, update all seven docs and automated contract tests together.
-
-## 4. Lifecycle deadlock review (v1.1.1)
-
-| Reported issue | Resolution | Required runtime verification |
-|---|---|---|
-| Host disconnect leaves PAUSED match trapped | Connected solvent lowest-seat player becomes host once host absent >120s; authority mirrors room membership | Disconnect host, advance grace, verify new host and no auto-reclaim |
-| Remaining players cannot continue | Connected host can forfeit other players overdue offline >=120s; after elimination resume or finish | Concurrent reconnect vs forfeit, original action replay, bankrupt holdings |
-| Everyone offline contradicts PAUSED/ABANDONED | Stay PAUSED during grace and until restart-safe 24 continuous offline hours; only then auto-ABANDONED | 23h59m stays paused; 24h closes; reconnect resets timer |
-| Terminal room undefined | FINISHED/ABANDONED atomically closes parent room, preserves match reference; no same-room rematch | GET final results, join/ready/start rejected on CLOSED |
-| Host role during match unclear | `rooms.host_user_id` is authoritative in WAITING/IN_PROGRESS/PAUSED | Membership authorization across promotion, demotion and reconnection |
-
-**Scope:** documentation-level review only. No game service, scheduled worker, migration or tests are implemented by this PR. Earlier sections' narrower pause/host descriptions are replaced by this normative lifecycle rule.
+**Audit honesty:** These are documentation consistency decisions and test specifications, not proof that a real backend or playable multiplayer match exists. Validate everything in code before merge/release.

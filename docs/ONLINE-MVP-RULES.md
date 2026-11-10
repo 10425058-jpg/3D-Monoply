@@ -1,4 +1,4 @@
-# 3D Monopoly — Online MVP Rules v1.0.0
+# 3D Monopoly — Online MVP Rules v1.1.2
 
 **Status:** Normative proposed online rules (requires backend implementation/tests). **Not** a description of current local AI behavior.
 **Ruleset:** `mini-v1` | **Map:** `central-castle` | **Content:** `central-castle@1`
@@ -7,10 +7,10 @@
 ## 1. Board, players, economy, winner
 
 - Server owns versioned content copied/validated from `src/data/boardData.ts` and `src/data/cardsData.ts`: unique space IDs 0–39, one `GO` at 0, `Jail` at 10, `Free Parking` at 20, `Go To Jail` at 30, Chance/Community Chest and taxes at their catalog positions. Version change requires content-version bump and synchronized frontend board data. Server validates catalog on startup.
-- 2–4 **human** players, initial cash 1500, location 0, no owned property, no houses/hotels/mortgages, and no jail cards. All money is an integer in [0, 2147483647], both in API and DB (PostgreSQL INTEGER). Bank has unlimited funds.
+- 2–4 **human** players, assigned stable `seatOrder` 0–3 and corresponding server-selected token/color from GAME-STATE.md (no manual cosmetic selection in mini-v1), initial cash 1500, location 0, no owned property, no houses/hotels/mortgages, and no jail cards. All money is an integer in [0, 2147483647], both in API and DB (PostgreSQL INTEGER). Bank has unlimited funds.
 - Board position increases clockwise modulo 40. When a forward move passes or lands on GO award **200 once**; no award for backwards moves, direct Go To Jail, or jail relocation. A card moving to GO awards 200.
 - All legal ownership, dice, cards, cash and outcomes are computed server-side; the client animates committed events. Cards and dice use secure server randomness. Bank board/currency data cannot be submitted by clients.
-- Every **completed player turn** advances `completedTurns`; doubles extra rolls stay within one turn and do not advance it. When one non-bankrupt player remains, finish immediately. After **80 completed player turns**, finish deterministically using net worth = cash + sum of printed purchase prices of owned unmortgaged properties. Tie breakers: higher cash, then larger number of properties, then smaller initial `seatOrder`. Persist `winnerPlayerId`, `finishReason` and emit `game:finished`.
+- `turnNumber` begins at 1 and identifies the number of the **started player turn**; it increments only when a next player's turn begins. `completedTurns` begins at 0 and increments exactly once when a player turn is conclusively ended by `end-turn`, bankruptcy or active-player forfeit. Doubles extra rolls stay within one player turn and do not advance either counter. At terminal state `turnNumber` remains the final started turn index. During an active nonterminal turn, `turnNumber = completedTurns + 1`. When one non-bankrupt player remains, finish immediately. After **80 completed player turns**, finish deterministically using net worth = cash + sum of printed purchase prices of owned unmortgaged properties. Tie breakers: higher cash, then larger number of properties, then smaller initial `seatOrder`. Persist `winnerPlayerId`, `finishReason` and emit `game:finished`.
 - A player may voluntarily `forfeit` from an active or paused match. It counts as bankruptcy to the Bank, so their deeds become unowned. Disconnect timeout forfeits are specified in [API-CONTRACT.md](./API-CONTRACT.md). If all eligible players are offline continuously for 24 hours, the match becomes `ABANDONED` with no winner (see §8); it is not abandoned immediately.
 
 ## 2. Allowed game phases and actions
@@ -45,7 +45,7 @@ Rent in mini-v1: street base rent from first entry of `rent[]`, doubled if owner
 
 ## 4. Chance and Community Chest
 
-The server must implement **all action types actually present** in `src/types/game.ts` and `src/data/cardsData.ts` before online MVP is marked playable:
+The server must implement **all 11 action types actually present** in `src/types/game.ts` and `src/data/cardsData.ts` before online MVP is marked playable:
 
 | Card action type | Required server behavior |
 |---|---|
@@ -53,7 +53,7 @@ The server must implement **all action types actually present** in `src/types/ga
 | `pay` | Pay Bank or declare bankruptcy |
 | `move_to` | Move to target, apply GO salary on qualifying forward crossing, then resolve destination once |
 | `move_relative` | Move signed steps; backwards does not earn GO, resolve destination |
-| `nearest_utility` | Move forward to next utility; resolve its ownership/rent (if owned, charge **10× the drawn roll total** for the Chance nearest-utility card, regardless of utility count) |
+| `nearest_utility` | Move forward to next utility; resolve its ownership/rent (if owned, charge **10× the **same two dice values already rolled to land on the Chance space** (the current turn's `DiceState.total`; do not roll again)** for the Chance nearest-utility card, regardless of utility count) |
 | `nearest_railroad` | Move forward to next railroad; resolve its ownership/rent using standard railroad rent (no bonus multiplier in the existing card data) |
 | `go_to_jail` | Direct Jail, no GO salary |
 | `get_out_of_jail` | Add specific card ID to player's hand; remove from available deck until used/returned |
@@ -61,7 +61,7 @@ The server must implement **all action types actually present** in `src/types/ga
 | `pay_each_player` | In ascending `seatOrder`, transfer amount to each remaining solvent player; if payer cannot pay next recipient, bankrupt to that recipient and stop |
 | `collect_from_each_player` | In ascending `seatOrder`, each solvent other player pays drawer; if a payer cannot pay, bankrupt that payer to drawer and continue with remaining players |
 
-Shuffle and store deck order/cursor on server when match starts; persist state and held Jail cards. Returning Jail card places it at the bottom of its corresponding deck. Persist last card resolved and resulting events for reconnect; do **not** expose future card order in public snapshots. Chained card movement resolving a destination is finite; guard against excessive recursion and fail the atomic transaction rather than partial money changes.
+Shuffle and store deck order/cursor on server when match starts; persist state and held Jail cards. Returning Jail card places it at the bottom of its corresponding deck. Persist `lastCardResolved` (`cardId`, deck, playerId, public effects, `stateVersion`, `resolvedAt`) in `matches.last_card_resolved` when a card finishes resolving, including events for reconnect; its initial value is `null` and the last public card stays visible in snapshots until another card resolves; do **not** expose future card order in public snapshots. Chained card movement resolving a destination is finite; guard against excessive recursion and fail the atomic transaction rather than partial money changes.
 
 ## 5. Jail and doubles
 
@@ -81,8 +81,12 @@ Shuffle and store deck order/cursor on server when match starts; persist state a
 
 GO forward/backwards, card movement to GO, third doubles, first/second/third Jail rolls, Jail card use, tax, both deck types and **every listed card action**, all board types, rent per property/railroad/utility, unaffordable buy auto-decline, debit at zero and over balance, bankruptcy-to-player/bank, winner after bankruptcy, winner at 80 turns/ties, double extra-roll after landing action, resumption after disconnect. These must use exact versioned `central-castle@1` content, not invented card/price data.
 
-## 8. Unavailable players and room lifecycle (v1.1.1)
+## 8. Unavailable players and room lifecycle
 
 **No immediate all-offline abandonment.** Losing network connectivity alone never bankrupts a player. Disconnection starts a 120-second grace; overdue absence pauses the match, and host failover chooses a connected non-bankrupt player with the lowest seat order. A connected current host may elect to forfeit another player continuously offline for >=120 seconds while PAUSED; this is an explicit, logged and irreversible gameplay action, not a disconnect auto-forfeit. A removed player loses holdings to the Bank, and if only one solvent participant remains that participant immediately wins. If all surviving players are connected again, resume the preserved turn; if the forfeited player was active, advance the turn safely.
 
-If **no non-bankrupt player is connected for 24 continuous hours**, auto-abandon match with no winner; this replaces the earlier statement that a match is abandoned immediately when everyone becomes absent. A connected host may also explicitly abandon a PAUSED match. Host authority is the room's current host even during an in-progress match and may transfer on prolonged disconnection. When match FINISHED/ABANDONED, associated room becomes CLOSED (read-only, no same-room rematch); users must create a new WAITING room to play again.
+If **no non-bankrupt player is connected for 24 continuous hours**, auto-abandon match with no winner; the match does **not** end immediately when everyone disconnects. A connected host may also explicitly abandon a PAUSED match. Host authority is the room's current host even during an in-progress match and may transfer on prolonged disconnection. When match FINISHED/ABANDONED, associated room becomes CLOSED (read-only, no same-room rematch); users must create a new WAITING room to play again.
+
+## 9. Action availability for the online client
+
+The server provides `MatchState.allowedActions`, an array of REST action route names **computed for the requesting authenticated viewer**, not a public/shared broadcast field and not persisted. `PRE_ROLL` active player gets `roll-dice`, plus `pay-jail-bail` if jailed and affordable or `use-jail-card` if held. `LANDED_ACTION` permits `buy-property` and `decline-property`; `END_TURN` permits `end-turn`. Solvent players may `forfeit`, and connected host in PAUSED may `forfeit-player` for eligible opponents and `abandon`. Terminal matches return an empty list. Actual requests always require server authorization and phase validation; `allowedActions` is only a UI hint. Client player token/color/seat order are server-assigned before the match as defined in GAME-STATE.md.
