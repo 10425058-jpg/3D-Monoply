@@ -22,6 +22,13 @@
 | Abandon path inconsistent | `POST /api/v1/matches/:matchId/actions/abandon` (standard action body and idempotency) | API §§4/5 |
 | Duplicated lifecycle appendices | Consolidated lifecycle and role rules into core API §5, Socket §7, State §7, DB §6, Rules §8; removed text claiming later sections supersede older text | All 7 docs |
 
+## 2. Final small clarifications
+
+| Finding | Resolution | References |
+|---|---|---|
+| Room leave after match starts | REST `POST /rooms/:roomId/leave` is WAITING-only; 409 `ROOM_ALREADY_STARTED` during a match; `actions/forfeit` is the gameplay exit; CLOSED rooms return 409 `ROOM_CLOSED`. Socket `room:leave` only unsubscribes. | API §3; Rules §8; Socket §1; Integration §2 |
+| Nearest Utility Markdown | Replaced invalid nested `**` markers with one unambiguous bold expression; original turn's `DiceState.total` is used without reroll. | Rules §4 |
+
 ## 2. Previously agreed essentials also preserved
 
 - REST for all mutations; Socket.IO subscriptions and broadcasts only. One shared `{data,meta}` success envelope; `{error:{code,message,details}}` on errors.
@@ -31,6 +38,8 @@
 - Human-only mini-v1, one map `central-castle@1`, no online builds/trades/auctions or server AI.
 
 ## 3. Required executable tests (not run)
+
+Also test WAITING `POST /rooms/:roomId/leave` success vs IN_PROGRESS/PAUSED `ROOM_ALREADY_STARTED` and CLOSED `ROOM_CLOSED`, and verify Socket.IO `room:leave` never changes membership or game status.
 
 1. GET and unicast match snapshot differ in `allowedActions` between current player, opponent, host and terminal viewer; global events leak no viewer action list.
 2. Two players draw different Chance/Chest cards; `last_card_resolved` updates exactly once per committed resolution and survives reconnect and server restart, while secret deck order never leaks.

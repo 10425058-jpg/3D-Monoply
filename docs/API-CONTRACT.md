@@ -33,9 +33,11 @@ The creator is first room member and host. Ready-to-start requires 2–4 human m
 | POST | `/rooms` | `{mapId:"central-castle",maxPlayers:4,isPrivate:boolean}` | 201 `{room:RoomState,inviteCode?:string}` |
 | GET | `/rooms/:roomId` | member auth | RoomState |
 | POST | `/rooms/:roomId/join` | `{inviteCode?:string}` | RoomState |
-| POST | `/rooms/:roomId/leave` | `{}` | `{success:true}` |
+| POST | `/rooms/:roomId/leave` | `{}` | **WAITING only:** `{success:true}`; when IN_PROGRESS return 409 `ROOM_ALREADY_STARTED` (use match `actions/forfeit`); when CLOSED return 409 `ROOM_CLOSED` |
 | PATCH | `/rooms/:roomId/ready` | `{isReady:boolean}` | RoomState |
 | POST | `/rooms/:roomId/start` | `{rulesetId:"mini-v1",contentVersion:"central-castle@1"}` | 201 `{matchId,stateVersion,status,mapId}` |
+
+**Room departure vs match forfeiture:** `POST /rooms/:roomId/leave` changes room membership only while `RoomState.status=WAITING`; it is rejected with `409 ROOM_ALREADY_STARTED` during an active or paused match (room status IN_PROGRESS). The player must use authenticated `POST /matches/:matchId/actions/forfeit` to withdraw from an ongoing match. After a match ends and its room is CLOSED, REST leave returns `409 ROOM_CLOSED`. Socket.IO `room:leave` is *subscription only* and never changes room membership, match ownership, connection status, or forfeit state. No disconnection automatically invokes either REST endpoint.
 
 For a private room: generate cryptographically random high-entropy invite code (e.g. 16 random bytes base64url), return raw `inviteCode` **only once in successful create response** to host. Store only hash, never broadcast or log code. Host UI must offer Copy Code immediately; after loss, create a new code via authenticated host-only `POST /rooms/:roomId/invite/rotate` returning new `inviteCode`, invalidating prior code atomically. GET room never returns raw code; join comparison constant-time. Public listing never exposes private rooms, invite tokens, emails or passwords. Room Socket.IO subscriptions are defined in SOCKET-EVENTS.md.
 
