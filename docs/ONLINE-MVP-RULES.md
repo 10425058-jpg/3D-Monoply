@@ -53,8 +53,8 @@ The server must implement **all action types actually present** in `src/types/ga
 | `pay` | Pay Bank or declare bankruptcy |
 | `move_to` | Move to target, apply GO salary on qualifying forward crossing, then resolve destination once |
 | `move_relative` | Move signed steps; backwards does not earn GO, resolve destination |
-| `nearest_utility` | Move forward to next utility; resolve its ownership/rent (if owned, card-specific rent only when explicitly encoded) |
-| `nearest_railroad` | Move forward to next railroad; resolve its ownership/rent |
+| `nearest_utility` | Move forward to next utility; resolve its ownership/rent (if owned, charge **10× the drawn roll total** for the Chance nearest-utility card, regardless of utility count) |
+| `nearest_railroad` | Move forward to next railroad; resolve its ownership/rent using standard railroad rent (no bonus multiplier in the existing card data) |
 | `go_to_jail` | Direct Jail, no GO salary |
 | `get_out_of_jail` | Add specific card ID to player's hand; remove from available deck until used/returned |
 | `repairs` | Charge `perHouse * houses + perHotel * hotels` (0 for new mini-v1 games) |
@@ -74,7 +74,7 @@ Shuffle and store deck order/cursor on server when match starts; persist state a
 
 - Before debiting, verify cash. A solvent player cannot have negative balance: `match_players.money INTEGER NOT NULL CHECK(money >= 0)`.
 - **Mini-v1 does not support mortgages, building sales, loans or manual debt resolution.** If an obligation (rent, card, tax, forced Jail bail) exceeds available cash, declare bankruptcy immediately in the same transaction. For a creditor player: transfer the bankrupt player's **remaining cash** and property deeds to that creditor; any unpaid remainder is written off. For the Bank: deeds become unowned and remaining cash returns to Bank. No negative balance, no stuck `DEBT_RESOLUTION` phase.
-- Skip bankrupt players for turns, bidding, per-player card effects; forfeit to Bank uses the same liquidation policy. If the active player bankrupts, automatically select the next solvent player; if one remains emit finish.
+- Skip bankrupt players for turns, bidding, per-player card effects; forfeit to Bank uses the same liquidation policy. If the active player bankrupts, count that ended player turn once in \`completedTurns\` and automatically select the next solvent player; if one remains emit finish. A forfeit outside the active player's turn does not increment \`completedTurns\`.
 - There are no auctions/trades/builds or mortgage actions in mini-v1. Do not expose controls for them in online mode. The local/AI mode may retain its richer legacy rules unchanged.
 
 ## 7. Required server tests before calling online MVP playable
