@@ -53,7 +53,7 @@ The server must implement **all 11 action types actually present** in `src/types
 | `pay` | Pay Bank or declare bankruptcy |
 | `move_to` | Move to target, apply GO salary on qualifying forward crossing, then resolve destination once |
 | `move_relative` | Move signed steps; backwards does not earn GO, resolve destination |
-| `nearest_utility` | Move forward to next utility; resolve its ownership/rent (if owned, charge **10× the **same two dice values already rolled to land on the Chance space** (the current turn's `DiceState.total`; do not roll again)** for the Chance nearest-utility card, regardless of utility count) |
+| `nearest_utility` | Move forward to the next utility. If owned by another player, charge **10 × the total of the same two dice already rolled to land on Chance** (`DiceState.total` for this turn), regardless of utility count. Do not roll again. If unowned, allow purchase under the usual rules. |
 | `nearest_railroad` | Move forward to next railroad; resolve its ownership/rent using standard railroad rent (no bonus multiplier in the existing card data) |
 | `go_to_jail` | Direct Jail, no GO salary |
 | `get_out_of_jail` | Add specific card ID to player's hand; remove from available deck until used/returned |
@@ -74,7 +74,7 @@ Shuffle and store deck order/cursor on server when match starts; persist state a
 
 - Before debiting, verify cash. A solvent player cannot have negative balance: `match_players.money INTEGER NOT NULL CHECK(money >= 0)`.
 - **Mini-v1 does not support mortgages, building sales, loans or manual debt resolution.** If an obligation (rent, card, tax, forced Jail bail) exceeds available cash, declare bankruptcy immediately in the same transaction. For a creditor player: transfer the bankrupt player's **remaining cash** and property deeds to that creditor; any unpaid remainder is written off. For the Bank: deeds become unowned and remaining cash returns to Bank. No negative balance, no stuck `DEBT_RESOLUTION` phase.
-- Skip bankrupt players for turns, bidding, per-player card effects; forfeit to Bank uses the same liquidation policy. If the active player bankrupts, count that ended player turn once in \`completedTurns\` and automatically select the next solvent player; if one remains emit finish. A forfeit outside the active player's turn does not increment \`completedTurns\`.
+- Skip bankrupt players for turns, bidding, per-player card effects; forfeit to Bank uses the same liquidation policy. If the active player bankrupts, count that ended player turn once in `completedTurns` and automatically select the next solvent player; if one remains emit finish. A forfeit outside the active player's turn does not increment `completedTurns`.
 - There are no auctions/trades/builds or mortgage actions in mini-v1. Do not expose controls for them in online mode. The local/AI mode may retain its richer legacy rules unchanged.
 
 ## 7. Required server tests before calling online MVP playable
@@ -86,6 +86,8 @@ GO forward/backwards, card movement to GO, third doubles, first/second/third Jai
 **No immediate all-offline abandonment.** Losing network connectivity alone never bankrupts a player. Disconnection starts a 120-second grace; overdue absence pauses the match, and host failover chooses a connected non-bankrupt player with the lowest seat order. A connected current host may elect to forfeit another player continuously offline for >=120 seconds while PAUSED; this is an explicit, logged and irreversible gameplay action, not a disconnect auto-forfeit. A removed player loses holdings to the Bank, and if only one solvent participant remains that participant immediately wins. If all surviving players are connected again, resume the preserved turn; if the forfeited player was active, advance the turn safely.
 
 If **no non-bankrupt player is connected for 24 continuous hours**, auto-abandon match with no winner; the match does **not** end immediately when everyone disconnects. A connected host may also explicitly abandon a PAUSED match. Host authority is the room's current host even during an in-progress match and may transfer on prolonged disconnection. When match FINISHED/ABANDONED, associated room becomes CLOSED (read-only, no same-room rematch); users must create a new WAITING room to play again.
+
+**Leaving a room:** Once a match starts, a player cannot leave its room via `POST /rooms/:roomId/leave`. During IN_PROGRESS/PAUSED, use the gameplay `POST /matches/:matchId/actions/forfeit` command instead (subject to normal authorization and idempotency). This is different from Socket.IO `room:leave`, which only unsubscribes from lobby updates. A CLOSED room cannot be left through the REST endpoint either; final match history remains available to authorized participants.
 
 ## 9. Action availability for the online client
 
