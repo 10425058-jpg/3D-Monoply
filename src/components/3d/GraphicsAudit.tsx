@@ -1,0 +1,113 @@
+import { useEffect } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
+import * as THREE from 'three';
+import { getSpaceTransform } from '../../data/boardData';
+import { useGameStore } from '../../store/useGameStore';
+
+/** Explicit opt-in diagnostics. No instrumentation or globals in ordinary play. */
+export const graphicsAuditEnabled = () => new URLSearchParams(window.location.search).has('graphicsAudit');
+
+export function GraphicsAudit({ quality }: { quality: string }) {
+  const state = useThree();
+  useEffect(() => {
+    const { gl, camera, scene } = state;
+    const context = gl.getContext() as WebGL2RenderingContext;
+    const timer = context.getExtension('EXT_disjoint_timer_query_webgl2');
+    const debug = context.getExtension('WEBGL_debug_renderer_info');
+    const originalRender = gl.render;
+    const originalAutoReset = gl.info.autoReset;
+    gl.info.autoReset = false;
+    let renderMs = 0, passes = 0, previous = 0;
+    let pending: WebGLQuery[] = [], latestGpu: number | null = null;
+    const samples: Record<string, number | null>[] = [];
+    let collecting = false;
+    gl.render = function (...args: Parameters<typeof gl.render>) {
+      const query = timer && pending.length < 8 ? context.createQuery() : null;
+      if (query) context.beginQuery(timer.TIME_ELAPSED_EXT, query);
+      const start = performance.now();
+      try { originalRender.apply(gl, args); }
+      finally {
+        renderMs += performance.now() - start; passes++;
+        if (query) { context.endQuery(timer.TIME_ELAPSED_EXT); pending.push(query); }
+      }
+    };
+    const audit = {
+      quality,
+      game() {
+        const game = useGameStore.getState();
+        return { turnPhase: game.turnPhase, currentPlayerIndex: game.currentPlayerIndex,
+          selectedSpaceId: game.selectedSpaceId, hoveredSpaceId: game.hoveredSpaceId,
+          cameraMode: game.cameraMode, dice: game.dice,
+          players: game.players.map(({ id, position, money, landmarkLevel }) => ({ id, position, money, landmarkLevel })),
+          properties: game.properties };
+      },
+      start() { samples.length = 0; collecting = true; previous = 0; },
+      stop() { collecting = false; return { samples: [...samples], metadata: audit.metadata() }; },
+      frame() {
+        if (timer) {
+          if (context.getParameter(timer.GPU_DISJOINT_EXT)) {
+            pending.forEach(query => context.deleteQuery(query)); pending = []; latestGpu = null;
+          } else while (pending.length && context.getQueryParameter(pending[0], context.QUERY_RESULT_AVAILABLE)) {
+            const query = pending.shift()!;
+            latestGpu = context.getQueryParameter(query, context.QUERY_RESULT) / 1e6;
+            context.deleteQuery(query);
+          }
+        }
+        const now = performance.now();
+        if (collecting && previous && passes) samples.push({ frameMs: now - previous, renderCpuMs: renderMs,
+          gpuMs: latestGpu, calls: gl.info.render.calls, triangles: gl.info.render.triangles, passes,
+          textures: gl.info.memory.textures, geometries: gl.info.memory.geometries });
+        previous = now; renderMs = 0; passes = 0; gl.info.reset();
+      },
+      camera(position: number[], target: number[]) {
+        const perspective = camera as THREE.PerspectiveCamera;
+        perspective.clearViewOffset(); perspective.fov = 40; perspective.updateProjectionMatrix();
+        const controls = state.get().controls as { target: THREE.Vector3; update(): void } | null;
+        camera.position.fromArray(position); controls?.target.fromArray(target);
+        camera.lookAt(new THREE.Vector3().fromArray(target)); controls?.update(); camera.updateMatrixWorld();
+      },
+      tiles() {
+        camera.updateMatrixWorld();
+        const city = scene.getObjectByName('center-city');
+        const ray = new THREE.Raycaster();
+        return Array.from({ length: 40 }, (_, id) => {
+          const [x, , z] = getSpaceTransform(id).position;
+          const world = new THREE.Vector3(x, 0.4, z);
+          const p = world.clone().project(camera);
+          ray.setFromCamera(new THREE.Vector2(p.x, p.y), camera);
+          const hit = city ? ray.intersectObject(city, true)[0] : null;
+          return { id, x: (p.x + 1) * state.size.width / 2, y: (1 - p.y) * state.size.height / 2, depth: p.z,
+            occludedByCity: !!hit && hit.distance < camera.position.distanceTo(world) - .15 };
+        });
+      },
+      metadata() {
+        const textures = new Set<THREE.Texture>();
+        let meshes = 0;
+        scene.traverse(object => {
+          if (!(object instanceof THREE.Mesh)) return;
+          meshes++;
+          const materials = Array.isArray(object.material) ? object.material : [object.material];
+          materials.forEach(material => Object.values(material).forEach(value => {
+            if (value instanceof THREE.Texture) textures.add(value);
+          }));
+        });
+        return { quality, three: THREE.REVISION, userAgent: navigator.userAgent,
+          renderer: debug ? context.getParameter(debug.UNMASKED_RENDERER_WEBGL) : context.getParameter(context.RENDERER),
+          gpuTimerAvailable: !!timer, viewport: [state.size.width, state.size.height], dpr: gl.getPixelRatio(),
+          drawingBuffer: gl.getDrawingBufferSize(new THREE.Vector2()).toArray(),
+          camera: { position: camera.position.toArray(), fov: (camera as THREE.PerspectiveCamera).fov,
+            view: (camera as THREE.PerspectiveCamera).view,
+            target: (state.get().controls as any)?.target.toArray() },
+          meshes, materialTextures: [...textures].map(t => ({ name: t.name, width: t.image?.width, height: t.image?.height })),
+          memory: { ...gl.info.memory }, programs: gl.info.programs?.length };
+      },
+    };
+    (window as any).__graphicsAudit = audit;
+    return () => {
+      gl.render = originalRender; gl.info.autoReset = originalAutoReset;
+      pending.forEach(query => context.deleteQuery(query)); delete (window as any).__graphicsAudit;
+    };
+  }, [state, quality]);
+  useFrame(() => (window as any).__graphicsAudit?.frame(), -100);
+  return null;
+}
