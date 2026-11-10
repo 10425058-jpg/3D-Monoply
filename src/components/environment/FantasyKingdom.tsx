@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { InstanceBatch } from './InstanceBatch';
-import { CASTLE_SITES, EnvironmentQuality, ENVIRONMENT_BUDGETS, Instance, VILLAGE_SITES, terrainHeight, variation } from './environmentLayout';
+import { CASTLE_SITES, EnvironmentQuality, ENVIRONMENT_BUDGETS, Instance, VILLAGE_SITES, terrainHeight, terrainOpacity, variation } from './environmentLayout';
 
 export function FantasyKingdom({ quality }: { quality: EnvironmentQuality }) {
   const batches = useMemo(() => {
@@ -43,6 +43,7 @@ export function FantasyKingdom({ quality }: { quality: EnvironmentQuality }) {
       const [vx, vz] = VILLAGE_SITES[i % VILLAGE_SITES.length];
       const angle = i * 2.39996, radius = 3 + variation(i, 12) * 11;
       const x = vx + Math.sin(angle) * radius, z = vz + Math.cos(angle) * radius;
+      if (terrainOpacity(x, z) < .65) continue;
       if (CASTLE_SITES.some(site => Math.hypot(x - site.x, z - site.z) < 15)) continue;
       const y = terrainHeight(x, z), h = 1.7 + variation(i, 13) * 1.1;
       cottages.push({ position: [x, y + h / 2, z], scale: [2.2, h, 1.8], color: '#d5c6b2' });

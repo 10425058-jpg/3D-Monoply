@@ -1,0 +1,406 @@
+{
+  "label": "after",
+  "camera": {
+    "position": [
+      0,
+      49.96679067741256,
+      19.153921663717956
+    ],
+    "fov": 40,
+    "view": {
+      "enabled": true,
+      "fullWidth": 1440,
+      "fullHeight": 900,
+      "offsetX": -74,
+      "offsetY": 42.816701245597784,
+      "width": 1440,
+      "height": 900
+    },
+    "target": [
+      0,
+      0.7,
+      0
+    ]
+  },
+  "metadata": {
+    "quality": "balanced",
+    "three": "164",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+    "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "gpuTimerAvailable": true,
+    "viewport": [
+      1440,
+      900
+    ],
+    "dpr": 1,
+    "drawingBuffer": [
+      1440,
+      900
+    ],
+    "camera": {
+      "position": [
+        0,
+        49.96679067741256,
+        19.153921663717956
+      ],
+      "fov": 40,
+      "view": {
+        "enabled": true,
+        "fullWidth": 1440,
+        "fullHeight": 900,
+        "offsetX": -74,
+        "offsetY": 42.816701245597784,
+        "width": 1440,
+        "height": 900
+      },
+      "target": [
+        0,
+        0.7,
+        0
+      ]
+    },
+    "meshes": 1778,
+    "materialTextures": [
+      {
+        "name": "Walnut grain 128x32",
+        "width": 128,
+        "height": 32
+      }
+    ],
+    "memory": {
+      "geometries": 1755,
+      "textures": 3
+    },
+    "programs": 23
+  },
+  "tiles": [
+    {
+      "id": 0,
+      "x": 1031.6751630186866,
+      "y": 631.4112887770947,
+      "depth": 0.9823483986132943,
+      "pickableTileId": 0,
+      "occludedByCity": false
+    },
+    {
+      "id": 1,
+      "x": 973.189651699952,
+      "y": 631.4112887770947,
+      "depth": 0.9823483986132943,
+      "pickableTileId": 1,
+      "occludedByCity": false
+    },
+    {
+      "id": 2,
+      "x": 928.3922387749641,
+      "y": 631.4112887770947,
+      "depth": 0.9823483986132943,
+      "pickableTileId": 2,
+      "occludedByCity": false
+    },
+    {
+      "id": 3,
+      "x": 883.594825849976,
+      "y": 631.4112887770947,
+      "depth": 0.9823483986132943,
+      "pickableTileId": 3,
+      "occludedByCity": false
+    },
+    {
+      "id": 4,
+      "x": 838.7974129249881,
+      "y": 631.4112887770947,
+      "depth": 0.9823483986132943,
+      "pickableTileId": 4,
+      "occludedByCity": false
+    },
+    {
+      "id": 5,
+      "x": 793.9999999999999,
+      "y": 631.4112887770947,
+      "depth": 0.9823483986132943,
+      "pickableTileId": 5,
+      "occludedByCity": false
+    },
+    {
+      "id": 6,
+      "x": 749.2025870750119,
+      "y": 631.4112887770947,
+      "depth": 0.9823483986132943,
+      "pickableTileId": 6,
+      "occludedByCity": false
+    },
+    {
+      "id": 7,
+      "x": 704.4051741500239,
+      "y": 631.4112887770947,
+      "depth": 0.9823483986132943,
+      "pickableTileId": 7,
+      "occludedByCity": false
+    },
+    {
+      "id": 8,
+      "x": 659.6077612250358,
+      "y": 631.4112887770947,
+      "depth": 0.9823483986132943,
+      "pickableTileId": 8,
+      "occludedByCity": false
+    },
+    {
+      "id": 9,
+      "x": 614.8103483000477,
+      "y": 631.4112887770947,
+      "depth": 0.9823483986132943,
+      "pickableTileId": 9,
+      "occludedByCity": false
+    },
+    {
+      "id": 10,
+      "x": 556.3248369813134,
+      "y": 631.4112887770947,
+      "depth": 0.9823483986132943,
+      "pickableTileId": 10,
+      "occludedByCity": false
+    },
+    {
+      "id": 11,
+      "x": 560.3301991695772,
+      "y": 574.0403887964048,
+      "depth": 0.9826880512451651,
+      "pickableTileId": 11,
+      "occludedByCity": false
+    },
+    {
+      "id": 12,
+      "x": 563.3079967745866,
+      "y": 531.3878344131068,
+      "depth": 0.9829405669344289,
+      "pickableTileId": 12,
+      "occludedByCity": false
+    },
+    {
+      "id": 13,
+      "x": 566.2108535930845,
+      "y": 489.80869615682496,
+      "depth": 0.983186727683945,
+      "pickableTileId": 13,
+      "occludedByCity": false
+    },
+    {
+      "id": 14,
+      "x": 569.0415634670211,
+      "y": 449.2629563663469,
+      "depth": 0.9834267704100592,
+      "pickableTileId": 14,
+      "occludedByCity": false
+    },
+    {
+      "id": 15,
+      "x": 571.8027830679202,
+      "y": 409.7125621443024,
+      "depth": 0.9836609203971359,
+      "pickableTileId": 15,
+      "occludedByCity": false
+    },
+    {
+      "id": 16,
+      "x": 574.4970402131945,
+      "y": 371.1213062382318,
+      "depth": 0.9838893920027777,
+      "pickableTileId": 16,
+      "occludedByCity": false
+    },
+    {
+      "id": 17,
+      "x": 577.1267415846704,
+      "y": 333.454716484105,
+      "depth": 0.9841123893123527,
+      "pickableTileId": 17,
+      "occludedByCity": false
+    },
+    {
+      "id": 18,
+      "x": 579.6941798988626,
+      "y": 296.67995310273,
+      "depth": 0.9843301067470298,
+      "pickableTileId": 18,
+      "occludedByCity": false
+    },
+    {
+      "id": 19,
+      "x": 582.2015405738982,
+      "y": 260.76571320590324,
+      "depth": 0.9845427296291304,
+      "pickableTileId": 19,
+      "occludedByCity": false
+    },
+    {
+      "id": 20,
+      "x": 585.3880657311419,
+      "y": 215.1234447943613,
+      "depth": 0.9848129453063423,
+      "pickableTileId": 20,
+      "occludedByCity": false
+    },
+    {
+      "id": 21,
+      "x": 636.7218924884002,
+      "y": 215.1234447943613,
+      "depth": 0.9848129453063423,
+      "pickableTileId": 21,
+      "occludedByCity": false
+    },
+    {
+      "id": 22,
+      "x": 676.0414193663001,
+      "y": 215.1234447943613,
+      "depth": 0.9848129453063423,
+      "pickableTileId": 22,
+      "occludedByCity": false
+    },
+    {
+      "id": 23,
+      "x": 715.3609462442,
+      "y": 215.1234447943613,
+      "depth": 0.9848129453063423,
+      "pickableTileId": 23,
+      "occludedByCity": false
+    },
+    {
+      "id": 24,
+      "x": 754.6804731221001,
+      "y": 215.1234447943613,
+      "depth": 0.9848129453063423,
+      "pickableTileId": 24,
+      "occludedByCity": false
+    },
+    {
+      "id": 25,
+      "x": 793.9999999999999,
+      "y": 215.1234447943613,
+      "depth": 0.9848129453063423,
+      "pickableTileId": 25,
+      "occludedByCity": false
+    },
+    {
+      "id": 26,
+      "x": 833.3195268778999,
+      "y": 215.1234447943613,
+      "depth": 0.9848129453063423,
+      "pickableTileId": 26,
+      "occludedByCity": false
+    },
+    {
+      "id": 27,
+      "x": 872.6390537557999,
+      "y": 215.1234447943613,
+      "depth": 0.9848129453063423,
+      "pickableTileId": 27,
+      "occludedByCity": false
+    },
+    {
+      "id": 28,
+      "x": 911.9585806336997,
+      "y": 215.1234447943613,
+      "depth": 0.9848129453063423,
+      "pickableTileId": 28,
+      "occludedByCity": false
+    },
+    {
+      "id": 29,
+      "x": 951.2781075115996,
+      "y": 215.1234447943613,
+      "depth": 0.9848129453063423,
+      "pickableTileId": 29,
+      "occludedByCity": false
+    },
+    {
+      "id": 30,
+      "x": 1002.611934268858,
+      "y": 215.1234447943613,
+      "depth": 0.9848129453063423,
+      "pickableTileId": 30,
+      "occludedByCity": false
+    },
+    {
+      "id": 31,
+      "x": 1005.7984594261017,
+      "y": 260.76571320590324,
+      "depth": 0.9845427296291304,
+      "pickableTileId": 31,
+      "occludedByCity": false
+    },
+    {
+      "id": 32,
+      "x": 1008.3058201011373,
+      "y": 296.67995310273,
+      "depth": 0.9843301067470298,
+      "pickableTileId": 32,
+      "occludedByCity": false
+    },
+    {
+      "id": 33,
+      "x": 1010.8732584153296,
+      "y": 333.454716484105,
+      "depth": 0.9841123893123527,
+      "pickableTileId": 33,
+      "occludedByCity": false
+    },
+    {
+      "id": 34,
+      "x": 1013.5029597868054,
+      "y": 371.1213062382318,
+      "depth": 0.9838893920027777,
+      "pickableTileId": 34,
+      "occludedByCity": false
+    },
+    {
+      "id": 35,
+      "x": 1016.1972169320796,
+      "y": 409.7125621443024,
+      "depth": 0.9836609203971359,
+      "pickableTileId": 35,
+      "occludedByCity": false
+    },
+    {
+      "id": 36,
+      "x": 1018.9584365329788,
+      "y": 449.2629563663469,
+      "depth": 0.9834267704100592,
+      "pickableTileId": 36,
+      "occludedByCity": false
+    },
+    {
+      "id": 37,
+      "x": 1021.7891464069154,
+      "y": 489.80869615682496,
+      "depth": 0.983186727683945,
+      "pickableTileId": 37,
+      "occludedByCity": false
+    },
+    {
+      "id": 38,
+      "x": 1024.6920032254134,
+      "y": 531.3878344131068,
+      "depth": 0.9829405669344289,
+      "pickableTileId": 38,
+      "occludedByCity": false
+    },
+    {
+      "id": 39,
+      "x": 1027.6698008304227,
+      "y": 574.0403887964048,
+      "depth": 0.9826880512451651,
+      "pickableTileId": 39,
+      "occludedByCity": false
+    }
+  ],
+  "errors": [],
+  "summary": {
+    "fps": 40.184729801908816,
+    "calls": 2682,
+    "triangles": 213202,
+    "textures": 3,
+    "gpuMs": 23.6479
+  }
+}

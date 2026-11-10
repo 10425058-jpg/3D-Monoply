@@ -33,6 +33,13 @@ export function GraphicsAudit({ quality }: { quality: string }) {
     };
     const audit = {
       quality,
+      environmentLayer(name: string, visible: boolean) {
+        const object = scene.getObjectByName(name);
+        if (!object || !['kingdom-valley', 'mountain-ranges', 'kingdom-cloud-layers',
+          'ancient-stone-bridges', 'distant-fantasy-kingdom', 'kingdom-waterways'].includes(name)) return false;
+        object.visible = visible;
+        return true;
+      },
       hovered: [] as number[],
       game() {
         const game = useGameStore.getState();
