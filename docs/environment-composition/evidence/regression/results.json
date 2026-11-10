@@ -1,0 +1,200 @@
+{
+  "results": [
+    {
+      "viewport": [
+        1440,
+        900
+      ],
+      "visibleTileCenters": 40,
+      "unoccludedByCity": true,
+      "picking": {
+        "type": "mouse hover and geometric raycast",
+        "count": 40
+      },
+      "camera": {
+        "position": [
+          0,
+          49.96679067741256,
+          19.153921663717956
+        ],
+        "fov": 40,
+        "view": {
+          "enabled": true,
+          "fullWidth": 1440,
+          "fullHeight": 900,
+          "offsetX": -74,
+          "offsetY": 42.816701245597784,
+          "width": 1440,
+          "height": 900
+        },
+        "target": [
+          0,
+          0.7,
+          0
+        ]
+      }
+    },
+    {
+      "viewport": [
+        1366,
+        768
+      ],
+      "visibleTileCenters": 40,
+      "unoccludedByCity": true,
+      "picking": {
+        "type": "mouse hover and geometric raycast",
+        "count": 40
+      },
+      "camera": {
+        "position": [
+          0,
+          54.71712557611689,
+          21.000754819990966
+        ],
+        "fov": 40,
+        "view": {
+          "enabled": true,
+          "fullWidth": 1366,
+          "fullHeight": 768,
+          "offsetX": -70,
+          "offsetY": 35.02069612099926,
+          "width": 1366,
+          "height": 768
+        },
+        "target": [
+          0,
+          0.7,
+          0
+        ]
+      }
+    },
+    {
+      "viewport": [
+        768,
+        1024
+      ],
+      "visibleTileCenters": 40,
+      "unoccludedByCity": true,
+      "picking": {
+        "type": "mouse hover and geometric raycast",
+        "count": 40
+      },
+      "camera": {
+        "position": [
+          0,
+          88.76452113737402,
+          34.23768660440543
+        ],
+        "fov": 40,
+        "view": {
+          "enabled": true,
+          "fullWidth": 768,
+          "fullHeight": 1024,
+          "offsetX": -70,
+          "offsetY": 27.05882690947503,
+          "width": 768,
+          "height": 1024
+        },
+        "target": [
+          0,
+          0.7,
+          0
+        ]
+      }
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "visibleTileCenters": 40,
+      "unoccludedByCity": true,
+      "picking": {
+        "type": "touch and geometric raycast",
+        "count": 40
+      },
+      "camera": {
+        "position": [
+          0,
+          84.23145960194887,
+          32.475324892743274
+        ],
+        "fov": 40,
+        "view": {
+          "enabled": true,
+          "fullWidth": 390,
+          "fullHeight": 844,
+          "offsetX": 0,
+          "offsetY": 0.5156097502611487,
+          "width": 390,
+          "height": 844
+        },
+        "target": [
+          0,
+          0.7,
+          0
+        ]
+      }
+    },
+    {
+      "selection": true,
+      "topToggle": true,
+      "presets": [
+        {
+          "preset": "player",
+          "position": [
+            16.621067811865476,
+            17,
+            20.621067811865476
+          ]
+        },
+        {
+          "preset": "dice",
+          "position": [
+            0,
+            18,
+            21.999999999999993
+          ]
+        },
+        {
+          "preset": "movement",
+          "position": [
+            16.621067811865476,
+            17,
+            20.621067811865476
+          ]
+        },
+        {
+          "preset": "event",
+          "position": [
+            14,
+            16.999999999999996,
+            24
+          ]
+        },
+        {
+          "preset": "overview",
+          "position": [
+            0,
+            49.96679067741256,
+            19.153921663717956
+          ]
+        }
+      ],
+      "resetView": true,
+      "orbit": true,
+      "zoom": true,
+      "dice": [
+        1,
+        2
+      ],
+      "movement": "GO -> Baltic Avenue",
+      "purchase": {
+        "owner": 0,
+        "balance": 1440
+      },
+      "endTurn": true
+    }
+  ],
+  "errors": []
+}

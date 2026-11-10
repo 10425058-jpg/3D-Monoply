@@ -1,33 +1,14 @@
 import React, { useLayoutEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { CASTLE_SITES, EnvironmentQuality, ENVIRONMENT_BUDGETS, terrainHeight, variation } from './environmentLayout';
+import { cloudLayout, EnvironmentQuality } from './environmentLayout';
 import { mayAnimateEnvironment } from './environmentMotion';
 import { SUN_DIRECTION } from './sunConfig';
 
 export function FloatingClouds({ quality, animate }: { quality: EnvironmentQuality; animate: boolean }) {
   const ref = useRef<THREE.InstancedMesh>(null);
   const uniforms = useMemo(() => ({ uTime: { value: 0 }, uSun: { value: new THREE.Vector3(...SUN_DIRECTION) } }), []);
-  const clouds = useMemo(() => {
-    const entries: { position: [number, number, number]; size: [number, number] }[] = [];
-    const count = ENVIRONMENT_BUDGETS[quality].clouds;
-    for (let i = 0; i < count; i++) {
-      const near = i < 12, angle = i * 2.399963;
-      const radius = near ? 24 + variation(i, 21) * 10 : 48 + variation(i, 22) * 90;
-      const x = Math.sin(angle) * radius, z = Math.cos(angle) * radius;
-      entries.push({ position: [x, near ? -10 - variation(i, 23) * 3 : terrainHeight(x, z) + 6, z],
-        size: near ? [13 + variation(i, 24) * 6, 7 + variation(i, 25)] : [17 + variation(i, 26) * 9, 8 + variation(i, 27) * 4] });
-    }
-    for (const site of CASTLE_SITES) {
-      const length = Math.hypot(site.x, site.z);
-      const x = site.x - site.x / length * 8.5 * site.size, z = site.z - site.z / length * 8.5 * site.size;
-      entries.push({ position: [x, terrainHeight(x, z) + .6, z], size: [6 * site.size, 2.6 * site.size] });
-    }
-    // Overlapping billboards fill the space under the board without a flat cloud disc.
-    for (const [x, z] of [[0, 0], [12, 3], [-10, 5], [0, -12], [0, 14]])
-      entries.push({ position: [x, -13, z], size: [20, 10] });
-    return entries;
-  }, [quality]);
+  const clouds = useMemo(() => cloudLayout(quality), [quality]);
   useLayoutEffect(() => {
     if (!ref.current) return;
     const dummy = new THREE.Object3D();

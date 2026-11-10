@@ -39,6 +39,43 @@ test('quality tiers have explicit bounded budgets and retain scenery at low qual
   }
   assert.ok(high.trees <= 1200); assert.ok(high.clouds <= 48);
 });
+
+test('foreground apron is lower while the rear landscape height is preserved', () => {
+  const original = (x, z) => -14 - Math.hypot(x, z) * .54 + Math.sin(x * .045) * Math.cos(z * .034) * 7 + Math.sin((x + z) * .07) * 3;
+  for (const x of [-40, 0, 40]) {
+    assert.ok(layout.terrainHeight(x, 64) < original(x, 64) - 13);
+    for (const z of [-30, -80, -140]) assert.equal(layout.terrainHeight(x, z), original(x, z));
+  }
+});
+
+test('terrain opens toward the foreground with a continuous, feathered inner rim', () => {
+  assert.ok(layout.terrainInnerRadius(0) > 64);
+  assert.ok(layout.terrainInnerRadius(Math.PI) < 36);
+  for (let i = 0; i <= 128; i++) {
+    const angle = i / 128 * Math.PI * 2, inner = layout.terrainInnerRadius(angle);
+    const opacity = offset => layout.terrainOpacity(Math.sin(angle) * (inner + offset), Math.cos(angle) * (inner + offset));
+    assert.ok(opacity(0) < 1e-10);
+    assert.ok(opacity(4) < opacity(14) && opacity(14) < opacity(24));
+    assert.ok(Math.abs(opacity(28) - 1) < 1e-10);
+  }
+});
+
+test('clouds leave open air below the board in every quality tier', () => {
+  const random = Math.random;
+  Math.random = () => { throw new Error('Cloud layout consumed gameplay randomness'); };
+  try {
+    for (const quality of ['low', 'balanced', 'high']) {
+      const clouds = layout.cloudLayout(quality);
+      assert.deepEqual(clouds, layout.cloudLayout(quality));
+      assert.equal(clouds.length, layout.ENVIRONMENT_BUDGETS[quality].clouds + layout.CASTLE_SITES.length);
+      for (const { position: [x, y, z], size: [width, height] } of clouds) {
+        assert.ok(Math.hypot(x, z) - width / 2 > 30, 'clouds must frame the board, not fill its underside');
+        assert.ok(y + height / 2 < -23, 'cloud tops stay well below the board');
+        assert.ok(height < 7.1, 'no tall, near-field cloud wall');
+      }
+    }
+  } finally { Math.random = random; }
+});
 test('live reduced-motion and visibility changes stop even an already queued frame', async () => {
   let reduced = false;
   globalThis.window = { matchMedia: () => ({ get matches() { return reduced; } }) };

@@ -4,7 +4,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const origin = process.env.AUDIT_URL || 'http://127.0.0.1:4175';
-const out = path.resolve('docs/graphics-phase-1/evidence/regression');
+const out = path.resolve(process.env.GRAPHICS_REGRESSION_OUT || 'docs/graphics-phase-1/evidence/regression');
 await mkdir(out, { recursive: true });
 const browser = await puppeteer.launch({ executablePath: process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
 const results = [];
