@@ -19,6 +19,7 @@ async function clickFooter(page, text) {
 }
 try {
   const page = await browser.newPage();
+  await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.evaluateOnNewDocument(() => {
@@ -35,6 +36,7 @@ try {
     for (const p of tiles) {
       assert.ok(p.x > 0 && p.x < width && p.y > 0 && p.y < height && p.depth < 1, `tile ${p.id} clipped at ${width}x${height}`);
       assert.equal(p.occludedByCity, false, `tile ${p.id} hidden by city at ${width}x${height}`);
+      assert.equal(p.pickableTileId, p.id, `tile ${p.id} physical raycast at ${width}x${height}`);
     }
     await page.screenshot({ path: path.join(out, `overview-${width}x${height}.png`) });
     // All forty spaces must still be reachable by the real pointer raycaster.
@@ -42,16 +44,19 @@ try {
       if (width < 640) {
         await page.touchscreen.tap(p.x, p.y);
         await page.waitForFunction(id => window.__graphicsAudit.game().selectedSpaceId === id, { timeout: 3000 }, p.id);
-        await page.click('div.fixed.left-4.bottom-20 button');
+        await page.click('[aria-label="Close property card"]');
+        // Closing a deed queues the camera's return to overview. Let that
+        // projection update before using coordinates from the overview again.
+        await pause(150);
         continue;
       }
       await page.mouse.move(width - 2, height / 2);
       await page.mouse.move(p.x, p.y);
-      try { await page.waitForFunction(id => window.__graphicsAudit.game().hoveredSpaceId === id, { timeout: 3000 }, p.id); }
+      try { await page.waitForFunction(id => window.__graphicsAudit.hovered.includes(id), { timeout: 3000 }, p.id); }
       catch (error) { throw new Error(`Hover tile ${p.id} at ${width}x${height}: ${JSON.stringify(await page.evaluate(() => window.__graphicsAudit.game()))}`, { cause: error }); }
     }
     results.push({ viewport: [width, height], visibleTileCenters: tiles.length, unoccludedByCity: true,
-      picking: { type: width < 640 ? 'touch' : 'mouse hover', count: 40 },
+      picking: { type: width < 640 ? 'touch and geometric raycast' : 'mouse hover and geometric raycast', count: 40 },
       camera: await page.evaluate(() => window.__graphicsAudit.metadata().camera) });
   }
   await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1, isMobile: false, hasTouch: false });
@@ -60,7 +65,7 @@ try {
   const tile = await page.evaluate(() => window.__graphicsAudit.tiles().find(p => p.id === 1));
   await page.mouse.click(tile.x, tile.y);
   await page.waitForFunction(() => window.__graphicsAudit.game().selectedSpaceId === 1);
-  await page.click('div.fixed.left-4.bottom-20 button');
+  await page.click('[aria-label="Close property card"]');
   await page.waitForFunction(() => window.__graphicsAudit.game().selectedSpaceId === null);
   const topButton = await page.$('button[title="Switch to Top-Down View"]');
   await topButton.click(); await pause(500);
@@ -68,6 +73,14 @@ try {
   assert.equal((await page.evaluate(() => window.__graphicsAudit.tiles())).filter(p => p.occludedByCity).length, 0);
   await page.screenshot({ path: path.join(out, 'top-view.png') });
   await page.click('button[title="Switch to 3D Isometric View"]'); await pause(500);
+  const presets = [];
+  for (const preset of ['player', 'dice', 'movement', 'event', 'overview']) {
+    await page.select('select[aria-label="Camera view"]', preset); await pause(250);
+    const camera = await page.evaluate(() => window.__graphicsAudit.metadata().camera);
+    assert.equal(!!camera.view?.enabled, preset === 'overview', `projection for ${preset}`);
+    presets.push({ preset, position: camera.position });
+  }
+  await page.click('.camera-toolbar button'); await pause(250);
   const before = await page.evaluate(() => window.__graphicsAudit.metadata().camera.position);
   await page.mouse.move(800, 450); await page.mouse.down(); await page.mouse.move(900, 490, { steps: 12 }); await page.mouse.up();
   await pause(600); const orbit = await page.evaluate(() => window.__graphicsAudit.metadata().camera.position);
@@ -77,7 +90,7 @@ try {
   assert.ok(zoom.some((v, i) => Math.abs(v - orbit[i]) > .2), 'zoom changed position');
   // Drive a real human turn through existing controls. Only dice RNG is fixed.
   await page.evaluate(() => { let roll = 0; Math.random = () => roll++ === 0 ? 0 : .18; });
-  await clickFooter(page, 'ROLL');
+  await page.click('[aria-label="Roll dice"]');
   await page.waitForFunction(() => window.__graphicsAudit.game().turnPhase === 'LANDED_ACTION', { timeout: 20000 });
   let game = await page.evaluate(() => window.__graphicsAudit.game());
   assert.deepEqual(game.dice, [1, 2]); assert.equal(game.players[0].position, 3);
@@ -87,7 +100,7 @@ try {
   assert.equal(game.players[0].money, 1440); assert.equal(game.turnPhase, 'END_TURN');
   await clickFooter(page, 'End Turn');
   await page.waitForFunction(() => window.__graphicsAudit.game().currentPlayerIndex === 1);
-  results.push({ selection: true, topToggle: true, orbit: true, zoom: true, dice: [1, 2], movement: 'GO -> Baltic Avenue',
+  results.push({ selection: true, topToggle: true, presets, resetView: true, orbit: true, zoom: true, dice: [1, 2], movement: 'GO -> Baltic Avenue',
     purchase: { owner: 0, balance: 1440 }, endTurn: true });
   assert.deepEqual(errors, []);
   await writeFile(path.join(out, 'results.json'), JSON.stringify({ results, errors }, null, 2));

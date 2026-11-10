@@ -380,6 +380,7 @@ export const Board3D: React.FC = () => {
       <instancedMesh ref={cornerBase} args={[cornerBaseGeometry, baseMaterial, cornerSpaces.length]} />
       <instancedMesh ref={edgeBase} args={[edgeBaseGeometry, baseMaterial, edgeSpaces.length]} />
       <instancedMesh
+        name="corner-tile-top"
         ref={cornerTop}
         args={[cornerTopGeometry, topMaterial, cornerSpaces.length]}
         onClick={(event) => handleTileClick(event, cornerSpaces)}
@@ -387,6 +388,7 @@ export const Board3D: React.FC = () => {
         onPointerOut={handleTileOut}
       />
       <instancedMesh
+        name="edge-tile-top"
         ref={edgeTop}
         args={[edgeTopGeometry, topMaterial, edgeSpaces.length]}
         onClick={(event) => handleTileClick(event, edgeSpaces)}

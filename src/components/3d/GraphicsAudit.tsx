@@ -33,6 +33,7 @@ export function GraphicsAudit({ quality }: { quality: string }) {
     };
     const audit = {
       quality,
+      hovered: [] as number[],
       game() {
         const game = useGameStore.getState();
         return { turnPhase: game.turnPhase, currentPlayerIndex: game.currentPlayerIndex,
@@ -76,7 +77,12 @@ export function GraphicsAudit({ quality }: { quality: string }) {
           const p = world.clone().project(camera);
           ray.setFromCamera(new THREE.Vector2(p.x, p.y), camera);
           const hit = city ? ray.intersectObject(city, true)[0] : null;
-          return { id, x: (p.x + 1) * state.size.width / 2, y: (1 - p.y) * state.size.height / 2, depth: p.z,
+          const tileMeshes = ['corner-tile-top', 'edge-tile-top'].map(name => scene.getObjectByName(name)).filter(Boolean) as THREE.Object3D[];
+          const tileHit = ray.intersectObjects(tileMeshes)[0];
+          const tileIds = tileHit?.object.name === 'corner-tile-top' ? [0, 10, 20, 30] : Array.from({ length: 40 }, (_, n) => n).filter(n => n % 10);
+          const rect = gl.domElement.getBoundingClientRect();
+          return { id, x: rect.left + (p.x + 1) * state.size.width / 2, y: rect.top + (1 - p.y) * state.size.height / 2, depth: p.z,
+            pickableTileId: tileHit?.instanceId === undefined ? null : tileIds[tileHit.instanceId],
             occludedByCity: !!hit && hit.distance < camera.position.distanceTo(world) - .15 };
         });
       },
@@ -102,8 +108,13 @@ export function GraphicsAudit({ quality }: { quality: string }) {
           memory: { ...gl.info.memory }, programs: gl.info.programs?.length };
       },
     };
+    const unsubscribe = useGameStore.subscribe((next, previousState) => {
+      if (next.hoveredSpaceId !== null && next.hoveredSpaceId !== previousState.hoveredSpaceId) audit.hovered.push(next.hoveredSpaceId);
+      if (audit.hovered.length > 200) audit.hovered.shift();
+    });
     (window as any).__graphicsAudit = audit;
     return () => {
+      unsubscribe();
       gl.render = originalRender; gl.info.autoReset = originalAutoReset;
       pending.forEach(query => context.deleteQuery(query)); delete (window as any).__graphicsAudit;
     };
