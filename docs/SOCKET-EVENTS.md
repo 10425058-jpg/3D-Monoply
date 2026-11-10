@@ -9,7 +9,7 @@ Connect to Socket.IO namespace `/game` with `auth:{token:accessToken}`, not quer
 | Client → server event | Payload | Ack and effect |
 |---|---|---|
 | `room:join` | `{roomId:string}` | `{ok:true,data:{subscribed:true}}`; authorized user joins `room:<roomId>`, receives `room:snapshot` |
-| `room:leave` | `{roomId:string}` | `{ok:true,data:{subscribed:false}}`; unsubscribe only; **does not leave the lobby** |
+| `room:leave` | `{roomId:string}` | `{ok:true,data:{subscribed:false}}`; unsubscribe from Socket.IO notifications only, **never changes REST room membership or forfeits a match**, including during IN_PROGRESS/PAUSED |
 | `match:join` | `{matchId:string}` | authorized match participant joins `match:<matchId>` and receives `match:snapshot` |
 | `match:leave` | `{matchId:string}` | unsubscribe only, does not forfeit |
 
