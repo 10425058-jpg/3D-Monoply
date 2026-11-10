@@ -41,3 +41,15 @@
 | Existing frontend build and local/AI regression | Required | **Not run** |
 
 No claim of zero bugs or of a complete backend is made by a docs-only PR. If schemas/semantics change, update all seven docs and automated contract tests together.
+
+## 4. Lifecycle deadlock review (v1.1.1)
+
+| Reported issue | Resolution | Required runtime verification |
+|---|---|---|
+| Host disconnect leaves PAUSED match trapped | Connected solvent lowest-seat player becomes host once host absent >120s; authority mirrors room membership | Disconnect host, advance grace, verify new host and no auto-reclaim |
+| Remaining players cannot continue | Connected host can forfeit other players overdue offline >=120s; after elimination resume or finish | Concurrent reconnect vs forfeit, original action replay, bankrupt holdings |
+| Everyone offline contradicts PAUSED/ABANDONED | Stay PAUSED during grace and until restart-safe 24 continuous offline hours; only then auto-ABANDONED | 23h59m stays paused; 24h closes; reconnect resets timer |
+| Terminal room undefined | FINISHED/ABANDONED atomically closes parent room, preserves match reference; no same-room rematch | GET final results, join/ready/start rejected on CLOSED |
+| Host role during match unclear | `rooms.host_user_id` is authoritative in WAITING/IN_PROGRESS/PAUSED | Membership authorization across promotion, demotion and reconnection |
+
+**Scope:** documentation-level review only. No game service, scheduled worker, migration or tests are implemented by this PR. Earlier sections' narrower pause/host descriptions are replaced by this normative lifecycle rule.
