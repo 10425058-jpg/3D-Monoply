@@ -1,58 +1,60 @@
-# 3D Monopoly — Frontend / Backend Integration Plan v1.0.0
+# 3D Monopoly — Frontend / Backend Integration Plan v1.1.0
 
-**Status:** Implementation plan for team review; not a claim of completed implementation.
-**Normative references:** [REST API](./API-CONTRACT.md), [Socket Events](./SOCKET-EVENTS.md), [Game State](./GAME-STATE.md), [Database](./DATABASE-DESIGN.md)
+**Status:** Proposed implementation plan, not proof of running backend.
+**Normative docs:** [API-CONTRACT.md](./API-CONTRACT.md), [SOCKET-EVENTS.md](./SOCKET-EVENTS.md), [GAME-STATE.md](./GAME-STATE.md), [DATABASE-DESIGN.md](./DATABASE-DESIGN.md), [ONLINE-MVP-RULES.md](./ONLINE-MVP-RULES.md). [CONTRACT-CONSISTENCY-REVIEW.md](./CONTRACT-CONSISTENCY-REVIEW.md) tracks validations. **Six documents are reviewed together** (five contracts/plans + review; the new online rules document means **seven** documents in total).
 
-## 1. Repository and branches
+## 1. Scope and repo boundaries
 
-The repo root stays a functioning React 18 / TypeScript / Vite / Three.js app. Backend lives in `backend/` (NestJS + TypeScript + Prisma + PostgreSQL); do **not** move the frontend into a new directory. Existing local/AI gameplay remains independent of network mode.
+Keep current React/TypeScript/Vite/R3F frontend in root, keep its local/AI game functional, add NestJS + Prisma + PostgreSQL in `backend/`. No wholesale Zustand refactor; online mode is a separate server-state adapter. Use online ruleset **mini-v1** on `central-castle@1`, **not classic-v1**. Local game may retain richer rules; UI must identify mode. Preserve player visual polish and deliver stable game rules before optional animations.
 
-Work from reviewed feature branches. Backend foundation is confined to `backend/`, except agreed shared tooling. Avoid unrelated changes to root package, CI, tsconfig or lockfile. Do not commit `.env`, DB credentials, JWT secrets or refresh tokens; document placeholders in `backend/.env.example`.
+## 2. Team-agreed API choices
 
-## 2. Cross-team locked v1 decisions
+- REST `/api/v1` is the **only** gameplay/lobby mutation transport. Socket.IO is for `room:join/leave` and `match:join/leave` subscriptions, event broadcasts and snapshots.
+- Money: JSON/TS safe integer `number` within [0,2147483647], DB `INTEGER CHECK(money >= 0)`; immediate bankruptcy on unaffordable obligations.
+- JWT access: 15 minutes, in memory. Login/register set 7-day max rotating HttpOnly refresh cookie plus return an in-memory CSRF token; credentialed refresh rotates both; `GET /auth/csrf` bootstrap after page reload. Socket reconnect uses freshly refreshed JWT and re-subscribes.
+- Private rooms return raw code once on creation and allow host rotation, DB stores only hash. Authenticated GET /rooms browses public waiting rooms.
+- 120-second disconnect grace, PAUSED on timeout, resume when all remaining solvent players reconnect; otherwise authorized host can abandon. No timeout auto-bankruptcy/forfeit.
+- All actions: UUID clientActionId, expectedStateVersion, contentVersion. Idempotency lookup **before** state-version check; transaction writes state/action result/events.
+- Match turn rules: full mini-v1 coverage for Chance/Chest, Jail, GO, doubles, rent, taxes, bankruptcy, and deterministic terminal condition at last solvent player or 80 completed turns. No exposed auctions, trades, builds, mortgages or manual debt actions in this simplified online ruleset.
+- Ended/abandoned match has null currentPlayerId; active/paused match has non-null currentPlayerId; secrets such as deck order never in snapshots.
 
-| Concern | Contract |
-|---|---|
-| Launch online game | 2–4 humans, one map `central-castle`, ruleset `classic-v1`, content version `central-castle@1` |
-| Transport | REST-only mutations; Socket.IO-only notifications/subscriptions/presence |
-| API result | `{data,meta}` success; `{error:{code,message,details}}` failure |
-| Money | TypeScript `number` safe integer within 32-bit signed range; PostgreSQL `INTEGER`; no `BIGINT` for game money |
-| Persistence | `matches` persists doubles, dice, optional auction/trade/debt and pause; `match_players` persists disconnect data; `processed_actions` persists UUID idempotency |
-| Client commands | UUID `clientActionId`, `expectedStateVersion`, `contentVersion` in every mutation |
-| Auth | 15-min JWT bearer access token kept in memory; rotating 7-day HttpOnly refresh cookie; CSRF and origin safeguards |
-| Reconnect | 120-second grace, full snapshot on join, match PAUSED on expiry; no automatic forfeits |
-| Lobby | 2–4 players; host implicitly ready; on host exit waiting room oldest active player becomes host |
-| Deferred | Online auctions/trades/build/mortgage/jail/cards/debt/bankruptcy, server AI, daily rewards/leaderboards |
+## 3. Build and deliver in vertical slices
 
-## 3. 21-day rollout and responsibilities
-
-| Priority | Backend | Frontend | Shared acceptance test |
+| Priority | Backend | Frontend | Acceptance criteria |
 |---|---|---|---|
-| P0 | App scaffold, health, DB/migrations | Preserve current local mode | Frontend builds; backend starts |
-| P0 | Auth/session and CSRF | Typed API client, login | Register/login/refresh/logout |
-| P0 | Lobby create/join/ready/start | Lobby components | 2 browser accounts start |
-| P0 | Match snapshot, roll, buy/decline, rent, end turn | Online store adapter, state/animation separation | Server dice, no client authority |
-| P0 | Socket broadcasts, presence and grace pause | Subscribe, dedup, recover snapshot | 2 browser tabs + reconnect |
-| P1 | Complete specific classic rules | UI for additional actions | Only when exact rules and payloads tested |
-| P2 | Progression, maps, cosmetics | Visual polish | Later release |
+| P0 | NestJS health, DB, Prisma migrations | Preserve root build and local mode | GET /health: 200 with DB, 503 on DB outage |
+| P0 | Register/login/refresh/CSRF/logout | Typed auth client | Login sets cookie + csrf; 15-minute expiry renewal |
+| P0 | Room CRUD, private codes, public browsing, Socket room channel | Lobby list / ready / host / copy code | 2 users see ready changes before match exists |
+| P0 | Match snapshot and rules engine for mini-v1 | Online state adapter | All 40 spaces and every card action covered |
+| P0 | Actions, durable idempotency, version conflicts, deck state | Roll/buy/decline/end/jail/forfeit controls | Duplicate roll never executes twice |
+| P0 | Socket match channel, presence, pause/resume/abandon | Animate committed events and recover snapshots | Drop/reconnect including mid-game token expiry |
+| P0 | Finish and bankruptcy | Game-over UI | Last solvent or 80 turns finishes deterministically |
+| P1 | Lobby search filters, advanced telemetry | Additional polish | Optional if time remains |
+| Later | Full classic-v1 features | Classic UI options | Separate contract and tests |
 
-If the core P0 multiplayer path cannot be completed by the deadline, deliver a strong local/AI game instead of presenting partially implemented backend features as working.
+Do not claim online multiplayer works until the complete P0 slice passes two-account browser E2E. If resources cannot support core game rule coverage inside 21 days, ship an honest polished local/AI game instead of an incomplete multiplayer mode.
 
-## 4. Integration boundary
+## 4. Development invariants
 
-Frontend service modules (when implementation begins): `src/services/apiClient.ts`, `authService.ts`, `roomService.ts`, `matchService.ts`, `src/socket/socketClient.ts`, `src/types/api.ts` (or a shared contract package once it exists). Existing `src/store/useGameStore.ts` remains local game authority. In online mode use a separate adapter/store driven by server `MatchState`; camera/modal/animation state stays client-local. Avoid local AI timers and local dice randomization changing online authority.
+- Each REST command must have executable schema validation; backend decides all economy, randomness and board/card effects; errors use one JSON envelope and stable code.
+- Both REST room state and Socket room broadcasts are authorized: users waiting in lobby join `room:<roomId>` before any match exists.
+- Auth middleware must protect endpoints and sockets; refresh uses cookie + CSRF + origin, and socket JWT refresh/reconnect with snapshots.
+- Match cards and dice require durable state; no client-provided dice or future deck order. UI must disable unsupported `mini-v1` actions.
+- Money, IDs, phase, nullable fields, roomRevision and stateVersion must correspond to DB columns.
+- Always use short feature branches and PR review; do not modify root frontend unnecessarily for backend scaffolding.
 
-Run frontend: `npm install && npm run dev`. Run backend once scaffolded: `cd backend && npm install && npm run start:dev`. Configure dev CORS credentials/origins appropriately and database URL through backend environment.
+## 5. Implementation and verification workflow
 
-## 5. Required team tests and PR gate
+Run root frontend `npm install && npm run dev`; backend once created `cd backend && npm install && npm run start:dev`. Do not commit real .env. Include backend .env.example, DB setup/migration instructions, test scripts, and deployment cookie/cors origin notes.
 
-1. Five documentation files agree on one transport, endpoint family, error envelope and money type.
-2. All backend schema migrations include `matches.doubles_count`, `dice_state`, `auction_state`, `pending_trade_state`, `pending_debt_state`, `paused_at`, `pause_reason`, `match_players.connection_status`, `disconnected_at`, and `processed_actions` uniqueness.
-3. Duplicate same `clientActionId` with same request does not roll/buy twice; changed request with same ID is 409; stale distinct action is 409.
-4. Money overflow and non-integer input rejected; DB round-trip equals JSON `number` integer.
-5. Frontend never emits gameplay mutation over Socket.IO and never trusts its own dice/balance as canonical.
-6. Two independent browser sessions see identical versioned match state; reconnect obtains complete snapshot; 120-second disconnect results in PAUSED state and no auto-forfeit.
-7. Access/refresh token and CSRF lifecycle validated. Unauthorized room/match access refused.
-8. Local/AI game, build, rendering and existing frontend tests still pass.
+Mandatory test groups:
+1. Auth registration/login sets refresh+CSRF, refresh rotates, logout revokes; reloaded client bootstraps CSRF; expired socket reconnects with new JWT.
+2. Public room discovery and private code creation, join, invalid code, rotate and revoked code. Room subscribers see joins/ready/host/start before match ID exists.
+3. Match actions: same clientActionId replay first even if old expected version, different-body reused ID rejected, stale new ID rejected, concurrency prevents duplicate rolls.
+4. Gameplay: all 40 squares and all card action types; doubles 1–3, Jail 1–3, GO forward/backwards, rent, tax, insufficient funds, creditor/bank bankruptcy, extra-roll phase, finite 80-turn winner.
+5. Presence: grace 120 seconds, transition PAUSED, all reconnect resumes exact turn/phase, hosted abandon when otherwise stuck; no automatic forfeit on Wi-Fi drop.
+6. End-state: winner persisted, currentPlayerId null and no more actions; absent players and special end condition tested; frontend online UI matches disabled actions.
+7. Database checks: nonnegative INTEGER balances, deck cursor and held cards, current player FK/circular creation, idempotency table, ordered events, restart recovery.
+8. Verify current local game and frontend build still pass.
 
-**Definition of done:** PR is code-reviewed; schema, request/response, unit/integration/e2e tests pass for its specific feature; deployment instructions are reproducible. Docs being approved is not equivalent to backend being implemented.
+**Definition of done:** These are tests that must be implemented and run by the development team; documentation updates alone cannot certify a working application.
