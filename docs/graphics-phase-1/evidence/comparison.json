@@ -1,0 +1,89 @@
+[
+  {
+    "quality": "low",
+    "before": {
+      "fps": 24.3277336159742,
+      "frameP50": 39.60000014305115,
+      "frameP95": 52,
+      "renderCpuP50": 29.09999990463257,
+      "gpuP50": 39.13442,
+      "calls": 3433,
+      "triangles": 288942,
+      "textures": 2,
+      "geometries": 1765,
+      "samples": 243
+    },
+    "after": {
+      "fps": 55.096143269708406,
+      "frameP50": 17.799999952316284,
+      "frameP95": 20.90000009536743,
+      "renderCpuP50": 9,
+      "gpuP50": 17.22469,
+      "calls": 1767,
+      "triangles": 145943,
+      "textures": 2,
+      "geometries": 1766,
+      "samples": 551
+    },
+    "fpsChangePercent": 126.47462414472876,
+    "callsChangePercent": -48.52898339644626
+  },
+  {
+    "quality": "balanced",
+    "before": {
+      "fps": 14.873773918493882,
+      "frameP50": 66,
+      "frameP95": 80.29999995231628,
+      "renderCpuP50": 65.70000004768372,
+      "gpuP50": 64.6368,
+      "calls": 4360,
+      "triangles": 370537,
+      "textures": 3,
+      "geometries": 1766,
+      "samples": 148
+    },
+    "after": {
+      "fps": 34.63602146265147,
+      "frameP50": 28.09999990463257,
+      "frameP95": 34.200000047683716,
+      "renderCpuP50": 16.5,
+      "gpuP50": 26.94598,
+      "calls": 2694,
+      "triangles": 217521,
+      "textures": 3,
+      "geometries": 1767,
+      "samples": 346
+    },
+    "fpsChangePercent": 132.86639727383132,
+    "callsChangePercent": -38.211009174311926
+  },
+  {
+    "quality": "high",
+    "before": {
+      "fps": 14.66570234644213,
+      "frameP50": 67.39999985694885,
+      "frameP95": 73.70000004768372,
+      "renderCpuP50": 67,
+      "gpuP50": 66.2078,
+      "calls": 4360,
+      "triangles": 392701,
+      "textures": 3,
+      "geometries": 1766,
+      "samples": 146
+    },
+    "after": {
+      "fps": 31.80763383242312,
+      "frameP50": 30.40000009536743,
+      "frameP95": 39,
+      "renderCpuP50": 20.200000047683716,
+      "gpuP50": 29.21816,
+      "calls": 2694,
+      "triangles": 228615,
+      "textures": 3,
+      "geometries": 1767,
+      "samples": 318
+    },
+    "fpsChangePercent": 116.8844906370242,
+    "callsChangePercent": -38.211009174311926
+  }
+]

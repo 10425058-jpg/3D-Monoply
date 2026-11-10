@@ -9,7 +9,10 @@
     "build": "tsc && vite build",
     "lint": "tsc --noEmit",
     "test:animations": "node --test tests/animations.test.mjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:graphics": "node --test tests/graphics.test.mjs",
+    "audit:graphics": "node scripts/graphics-audit.mjs",
+    "test:graphics-browser": "node scripts/graphics-regression.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^9.105.4",

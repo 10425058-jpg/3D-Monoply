@@ -1,16 +1,16 @@
-import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { RoundedBox, Text } from '@react-three/drei';
 import { BOARD_SPACES, getSpaceTransform } from '../../data/boardData';
 import { useGameStore } from '../../store/useGameStore';
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three-stdlib';
+import { createWalnutGrain } from './boardMaterials';
 
 // Material colors
-const GOLD_FRAME = '#e8b84d';
-const GOLD_ACCENT = '#ffd978';
+const GOLD_ACCENT = '#d8b568';
 const CLIFF_STONE = '#5c4e78';
-const CLIFF_GRASS = '#78b84d';
-const TILE_IVORY = '#f6efdf';
+const CLIFF_GRASS = '#63885a';
+const TILE_IVORY = '#f3ead8';
 const TILE_BORDER = '#eedfc8';
 
 // Space Icons & Special Renderers
@@ -134,6 +134,8 @@ export const Board3D: React.FC = () => {
   const properties = useGameStore((s) => s.properties);
   const players = useGameStore((s) => s.players);
   const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const walnutGrain = useMemo(createWalnutGrain, []);
+  useEffect(() => () => walnutGrain.dispose(), [walnutGrain]);
 
   const cornerSpaces = useMemo(() => BOARD_SPACES.filter((space) => getSpaceTransform(space.id).isCorner), []);
   const edgeSpaces = useMemo(() => BOARD_SPACES.filter((space) => !getSpaceTransform(space.id).isCorner), []);
@@ -144,11 +146,11 @@ export const Board3D: React.FC = () => {
   const edgeTopGeometry = useMemo(() => new RoundedBoxGeometry(1.71, 0.09, 2.81, 0.04, 4), []);
 
   const baseMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: '#d4c2b2', metalness: 0.2, roughness: 0.45,
+    color: '#cabbab', metalness: 0, roughness: 0.72,
   }), []);
 
   const topMaterial = useMemo(() => new THREE.MeshPhysicalMaterial({
-    color: TILE_IVORY, roughness: 0.62, metalness: 0.02, clearcoat: 0.15, clearcoatRoughness: 0.55,
+    color: TILE_IVORY, roughness: 0.62, metalness: 0, clearcoat: 0.12, clearcoatRoughness: 0.42,
   }), []);
 
   const cornerBase = useRef<THREE.InstancedMesh>(null);
@@ -219,7 +221,7 @@ export const Board3D: React.FC = () => {
   };
 
   return (
-    <group>
+    <group name="game-board">
       {/* ============================================================== */}
       {/* 1. FLOATING DIORAMA CLIFF BASE & HANGING VINES                 */}
       {/* ============================================================== */}
@@ -240,7 +242,7 @@ export const Board3D: React.FC = () => {
         <meshStandardMaterial
           color="#38bdf8"
           emissive="#38bdf8"
-          emissiveIntensity={0.35}
+          emissiveIntensity={0.45}
           roughness={0.1}
         />
       </mesh>
@@ -278,25 +280,25 @@ export const Board3D: React.FC = () => {
       ))}
 
       {/* ============================================================== */}
-      {/* 2. LUXURIOUS POLISHED GOLDEN BEVELED RIM / CHASSIS             */}
+      {/* 2. SATIN WALNUT CHASSIS WITH BRUSHED GOLD INLAY               */}
       {/* ============================================================== */}
       <mesh position={[0, -0.05, 0]} receiveShadow castShadow>
         <boxGeometry args={[24.9, 0.42, 24.9]} />
         <meshPhysicalMaterial
-          color={GOLD_FRAME}
-          metalness={0.88}
-          roughness={0.22}
-          clearcoat={1}
-          clearcoatRoughness={0.12}
+          map={walnutGrain}
+          metalness={0}
+          roughness={0.54}
+          clearcoat={0.18}
+          clearcoatRoughness={0.4}
         />
       </mesh>
       <mesh position={[0, 0.14, 0]} receiveShadow>
         <boxGeometry args={[24.5, 0.14, 24.5]} />
         <meshPhysicalMaterial
           color={GOLD_ACCENT}
-          metalness={0.92}
-          roughness={0.18}
-          clearcoat={1}
+          metalness={0.72}
+          roughness={0.34}
+          clearcoat={0.15}
         />
       </mesh>
       {/* Inner board tray reveal */}
@@ -378,6 +380,7 @@ export const Board3D: React.FC = () => {
       <instancedMesh ref={cornerBase} args={[cornerBaseGeometry, baseMaterial, cornerSpaces.length]} />
       <instancedMesh ref={edgeBase} args={[edgeBaseGeometry, baseMaterial, edgeSpaces.length]} />
       <instancedMesh
+        name="corner-tile-top"
         ref={cornerTop}
         args={[cornerTopGeometry, topMaterial, cornerSpaces.length]}
         onClick={(event) => handleTileClick(event, cornerSpaces)}
@@ -385,6 +388,7 @@ export const Board3D: React.FC = () => {
         onPointerOut={handleTileOut}
       />
       <instancedMesh
+        name="edge-tile-top"
         ref={edgeTop}
         args={[edgeTopGeometry, topMaterial, edgeSpaces.length]}
         onClick={(event) => handleTileClick(event, edgeSpaces)}
@@ -427,8 +431,8 @@ export const Board3D: React.FC = () => {
                   <boxGeometry args={[transform.width - 0.12, 0.05, 0.62]} />
                   <meshStandardMaterial
                     color={space.colorHex}
-                    roughness={0.25}
-                    metalness={0.2}
+                    roughness={0.58}
+                    metalness={0}
                   />
                 </mesh>
                 {/* Gold trim divider line */}

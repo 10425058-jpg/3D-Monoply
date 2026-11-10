@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useGameStore } from '../../store/useGameStore';
 import { CASTLE_COLORS } from './castle/CastleMaterials';
+import { ContactOcclusion } from './ContactOcclusion';
 import { CentralCastle } from './castle/CentralCastle';
 import { CentralPlazaFountain } from './castle/CentralPlazaFountain';
 import { LeftTownhouseCafe, RightTownhouseBoutique } from './castle/SupportingBuildings';
@@ -42,7 +43,7 @@ export const CenterCity3D: React.FC = () => {
   });
 
   return (
-    <group position={[0, 0, 0]}>
+    <group name="center-city" position={[0, 0, 0]}>
       {/* ============================================================== */}
       {/* 1. COHESIVE NATURAL TERRAIN DIORAMA BASE                       */}
       {/* ============================================================== */}
@@ -61,25 +62,25 @@ export const CenterCity3D: React.FC = () => {
       {/* Elevated North Castle Plateau */}
       <mesh position={[0, 0.35, -2.0]} receiveShadow castShadow>
         <boxGeometry args={[11.8, 0.22, 5.8]} />
-        <meshStandardMaterial color="#65ac44" roughness={0.72} />
+        <meshStandardMaterial color={CASTLE_COLORS.grassLush} roughness={0.9} />
       </mesh>
 
       {/* West Residential Garden Terrace (Café) */}
       <mesh position={[-4.5, 0.3, 0.2]} receiveShadow castShadow>
         <boxGeometry args={[5.8, 0.14, 5.2]} />
-        <meshStandardMaterial color="#65ac44" roughness={0.72} />
+        <meshStandardMaterial color={CASTLE_COLORS.grassLush} roughness={0.9} />
       </mesh>
 
       {/* East Commercial / Boutique Terrace */}
       <mesh position={[4.5, 0.3, 0.2]} receiveShadow castShadow>
         <boxGeometry args={[5.8, 0.14, 5.2]} />
-        <meshStandardMaterial color="#65ac44" roughness={0.72} />
+        <meshStandardMaterial color={CASTLE_COLORS.grassLush} roughness={0.9} />
       </mesh>
 
       {/* Extended Foreground Garden Terrace (South - fills down to inner board edge) */}
       <mesh position={[0, 0.28, 5.2]} receiveShadow castShadow>
         <boxGeometry args={[13.6, 0.12, 4.2]} />
-        <meshStandardMaterial color="#65ac44" roughness={0.72} />
+        <meshStandardMaterial color={CASTLE_COLORS.grassLush} roughness={0.9} />
       </mesh>
 
       {/* Cobblestone Stone Pathways connecting Castle, Plaza, and Townhouses */}
@@ -106,12 +107,11 @@ export const CenterCity3D: React.FC = () => {
           <boxGeometry args={[13.2, 0.05, 1.9]} />
           <meshPhysicalMaterial
             color={CASTLE_COLORS.waterTurquoise}
-            roughness={0.05}
-            metalness={0.12}
-            transmission={0.68}
+            roughness={0.3}
+            metalness={0}
             ior={1.333}
-            clearcoat={1}
-            clearcoatRoughness={0.06}
+            clearcoat={0.35}
+            clearcoatRoughness={0.22}
           />
         </mesh>
         {/* North Canal Stone Quay Bank */}
@@ -157,6 +157,7 @@ export const CenterCity3D: React.FC = () => {
       {/* ============================================================== */}
       {/* 2. THE GRAND CENTRAL FANTASY CASTLE (Milestone 1.2 Refined)    */}
       {/* ============================================================== */}
+      <ContactOcclusion />
       <CentralCastle level={landmarkLevel} />
 
       {/* Floating Magic Crystal above the High Spire */}
@@ -169,7 +170,6 @@ export const CenterCity3D: React.FC = () => {
             emissiveIntensity={0.9}
             roughness={0.1}
             metalness={0.1}
-            transmission={0.45}
             ior={1.4}
           />
         </mesh>

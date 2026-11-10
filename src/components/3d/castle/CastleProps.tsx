@@ -25,7 +25,7 @@ export const VictorianStreetLamp: React.FC<{
       {/* Middle Decorative Ring */}
       <mesh position={[0, 0.42, 0]}>
         <torusGeometry args={[0.052, 0.018, 6, 12]} />
-        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.9} roughness={0.2} />
+        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
       </mesh>
 
       {/* Upper Capital / Lantern Cradle */}
@@ -47,7 +47,7 @@ export const VictorianStreetLamp: React.FC<{
       </mesh>
       <mesh position={[0, 1.6, 0]}>
         <cylinderGeometry args={[0.015, 0.015, 0.1, 6]} />
-        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.95} />
+        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
       </mesh>
 
       {/* Warm Emissive Core Bulb */}
@@ -79,25 +79,25 @@ export const RoyalStandingBanner: React.FC<{
       {/* Base Plinth */}
       <mesh position={[0, 0.06, 0]} castShadow>
         <cylinderGeometry args={[0.15, 0.19, 0.12, 12]} />
-        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.92} roughness={0.2} />
+        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
       </mesh>
 
       {/* Tall Gold Pole */}
       <mesh position={[0, 0.95, 0]} castShadow>
         <cylinderGeometry args={[0.032, 0.032, 1.8, 8]} />
-        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.92} roughness={0.2} />
+        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
       </mesh>
 
       {/* Spearhead Top Finial */}
       <mesh position={[0, 1.95, 0]} rotation={[0, Math.PI / 4, 0]}>
         <coneGeometry args={[0.08, 0.22, 4]} />
-        <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.98} roughness={0.1} />
+        <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.72} roughness={0.3} />
       </mesh>
 
       {/* Crossbar */}
       <mesh position={[0, 1.65, 0.08]} rotation={[0, 0, Math.PI / 2]} castShadow>
         <cylinderGeometry args={[0.02, 0.02, 0.68, 8]} />
-        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.92} />
+        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
       </mesh>
 
       {/* Royal Purple / Blue Fabric Banner */}
@@ -114,7 +114,7 @@ export const RoyalStandingBanner: React.FC<{
         {/* Gold Fleur-de-lis Emblem */}
         <mesh position={[0, 0.05, 0.02]}>
           <boxGeometry args={[0.19, 0.3, 0.015]} />
-          <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.95} roughness={0.15} />
+          <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.72} roughness={0.3} />
         </mesh>
       </group>
     </group>
@@ -183,17 +183,17 @@ export const StoneFlowerPlanter: React.FC<{
       {/* Stone Base Plinth */}
       <mesh position={[0, 0.06, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.5, 0.12, 0.5]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.7} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.72} />
       </mesh>
       {/* Stone Planter Body */}
       <mesh position={[0, 0.22, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.44, 0.22, 0.44]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.55} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
       </mesh>
       {/* Top Moulded Rim */}
       <mesh position={[0, 0.34, 0]} castShadow>
         <boxGeometry args={[0.5, 0.04, 0.5]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.5} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.72} />
       </mesh>
 
       {/* Soil */}
@@ -265,17 +265,17 @@ export const GoldStoneBollard: React.FC<{
       {/* Stone Base */}
       <mesh position={[0, 0.15, 0]} castShadow>
         <boxGeometry args={[0.22, 0.3, 0.22]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.6} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
       </mesh>
       {/* Beveled Top Cap */}
       <mesh position={[0, 0.32, 0]}>
         <boxGeometry args={[0.26, 0.06, 0.26]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.55} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.72} />
       </mesh>
       {/* Polished Gold Sphere Finial */}
       <mesh position={[0, 0.44, 0]}>
         <sphereGeometry args={[0.085, 12, 12]} />
-        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.95} roughness={0.15} />
+        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
       </mesh>
     </group>
   );

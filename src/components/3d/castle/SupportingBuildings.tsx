@@ -18,12 +18,12 @@ const CornerQuoins: React.FC<{ height: number; width: number; depth: number }> =
             {/* Front Left Corner */}
             <mesh position={[-width / 2, qy, depth / 2]} castShadow>
               <boxGeometry args={[isLong ? 0.22 : 0.14, 0.22, isLong ? 0.14 : 0.22]} />
-              <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.6} />
+              <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
             </mesh>
             {/* Front Right Corner */}
             <mesh position={[width / 2, qy, depth / 2]} castShadow>
               <boxGeometry args={[isLong ? 0.22 : 0.14, 0.22, isLong ? 0.14 : 0.22]} />
-              <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.6} />
+              <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
             </mesh>
           </React.Fragment>
         );
@@ -44,25 +44,25 @@ export const LeftTownhouseCafe: React.FC<{
       {/* Stone Foundation Plinth */}
       <mesh position={[0, 0.1, 0]} castShadow receiveShadow>
         <boxGeometry args={[2.75, 0.2, 2.55]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.7} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.72} />
       </mesh>
 
       {/* Ground Floor Main Body */}
       <mesh position={[0, 0.8, 0]} castShadow receiveShadow>
         <boxGeometry args={[2.55, 1.2, 2.35]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.6} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.72} />
       </mesh>
 
       {/* Stringcourse Belt Moulding */}
       <mesh position={[0, 1.45, 0]} castShadow>
         <boxGeometry args={[2.7, 0.1, 2.5]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.5} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
       </mesh>
 
       {/* Second Floor Main Body */}
       <mesh position={[0, 2.05, 0]} castShadow receiveShadow>
         <boxGeometry args={[2.5, 1.1, 2.3]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.6} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.72} />
       </mesh>
 
       {/* Corner Quoin Stones */}
@@ -78,7 +78,7 @@ export const LeftTownhouseCafe: React.FC<{
         {[0.2, 0.45, 0.72].map((sy, si) => (
           <mesh key={`cshingle-${si}`} position={[0, sy, 0]} rotation={[0, Math.PI / 4, 0]} castShadow>
             <coneGeometry args={[2.0 - si * 0.4, 0.1, 4]} />
-            <meshStandardMaterial color={si % 2 === 0 ? CASTLE_COLORS.roofTerracottaDark : '#ea580c'} roughness={0.45} />
+            <meshStandardMaterial color={si % 2 === 0 ? CASTLE_COLORS.roofTerracottaDark : CASTLE_COLORS.roofTerracottaTile} roughness={0.45} />
           </mesh>
         ))}
         {/* Roof Ridge Trim & Finials */}
@@ -89,7 +89,7 @@ export const LeftTownhouseCafe: React.FC<{
         {[-0.45, 0.45].map((rx, ri) => (
           <mesh key={`rfinial-cafe-${ri}`} position={[rx, 1.25, 0]}>
             <sphereGeometry args={[0.045, 8, 8]} />
-            <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.9} />
+            <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
           </mesh>
         ))}
       </group>
@@ -102,7 +102,7 @@ export const LeftTownhouseCafe: React.FC<{
         </mesh>
         <mesh position={[0, 0.54, 0]} castShadow>
           <boxGeometry args={[0.4, 0.08, 0.4]} />
-          <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.6} />
+          <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
         </mesh>
         {/* Chimney Terracotta Pot */}
         <mesh position={[0, 0.65, 0]}>
@@ -154,7 +154,7 @@ export const LeftTownhouseCafe: React.FC<{
         {/* Gold Coffee Cup / Café Emblem */}
         <mesh position={[0.22, -0.1, 0]}>
           <cylinderGeometry args={[0.055, 0.045, 0.09, 8]} />
-          <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.9} />
+          <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
         </mesh>
       </group>
 
@@ -178,7 +178,7 @@ export const LeftTownhouseCafe: React.FC<{
           <group key={`cwin-g-${wi}`} position={[wx, 0.08, 0]}>
             <mesh castShadow>
               <boxGeometry args={[0.56, 0.78, 0.06]} />
-              <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.6} />
+              <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
             </mesh>
             <mesh position={[0, 0, 0.035]}>
               <planeGeometry args={[0.46, 0.68]} />
@@ -206,7 +206,7 @@ export const LeftTownhouseCafe: React.FC<{
         <group key={`cwin-2f-${wi}`} position={[wx, 2.05, 1.16]}>
           <mesh castShadow>
             <boxGeometry args={[0.48, 0.7, 0.06]} />
-            <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.6} />
+            <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
           </mesh>
           <mesh position={[0, 0, 0.035]}>
             <planeGeometry args={[0.38, 0.6]} />
@@ -241,7 +241,7 @@ export const LeftTownhouseCafe: React.FC<{
       <group position={[0, 2.82, 0.88]}>
         <mesh castShadow>
           <boxGeometry args={[0.56, 0.62, 0.48]} />
-          <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.6} />
+          <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.72} />
         </mesh>
         {/* Triangular Pediment */}
         <mesh position={[0, 0.4, 0.08]} castShadow>
@@ -263,7 +263,7 @@ export const LeftTownhouseCafe: React.FC<{
         {/* Paved Stone Patio */}
         <mesh position={[0, 0.015, 0]} receiveShadow>
           <boxGeometry args={[2.6, 0.03, 1.85]} />
-          <meshStandardMaterial color={CASTLE_COLORS.stonePavement} roughness={0.75} />
+          <meshStandardMaterial color={CASTLE_COLORS.stonePavement} roughness={0.72} />
         </mesh>
 
         {/* 2 Striped Canvas Parasols (Umbrellas) */}
@@ -282,7 +282,7 @@ export const LeftTownhouseCafe: React.FC<{
             {/* Gold Finial on Parasol Top */}
             <mesh position={[0, 1.62, 0]}>
               <sphereGeometry args={[0.052, 8, 8]} />
-              <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.9} roughness={0.2} />
+              <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
             </mesh>
 
             {/* Round Bistro Table */}
@@ -333,25 +333,25 @@ export const RightTownhouseBoutique: React.FC<{
       {/* Stone Foundation Plinth */}
       <mesh position={[0, 0.1, 0]} castShadow receiveShadow>
         <boxGeometry args={[2.75, 0.2, 2.55]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.7} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.72} />
       </mesh>
 
       {/* Main Ground Floor Body */}
       <mesh position={[0, 0.8, 0]} castShadow receiveShadow>
         <boxGeometry args={[2.55, 1.2, 2.35]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.6} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.72} />
       </mesh>
 
       {/* Stringcourse Belt */}
       <mesh position={[0, 1.45, 0]} castShadow>
         <boxGeometry args={[2.7, 0.1, 2.5]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.5} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
       </mesh>
 
       {/* Second Floor Body */}
       <mesh position={[0, 2.05, 0]} castShadow receiveShadow>
         <boxGeometry args={[2.5, 1.1, 2.3]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.6} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.72} />
       </mesh>
 
       {/* Corner Quoins */}
@@ -367,18 +367,18 @@ export const RightTownhouseBoutique: React.FC<{
         {[0.2, 0.45, 0.72].map((sy, si) => (
           <mesh key={`bshingle-${si}`} position={[0, sy, 0]} rotation={[0, Math.PI / 4, 0]} castShadow>
             <coneGeometry args={[2.0 - si * 0.4, 0.1, 4]} />
-            <meshStandardMaterial color={si % 2 === 0 ? CASTLE_COLORS.roofTerracottaDark : '#ea580c'} roughness={0.45} />
+            <meshStandardMaterial color={si % 2 === 0 ? CASTLE_COLORS.roofTerracottaDark : CASTLE_COLORS.roofTerracottaTile} roughness={0.45} />
           </mesh>
         ))}
         {/* Gold Roof Ridge Cresting */}
         <mesh position={[0, 1.18, 0]}>
           <boxGeometry args={[0.95, 0.08, 0.08]} />
-          <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.92} roughness={0.2} />
+          <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
         </mesh>
         {[-0.45, 0.45].map((rx, ri) => (
           <mesh key={`rfinial-boutique-${ri}`} position={[rx, 1.25, 0]}>
             <sphereGeometry args={[0.045, 8, 8]} />
-            <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.65} />
+            <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.72} roughness={0.3} />
           </mesh>
         ))}
       </group>
@@ -415,7 +415,7 @@ export const RightTownhouseBoutique: React.FC<{
         {/* Gold Crown / Flower Boutique Insignia */}
         <mesh position={[-0.22, -0.1, 0]}>
           <sphereGeometry args={[0.05, 8, 8]} />
-          <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.92} />
+          <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
         </mesh>
       </group>
 
@@ -437,7 +437,7 @@ export const RightTownhouseBoutique: React.FC<{
           <group key={`bwin-g-${wi}`} position={[wx, 0.08, 0]}>
             <mesh castShadow>
               <boxGeometry args={[0.56, 0.78, 0.06]} />
-              <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.6} />
+              <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
             </mesh>
             <mesh position={[0, 0, 0.035]}>
               <planeGeometry args={[0.46, 0.68]} />
@@ -456,7 +456,7 @@ export const RightTownhouseBoutique: React.FC<{
         <group key={`bwin-2f-${wi}`} position={[wx, 2.05, 1.16]}>
           <mesh castShadow>
             <boxGeometry args={[0.48, 0.7, 0.06]} />
-            <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.6} />
+            <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
           </mesh>
           <mesh position={[0, 0, 0.035]}>
             <planeGeometry args={[0.38, 0.6]} />
@@ -488,7 +488,7 @@ export const RightTownhouseBoutique: React.FC<{
         ].map(([cx, cz], ci) => (
           <mesh key={`pcol-${ci}`} position={[cx, 0.88, cz]} castShadow>
             <cylinderGeometry args={[0.075, 0.09, 1.76, 12]} />
-            <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.5} />
+            <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.72} />
           </mesh>
         ))}
         {/* Overhead Wooden Trellis Beams */}

@@ -15,13 +15,13 @@ export const CastleWindow: React.FC<{
       {/* Heavy Beveled Stone Sill */}
       <mesh position={[0, -0.34, 0.05]} castShadow receiveShadow>
         <boxGeometry args={[0.48, 0.09, 0.16]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.55} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
       </mesh>
       {/* Lower Sill Support Corbels */}
       {[-0.16, 0.16].map((cx, ci) => (
         <mesh key={`sill-corbel-${ci}`} position={[cx, -0.41, 0.04]} castShadow>
           <boxGeometry args={[0.07, 0.06, 0.1]} />
-          <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.65} />
+          <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.72} />
         </mesh>
       ))}
 
@@ -29,30 +29,30 @@ export const CastleWindow: React.FC<{
       {[-0.2, 0.2].map((jx, ji) => (
         <mesh key={`wjamb-${ji}`} position={[jx, 0, 0.03]} castShadow>
           <boxGeometry args={[0.08, 0.58, 0.12]} />
-          <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.55} />
+          <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
         </mesh>
       ))}
 
       {/* Outer Arched Stone Arch Hood (Moulded Archivolt) */}
       <mesh position={[0, 0.29, 0.03]} rotation={[0, 0, Math.PI / 2]} castShadow>
         <cylinderGeometry args={[0.24, 0.24, 0.12, 16, 1, false, 0, Math.PI]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.55} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
       </mesh>
 
       {/* Carved Stone Keystone at Top Apex */}
       <mesh position={[0, 0.44, 0.06]} castShadow>
         <boxGeometry args={[0.11, 0.13, 0.14]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.5} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.72} />
       </mesh>
 
       {/* Deep Recessed Cavity Wall */}
       <mesh position={[0, 0.05, 0]}>
         <boxGeometry args={[0.34, 0.62, 0.08]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.8} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.72} />
       </mesh>
       <mesh position={[0, 0.28, 0]} rotation={[0, 0, Math.PI / 2]}>
         <cylinderGeometry args={[0.17, 0.17, 0.08, 14, 1, false, 0, Math.PI]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.8} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.72} />
       </mesh>
 
       {/* Warm Golden Emissive Glass Pane */}
@@ -104,18 +104,18 @@ export const RoofDormer: React.FC<{
       {/* Dormer Stone Box Base */}
       <mesh position={[0, 0.18, 0]} castShadow>
         <boxGeometry args={[0.38, 0.44, 0.35]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.55} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.72} />
       </mesh>
 
       {/* Dormer Gabled Conical/Pitched Roof */}
       <mesh position={[0, 0.52, 0.02]} rotation={[0, Math.PI / 4, 0]} castShadow>
         <coneGeometry args={[0.32, 0.38, 4]} />
-        <meshStandardMaterial color={CASTLE_COLORS.roofRoyalBlue} roughness={0.3} metalness={0.15} />
+        <meshStandardMaterial color={CASTLE_COLORS.roofRoyalBlue} roughness={0.48} metalness={0.04} />
       </mesh>
       {/* Gold Ridge Peak Finial */}
       <mesh position={[0, 0.74, 0.02]}>
         <sphereGeometry args={[0.04, 8, 8]} />
-        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.7} />
+        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
       </mesh>
 
       {/* Dormer Front Arched Window */}
@@ -178,11 +178,11 @@ export const SculptedRoof: React.FC<{
       {/* Flared Eaves Trim with Shadow Lip */}
       <mesh position={[0, 0.08, 0]} castShadow>
         <cylinderGeometry args={[radius * 0.94, radius * 1.15, 0.16, 24]} />
-        <meshStandardMaterial color={CASTLE_COLORS.roofRoyalDark} roughness={0.35} metalness={0.15} />
+        <meshStandardMaterial color={CASTLE_COLORS.roofRoyalDark} roughness={0.48} metalness={0.04} />
       </mesh>
       <mesh position={[0, 0.16, 0]} castShadow>
         <torusGeometry args={[radius * 1.05, 0.045, 8, 24]} />
-        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.92} roughness={0.2} />
+        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
       </mesh>
 
       {/* Main Faceted Conical Roof (16-sided for crisp stylized specular facets) */}
@@ -191,7 +191,7 @@ export const SculptedRoof: React.FC<{
         <meshStandardMaterial
           color={CASTLE_COLORS.roofRoyalBlue}
           roughness={0.48}
-          metalness={0.06}
+          metalness={0.04}
         />
       </mesh>
 
@@ -203,8 +203,8 @@ export const SculptedRoof: React.FC<{
             <torusGeometry args={[ring.r, 0.038, 8, 20]} />
             <meshStandardMaterial
               color={ring.isLight ? CASTLE_COLORS.roofRoyalTileLight : CASTLE_COLORS.roofRoyalTileDark}
-              roughness={0.3}
-              metalness={0.1}
+              roughness={0.48}
+              metalness={0.04}
             />
           </mesh>
         </group>
@@ -214,7 +214,7 @@ export const SculptedRoof: React.FC<{
       <group position={[0, height * 0.36, 0]}>
         <mesh>
           <torusGeometry args={[radius * 0.65, 0.036, 8, 24]} />
-          <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.7} roughness={0.18} />
+          <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
         </mesh>
         {/* Bead studs along ring */}
         {[0, 1, 2, 3, 4, 5, 6, 7].map((bidx) => {
@@ -224,7 +224,7 @@ export const SculptedRoof: React.FC<{
           return (
             <mesh key={`goldbead-${bidx}`} position={[bx, 0, bz]}>
               <sphereGeometry args={[0.025, 6, 6]} />
-              <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.65} roughness={0.1} />
+              <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.72} roughness={0.3} />
             </mesh>
           );
         })}
@@ -233,7 +233,7 @@ export const SculptedRoof: React.FC<{
       {/* Upper Gold Collar Ring */}
       <mesh position={[0, height * 0.72, 0]}>
         <torusGeometry args={[radius * 0.32, 0.03, 8, 20]} />
-        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.7} roughness={0.18} />
+        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
       </mesh>
 
       {/* Inset Roof Dormer Window */}
@@ -252,21 +252,21 @@ export const SculptedRoof: React.FC<{
       {/* Golden Finial Base & Ornate Sphere */}
       <mesh position={[0, height + 0.16, 0]}>
         <cylinderGeometry args={[0.08, 0.14, 0.16, 12]} />
-        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.7} />
+        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
       </mesh>
       <mesh position={[0, height + 0.3, 0]}>
         <sphereGeometry args={[radius * 0.22, 16, 16]} />
-        <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.65} roughness={0.1} />
+        <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.72} roughness={0.3} />
       </mesh>
 
       {/* Finial Needle & Royal Pennant Flag */}
       <mesh position={[0, height + 0.58, 0]}>
         <cylinderGeometry args={[0.02, 0.028, 0.58, 8]} />
-        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.7} />
+        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
       </mesh>
       <mesh position={[0, height + 0.88, 0]}>
         <coneGeometry args={[0.035, 0.12, 6]} />
-        <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.65} />
+        <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.72} roughness={0.3} />
       </mesh>
 
       {/* Flag with custom ref for wind animation */}
@@ -309,7 +309,7 @@ export const CastleBattlementRing: React.FC<{
         <group key={`corbel-group-${i}`} position={[c.x * 0.88, -0.06, c.z * 0.88]} rotation={[0, c.rotY, 0]}>
           <mesh castShadow>
             <boxGeometry args={[width * 0.7, 0.14, depth * 1.2]} />
-            <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.6} />
+            <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
           </mesh>
         </group>
       ))}
@@ -317,7 +317,7 @@ export const CastleBattlementRing: React.FC<{
       {/* Walkway Slab */}
       <mesh position={[0, 0.02, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[radius * 1.05, radius * 1.05, 0.06, 24]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.65} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.72} />
       </mesh>
 
       {/* Crenellation Merlons with Coping Stones */}
@@ -325,12 +325,12 @@ export const CastleBattlementRing: React.FC<{
         <group key={`cren-${i}`} position={[c.x, height / 2, c.z]} rotation={[0, c.rotY, 0]}>
           <mesh castShadow>
             <boxGeometry args={[width, height, depth]} />
-            <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.55} />
+            <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.72} />
           </mesh>
           {/* Beveled Top Coping Stone */}
           <mesh position={[0, height / 2 + 0.02, 0]} castShadow>
             <boxGeometry args={[width * 1.12, 0.04, depth * 1.15]} />
-            <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.5} />
+            <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
           </mesh>
         </group>
       ))}
@@ -351,7 +351,7 @@ export const CrownMedallion: React.FC<{
       {/* Classical Stone Cartouche Frame */}
       <mesh position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
         <cylinderGeometry args={[0.52, 0.56, 0.09, 24]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.5} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.72} />
       </mesh>
 
       {/* Golden Filigree Scrollwork Ring */}
@@ -359,8 +359,8 @@ export const CrownMedallion: React.FC<{
         <torusGeometry args={[0.5, 0.05, 12, 32]} />
         <meshStandardMaterial
           color={CASTLE_COLORS.goldPolished}
-          metalness={0.7}
-          roughness={0.16}
+          metalness={0.72}
+          roughness={0.3}
         />
       </mesh>
       {/* Outer Laurel / Filigree Beads */}
@@ -369,7 +369,7 @@ export const CrownMedallion: React.FC<{
         return (
           <mesh key={`fbead-${fidx}`} position={[Math.sin(fa) * 0.53, Math.cos(fa) * 0.53, 0.045]}>
             <sphereGeometry args={[0.035, 8, 8]} />
-            <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.65} roughness={0.1} />
+            <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.72} roughness={0.3} />
           </mesh>
         );
       })}
@@ -385,7 +385,7 @@ export const CrownMedallion: React.FC<{
         {/* Crown Circlet Band */}
         <mesh position={[0, -0.12, 0]}>
           <boxGeometry args={[0.48, 0.08, 0.05]} />
-          <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.96} roughness={0.14} />
+          <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
         </mesh>
         {/* Circlet Jewel Studs (Ruby, Emerald, Sapphire) */}
         {[-0.16, -0.08, 0, 0.08, 0.16].map((jx, ji) => (
@@ -408,11 +408,11 @@ export const CrownMedallion: React.FC<{
         {/* Central Dominant Peak */}
         <mesh position={[0, 0.08, 0]} rotation={[0, Math.PI / 4, 0]}>
           <coneGeometry args={[0.08, 0.32, 4]} />
-          <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.96} roughness={0.14} />
+          <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
         </mesh>
         <mesh position={[0, 0.25, 0]}>
           <sphereGeometry args={[0.04, 10, 10]} />
-          <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.65} roughness={0.1} />
+          <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.72} roughness={0.3} />
         </mesh>
 
         {/* Intermediate Peaks */}
@@ -420,11 +420,11 @@ export const CrownMedallion: React.FC<{
           <group key={`cpeak-${pi}`} position={[px, 0.03, 0]}>
             <mesh rotation={[0, Math.PI / 4, 0]}>
               <coneGeometry args={[0.06, 0.24, 4]} />
-              <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.96} roughness={0.14} />
+              <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
             </mesh>
             <mesh position={[0, 0.14, 0]}>
               <sphereGeometry args={[0.032, 8, 8]} />
-              <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.65} roughness={0.1} />
+              <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.72} roughness={0.3} />
             </mesh>
           </group>
         ))}
@@ -434,11 +434,11 @@ export const CrownMedallion: React.FC<{
           <group key={`cout-${oi}`} position={[ox, -0.02, 0]} rotation={[0, 0, oi === 0 ? 0.38 : -0.38]}>
             <mesh rotation={[0, Math.PI / 4, 0]}>
               <coneGeometry args={[0.05, 0.18, 4]} />
-              <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.96} roughness={0.14} />
+              <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
             </mesh>
             <mesh position={[0, 0.1, 0]}>
               <sphereGeometry args={[0.026, 8, 8]} />
-              <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.65} roughness={0.1} />
+              <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.72} roughness={0.3} />
             </mesh>
           </group>
         ))}
@@ -462,17 +462,17 @@ export const ArchedEntrancePortal: React.FC<{
           {/* Main Shaft */}
           <mesh castShadow receiveShadow>
             <boxGeometry args={[0.38, 2.2, 0.44]} />
-            <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.55} />
+            <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
           </mesh>
           {/* Base Plinth */}
           <mesh position={[0, -1.02, 0.04]} castShadow>
             <boxGeometry args={[0.46, 0.22, 0.52]} />
-            <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.65} />
+            <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.72} />
           </mesh>
           {/* Classical Capital */}
           <mesh position={[0, 1.05, 0.04]} castShadow>
             <boxGeometry args={[0.46, 0.16, 0.52]} />
-            <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.65} />
+            <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.72} />
           </mesh>
         </group>
       ))}
@@ -481,39 +481,39 @@ export const ArchedEntrancePortal: React.FC<{
       {/* Outer Archivolt */}
       <mesh position={[0, 2.18, 0.04]} rotation={[0, 0, Math.PI / 2]} castShadow>
         <cylinderGeometry args={[1.02, 1.02, 0.42, 24, 1, false, 0, Math.PI]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.55} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
       </mesh>
       {/* Middle Archivolt */}
       <mesh position={[0, 2.18, 0.08]} rotation={[0, 0, Math.PI / 2]} castShadow>
         <cylinderGeometry args={[0.88, 0.88, 0.36, 20, 1, false, 0, Math.PI]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.55} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.72} />
       </mesh>
       {/* Inner Archivolt */}
       <mesh position={[0, 2.18, 0.12]} rotation={[0, 0, Math.PI / 2]} castShadow>
         <cylinderGeometry args={[0.74, 0.74, 0.3, 18, 1, false, 0, Math.PI]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.6} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.72} />
       </mesh>
 
       {/* Prominent Keystone with Gold Fleur-de-lis Relief */}
       <group position={[0, 3.12, 0.12]}>
         <mesh castShadow>
           <boxGeometry args={[0.34, 0.4, 0.48]} />
-          <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.5} />
+          <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.72} />
         </mesh>
         <mesh position={[0, 0, 0.26]}>
           <coneGeometry args={[0.08, 0.22, 4]} />
-          <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.7} roughness={0.16} />
+          <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
         </mesh>
       </group>
 
       {/* Deep Recessed Doorway Arch Cavity */}
       <mesh position={[0, 1.1, -0.06]}>
         <boxGeometry args={[1.44, 2.2, 0.32]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.8} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.72} />
       </mesh>
       <mesh position={[0, 2.18, -0.06]} rotation={[0, 0, Math.PI / 2]}>
         <cylinderGeometry args={[0.72, 0.72, 0.32, 16, 1, false, 0, Math.PI]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.8} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.72} />
       </mesh>
 
       {/* Heavy Double Wooden Castle Doors */}
@@ -556,11 +556,11 @@ export const ArchedEntrancePortal: React.FC<{
           <group key={`dknob-${ki}`} position={[kx, -0.06, 0.065]}>
             <mesh>
               <sphereGeometry args={[0.035, 8, 8]} />
-              <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.7} roughness={0.15} />
+              <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
             </mesh>
             <mesh position={[0, -0.04, 0]}>
               <torusGeometry args={[0.045, 0.014, 8, 16]} />
-              <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.7} roughness={0.15} />
+              <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
             </mesh>
           </group>
         ))}
@@ -628,13 +628,13 @@ export const RoyalHeraldicBanner: React.FC<{
       {/* Top Gold Mounting Bracket & Crossbar */}
       <mesh position={[0, 1.0, 0.08]} rotation={[0, 0, Math.PI / 2]} castShadow>
         <cylinderGeometry args={[0.035, 0.035, 0.9, 12]} />
-        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.7} roughness={0.15} />
+        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
       </mesh>
       {/* Gold End Cap Finials */}
       {[-0.46, 0.46].map((ex, ei) => (
         <mesh key={`bfin-${ei}`} position={[ex, 1.0, 0.08]}>
           <sphereGeometry args={[0.06, 10, 10]} />
-          <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.65} roughness={0.1} />
+          <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.72} roughness={0.3} />
         </mesh>
       ))}
 
@@ -653,7 +653,7 @@ export const RoyalHeraldicBanner: React.FC<{
       {/* Gold Border Trim Around Banner */}
       <mesh position={[0, 0.38, 0.065]}>
         <boxGeometry args={[0.7, 1.2, 0.01]} />
-        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.92} roughness={0.2} />
+        <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
       </mesh>
       <mesh position={[0, 0.38, 0.072]}>
         <boxGeometry args={[0.62, 1.12, 0.01]} />
@@ -665,19 +665,19 @@ export const RoyalHeraldicBanner: React.FC<{
         {/* Central Petal */}
         <mesh position={[0, 0.1, 0]} rotation={[0, Math.PI / 4, 0]}>
           <coneGeometry args={[0.08, 0.28, 4]} />
-          <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.96} roughness={0.14} />
+          <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.72} roughness={0.3} />
         </mesh>
         {/* Left & Right Curved Petals */}
         {[-0.1, 0.1].map((lx, li) => (
           <mesh key={`flpetal-${li}`} position={[lx, 0.03, 0]} rotation={[0, Math.PI / 4, li === 0 ? 0.48 : -0.48]}>
             <coneGeometry args={[0.06, 0.2, 4]} />
-            <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.96} roughness={0.14} />
+            <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.72} roughness={0.3} />
           </mesh>
         ))}
         {/* Fleur-de-lis Tie Bar */}
         <mesh position={[0, -0.06, 0]}>
           <boxGeometry args={[0.26, 0.05, 0.025]} />
-          <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.96} roughness={0.14} />
+          <meshStandardMaterial color={CASTLE_COLORS.goldHighlight} metalness={0.72} roughness={0.3} />
         </mesh>
       </group>
     </group>
@@ -719,17 +719,17 @@ export const CastleTower: React.FC<{
       {/* Heavy Rusticated Base Plinth */}
       <mesh position={[0, 0.16, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[radius * 1.18, radius * 1.28, 0.32, 20]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.65} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneDark} roughness={0.72} />
       </mesh>
       <mesh position={[0, 0.34, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[radius * 1.08, radius * 1.18, 0.12, 20]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.55} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
       </mesh>
 
       {/* Main Stone Tower Shaft */}
       <mesh position={[0, height / 2 + 0.2, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[radius * 0.96, radius, height, 20]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.55} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.72} />
       </mesh>
 
       {/* Vertical Stone Pilasters (4 Quadrants) for Architectural Depth */}
@@ -739,7 +739,7 @@ export const CastleTower: React.FC<{
         return (
           <mesh key={`tpilaster-${pi}`} position={[px, height / 2 + 0.2, pz]} rotation={[0, pa, 0]} castShadow>
             <boxGeometry args={[radius * 0.18, height * 0.92, 0.08]} />
-            <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.6} />
+            <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
           </mesh>
         );
       })}
@@ -747,13 +747,13 @@ export const CastleTower: React.FC<{
       {/* Middle Beveled Stringcourse Belt */}
       <mesh position={[0, height * 0.55, 0]} castShadow>
         <cylinderGeometry args={[radius * 1.08, radius * 1.08, 0.14, 20]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.5} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
       </mesh>
 
       {/* Overhanging Machicolation Gallery with Deep Corbels */}
       <mesh position={[0, height + 0.1, 0]} castShadow>
         <cylinderGeometry args={[radius * 1.25, radius * 0.98, 0.26, 20]} />
-        <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.5} />
+        <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
       </mesh>
 
       {/* Crenellated Battlements */}

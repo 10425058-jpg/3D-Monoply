@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import * as THREE from 'three';
 import { useGameStore } from '../../store/useGameStore';
 import { getSpaceTransform } from '../../data/boardData';
+import { overviewCamera } from './overviewCamera';
 
 export type CameraPreset = 'overview' | 'player' | 'property' | 'dice' | 'movement' | 'event';
 export const CAMERA_PRESETS: Record<CameraPreset, string> = {
@@ -38,6 +39,7 @@ export function CinematicCamera({ request, reducedMotion }: {
   const destination = useRef(new THREE.Vector3());
   const target = useRef(new THREE.Vector3());
   const outward = useRef(new THREE.Vector3());
+  const fit = useMemo(() => overviewCamera(size.width, size.height, mode === 'top'), [size.width, size.height, mode]);
 
   useEffect(() => {
     preset.current = request.preset;
@@ -60,22 +62,24 @@ export function CinematicCamera({ request, reducedMotion }: {
   }, [phase, mode]);
   useEffect(() => {
     const perspective = camera as THREE.PerspectiveCamera;
-    perspective.fov = size.width / size.height < 1 ? 48 : 40;
+    perspective.fov = fit.fov;
     perspective.updateProjectionMatrix();
     active.current = true;
-  }, [size.width, size.height, reducedMotion, camera]);
+  }, [size.width, size.height, reducedMotion, camera, fit]);
 
   useFrame((_, delta) => {
     const orbit = controls.current;
     if (!orbit || !active.current) return;
-    const aspect = size.width / size.height;
-    const isTop = mode === 'top' && preset.current === 'overview';
-    const aim = target.current.set(0, 0.5, 0);
+    const aim = target.current.fromArray(fit.target);
     const dest = destination.current;
-    // Fit every board corner with space reserved for the header and bottom dock.
-    const elevation = isTop ? 1.47 : 0.83;
-    const distance = Math.max(39, 33 / Math.max(aspect, 0.45));
-    dest.set(0, Math.sin(elevation) * distance, Math.cos(elevation) * distance);
+    dest.fromArray(fit.position);
+    const perspective = camera as THREE.PerspectiveCamera;
+    if (preset.current === 'overview') {
+      perspective.setViewOffset(size.width, size.height, ...fit.offset, size.width, size.height);
+    } else {
+      // Close views retain their existing centered composition and interactions.
+      perspective.clearViewOffset();
+    }
     if (preset.current === 'property' || preset.current === 'player' || preset.current === 'movement') {
       const id = preset.current === 'property' ? selected : position;
       if (id !== null) {
@@ -100,6 +104,6 @@ export function CinematicCamera({ request, reducedMotion }: {
 
   return <OrbitControls ref={controls} makeDefault enablePan={false}
     enableDamping={!reducedMotion} dampingFactor={0.09} rotateSpeed={0.55} zoomSpeed={0.7}
-    minPolarAngle={0.08} maxPolarAngle={Math.PI / 2.65} minDistance={16} maxDistance={85}
+    minPolarAngle={0.04} maxPolarAngle={Math.PI / 2.65} minDistance={16} maxDistance={Math.max(85, fit.distance * 1.3)}
     onStart={() => { active.current = false; }} />;
 }
