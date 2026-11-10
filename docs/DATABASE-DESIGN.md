@@ -1,223 +1,85 @@
-# 3D Monopoly — Database Design
+# 3D Monopoly — PostgreSQL Database Design v1.0.0
 
-**Status:** v1.0.0 schema baseline (not yet migrated)  
-**Database:** PostgreSQL  
-**ORM:** Prisma
+**Status:** Canonical schema specification for review; migrations are not implemented by this document.
+**ORM:** Prisma | **API:** [API-CONTRACT.md](./API-CONTRACT.md) | **Types:** [GAME-STATE.md](./GAME-STATE.md)
 
-This is a proposed relational model for the first online release. It is not a migration and does not create tables. Backend developers should review relationships, indexes, deletion policies, and constraints before writing Prisma schema/migrations.
+## 1. Global conventions
 
-## 1. Design principles
-
-- Use UUIDs (or another consistent opaque string ID strategy) for persistent entities.
-- Store timestamps in UTC.
-- Store money and experience as integers.
-- Never store plaintext passwords; store a strong password hash (Argon2id or bcrypt with appropriate parameters).
-- Do not persist ephemeral UI state such as camera position, hover, modal state, or animation progress.
-- Avoid duplicating derivable values unless needed for performance or historical snapshots.
-- Use transactions for money transfers, property ownership changes, and other multi-row state changes.
+Use UUID or opaque strings consistently for user, room, match, match-player and action IDs. UTC `TIMESTAMPTZ`. **Money, coins and experience use PostgreSQL `INTEGER`** (range -2147483648..2147483647), serialized as JSON/TypeScript `number` and validated as safe integers within this range; **never use `BIGINT` for v1 monetary fields**. Game-state version and event sequence are `INTEGER` with checked overflow (perform a documented migration if future limits require BIGINT). All balance-changing writes use database transactions and server authorization.
 
 ## 2. Core tables
 
 ### users
+`id UUID PK, username VARCHAR(24) UNIQUE NOT NULL, email VARCHAR(255) UNIQUE NOT NULL, password_hash TEXT NOT NULL, avatar_url TEXT NULL, created_at TIMESTAMPTZ NOT NULL, updated_at TIMESTAMPTZ NOT NULL`. Password hashing: Argon2id or bcrypt with reviewed parameters; never return hash.
 
-| Column | Type | Rules |
-|---|---|---|
-| id | UUID | Primary key |
-| username | VARCHAR(24) | Unique, required |
-| email | VARCHAR(255) | Unique, required |
-| password_hash | TEXT | Required; never returned to client |
-| avatar_url | TEXT | Nullable |
-| created_at | TIMESTAMPTZ | Required |
-| updated_at | TIMESTAMPTZ | Required |
+### user_sessions
+`id UUID PK, user_id UUID FK users(id), refresh_token_hash TEXT UNIQUE NOT NULL, rotated_from_id UUID NULL FK user_sessions(id), expires_at TIMESTAMPTZ NOT NULL, revoked_at TIMESTAMPTZ NULL, created_at TIMESTAMPTZ NOT NULL`. Refresh token itself never stored plaintext. Rotation and revoke are transactional. The CSRF token or its session-bound verification data must also be managed securely; no password/hash exposed by API.
 
-### player_profiles
-
-| Column | Type | Rules |
-|---|---|---|
-| user_id | UUID | Primary key + FK users.id |
-| level | INTEGER | Default 1, nonnegative |
-| experience | BIGINT | Default 0, nonnegative |
-| coins | BIGINT | Default 0, nonnegative |
-| wins | INTEGER | Default 0 |
-| losses | INTEGER | Default 0 |
-| selected_token | VARCHAR(64) | Nullable |
-| updated_at | TIMESTAMPTZ | Required |
+### player_profiles (not required for 21-day multiplayer MVP)
+`user_id UUID PK/FK users(id), level INTEGER DEFAULT 1, experience INTEGER DEFAULT 0, coins INTEGER DEFAULT 0, wins INTEGER DEFAULT 0, losses INTEGER DEFAULT 0, selected_token VARCHAR(64) NULL, updated_at TIMESTAMPTZ NOT NULL`. Progression updates are **deferred**; no need to create table in first migration.
 
 ### rooms
-
-| Column | Type | Rules |
-|---|---|---|
-| id | UUID | Primary key |
-| host_user_id | UUID | FK users.id |
-| status | VARCHAR / ENUM | WAITING, IN_PROGRESS, CLOSED |
-| map_id | VARCHAR(80) | Required |
-| max_players | SMALLINT | Proposed 2–4 |
-| is_private | BOOLEAN | Default false |
-| invite_code_hash | TEXT | Nullable; do not store raw secret invite code if avoidable |
-| created_at | TIMESTAMPTZ | Required |
-| updated_at | TIMESTAMPTZ | Required |
+`id UUID PK, host_user_id UUID FK users(id), status VARCHAR(20) NOT NULL, map_id VARCHAR(80) NOT NULL, max_players SMALLINT NOT NULL CHECK (max_players BETWEEN 2 AND 4), is_private BOOLEAN NOT NULL DEFAULT FALSE, invite_code_hash TEXT NULL, created_at TIMESTAMPTZ NOT NULL, updated_at TIMESTAMPTZ NOT NULL`.
 
 ### room_members
-
-| Column | Type | Rules |
-|---|---|---|
-| id | UUID | Primary key |
-| room_id | UUID | FK rooms.id |
-| user_id | UUID | FK users.id |
-| is_host | BOOLEAN | Default false |
-| is_ready | BOOLEAN | Default false |
-| joined_at | TIMESTAMPTZ | Required |
-| left_at | TIMESTAMPTZ | Nullable |
-
-Constraint: one active membership per user per room; add an appropriate partial unique index or enforce in transaction logic.
+`id UUID PK, room_id UUID FK rooms(id), user_id UUID FK users(id), is_ready BOOLEAN NOT NULL DEFAULT FALSE, is_host BOOLEAN NOT NULL DEFAULT FALSE, joined_at TIMESTAMPTZ NOT NULL, left_at TIMESTAMPTZ NULL`. Unique active `(room_id,user_id)`; on host departure transfer to oldest active member or close empty room. Ensure `rooms.host_user_id` and active member host markers remain consistent transactionally.
 
 ### matches
-
-| Column | Type | Rules |
-|---|---|---|
-| id | UUID | Primary key |
-| room_id | UUID | FK rooms.id |
-| status | VARCHAR / ENUM | IN_PROGRESS, FINISHED, ABANDONED |
-| map_id | VARCHAR(80) | Required |
-| ruleset_id | VARCHAR(80) | Required |
-| current_player_id | UUID | Nullable FK match_players.id (cyclic FK may be added after table creation) |
-| turn_number | INTEGER | Default 1 |
-| turn_phase | VARCHAR(40) | Required |
-| state_version | BIGINT | Default 0 |
-| winner_player_id | UUID | Nullable |
-| started_at | TIMESTAMPTZ | Required |
-| ended_at | TIMESTAMPTZ | Nullable |
+```sql
+id UUID PRIMARY KEY,
+room_id UUID NOT NULL REFERENCES rooms(id),
+status VARCHAR(20) NOT NULL, -- IN_PROGRESS | PAUSED | FINISHED | ABANDONED
+map_id VARCHAR(80) NOT NULL,
+ruleset_id VARCHAR(80) NOT NULL,
+content_version VARCHAR(80) NOT NULL, -- central-castle@1
+current_player_id UUID NULL, -- FK match_players(id) added after initial table creation
+turn_number INTEGER NOT NULL DEFAULT 1,
+turn_phase VARCHAR(40) NOT NULL,
+state_version INTEGER NOT NULL DEFAULT 0,
+dice_state JSONB NULL,       -- {values:[3,4],total:7,rolledByPlayerId:"..."}
+doubles_count SMALLINT NOT NULL DEFAULT 0,
+auction_state JSONB NULL,    -- canonical AuctionState, deferred feature
+pending_trade_state JSONB NULL, -- canonical TradeState, deferred feature
+pending_debt_state JSONB NULL,  -- canonical PendingDebtState, deferred feature
+winner_player_id UUID NULL, -- FK match_players(id) added after initial table creation
+paused_at TIMESTAMPTZ NULL,
+pause_reason VARCHAR(80) NULL,
+started_at TIMESTAMPTZ NOT NULL,
+updated_at TIMESTAMPTZ NOT NULL,
+ended_at TIMESTAMPTZ NULL
+```
+The JSONB columns are **durable**, schema-validated by application code with tested read/write round trips. Deferred feature state is nullable (null at MVP). Enforce member/match consistency of player FKs and validate allowed phases.
 
 ### match_players
-
-| Column | Type | Rules |
-|---|---|---|
-| id | UUID | Primary key; online player/seat ID |
-| match_id | UUID | FK matches.id |
-| user_id | UUID | FK users.id; nullable only if server AI seats are supported |
-| seat_order | SMALLINT | Required |
-| username_snapshot | VARCHAR(24) | Required |
-| token | VARCHAR(64) | Required |
-| color | VARCHAR(16) | Required |
-| position | SMALLINT | Default 0 |
-| money | BIGINT | Default 1500 |
-| in_jail | BOOLEAN | Default false |
-| jail_turns | SMALLINT | Default 0 |
-| is_bankrupt | BOOLEAN | Default false |
-| final_rank | SMALLINT | Nullable |
-
-Constraint: unique (match_id, seat_order); define whether one user may occupy only one seat per match.
-
-### properties (optional catalog table)
-
-If board content is maintained in code/config, a separate catalog table is not required initially. If persisted, fields could include:
-
-| Column | Type | Rules |
-|---|---|---|
-| id | BIGINT / INTEGER | Stable board space ID |
-| map_id | VARCHAR(80) | Required |
-| name | VARCHAR(120) | Required |
-| type | VARCHAR(32) | Required |
-| price | INTEGER | Nullable |
-| group_id | VARCHAR(80) | Nullable |
+`id UUID PK, match_id UUID FK matches(id), user_id UUID NOT NULL FK users(id), seat_order SMALLINT NOT NULL, username_snapshot VARCHAR(24) NOT NULL, token VARCHAR(64) NOT NULL, color VARCHAR(16) NOT NULL, position SMALLINT NOT NULL DEFAULT 0, money INTEGER NOT NULL DEFAULT 1500, in_jail BOOLEAN NOT NULL DEFAULT FALSE, jail_turns SMALLINT NOT NULL DEFAULT 0, is_bankrupt BOOLEAN NOT NULL DEFAULT FALSE, connection_status VARCHAR(16) NOT NULL DEFAULT 'CONNECTED', disconnected_at TIMESTAMPTZ NULL, final_rank SMALLINT NULL`. Constraints unique `(match_id,seat_order)`, unique `(match_id,user_id)`, position 0..39. First online release is humans only; no nullable userId AI seats.
 
 ### property_ownerships
+`id UUID PK, match_id UUID FK matches(id), space_id INTEGER NOT NULL, owner_player_id UUID NULL FK match_players(id), houses SMALLINT NOT NULL DEFAULT 0, is_mortgaged BOOLEAN NOT NULL DEFAULT FALSE, updated_at TIMESTAMPTZ NOT NULL`. Unique `(match_id,space_id)`; owner must belong to same match. Board catalog is versioned backend data `central-castle@1` and need not be a separate SQL table for MVP.
 
-| Column | Type | Rules |
-|---|---|---|
-| id | UUID | Primary key |
-| match_id | UUID | FK matches.id |
-| space_id | INTEGER | Stable board space ID |
-| owner_player_id | UUID | Nullable FK match_players.id |
-| houses | SMALLINT | Default 0 |
-| is_mortgaged | BOOLEAN | Default false |
-| updated_at | TIMESTAMPTZ | Required |
-
-Constraint: unique (match_id, space_id).
+### processed_actions (required)
+```sql
+id UUID PRIMARY KEY,
+match_id UUID NOT NULL REFERENCES matches(id),
+client_action_id UUID NOT NULL,
+actor_player_id UUID NOT NULL REFERENCES match_players(id),
+request_hash TEXT NOT NULL,
+expected_state_version INTEGER NOT NULL,
+result_state_version INTEGER NOT NULL,
+response_json JSONB NOT NULL,
+created_at TIMESTAMPTZ NOT NULL,
+UNIQUE (match_id, client_action_id)
+```
+Enforce idempotency atomically with game-state writes and event recording. On retry: if `(match_id,client_action_id)` exists and request hash matches, return original `response_json` without a new state transition. If payload differs, return `409 INVALID_ACTION`. Guard concurrent duplicates with unique constraint/locking. A command first committed with old expected version must still replay its original response on identical retry before stale-version rejection.
 
 ### game_events
+`id UUID PK, match_id UUID FK matches(id), sequence INTEGER NOT NULL, state_version INTEGER NOT NULL, actor_player_id UUID NULL FK match_players(id), event_type VARCHAR(80) NOT NULL, payload JSONB NOT NULL, created_at TIMESTAMPTZ NOT NULL`. Unique `(match_id,sequence)` and `id`; multiple event rows may share one `state_version`. Client event envelope `eventId` maps to durable row `id`.
 
-Append-only event/audit log for important state changes.
+## 3. Transaction, consistency and recovery
 
-| Column | Type | Rules |
-|---|---|---|
-| id | UUID | Primary key |
-| match_id | UUID | FK matches.id |
-| sequence | BIGINT | Required; unique per match |
-| actor_player_id | UUID | Nullable FK match_players.id |
-| event_type | VARCHAR(80) | Required |
-| payload | JSONB | Required; validated server-side |
-| created_at | TIMESTAMPTZ | Required |
+For accepted action: authenticate/authorize → check idempotency → check content and expected state version → validate rule/phase → transactionally mutate match, players, properties, processed_actions, and game_events → commit → emit Socket.IO notifications (prefer durable outbox/retry; reconnection always uses GET snapshot). Persist transient fields `dice_state`, `doubles_count`, `auction_state`, `pending_trade_state`, `pending_debt_state`, `connection_status`, `disconnected_at`, `paused_at`, `pause_reason` so an app restart can restore the same authoritative state. Never update money/ownership in separate non-atomic transactions. The server alone determines all economic values.
 
-Constraint: unique (match_id, sequence). Avoid putting secrets or unnecessary personal data in event payloads.
+Indexes: `users(email)` and `users(username)` unique; `room_members(room_id,user_id)` active unique; `match_players(match_id,seat_order)` and `(match_id,user_id)` unique; `property_ownerships(match_id,space_id)` unique; `processed_actions(match_id,client_action_id)` unique; `game_events(match_id,sequence)` unique; index `matches(room_id,status)`.
 
-## 3. Optional tables for later releases
+## 4. Security and scope
 
-| Table | Purpose |
-|---|---|
-| refresh_tokens / sessions | Revocable login sessions |
-| trades | Trade proposals and decisions |
-| auctions | Auction state/history if not stored in event log |
-| inventory_items | Player-owned skins/items |
-| achievements | Achievement definitions |
-| user_achievements | User progress/unlocks |
-| match_results | Query-friendly historical results (may be derived from matches) |
-| leaderboard_snapshots | Optional cached ranking snapshots |
-
-Do not add all optional tables before their features are approved.
-
-## 4. Relationship overview
-
-```text
-users 1 ─── 1 player_profiles
-users 1 ─── many room_members
-rooms 1 ─── many room_members
-rooms 1 ─── many matches (or 1 if product rules require)
-matches 1 ─── many match_players
-users 1 ─── many match_players
-matches 1 ─── many property_ownerships
-match_players 1 ─── many property_ownerships (as owner)
-matches 1 ─── many game_events
-```
-
-## 5. Transaction and consistency requirements
-
-Use database transactions for at least:
-
-- Deducting a purchase price and assigning property ownership.
-- Transferring rent between players.
-- Accepting a trade involving cash and/or properties.
-- Resolving an auction winner and payment.
-- Applying rewards that update both a balance and a claim record.
-
-Use row locking or optimistic concurrency/version checks to prevent two simultaneous commands from spending the same money or buying the same property.
-
-## 6. Index recommendations
-
-- `users(email)` unique.
-- `users(username)` unique.
-- `room_members(room_id, user_id)`.
-- `matches(room_id, status)`.
-- `match_players(match_id, seat_order)` unique.
-- `property_ownerships(match_id, space_id)` unique.
-- `game_events(match_id, sequence)` unique.
-
-Add indexes based on actual query patterns after implementation.
-
-## 7. Retention and privacy
-
-- Define a policy for account deletion and match-history retention.
-- Do not store access tokens in plaintext.
-- Restrict access to private room and match records.
-- Do not expose password hashes, invite secrets, or internal event metadata in API responses.
-- Use environment variables/secrets management for database credentials.
-
-## 8. Locked v1 persistence decisions
-
-- Follow [API Contract v1.0.0](./API-CONTRACT.md#contract-v100--locked-implementation-decisions-2026-11-10). This file remains a schema proposal, not evidence of applied migrations.
-- Persist hashed identifiers for rotating refresh tokens/sessions with user relation, expiry, revocation status, and rotation lineage. Refresh/logout require CSRF protections and cookie configuration specified in the API contract; never store raw refresh credentials.
-- Enforce idempotency with a `processed_actions` table or equivalent durable unique index over `(match_id, client_action_id)`; store the first response/outcome for replay. Persist state version changes and the corresponding game events in one transaction.
-- Use one backend-owned versioned board/ruleset catalog (`central-castle@1`). Matches store map/ruleset/content version; do not accept price or card results from the client.
-- Online MVP is human-only; nullable `match_players.user_id` is reserved for a later server AI feature, not used in v1.
-- The v1 disconnection timeout is 120 seconds and leads to a paused match; add a persisted pause state or explicitly document how this is represented before implementing reconnect expiry.
-- Daily rewards, inventory, mission tracking and leaderboards remain outside the 21-day online MVP.
+No plaintext tokens/passwords; no secrets in broadcast event payloads. Profile/meta progression, inventory, leaderboards and other optional systems are outside the 21-day MVP. Migration PR must test numeric boundaries, action replay and crash/reconnect round trips. This document does not create tables by itself.
