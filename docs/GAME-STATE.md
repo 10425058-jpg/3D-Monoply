@@ -1,6 +1,6 @@
 # 3D Monopoly — Game State Contract
 
-**Status:** Draft for team review  
+**Status:** v1.0.0 implementation baseline (types illustrative until implemented)  
 **Purpose:** Shared TypeScript-oriented model for Frontend, Backend, and Socket.IO payloads.
 
 ## 1. Important distinction
@@ -128,7 +128,7 @@ The current `src/types/game.ts` should remain the source for local-mode types un
 - Use stable board `spaceId` values that match the current board data.
 - Use a stable `mapId`, initially proposed as `central-castle`.
 - Store a `rulesetId` and optionally a board/content version with each match.
-- Frontend and Backend must use compatible board definitions. **Decision needed:** shared package vs separately versioned copies.
+- Frontend and Backend must use compatible board definitions. Locked: backend owns versioned board content `central-castle@1`; clients declare matching content version and cannot submit prices. A shared data package can be introduced later.
 
 ## 5. State versioning
 
@@ -150,4 +150,14 @@ Every committed match state change increments `stateVersion` by one (or uses a d
 
 The existing local game includes AI turns and meta progression (daily rewards, missions, wheel, stickers). These features should not be assumed to be in the first multiplayer release.
 
-**Decision needed:** whether online rooms support server-controlled AI opponents and which meta progression features are persisted by the backend in the first release.
+Locked: online rooms support 2–4 human participants only for first release. Meta progression is deferred; existing local AI remains intact.
+
+## 8. Locked v1 state semantics
+
+- Apply the [API Contract v1.0.0](./API-CONTRACT.md#contract-v100--locked-implementation-decisions-2026-11-10) decision record over any older draft phrasing.
+- `mapId` is `central-castle`, `rulesetId` is `classic-v1`, and content version is `central-castle@1`.
+- Every gameplay command includes UUID `clientActionId` and integer `expectedStateVersion`; backend increments `stateVersion` once per committed command and emits ordered notifications with the committed version. Multiple notifications for the same commit may share that state version and have different event IDs; consumers must not assume one event per version.
+- Preserve client-only camera/UI/animation settings outside `MatchState`.
+- `PlayerState.userId` remains required for online human-only MVP. Server AI seats are deferred.
+- Only server snapshots are authoritative; client local game types do not automatically become online contracts.
+- Reconnected participants receive a full snapshot. A 120-second disconnect grace window precedes a paused match, not automatic forfeiture.
