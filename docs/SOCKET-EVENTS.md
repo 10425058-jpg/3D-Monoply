@@ -1,68 +1,75 @@
-# 3D Monopoly — Socket.IO Event Contract v1.0.0
+# 3D Monopoly — Socket.IO Contract v1.1.0
 
-**Status:** Implementation specification (not implemented by documentation alone)
-**Transport:** Socket.IO namespace `/game` | room `match:<matchId>`
-**Authoritative REST contract:** [API-CONTRACT.md](./API-CONTRACT.md)
+**Status:** Proposed normative specification. Mutations occur **only via REST**, not Socket.IO. See [API-CONTRACT.md](./API-CONTRACT.md), [GAME-STATE.md](./GAME-STATE.md), [ONLINE-MVP-RULES.md](./ONLINE-MVP-RULES.md).
 
-## 1. Hard boundary: REST mutations, Socket notifications
+## 1. Connection, rooms and authorization
 
-Only REST endpoints change the match (dice, property, end turn, trade, auction, ready-state). **No** write-capable `game:roll_dice`, `game:buy_property`, `game:end_turn`, `game:action` or `player:ready` Socket.IO commands exist in v1. Historical examples proposing those commands are retired. Socket.IO is used to subscribe, receive broadcasts, observe connection status and obtain a snapshot after reconnection. Do not expose parallel REST and Socket command paths.
+Connect to Socket.IO namespace `/game` with `auth:{token:accessToken}`, not query-string credentials. Each room and match is independently authorized on **every join**. A user may be subscribed to `room:<roomId>` in the lobby **before a match exists**. A match subscription uses `match:<matchId>` after it starts.
 
-The client connects to `/game` with an access token via `auth: { token: accessToken }`, not a URL query or cookie-only auth. The server validates identity, membership and room authorization. Socket.IO reserved events: `connect`, `connect_error`, `disconnect`.
+| Client → server event | Payload | Ack and effect |
+|---|---|---|
+| `room:join` | `{roomId:string}` | `{ok:true,data:{subscribed:true}}`; authorized user joins `room:<roomId>`, receives `room:snapshot` |
+| `room:leave` | `{roomId:string}` | `{ok:true,data:{subscribed:false}}`; unsubscribe only; **does not leave the lobby** |
+| `match:join` | `{matchId:string}` | authorized match participant joins `match:<matchId>` and receives `match:snapshot` |
+| `match:leave` | `{matchId:string}` | unsubscribe only, does not forfeit |
 
-## 2. Event envelope and event ordering
+Invalid payload/auth/membership ack: `{ok:false,error:{code,message,details:{}}}`. Socket.IO `connect`, `disconnect`, `connect_error` are reserved. **Never** implement `game:roll_dice`, `game:end_turn`, `game:buy_property`, generic `game:action` or `player:ready` as gameplay-changing socket handlers. Lobby ready uses `PATCH /api/v1/rooms/:roomId/ready`.
 
-All custom **match** notifications use:
+## 2. Event envelopes and clients
+
 ```ts
-interface MatchEvent<TPayload> {
-  eventId: string;       // unique for deduplication
-  matchId: string;       // opaque string
-  stateVersion: number;  // committed match version
-  occurredAt: string;    // UTC ISO 8601
-  payload: TPayload;
+type EventEnvelope<T> = {
+  eventId: string;     // stable unique id
+  occurredAt: string;  // UTC ISO
+  payload: T;
+  roomId?: string;     // required for room:* messages
+  matchId?: string;    // required for match:* / game:* messages
+  stateVersion?: number; // required for match/game snapshots and updates
+  sequence?: number;     // per-match ordered game_event sequence when emitted
 }
 ```
 
-One accepted REST command increases the version **once**; many events can share that version and have distinct event IDs. Event order within one command is determined by server-side `sequence` in durable `game_events`. Clients must deduplicate event IDs, reject older versions, and fetch `GET /api/v1/matches/:matchId` if a version gap appears. The snapshot is authoritative. Do not mutate server state in event listeners.
+For lobby messages `roomId` is required and `roomRevision` is included inside the room payload; client replaces old lobby snapshots with newer revision. For match messages `matchId` and `stateVersion` are required, with `sequence` for sequenced committed gameplay events. A REST command increments stateVersion **once**, but may emit **several** events at the same version, ordered by sequence; client deduplicates eventId, checks sequence gaps and fetches a fresh REST snapshot if uncertain. A snapshot is authoritative; do not treat movement animation frames as committed state.
 
-## 3. Allowed client-to-server events
+## 3. Server → client events
 
-| Event | Payload | Acknowledgement |
-|---|---|---|
-| `match:join` | `{matchId:string}` | `{ok:true,data:{subscribed:true}}`, then snapshot |
-| `match:leave` | `{matchId:string}` | `{ok:true,data:{subscribed:false}}` |
+| Name | Payload / purpose |
+|---|---|
+| `room:snapshot` | authorized room's full RoomState; initial lobby subscribe |
+| `room:updated` | updated RoomState after REST join/leave/ready/host change |
+| `match:started` | `{matchId,snapshot:MatchState}` delivered to subscribed lobby users; then subscribe match channel |
+| `match:snapshot` | full authorized MatchState on match join/recovery, without private deck order |
+| `game:dice_rolled` | `{playerId,dice,total,fromPosition,toPosition}` |
+| `game:player_moved` | `{playerId,fromPosition,toPosition}` |
+| `game:property_purchased` | `{playerId,spaceId,price,balance}` |
+| `game:rent_paid` | `{payerPlayerId,ownerPlayerId,spaceId,amount}` |
+| `game:card_resolved` | `{playerId,cardId,deck,effects}` (only revealed card; no future deck order) |
+| `game:jail_changed` | `{playerId,inJail,jailTurns}` |
+| `game:player_bankrupt` | `{playerId,creditorPlayerId:null|string}` |
+| `game:turn_changed` | `{currentPlayerId,turnPhase}` |
+| `game:paused` | `{pausedAt,reason}` |
+| `game:resumed` | `{snapshot:MatchState}` |
+| `game:finished` | `{winnerPlayerId,finishReason,standings}` |
+| `game:abandoned` | `{reason}` |
+| `player:connection_changed` | `{playerId,connectionStatus,disconnectedAt}` |
+| `server_error` | `{code,message,details}` (protocol-level; not action success) |
 
-On rejection: `{ok:false,error:{code,message,details:{}}}`. Lobby ready and lobby start requests are REST actions; `room:updated` is a server broadcast only. Match state-changing commands use REST with `clientActionId`, `expectedStateVersion`, `contentVersion`.
+Only broadcast committed backend-approved results; include event envelope. A match may generate several events on one dice action including GO salary, card effect, rent or bankruptcy. All game mutations and explicit room ready/start occur via REST; the socket merely notifies subscribers.
 
-## 4. Server-to-client notifications
+## 4. Full lobby-to-game example
 
-| Event | Payload | Trigger |
-|---|---|---|
-| `room:updated` | room snapshot | REST room changes |
-| `match:started` | `{matchId,snapshot}` | successful REST room start |
-| `match:snapshot` | complete authoritative MatchState | authorized join/recovery |
-| `game:dice_rolled` | `{playerId,dice:[number,number],total,fromPosition,toPosition}` | successful REST roll |
-| `game:player_moved` | `{playerId,fromPosition,toPosition}` | committed movement |
-| `game:property_purchased` | `{playerId,spaceId,price,balance}` | purchase |
-| `game:rent_paid` | `{payerPlayerId,ownerPlayerId,spaceId,amount}` | rent |
-| `game:turn_changed` | `{currentPlayerId,turnPhase}` | turn changes |
-| `game:auction_updated` | auction state | deferred |
-| `game:trade_updated` | trade proposal state | deferred |
-| `game:player_bankrupt` | player ID and placement | deferred |
-| `game:finished` | winner and placements | end condition |
-| `player:connection_changed` | `{playerId,connectionStatus,disconnectedAt}` | presence changes |
-| `game:paused` | `{reason,pausedAt}` | grace timeout |
-| `server_error` | `{code,message,details}` | recoverable protocol error |
+1. User logs in (receives access JWT, refresh cookie and csrf token). User creates or joins room with REST.
+2. User sends `room:join {roomId}`; server authorizes membership then emits `room:snapshot`.
+3. Another player joins/gets ready via REST → all subscribed players receive `room:updated`.
+4. Host uses REST `POST /rooms/:roomId/start`. Room subscribers receive `match:started {matchId,snapshot}` **even if they have no match subscription yet**.
+5. Each player emits `match:join {matchId}`; server returns match snapshot. Player rolls by REST; receives action response; server broadcasts sequenced events; clients animate and reconcile state.
 
-Match-specific notifications use the standard `MatchEvent` envelope; `room:updated` and `server_error` are room/protocol messages and may use their explicitly documented payloads. No raw JWT, passwords or invite secrets in broadcasts.
+## 5. Refresh, disconnection, resume
 
-## 5. Canonical roll sequence
+Access JWT expires in 15 minutes. Before/after expiry, client refreshes with HTTP-only refresh cookie and CSRF header (see API-CONTRACT), then **reconnects** Socket.IO with the new JWT, re-subscribes to authorized room/match and obtains snapshots. On 401/refresh failure, require login, not automatic match forfeit. Do not rely on an old socket handshake token beyond expiry; server may disconnect expired sockets and must validate on join.
 
-1. Client sends **REST** `POST /api/v1/matches/:matchId/actions/roll-dice` with UUID `clientActionId`, integer `expectedStateVersion`, `contentVersion`.
-2. Backend authenticates, authorizes turn/phase, deduplicates action ID, validates expected state version, generates dice and commits the state, idempotency record and `game_events` in a DB transaction.
-3. Backend responds with `{data:{...,stateVersion},meta:{}}`. Broadcast `game:dice_rolled` and `game:player_moved` after commit (recovery via snapshots); clients animate the approved result.
-4. If REST response is lost, resend **the same** `clientActionId` and identical payload; backend returns prior response, never rolls again.
+Track each player's last active authenticated socket connection across tabs; only mark DISCONNECTED after all their match sockets are gone. 120-second grace starts on disconnect. Active player disconnect blocks their turn; after grace server marks PAUSED and broadcasts `game:paused`. When **all remaining solvent players** rejoin, server atomically restores IN_PROGRESS and broadcasts `game:resumed` with snapshot. If not all reconnect, match remains paused; host may abandon through REST, with `game:abandoned`. Never automatically bankrupt disconnected player. Reconnect snapshots, not event retransmission, are the recovery source.
 
-## 6. Reconnect and safety
+## 6. Security
 
-Disconnect does not forfeit a player. Authorized `match:join` after reconnection emits snapshot including stateVersion. Grace period is 120 seconds; after expiry match pauses, not forfeits. Persist enough data to enforce grace across backend restarts. Broadcast may be missed; GET snapshot reconciles. Rate-limit joins, enforce membership, validate payload size and avoid logging credentials. Local/AI mode must not rely on network events.
+Authorize room/match events and channel membership, validate payload size, rate-limit joins, never log tokens or invite codes, never broadcast private deck order, account email or hashed credentials. Socket notifications don't confer action authority. The client must not send dice or money updates.
