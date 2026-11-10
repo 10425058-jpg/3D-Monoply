@@ -11,7 +11,7 @@
 - Board position increases clockwise modulo 40. When a forward move passes or lands on GO award **200 once**; no award for backwards moves, direct Go To Jail, or jail relocation. A card moving to GO awards 200.
 - All legal ownership, dice, cards, cash and outcomes are computed server-side; the client animates committed events. Cards and dice use secure server randomness. Bank board/currency data cannot be submitted by clients.
 - Every **completed player turn** advances `completedTurns`; doubles extra rolls stay within one turn and do not advance it. When one non-bankrupt player remains, finish immediately. After **80 completed player turns**, finish deterministically using net worth = cash + sum of printed purchase prices of owned unmortgaged properties. Tie breakers: higher cash, then larger number of properties, then smaller initial `seatOrder`. Persist `winnerPlayerId`, `finishReason` and emit `game:finished`.
-- A player may voluntarily `forfeit` from an active or paused match. It counts as bankruptcy to the Bank, so their deeds become unowned. Disconnect timeout forfeits are specified in [API-CONTRACT.md](./API-CONTRACT.md). If every player becomes absent before a winner can be chosen, the match is `ABANDONED` with no winner.
+- A player may voluntarily `forfeit` from an active or paused match. It counts as bankruptcy to the Bank, so their deeds become unowned. Disconnect timeout forfeits are specified in [API-CONTRACT.md](./API-CONTRACT.md). If all eligible players are offline continuously for 24 hours, the match becomes `ABANDONED` with no winner (see §8); it is not abandoned immediately.
 
 ## 2. Allowed game phases and actions
 
@@ -80,3 +80,9 @@ Shuffle and store deck order/cursor on server when match starts; persist state a
 ## 7. Required server tests before calling online MVP playable
 
 GO forward/backwards, card movement to GO, third doubles, first/second/third Jail rolls, Jail card use, tax, both deck types and **every listed card action**, all board types, rent per property/railroad/utility, unaffordable buy auto-decline, debit at zero and over balance, bankruptcy-to-player/bank, winner after bankruptcy, winner at 80 turns/ties, double extra-roll after landing action, resumption after disconnect. These must use exact versioned `central-castle@1` content, not invented card/price data.
+
+## 8. Unavailable players and room lifecycle (v1.1.1)
+
+**No immediate all-offline abandonment.** Losing network connectivity alone never bankrupts a player. Disconnection starts a 120-second grace; overdue absence pauses the match, and host failover chooses a connected non-bankrupt player with the lowest seat order. A connected current host may elect to forfeit another player continuously offline for >=120 seconds while PAUSED; this is an explicit, logged and irreversible gameplay action, not a disconnect auto-forfeit. A removed player loses holdings to the Bank, and if only one solvent participant remains that participant immediately wins. If all surviving players are connected again, resume the preserved turn; if the forfeited player was active, advance the turn safely.
+
+If **no non-bankrupt player is connected for 24 continuous hours**, auto-abandon match with no winner; this replaces the earlier statement that a match is abandoned immediately when everyone becomes absent. A connected host may also explicitly abandon a PAUSED match. Host authority is the room's current host even during an in-progress match and may transfer on prolonged disconnection. When match FINISHED/ABANDONED, associated room becomes CLOSED (read-only, no same-room rematch); users must create a new WAITING room to play again.
