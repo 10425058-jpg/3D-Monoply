@@ -1,6 +1,6 @@
 # 3D Monopoly — Database Design
 
-**Status:** Draft proposal for team review  
+**Status:** v1.0.0 schema baseline (not yet migrated)  
 **Database:** PostgreSQL  
 **ORM:** Prisma
 
@@ -211,3 +211,13 @@ Add indexes based on actual query patterns after implementation.
 - Restrict access to private room and match records.
 - Do not expose password hashes, invite secrets, or internal event metadata in API responses.
 - Use environment variables/secrets management for database credentials.
+
+## 8. Locked v1 persistence decisions
+
+- Follow [API Contract v1.0.0](./API-CONTRACT.md#contract-v100--locked-implementation-decisions-2026-11-10). This file remains a schema proposal, not evidence of applied migrations.
+- Persist hashed identifiers for rotating refresh tokens/sessions with user relation, expiry, revocation status, and rotation lineage. Refresh/logout require CSRF protections and cookie configuration specified in the API contract; never store raw refresh credentials.
+- Enforce idempotency with a `processed_actions` table or equivalent durable unique index over `(match_id, client_action_id)`; store the first response/outcome for replay. Persist state version changes and the corresponding game events in one transaction.
+- Use one backend-owned versioned board/ruleset catalog (`central-castle@1`). Matches store map/ruleset/content version; do not accept price or card results from the client.
+- Online MVP is human-only; nullable `match_players.user_id` is reserved for a later server AI feature, not used in v1.
+- The v1 disconnection timeout is 120 seconds and leads to a paused match; add a persisted pause state or explicitly document how this is represented before implementing reconnect expiry.
+- Daily rewards, inventory, mission tracking and leaderboards remain outside the 21-day online MVP.
