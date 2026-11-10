@@ -79,3 +79,11 @@ Each successful state-changing REST action increments `stateVersion` exactly onc
 ## 5. Relationship to current local frontend
 
 The existing Zustand `src/store/useGameStore.ts` uses numeric player IDs, client-side dice, local AI, full rules/extra UI phases and meta-progression. **Do not change those types to online schema in place.** Build an online adapter with server string IDs, authoritative snapshots and a separate UI presentation state; keep local mode working. Online `mini-v1` is intentionally different from local rules, so the UI must label the ruleset clearly.
+
+## 6. Host and terminal lifecycle invariants (v1.1.1)
+
+- `RoomState.hostUserId` remains authoritative during WAITING, IN_PROGRESS and PAUSED, not only during lobby. Host failover for an absent active-match host occurs after 120 seconds, to the **connected non-bankrupt participant with lowest seatOrder**; `isHost` mirrors this in RoomMember state. Former host never auto-regains authority.
+- `MatchState` adds **`allPlayersOfflineSince: string | null`** (ISO UTC). This is set when the last non-bankrupt human disconnects, cleared on any eligible reconnection, and persists for the 24-hour no-eligible-player automatic ABANDONED safety deadline.
+- A PAUSED match may resume when every remaining eligible player has reconnected **or** when a connected host forfeits overdue disconnected participants until all remaining players are connected. If only one remains, FINISHED takes precedence over resuming.
+- A terminal MatchState has `currentPlayerId:null`, `turnPhase:"GAME_OVER"` and its parent RoomState has `status:"CLOSED"`. Terminal rooms retain `matchId` and final host/history but cannot be reused for rematches. Only a new room starts WAITING. If all eligible players are offline, no automatic abandonment occurs before 24 continuous hours.
+- `game:player_bankrupt` may include reason `HOST_FORFEIT_ABSENT`; `stateVersion` advances for the committed forfeit, and `roomRevision` advances for host transfer/closure.
