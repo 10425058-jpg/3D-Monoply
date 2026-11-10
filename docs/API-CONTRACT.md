@@ -1,7 +1,7 @@
 # 3D Monopoly — API Contract
 
-**Status:** Draft for team review  
-**Version:** 0.1.0  
+**Status:** Implementation baseline approved by project owner (team review via PR)  
+**Version:** 1.0.0  
 **Target backend:** NestJS + TypeScript  
 **Transport:** REST over HTTP for request/response operations; Socket.IO for live match events  
 **Database:** PostgreSQL via Prisma
@@ -43,7 +43,7 @@ The server derives the authenticated user from the token. Do not trust a client-
 
 ### Standard success shape
 
-Endpoints may return a resource directly or use the following envelope. **Decision needed:** choose one convention and apply it consistently. This draft uses an envelope for examples:
+All successful responses MUST use the following envelope (no bare resources):
 
 ```json
 {
@@ -137,7 +137,7 @@ Errors: `INVALID_CREDENTIALS`, `ACCOUNT_DISABLED`, `VALIDATION_ERROR`.
 
 Response (200): `{ "data": { "success": true } }`.
 
-Implementation note: if access tokens are stateless, logout behavior and refresh-token revocation must be explicitly designed. **Decision needed:** refresh token/cookie strategy.
+Implementation note: if access tokens are stateless, logout behavior and refresh-token revocation must be explicitly designed. Locked: rotating refresh token in an HttpOnly cookie and short-lived JWT access token; see section "Contract v1.0.0 — locked implementation decisions".
 
 ### 3.4 Current profile
 
@@ -240,7 +240,7 @@ Errors: `ROOM_NOT_FOUND`, `ROOM_FULL`, `ROOM_ALREADY_STARTED`, `INVALID_INVITE_C
 
 Response: `{ "data": { "success": true } }`.
 
-Host departure policy must be agreed (transfer host, close room, or prevent host leaving while others remain). **Decision needed.**
+Locked: transfer host to longest-present active member in a waiting room, or close when room becomes empty.
 
 ### 4.5 Ready state
 
@@ -371,7 +371,7 @@ Request:
 }
 ```
 
-**Decision needed:** whether trades are immediate proposals requiring acceptance, or a single atomic accepted trade. Recommended: create proposal, then recipient accepts/rejects via separate endpoints.
+Locked: create trade proposal, then recipient accepts or rejects. Acceptance is atomic.
 
 ### 5.7 Debt, jail, cards, and turn
 
@@ -429,20 +429,9 @@ src/
     api.ts
 ```
 
-## 8. Decisions required before implementation
+## 8. Decisions resolved for implementation
 
-Agree and record answers to these items:
-
-- [ ] API response envelope: use `{ data, meta }` or direct resource?
-- [ ] Token lifecycle: access token only, or access + refresh token?
-- [ ] Minimum/maximum players and room host departure policy.
-- [ ] Which maps are enabled at launch? Proposed first map: `central-castle`.
-- [ ] Classic Monopoly ruleset details and any custom rules.
-- [ ] Trade proposal/acceptance flow.
-- [ ] Whether AI opponents are hosted by the server in online rooms.
-- [ ] Reconnect grace period and what happens when a player disconnects.
-- [ ] Which meta progression features (daily rewards, missions, stickers, wheel) are in first release.
-- [ ] Whether board/card definitions are duplicated in backend or shared through a versioned package.
+The project-owner-approved decisions and MVP scope are locked in **Contract v1.0.0 — locked implementation decisions** below. Any changes require a reviewed contract PR. Unimplemented features are not implicitly supported.
 
 ## 9. Scope recommendation
 
@@ -457,3 +446,36 @@ Implement in increments:
 7. Meta progression and leaderboard.
 
 Do not attempt to migrate every existing local feature into multiplayer in the first backend pull request.
+
+---
+
+## Contract v1.0.0 — locked implementation decisions (2026-11-10)
+
+**Status: Project-owner implementation baseline.** This section resolves the former `Decision needed` items for the 21-day delivery. If older draft examples below differ, **this section takes precedence**. Changing a contract field, command, event, or policy requires a reviewed docs PR and version bump. Documentation approval does **not** mean backend code is implemented.
+
+| Area | Locked decision |
+|---|---|
+| Backend | NestJS + TypeScript, PostgreSQL + Prisma. Frontend stays in repository root; backend starts in `backend/`. |
+| Transport | **REST is the sole path for mutating gameplay commands.** Socket.IO is used for lobby/match broadcasts, presence and snapshot recovery only. Do not implement `game:roll_dice`, `game:buy_property`, `game:end_turn` or generic `game:action` as write-capable socket handlers. |
+| REST response | All successful resources/actions use `{ "data": ..., "meta": {} }`; all errors use `{ "error": { "code": "...", "message": "...", "details": {} } }`. No bare-resource responses. |
+| API paths | Base `/api/v1`; the resource is `/matches/:matchId` (not `/games/:id`). Use the explicitly listed action endpoints in API-CONTRACT.md. |
+| Identity | Authenticated JWT Bearer access token (15-minute lifetime); rotating refresh token via Secure, HttpOnly, SameSite=Lax cookie (7-day maximum), with backend-stored hashed refresh-token identifiers and revocation on logout. Cookie CSRF protection is required for refresh/logout operations. Local development may relax Secure only over HTTP localhost. Never store tokens in localStorage or URL parameters. |
+| Auth endpoints | `POST /auth/register`, `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout`, `GET /users/me`. Refresh response returns `data.accessToken` and `data.expiresIn`; cookie is set/rotated via Set-Cookie. Login/register set refresh cookie and return access token. |
+| Lobby | 2–4 human players; host is creator; when host leaves a waiting room, transfer host to the longest-present active member, otherwise close room. Room start requires all members ready except host (host is implicitly ready). |
+| First map/rules | `mapId=central-castle`, `rulesetId=classic-v1`, board space IDs 0–39 and integer game currency. This is a compatibility contract, not a claim that existing custom rules already match classic Monopoly. Backend must define/test exact card lists, building, jail and auction rules before enabling those features online. |
+| Content ownership | Backend owns one versioned board/ruleset dataset `central-castle@1`. Frontend renders the same board IDs and sends its declared content version; backend rejects unsupported versions with `CONTENT_VERSION_MISMATCH`. No client-supplied prices or card outcomes. A shared package can follow later; no duplicate independent rule definitions. |
+| IDs | User, room, match and match-player IDs are opaque strings; `spaceId` is integer. Server resolves user identity from auth, never from user-supplied IDs. |
+| State | Server owns money, ownership, turn, dice, cards, debt and outcome; client owns camera/UI/animation. Every accepted state-changing command increments `stateVersion` and has idempotent `clientActionId` UUID. |
+| Trade | Proposal → recipient accepts/rejects; acceptance is an atomic server transaction with renewed validity checks. Do not implement single-step unconfirmed trades. |
+| AI | No server-controlled AI seats in first online release. Existing local vs AI mode is preserved. |
+| Reconnect | A disconnected player remains in match for 120 seconds. Rejoin via authorized `match:join` triggers full `match:snapshot`; version gaps require snapshot. After grace expires, mark player absent and pause the match pending explicit room policy; do **not** auto-forfeit or silently transfer ownership in v1. |
+| Meta progression | Daily rewards, wheel, stickers, missions, leaderboards and cosmetics are **out of scope** for the 21-day online MVP. The existing local implementation remains untouched. |
+| Online MVP slice | Auth, room create/join/ready/start, match snapshot, roll-dice, buy/decline property, rent resolution, end-turn, authoritative broadcasts and reconnect. Auctions, trades, building, mortgage, advanced jail/cards/debt/bankruptcy and full classic-rules parity remain specified but must not be advertised as implemented until tested end-to-end. |
+| Error and consistency | `VALIDATION_ERROR`=400, `UNAUTHORIZED`=401, `FORBIDDEN`=403, `ROOM_NOT_FOUND`/`MATCH_NOT_FOUND`=404, `NOT_YOUR_TURN`/`INVALID_PHASE`/`ROOM_FULL`/`CONTENT_VERSION_MISMATCH`/`STATE_VERSION_CONFLICT`=409, `RATE_LIMITED`=429. Client retries safe reads and idempotent writes with same `clientActionId`. |
+
+**Command delivery:** the client sends `clientActionId` and `expectedStateVersion` in the JSON body of every gameplay mutation (plus action-specific fields); the backend authenticates, authorizes, validates, transactionally commits, returns `{data:{...,stateVersion},meta:{}}` and then broadcasts the resulting event(s). A replay of the same action ID returns the original outcome without applying it again. On state conflict, client fetches `GET /matches/:matchId` and re-renders. Server never accepts dice values, money totals, or ownership changes from a client.
+
+**Socket ordering:** every custom server event uses `{eventId,matchId,stateVersion,occurredAt,payload}`. Socket emits are **notifications, not commands**. The only allowed client socket messages are `match:join`, `match:leave` and connection/presence operations; ready state changes use REST `PATCH /rooms/:roomId/ready`. Match snapshots are authoritative; clients deduplicate `eventId`, reject stale versions, and recover gaps by REST GET.
+
+**Compatibility rules:** legacy draft examples without `expectedStateVersion` or `meta` illustrate gameplay but must be updated by implementers to follow this locked baseline. Never break local/AI mode when integrating online services.
+
