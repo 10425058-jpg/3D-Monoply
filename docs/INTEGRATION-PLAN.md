@@ -1,68 +1,51 @@
-# 3D Monopoly — Frontend / Backend Integration Plan v1.1.0
+# 3D Monopoly — Frontend / Backend Integration Plan v1.1.2
 
-**Status:** Proposed implementation plan, not proof of running backend.
-**Normative docs:** [API-CONTRACT.md](./API-CONTRACT.md), [SOCKET-EVENTS.md](./SOCKET-EVENTS.md), [GAME-STATE.md](./GAME-STATE.md), [DATABASE-DESIGN.md](./DATABASE-DESIGN.md), [ONLINE-MVP-RULES.md](./ONLINE-MVP-RULES.md). [CONTRACT-CONSISTENCY-REVIEW.md](./CONTRACT-CONSISTENCY-REVIEW.md) tracks validations. **All seven documents are reviewed together.**
+**Status:** Implementation proposal for review, not proof of running backend.
+**Reference bundle (7 docs):** [API Contract](./API-CONTRACT.md), [Socket Events](./SOCKET-EVENTS.md), [Game State](./GAME-STATE.md), [Database Design](./DATABASE-DESIGN.md), [Online Rules](./ONLINE-MVP-RULES.md), this plan, and [Contract Review](./CONTRACT-CONSISTENCY-REVIEW.md).
 
-## 1. Scope and repo boundaries
+## 1. Scope and ownership
 
-Keep current React/TypeScript/Vite/R3F frontend in root, keep its local/AI game functional, add NestJS + Prisma + PostgreSQL in `backend/`. No wholesale Zustand refactor; online mode is a separate server-state adapter. Use online ruleset **mini-v1** on `central-castle@1`, **not classic-v1**. Local game may retain richer rules; UI must identify mode. Preserve player visual polish and deliver stable game rules before optional animations.
+Keep the current React/TypeScript/Vite/React Three Fiber frontend in repo root, preserving local/AI gameplay. Proposed NestJS + Prisma + PostgreSQL backend lives under `backend/`. Online mode is a separate server-state adapter with the deliberately simplified `mini-v1` ruleset on `central-castle@1`; do not claim this equals classic Monopoly. Only 2–4 humans, one match per room, no rematch in a CLOSED room. Advanced auction, trade, mortgage, building and manual debt mechanics are deferred from the online mode.
 
-## 2. Team-agreed API choices
+## 2. Authoritative decisions to implement together
 
-- REST `/api/v1` is the **only** gameplay/lobby mutation transport. Socket.IO is for `room:join/leave` and `match:join/leave` subscriptions, event broadcasts and snapshots.
-- Money: JSON/TS safe integer `number` within [0,2147483647], DB `INTEGER CHECK(money >= 0)`; immediate bankruptcy on unaffordable obligations.
-- JWT access: 15 minutes, in memory. Login/register set 7-day max rotating HttpOnly refresh cookie plus return an in-memory CSRF token; credentialed refresh rotates both; `GET /auth/csrf` bootstrap after page reload. Socket reconnect uses freshly refreshed JWT and re-subscribes.
-- Private rooms return raw code once on creation and allow host rotation, DB stores only hash. Authenticated GET /rooms browses public waiting rooms.
-- 120-second disconnect grace, PAUSED on timeout, resume when all remaining solvent players reconnect; otherwise connected current host can forfeit an overdue absent player or abandon, and all-offline 24h auto-abandon applies. No disconnect-only auto-bankruptcy.
-- All actions: UUID clientActionId, expectedStateVersion, contentVersion. Idempotency lookup **before** state-version check; transaction writes state/action result/events.
-- Match turn rules: full mini-v1 coverage for Chance/Chest, Jail, GO, doubles, rent, taxes, bankruptcy, and deterministic terminal condition at last solvent player or 80 completed turns. No exposed auctions, trades, builds, mortgages or manual debt actions in this simplified online ruleset.
-- Ended/abandoned match has null currentPlayerId; active/paused match has non-null currentPlayerId; secrets such as deck order never in snapshots.
+| Concern | Single contract |
+|---|---|
+| Commands | REST `/api/v1` only for mutations; Socket.IO `/game` for authorized room/match subscriptions and committed notifications |
+| Auth | 15-minute bearer JWT in memory; rotating <=7-day HttpOnly refresh cookie, CSRF token and Origin protection; reconnect Socket with refreshed JWT |
+| Economy | TypeScript/JSON integer `number`, 0..2147483647; PostgreSQL `INTEGER CHECK(money >= 0)`; immediate bankruptcy on unaffordable obligations in mini-v1 |
+| Match request | UUID `clientActionId`, `expectedStateVersion` and `contentVersion`; replay check **before** stale-version comparison |
+| Snapshot | `MatchState.allowedActions` is **computed per authenticated viewer**; no storage, no global broadcast of another player's available actions |
+| Card history | `MatchState.lastCardResolved` (nullable) persisted as `matches.last_card_resolved JSONB`, visible to reconnecting authorized players; future deck remains private |
+| Chance Utility | 10× **the original two dice already rolled that turn** to land on Chance, not another roll; align with existing frontend `src/store/useGameStore.ts` |
+| Turn counters | `turnNumber` starts 1 (started turn index), `completedTurns` starts 0 and increments at final completion/active bankruptcy; doubles extra rolls are the same turn |
+| Seats and skins | Assign lowest free seatOrder 0–3 on room join; fixed server token/color pair per seat; freeze on match start, traverse ascending seatOrder |
+| Lobby/room | Server emits room updates before match exists; `match:started` broadcasts ID/version only, then clients subscribe to get personalized snapshot |
+| Presence | 120-second grace, host failover, eligible host-only overdue forfeit, resume when survivors connected, 24h all-offline auto-abandon |
+| Terminal | Match FINISHED/ABANDONED closes room; results retained; no same-room rematch |
+| Match ↔ room | Sole stored FK `matches.room_id UNIQUE`; `RoomState.matchId` is derived. **No `rooms.match_id` database column.** |
+| Errors / API paths | Error codes from API-CONTRACT §6 (includes 3 lifecycle codes); `abandon` is `POST /matches/:matchId/actions/abandon` |
 
-## 3. Build and deliver in vertical slices
+## 3. Delivery slices and acceptance criteria
 
-| Priority | Backend | Frontend | Acceptance criteria |
-|---|---|---|---|
-| P0 | NestJS health, DB, Prisma migrations | Preserve root build and local mode | GET /health: 200 with DB, 503 on DB outage |
-| P0 | Register/login/refresh/CSRF/logout | Typed auth client | Login sets cookie + csrf; 15-minute expiry renewal |
-| P0 | Room CRUD, private codes, public browsing, Socket room channel | Lobby list / ready / host / copy code | 2 users see ready changes before match exists |
-| P0 | Match snapshot and rules engine for mini-v1 | Online state adapter | All 40 spaces and every card action covered |
-| P0 | Actions, durable idempotency, version conflicts, deck state | Roll/buy/decline/end/jail/forfeit controls | Duplicate roll never executes twice |
-| P0 | Socket match channel, presence, pause/resume/abandon | Animate committed events and recover snapshots | Drop/reconnect including mid-game token expiry |
-| P0 | Finish and bankruptcy | Game-over UI | Last solvent or 80 turns finishes deterministically |
-| P1 | Lobby search filters, advanced telemetry | Additional polish | Optional if time remains |
-| Later | Full classic-v1 features | Classic UI options | Separate contract and tests |
+| Priority | Backend | Frontend / contract test |
+|---|---|---|
+| P0 | NestJS app, health and Prisma migrations | Frontend build remains working; 503 when DB unavailable |
+| P0 | Session/cookie/CSRF and auth endpoints | Register/login, refresh, logout, 15-min access expiry and socket reconnect |
+| P0 | Room browse/create/join/ready/start and server seat allocation | 2 players see lobby change before match; stable token/color, unique seats |
+| P0 | Authoritative MatchState with derived per-viewer allowedActions and card history | Two different viewers see their own action lists; no deck leak |
+| P0 | Full `mini-v1` rules engine | All 40 spaces, 11 card action types, GO, Jail, doubles, rent, tax, insolvency and 80-turn finish |
+| P0 | Versioned REST commands and durable processed_actions | Exactly once roll/buy under retries, including same-action replay with outdated version |
+| P0 | Socket match state, host failover, pause/resume/abandon | Disconnected host recovery, explicit overdue forfeit, restart-safe 24h auto-abandon |
+| P0 | Finish and terminal room close | match result persisted; RoomState derives matchId; closed rooms reject joining/ready/start |
+| Later | Advanced classic rules and multiple maps | Separate ruleset/content version and migrations |
 
-Do not claim online multiplayer works until the complete P0 slice passes two-account browser E2E. If resources cannot support core game rule coverage inside 21 days, ship an honest polished local/AI game instead of an incomplete multiplayer mode.
+If the online P0 slice cannot pass a two-client end-to-end match within the remaining deadline, prioritize a stable, honestly labeled local/AI release rather than shipping incomplete multiplayer.
 
-## 4. Development invariants
+## 4. Development and verification
 
-- Each REST command must have executable schema validation; backend decides all economy, randomness and board/card effects; errors use one JSON envelope and stable code.
-- Both REST room state and Socket room broadcasts are authorized: users waiting in lobby join `room:<roomId>` before any match exists.
-- Auth middleware must protect endpoints and sockets; refresh uses cookie + CSRF + origin, and socket JWT refresh/reconnect with snapshots.
-- Match cards and dice require durable state; no client-provided dice or future deck order. UI must disable unsupported `mini-v1` actions.
-- Money, IDs, phase, nullable fields, roomRevision and stateVersion must correspond to DB columns.
-- Always use short feature branches and PR review; do not modify root frontend unnecessarily for backend scaffolding.
+Root frontend: `npm install && npm run dev`. Proposed backend after creation: `cd backend && npm install && npm run start:dev`. Use dedicated branches/PRs, document backend env config and database migrations, never commit real secrets. An online adapter must not overwrite `src/store/useGameStore.ts` local/AI behavior.
 
-## 5. Implementation and verification workflow
+Before release, execute—not merely describe—tests for: auth/CSRF rotation; two-room clients and room-start; seat assignment/reuse; personalized `allowedActions`; null/persisted last card; original dice reuse for Chance utility; turn counter boundaries; all 11 card actions; bankruptcy reason in socket payload; idempotency races; host reconnect/forfeit; all-offline 24-hour deadline after DB restart; `matches.room_id UNIQUE` and derived room matchId; POST `/actions/abandon`; terminal room closure; root build and local AI regression. All test failures block claims of a completed backend.
 
-Run root frontend `npm install && npm run dev`; backend once created `cd backend && npm install && npm run start:dev`. Do not commit real .env. Include backend .env.example, DB setup/migration instructions, test scripts, and deployment cookie/cors origin notes.
-
-Mandatory test groups:
-1. Auth registration/login sets refresh+CSRF, refresh rotates, logout revokes; reloaded client bootstraps CSRF; expired socket reconnects with new JWT.
-2. Public room discovery and private code creation, join, invalid code, rotate and revoked code. Room subscribers see joins/ready/host/start before match ID exists.
-3. Match actions: same clientActionId replay first even if old expected version, different-body reused ID rejected, stale new ID rejected, concurrency prevents duplicate rolls.
-4. Gameplay: all 40 squares and all card action types; doubles 1–3, Jail 1–3, GO forward/backwards, rent, tax, insufficient funds, creditor/bank bankruptcy, extra-roll phase, finite 80-turn winner.
-5. Presence: grace 120 seconds, transition PAUSED, all reconnect resumes exact turn/phase, hosted abandon when otherwise stuck; no automatic forfeit on Wi-Fi drop.
-6. End-state: winner persisted, currentPlayerId null and no more actions; absent players and special end condition tested; frontend online UI matches disabled actions.
-7. Database checks: nonnegative INTEGER balances, deck cursor and held cards, current player FK/circular creation, idempotency table, ordered events, restart recovery.
-8. Verify current local game and frontend build still pass.
-
-**Definition of done:** These are tests that must be implemented and run by the development team; documentation updates alone cannot certify a working application.
-
-## 6. No-deadlock host and match lifecycle gates (v1.1.1)
-
-- Host privilege is defined during WAITING, IN_PROGRESS and PAUSED. After host's >120s disconnected period elect connected, solvent lowest-seat replacement. Log and broadcast change; a returning former host does not auto-regain privilege.
-- While paused, connected current host can explicitly forfeit another player offline >=120s. Server verifies continued absence transactionally and emits bankruptcy plus resumed/finished outcome. Normal players may voluntarily forfeit. No automatic player bankruptcy on mere disconnection.
-- After 24 hours with **zero eligible connected players continuously**, restart-safe auto-abandon closes game and room even if no host is online. Other cases: all survivors reconnect → resume; host may abandon paused game. Do not leave orphaned PAUSED forever when nobody is online.
-- FINISHED or ABANDONED closes the parent room. No rematch in same room in mini-v1; new room required. Preserve result snapshots and ensure GET /rooms excludes closed rooms.
-- E2E scenarios: host leaves during match; host unavailable and another player gets role; previously absent host reconnects; host forfeit overdue disconnected current player; race between return and forced forfeit; only one survivor wins; no players online 24h; DB restart before timeout; terminal room closes and rejects ready/join/start.
+**Definition of done:** Feature-specific schema validation, Prisma migrations, executable tests, security review and reproducible setup pass. A docs-only PR does not establish runtime correctness.
