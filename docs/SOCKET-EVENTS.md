@@ -1,6 +1,6 @@
 # 3D Monopoly — Socket.IO Event Contract
 
-**Status:** Draft for team review  
+**Status:** v1.0.0 implementation baseline  
 **Transport:** Socket.IO  
 **Namespace:** `/game` (proposed)  
 **Authentication:** access token supplied in Socket.IO handshake auth  
@@ -44,7 +44,7 @@ interface GameEvent<TPayload> {
 }
 ```
 
-Client commands that mutate state should include:
+Gameplay-mutating commands are sent only over REST, not Socket.IO. The following interface is retained for historical context and MUST NOT be used for gameplay mutations:
 
 ```ts
 interface ClientCommand<TPayload> {
@@ -56,19 +56,14 @@ interface ClientCommand<TPayload> {
 
 Use server acknowledgements for command acceptance/rejection. Do not assume that emitting an event means the command succeeded.
 
-## 3. Client → Server events
+## 3. Client → Server events (v1 locked)
 
 | Event | Payload | Notes |
 |---|---|---|
-| `match:join` | `{ matchId }` | Join authorized match channel; server returns snapshot |
-| `match:leave` | `{ matchId }` | Leave channel (not necessarily forfeit) |
-| `player:ready` | `{ roomId, isReady }` | Lobby ready state |
-| `game:roll_dice` | `{ matchId, clientActionId }` | Server generates dice; no dice values from client |
-| `game:buy_property` | `{ matchId, spaceId, clientActionId }` | Server validates price/ownership/turn |
-| `game:end_turn` | `{ matchId, clientActionId }` | Server validates phase and active player |
-| `game:action` | `{ matchId, actionType, payload, clientActionId }` | Optional generic command; use only if team agrees |
+| `match:join` | `{ matchId }` | Authorized subscribe; server sends snapshot |
+| `match:leave` | `{ matchId }` | Unsubscribe; not a forfeit |
 
-For the first implementation, prefer REST for commands and Socket.IO for broadcasts, unless the team deliberately chooses Socket.IO acknowledgements for all commands. Avoid implementing the same action through two competing paths.
+**No gameplay mutations over socket.** Lobby ready uses REST `PATCH /rooms/:roomId/ready`. Roll, purchase, trade, auctions and end turn use REST action endpoints. All events named `game:roll_dice`, `game:buy_property`, `game:end_turn`, `game:action` and `player:ready` are **not accepted as Socket.IO commands** in v1.
 
 ## 4. Server → Client events
 
@@ -119,7 +114,7 @@ Failure:
 
 ## 6. Example: dice roll broadcast
 
-1. Active player sends `game:roll_dice` with a unique `clientActionId`.
+1. Active player sends REST `POST /api/v1/matches/:matchId/actions/roll-dice` with unique `clientActionId` and `expectedStateVersion`.
 2. Server authenticates the player, checks match membership, turn, phase, and idempotency.
 3. Server generates dice and applies game rules.
 4. Server persists the required state/event.
@@ -147,3 +142,7 @@ The server must never accept dice values supplied by the client.
 - Do not broadcast private data (email, token, password, hidden server state).
 - Do not rely on client timestamps or client-reported money/position.
 - Do not broadcast an event until the corresponding state transition is accepted by the server.
+
+## 9. v1 protocol lock
+
+See [API-CONTRACT.md](./API-CONTRACT.md#contract-v100--locked-implementation-decisions-2026-11-10) for precedence. `game:dice_rolled` and other server broadcasts are notifications only. Custom broadcasts MUST carry `eventId`, `matchId`, `stateVersion`, `occurredAt`, and `payload`. In the first release, reconnect grace is 120 seconds; after that the match is paused, not forfeited. Acknowledgement shape in section 5 applies to the allowed socket subscription commands only. Gameplay actions use the REST response envelope.

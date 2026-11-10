@@ -115,3 +115,18 @@ Before implementation, agree on:
 - Disconnect/reconnect grace period.
 - Scope of trades, auctions, cards, jail, debt, and custom railroad events.
 - First-release progression features.
+
+## 8. Approved integration baseline (2026-11-10)
+
+**Contract version:** v1.0.0, approved as the project-owner implementation baseline. See [API-CONTRACT.md](./API-CONTRACT.md#contract-v100--locked-implementation-decisions-2026-11-10). Older draft alternatives are superseded by that decision record.
+
+1. Preserve existing frontend root and local/AI gameplay; put NestJS service in `backend/`.
+2. Use REST for **all state-changing commands** and Socket.IO **only** for authorized subscriptions, broadcasts, presence, and snapshots.
+3. Use standard `{data,meta}` success and `{error:{code,message,details}}` failure envelopes; every mutating match action carries `clientActionId` and `expectedStateVersion`.
+4. Auth uses 15-minute JWT access tokens and rotating 7-day refresh tokens in Secure HttpOnly SameSite=Lax cookies, with CSRF protection and server revocation.
+5. First release supports 2–4 human players, one map `central-castle`, one ruleset `classic-v1`, content version `central-castle@1`. No server AI or progression online.
+6. After 120 seconds disconnected, pause match rather than silently forfeit. Reconnect obtains authoritative full snapshot.
+7. Split implementation into small reviewed PRs: contract/types tests → auth/room → authoritative minimal match slice → realtime/reconnect → advanced rules only if time remains.
+8. Integration acceptance tests must check duplicate action replay, stale state version rejection, unauthorized actions, content-version mismatch, 2-client sync, reconnect snapshots, and preservation of local mode.
+
+**Release gate:** Approval of docs alone does not certify that backend endpoints, Prisma migrations, rules, or tests exist. Only mark individual features complete after passing end-to-end validation.
