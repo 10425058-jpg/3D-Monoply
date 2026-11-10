@@ -1,7 +1,7 @@
 # 3D Monopoly — Frontend / Backend Integration Plan v1.1.0
 
 **Status:** Proposed implementation plan, not proof of running backend.
-**Normative docs:** [API-CONTRACT.md](./API-CONTRACT.md), [SOCKET-EVENTS.md](./SOCKET-EVENTS.md), [GAME-STATE.md](./GAME-STATE.md), [DATABASE-DESIGN.md](./DATABASE-DESIGN.md), [ONLINE-MVP-RULES.md](./ONLINE-MVP-RULES.md). [CONTRACT-CONSISTENCY-REVIEW.md](./CONTRACT-CONSISTENCY-REVIEW.md) tracks validations. **Six documents are reviewed together** (five contracts/plans + review; the new online rules document means **seven** documents in total).
+**Normative docs:** [API-CONTRACT.md](./API-CONTRACT.md), [SOCKET-EVENTS.md](./SOCKET-EVENTS.md), [GAME-STATE.md](./GAME-STATE.md), [DATABASE-DESIGN.md](./DATABASE-DESIGN.md), [ONLINE-MVP-RULES.md](./ONLINE-MVP-RULES.md). [CONTRACT-CONSISTENCY-REVIEW.md](./CONTRACT-CONSISTENCY-REVIEW.md) tracks validations. **All seven documents are reviewed together.**
 
 ## 1. Scope and repo boundaries
 
