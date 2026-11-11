@@ -2,6 +2,8 @@
 
 The shipped GLBs are already generated and validated. Running the game does not require Blender. Continue from these files; regenerate only an asset you intend to change.
 
+The master continuation preserves the completed landscape/prop exports and updates only the two royal island composites. The left five-spire gatehouse and right three-tower palace now have different gables, silhouettes and an open loggia. See [the current report](../../docs/fantasy-master/README.md) for same-camera evidence, final triangle inventory and continuation limits. Use `--only royal-island-left,royal-island-right` to reproduce that export without rebuilding completed props.
+
 ## Generate or update
 
 From the repository root, with Blender on PATH:

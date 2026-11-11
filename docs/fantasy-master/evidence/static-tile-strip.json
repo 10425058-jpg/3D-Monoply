@@ -1,0 +1,15 @@
+{
+  "before": "docs\\fantasy-master\\evidence\\controlled-release\\before-balanced-overview.png",
+  "after": "docs\\fantasy-master\\evidence\\controlled-release\\after-balanced-overview.png",
+  "rectangle": [
+    575,
+    200,
+    420,
+    35
+  ],
+  "pixels": 14700,
+  "changedPixels": 0,
+  "maxChannelDelta": 0,
+  "meanAbsoluteChannelDelta": 0.0,
+  "pixelIdentical": true
+}

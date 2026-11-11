@@ -2,7 +2,8 @@
  * Eight shaded ellipsoids per bank give rounded silhouettes and lavender
  * undersides without a runtime volume march or new model dependency. */
 export const SKY_BAKE_FRAGMENT = `
-varying vec2 vUv; uniform vec3 uSun;
+varying vec2 vUv; uniform vec3 uSun; uniform float uSunRadius;
+#include <tonemapping_pars_fragment>
 float hash(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
 float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
   return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.)),f.x),f.y);}
@@ -53,7 +54,15 @@ void main(){
   float streak=noise(uv)*.65+noise(uv*2.1)*.35;
   float veil=smoothstep(.55,.79,streak)*(1.-smoothstep(.93,.998,abs(d.y)))*.13;
   sky=mix(sky,mix(vec3(.48,.27,.50),vec3(1.,.65,.36),warm),veil);
-  // Small deterministic dither prevents 8-bit gradient banding.
-  sky+=(hash(gl_FragCoord.xy)-.5)/255.;
-  gl_FragColor=vec4(sky,cover);
+  float distanceSq=max(0.,2.*(1.-sunDot)),radiusSq=uSunRadius*uSunRadius;
+  float halo=1.+distanceSq/(radiusSq*4.),haze=1.+distanceSq/(radiusSq*25.);
+  sky+=vec3(1.,.45,.12)*(.34/(halo*halo)+.09/(haze*haze));
+  float edge=max(fwidth(sunDot),.000001),disc=smoothstep(cos(uSunRadius)-edge,cos(uSunRadius)+edge,sunDot);
+  float center=1.-clamp(distanceSq/radiusSq,0.,1.),limb=center*(1.62-.62*center);
+  sky=mix(sky,mix(vec3(1.8,.74,.12),vec3(3.2,2.18,.69),limb),disc*(1.-cover*.68));
+  // Display-referred RGBA8, intentionally not sRGB-decoded on texture fetch.
+  // The static ACES/sRGB conversion also belongs in this one-time pass.
+  vec3 displayColor=sRGBTransferOETF(vec4(ACESFilmicToneMapping(sky),1.)).rgb;
+  displayColor+=(hash(gl_FragCoord.xy)-.5)/255.;
+  gl_FragColor=vec4(displayColor,1.);
 }`;

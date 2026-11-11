@@ -36,3 +36,9 @@ __pycache__/
 *.pyc
 *.blend1
 .audit-master-baseline/
+
+# Intermediate benchmark images; retain raw measurements and final paired captures.
+docs/fantasy-master/evidence/controlled/*.png
+docs/fantasy-master/evidence/controlled-final/*.png
+docs/fantasy-master/evidence/controlled-display/*.png
+docs/fantasy-master/evidence/regression/context-*.png

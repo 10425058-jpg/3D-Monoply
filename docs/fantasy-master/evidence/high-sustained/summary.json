@@ -1,0 +1,58 @@
+[
+  {
+    "repeat": 0,
+    "quality": "high",
+    "side": "before",
+    "camera": "overview",
+    "sampleMs": 20000,
+    "warmupMs": 10000,
+    "fps": 28.173806866936904,
+    "frameP95": 57.19999980926514,
+    "gpuP50": 30.80305,
+    "calls": 2699,
+    "triangles": 276998,
+    "textures": 7
+  },
+  {
+    "repeat": 0,
+    "quality": "high",
+    "side": "after",
+    "camera": "overview",
+    "sampleMs": 20000,
+    "warmupMs": 10000,
+    "fps": 24.830790180060077,
+    "frameP95": 66.59999990463257,
+    "gpuP50": 33.142,
+    "calls": 2699,
+    "triangles": 279528,
+    "textures": 7
+  },
+  {
+    "repeat": 1,
+    "quality": "high",
+    "side": "after",
+    "camera": "overview",
+    "sampleMs": 20000,
+    "warmupMs": 10000,
+    "fps": 30.323804186358593,
+    "frameP95": 41.700000047683716,
+    "gpuP50": 30.0631,
+    "calls": 2699,
+    "triangles": 279528,
+    "textures": 7
+  },
+  {
+    "repeat": 1,
+    "quality": "high",
+    "side": "before",
+    "camera": "overview",
+    "sampleMs": 20000,
+    "warmupMs": 10000,
+    "fps": 21.110375674226965,
+    "frameP95": 71.90000009536743,
+    "gpuP50": 39.59246,
+    "calls": 2699,
+    "triangles": 276998,
+    "textures": 7
+  }
+]
