@@ -4,7 +4,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 
 const origin = process.env.AUDIT_URL || 'http://127.0.0.1:4175';
-const out = 'docs/fantasy-polish/evidence/regression';
+const out = process.env.ENVIRONMENT_REGRESSION_OUT || 'docs/fantasy-polish/evidence/regression';
 const pause = ms => new Promise(resolve => setTimeout(resolve,ms));
 const browser = await puppeteer.launch({executablePath:process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
 const results = [];
