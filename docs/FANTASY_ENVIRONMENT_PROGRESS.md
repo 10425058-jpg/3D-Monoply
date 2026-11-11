@@ -1,7 +1,9 @@
 # Fantasy environment continuation checkpoint
 
-Worktree: `C:/Users/admin/3D-Monoply/.phase1-worktree`  
-Branch: `graphics/fantasy-atmosphere-polish`  
+Worktree: `C:/Users/admin/3D-Monoply/.phase1-worktree`
+
+Branch: `graphics/fantasy-atmosphere-polish`
+
 Starting commit: `2c3b62d` (PR #37 has been merged by the repository owner).
 
 ## Verified foundation
@@ -31,6 +33,6 @@ Use the existing generator with `--only` for changed kingdom assets. Do not rege
 
 New continuation evidence is recorded under `docs/fantasy-master/evidence`; existing phase-2 and polish evidence is historical and must not be overwritten. The reusable browser audit now accepts `AUDIT_EVIDENCE_ROOT`.
 
-Current deliverables and same-camera screenshots are in [the master report](fantasy-master/README.md); [performance.md](fantasy-master/performance.md) contains raw-result links and exact budgets. Verified checkpoints are `a555591` (audit) and `2791b4e` (actual Blender architecture/atmospheric depth), followed by the final optimization/evidence commit on this branch.
+Current deliverables and same-camera screenshots are in [the master report](fantasy-master/README.md); [performance.md](fantasy-master/performance.md) contains raw-result links and exact budgets. Verified checkpoints are `a555591` (audit), `2791b4e` (actual Blender architecture/atmospheric depth) and `1ec1220` (final optimization/evidence).
 
 Implementation and automated verification are complete for this bounded continuation; [verification.json](fantasy-master/evidence/verification.json) records the final built bundle and checks. Do not rebuild completed assets when continuing. Next work is reviewer art-direction signoff against the supplied concepts and stable performance validation on representative student hardware. A later artist pass may refine hand-painted masonry, rock strata, blossom contours and waterfall foam within the same budgets. Dynamic time-of-day/exposure would require rebaking the static sky. Do not change board/HUD/camera framing or automatically merge the PR.
