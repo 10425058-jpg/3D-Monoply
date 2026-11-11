@@ -18,12 +18,12 @@ Starting commit: `2c3b62d` (PR #37 has been merged by the repository owner).
 | 0 Audit/baseline | Complete: build passes and six fresh same-camera captures/5-second samples saved under `docs/fantasy-master/evidence/before`. Current integrated-GPU results vary by tier; raw measurements retained. |
 | 1 Blender pipeline | Complete and reused; actual exports/inspection available. |
 | 2 Floating islands | Existing distinct meadow/cliff layouts retained; assess only repairs needed by new architecture. |
-| 3 Architecture | Partial: existing variants still share the same five-tower composition. Next: distinct palace/chapel arrangement and readable roof/portal accents within current caps. |
+| 3 Architecture | Browser-loaded and byte-validated: left five-spire gatehouse/pediment; right three-tower palace, vaulted nave and open loggia. Final triangles high38080/31387, balanced24028/20731, low13168/11387, distant6584/5693; all caps pass. |
 | 4 Vegetation/decorations | Existing variants, gardens, pavilion, walls/paths/bridges retained; no indiscriminate scattering. |
-| 5 Sky/sun/atmosphere | Implemented, awaiting browser review: eight shaded cloud lobes per bank in a one-time bake, limb/veil sun, higher bounded map resolution and seven-row mountain crest/flank surfaces. No runtime volume march. |
+| 5 Sky/sun/atmosphere | Browser-reviewed/buildable: shaded cloud lobes, limb/veil sun and real ridge flanks. Oversized banks reduced after review. Maps bounded at 512/1024/1536 wide; no runtime volume march. Quality-dependent flank rows reduce low/medium geometry. |
 | 6 Clouds/waterfalls | Existing anchored animated water/mist retained; tune cloud depth without filling the board column. |
 | 7 Art direction | Pending actual browser comparison to supplied current screenshot and concepts. |
-| 8 Optimization/regression | Pending controlled comparison, all camera/gameplay/motion/context recovery checks. |
+| 8 Optimization/regression | Initial A/B+B/A comparison retained with large variance and low-tier regression, not accepted. Next: compare reduced low/medium ridge rows and polynomial sun; complete gameplay/motion/context checks. |
 
 ## Reproduction and next step
 

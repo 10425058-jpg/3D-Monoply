@@ -12,17 +12,26 @@ export function GraphicsAudit({ quality }: { quality: string }) {
   useEffect(() => {
     const { gl, camera, scene } = state;
     const context = gl.getContext() as WebGL2RenderingContext;
-    const timer = context.getExtension('EXT_disjoint_timer_query_webgl2');
+    let timer = context.getExtension('EXT_disjoint_timer_query_webgl2');
     const debug = context.getExtension('WEBGL_debug_renderer_info');
     const originalRender = gl.render;
     const originalAutoReset = gl.info.autoReset;
     gl.info.autoReset = false;
     let renderMs = 0, passes = 0, previous = 0;
     let pending: WebGLQuery[] = [], latestGpu: number | null = null;
+    let contextAvailable = true;
+    const lost = () => { contextAvailable = false; pending = []; latestGpu = null; };
+    const restored = () => {
+      timer = context.getExtension('EXT_disjoint_timer_query_webgl2');
+      context.getExtension('WEBGL_debug_renderer_info');
+      contextAvailable = true;
+    };
+    gl.domElement.addEventListener('webglcontextlost', lost);
+    gl.domElement.addEventListener('webglcontextrestored', restored);
     const samples: Record<string, number | null>[] = [];
     let collecting = false;
     gl.render = function (...args: Parameters<typeof gl.render>) {
-      const query = timer && pending.length < 8 ? context.createQuery() : null;
+      const query = contextAvailable && timer && pending.length < 8 ? context.createQuery() : null;
       if (query) context.beginQuery(timer.TIME_ELAPSED_EXT, query);
       const start = performance.now();
       try { originalRender.apply(gl, args); }
@@ -71,7 +80,7 @@ export function GraphicsAudit({ quality }: { quality: string }) {
       start() { samples.length = 0; collecting = true; previous = 0; },
       stop() { collecting = false; return { samples: [...samples], metadata: audit.metadata() }; },
       frame() {
-        if (timer) {
+        if (contextAvailable && timer) {
           if (context.getParameter(timer.GPU_DISJOINT_EXT)) {
             pending.forEach(query => context.deleteQuery(query)); pending = []; latestGpu = null;
           } else while (pending.length && context.getQueryParameter(pending[0], context.QUERY_RESULT_AVAILABLE)) {
@@ -153,6 +162,8 @@ export function GraphicsAudit({ quality }: { quality: string }) {
     (window as any).__graphicsAudit = audit;
     return () => {
       unsubscribe();
+      gl.domElement.removeEventListener('webglcontextlost', lost);
+      gl.domElement.removeEventListener('webglcontextrestored', restored);
       gl.render = originalRender; gl.info.autoReset = originalAutoReset;
       pending.forEach(query => context.deleteQuery(query)); delete (window as any).__graphicsAudit;
     };
