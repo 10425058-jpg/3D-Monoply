@@ -28,8 +28,8 @@ export function FantasySky({ animate }: { animate: boolean }) {
         void main(){
           vec3 d=normalize(vDirection);
           float h=smoothstep(-0.88,0.25,d.y);
-          vec3 lavender=vec3(0.13,0.10,0.32),pink=vec3(0.69,0.21,0.39),gold=vec3(0.98,0.48,0.20);
-          vec3 sky=mix(lavender,vec3(0.055,0.08,0.27),h);
+          vec3 lavender=vec3(0.23,0.17,0.40),pink=vec3(0.78,0.36,0.47),gold=vec3(1.0,0.59,0.30);
+          vec3 sky=mix(lavender,vec3(0.13,0.17,0.36),h);
           float band=exp(-pow((d.y+0.42)*3.5,2.0));
           sky=mix(sky,pink,band*0.78);
           float sunDot=max(0.,dot(d,uSun));
@@ -37,8 +37,8 @@ export function FantasySky({ animate }: { animate: boolean }) {
           vec2 uv=d.xz/(abs(d.y)+0.35)*4.0+vec2(uTime*0.003,0.0);
           float n=noise(uv)*0.57+noise(uv*2.1)*0.28+noise(uv*4.2)*0.15;
           float clouds=smoothstep(0.43,0.72,n)*band;
-          sky=mix(sky,mix(vec3(0.37,0.20,0.51),vec3(1.,0.59,0.46),pow(sunDot,5.0)),clouds*0.65);
-          sky=pow(max(sky,vec3(0.)),vec3(1.4));
+          sky=mix(sky,mix(vec3(0.42,0.30,0.55),vec3(1.,0.66,0.50),pow(sunDot,5.0)),clouds*0.48);
+          sky=pow(max(sky,vec3(0.)),vec3(1.22));
           // Angular distance keeps a circular, world-fixed sun at infinity.
           // Two analytic falloffs in this existing pass need no transparent quads/bloom.
           float distanceSq=max(0.,2.*(1.-sunDot));

@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "generator": "tools/blender/generate_environment.py",
+  "blenderVersion": "5.2.3 LTS",
+  "milestone": "architecture",
+  "seed": 10425058,
+  "license": "Original procedural project assets; repository license applies",
+  "materials": "one embedded 128x128 surface atlas; shared PBR materials",
+  "assets": [
+    {
+      "id": "royal-island-left",
+      "file": "royal-island-left-balanced.glb",
+      "tier": "balanced",
+      "triangles": 16002,
+      "bytes": 1172136,
+      "sha256": "537f2a19ffa502de5fb2ef6d699d56effdd49550c276e9428168e1cf9597eddd",
+      "bounds": {
+        "min": [
+          -8.29698657989502,
+          -7.029825687408447,
+          -5.908763408660889
+        ],
+        "max": [
+          8.926772117614746,
+          8.16100025177002,
+          6.843960762023926
+        ]
+      },
+      "anchors": {
+        "waterfall_origin_left": [
+          5.5,
+          0.04,
+          4.15
+        ],
+        "waterfall_end_left": [
+          6.0,
+          -9.5,
+          4.8
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    },
+    {
+      "id": "royal-island-right",
+      "file": "royal-island-right-balanced.glb",
+      "tier": "balanced",
+      "triangles": 16026,
+      "bytes": 1174768,
+      "sha256": "1877d0b4fb0b531789d849b0b693dfd52dbeb5e2abadeae5ee92af3e103eb54c",
+      "bounds": {
+        "min": [
+          -8.97620964050293,
+          -7.029825687408447,
+          -6.873772144317627
+        ],
+        "max": [
+          9.196624755859375,
+          7.935999870300293,
+          6.82266092300415
+        ]
+      },
+      "anchors": {
+        "waterfall_origin_right": [
+          -5.5,
+          0.04,
+          4.15
+        ],
+        "waterfall_end_right": [
+          -6.0,
+          -9.5,
+          4.8
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    }
+  ]
+}

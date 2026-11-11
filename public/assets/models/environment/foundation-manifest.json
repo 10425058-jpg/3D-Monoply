@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "generator": "tools/blender/generate_environment.py",
+  "blenderVersion": "5.2.3 LTS",
+  "milestone": "foundation",
+  "seed": 10425058,
+  "license": "Original procedural project assets; repository license applies",
+  "materials": "one embedded 128x128 surface atlas; shared PBR materials",
+  "assets": [
+    {
+      "id": "foundation-island",
+      "file": "foundation-island.glb",
+      "tier": "high",
+      "triangles": 2137,
+      "bytes": 239988,
+      "sha256": "dec46fa926d68d6e27bfb07fad04339477128eb6932d6b3978cf397d98939128",
+      "bounds": {
+        "min": [
+          -8.370369911193848,
+          -7.328304290771484,
+          -6.062526702880859
+        ],
+        "max": [
+          9.177776336669922,
+          0.2163248062133789,
+          6.771674156188965
+        ]
+      },
+      "anchors": {
+        "waterfall_origin_left": [
+          5.5,
+          0.04,
+          4.15
+        ],
+        "waterfall_end_left": [
+          6.0,
+          -9.5,
+          4.8
+        ]
+      },
+      "materials": [
+        "Carved sandstone",
+        "Lavender layered cliff",
+        "Meadow and moss"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    }
+  ]
+}

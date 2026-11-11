@@ -1,0 +1,2055 @@
+{
+  "schema": "monopoly.environment-glb-inspection.v1",
+  "valid": true,
+  "assets": [
+    {
+      "file": "cherry-blossom-low.glb",
+      "bytes": 35428,
+      "sha256": "7253ecf60d0356b6f86c234ea1c46f0fefa990be588f8f2f1930bb349c43a4b4",
+      "triangles": 316,
+      "triangleBudget": 12000,
+      "drawPrimitives": 2,
+      "meshes": [
+        {
+          "name": "Sakura_large_curved_trunk.003",
+          "triangles": 316,
+          "primitives": 2
+        }
+      ],
+      "nodes": 1,
+      "materials": 2,
+      "materialNames": [
+        "Warm carved timber",
+        "Sakura blossom clusters"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 36
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -2.0936636924743652,
+          -0.04102355241775513,
+          -1.7439576387405396
+        ],
+        "max": [
+          2.0977623462677,
+          4.077226161956787,
+          1.8357665538787842
+        ],
+        "extent": [
+          4.191426038742065,
+          4.118249714374542,
+          3.5797241926193237
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "cherry-blossom",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "cherry-blossom.glb",
+      "bytes": 81576,
+      "sha256": "a06c4ab06930a41333d32d311b514c784e39fbb31dfb0d15a7e524ad97603424",
+      "triangles": 1372,
+      "triangleBudget": 12000,
+      "drawPrimitives": 2,
+      "meshes": [
+        {
+          "name": "Sakura_large_curved_trunk.001",
+          "triangles": 1372,
+          "primitives": 2
+        }
+      ],
+      "nodes": 1,
+      "materials": 2,
+      "materialNames": [
+        "Warm carved timber",
+        "Sakura blossom clusters"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 42
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -2.1888887882232666,
+          -0.041790854185819626,
+          -1.825137972831726
+        ],
+        "max": [
+          2.2365522384643555,
+          4.260397911071777,
+          1.9932726621627808
+        ],
+        "extent": [
+          4.425441026687622,
+          4.302188765257597,
+          3.818410634994507
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "cherry-blossom",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "fantasy-airship-balanced.glb",
+      "bytes": 125052,
+      "sha256": "88a7ba49aa809197cbf47f174e5d18d36f898973f9e3cb2fb6c79bd7c81b7b91",
+      "triangles": 1860,
+      "triangleBudget": 6000,
+      "drawPrimitives": 5,
+      "meshes": [
+        {
+          "name": "Airship_embroidered_ivory_envelope.003",
+          "triangles": 1860,
+          "primitives": 5
+        }
+      ],
+      "nodes": 1,
+      "materials": 5,
+      "materialNames": [
+        "Ivory limestone",
+        "Brushed antique gold",
+        "Royal blue glazed slate",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 85
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -4.75,
+          -1.909999966621399,
+          -1.5499999523162842
+        ],
+        "max": [
+          4.029144287109375,
+          1.9600838422775269,
+          1.5499999523162842
+        ],
+        "extent": [
+          8.779144287109375,
+          3.870083808898926,
+          3.0999999046325684
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "fantasy-airship",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "fantasy-airship-low.glb",
+      "bytes": 105760,
+      "sha256": "fa0becb2a4ede57766066f3bd5f5628d07c9d7a7bed3e14abd01434d80290d50",
+      "triangles": 1332,
+      "triangleBudget": 4000,
+      "drawPrimitives": 5,
+      "meshes": [
+        {
+          "name": "Airship_embroidered_ivory_envelope.005",
+          "triangles": 1332,
+          "primitives": 5
+        }
+      ],
+      "nodes": 1,
+      "materials": 5,
+      "materialNames": [
+        "Ivory limestone",
+        "Brushed antique gold",
+        "Royal blue glazed slate",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 85
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -4.75,
+          -1.909999966621399,
+          -1.5499999523162842
+        ],
+        "max": [
+          4.029144287109375,
+          1.9600838422775269,
+          1.5499999523162842
+        ],
+        "extent": [
+          8.779144287109375,
+          3.870083808898926,
+          3.0999999046325684
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "fantasy-airship",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "fantasy-airship.glb",
+      "bytes": 164676,
+      "sha256": "750c5db840b342a223f60f778b1594622fc1ac38743c8d60895a5f466f21806a",
+      "triangles": 2740,
+      "triangleBudget": 6000,
+      "drawPrimitives": 5,
+      "meshes": [
+        {
+          "name": "Airship_embroidered_ivory_envelope.001",
+          "triangles": 2740,
+          "primitives": 5
+        }
+      ],
+      "nodes": 1,
+      "materials": 5,
+      "materialNames": [
+        "Ivory limestone",
+        "Brushed antique gold",
+        "Royal blue glazed slate",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 84
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -4.75,
+          -1.9730000495910645,
+          -1.5499999523162842
+        ],
+        "max": [
+          4.024590492248535,
+          1.964737892150879,
+          1.5499999523162842
+        ],
+        "extent": [
+          8.774590492248535,
+          3.9377379417419434,
+          3.0999999046325684
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "fantasy-airship",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "fantasy-house-low.glb",
+      "bytes": 86284,
+      "sha256": "a95b800bc5d12a7df4b8446b22e3e23134d25a03fa4a3c4094f6f20efd7a019e",
+      "triangles": 820,
+      "triangleBudget": 12000,
+      "drawPrimitives": 7,
+      "meshes": [
+        {
+          "name": "Cottage stone footing.051",
+          "triangles": 820,
+          "primitives": 7
+        }
+      ],
+      "nodes": 1,
+      "materials": 7,
+      "materialNames": [
+        "Carved sandstone",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Brushed antique gold",
+        "Warm carved timber",
+        "Lavender layered cliff",
+        "Warm lit glass"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 93
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -0.9327093362808228,
+          0.0,
+          -0.8950000405311584
+        ],
+        "max": [
+          0.9327093362808228,
+          2.882499933242798,
+          1.0699999332427979
+        ],
+        "extent": [
+          1.8654186725616455,
+          2.882499933242798,
+          1.9649999737739563
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "fantasy-house",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "fantasy-house.glb",
+      "bytes": 161392,
+      "sha256": "df681c892edce83e4328e28eee7ff2e6199770bba1117a7dc97b50777670e22e",
+      "triangles": 1812,
+      "triangleBudget": 12000,
+      "drawPrimitives": 7,
+      "meshes": [
+        {
+          "name": "Cottage stone footing.049",
+          "triangles": 1812,
+          "primitives": 7
+        }
+      ],
+      "nodes": 1,
+      "materials": 7,
+      "materialNames": [
+        "Carved sandstone",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Brushed antique gold",
+        "Warm carved timber",
+        "Lavender layered cliff",
+        "Warm lit glass"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 95
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -0.9327093362808228,
+          0.0,
+          -0.8950000405311584
+        ],
+        "max": [
+          0.9327093362808228,
+          2.882499933242798,
+          1.0759999752044678
+        ],
+        "extent": [
+          1.8654186725616455,
+          2.882499933242798,
+          1.9710000157356262
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "fantasy-house",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "foundation-island.glb",
+      "bytes": 239988,
+      "sha256": "dec46fa926d68d6e27bfb07fad04339477128eb6932d6b3978cf397d98939128",
+      "triangles": 2137,
+      "triangleBudget": 12000,
+      "drawPrimitives": 3,
+      "meshes": [
+        {
+          "name": "left_broken_cliff_strata.001",
+          "triangles": 2137,
+          "primitives": 3
+        }
+      ],
+      "nodes": 3,
+      "materials": 3,
+      "materialNames": [
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Carved sandstone"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 62
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -8.370369911193848,
+          -7.328304290771484,
+          -6.062526702880859
+        ],
+        "max": [
+          9.177776336669922,
+          0.2163248062133789,
+          6.771674156188965
+        ],
+        "extent": [
+          17.54814624786377,
+          7.544629096984863,
+          12.834200859069824
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "foundation-island",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_end_left.001",
+          "translation": [
+            6,
+            -9.5,
+            4.800000190734863
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_origin_left.001",
+          "translation": [
+            5.5,
+            0.03999999910593033,
+            4.150000095367432
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "garden-lantern-low.glb",
+      "bytes": 34988,
+      "sha256": "5b5093223186c7112f71e3e185742d401cddecb199e48f353dd4c60a30e837a0",
+      "triangles": 286,
+      "triangleBudget": 12000,
+      "drawPrimitives": 3,
+      "meshes": [
+        {
+          "name": "Lantern moulded foot.067",
+          "triangles": 286,
+          "primitives": 3
+        }
+      ],
+      "nodes": 1,
+      "materials": 3,
+      "materialNames": [
+        "Brushed antique gold",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 42
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -0.27000001072883606,
+          0.0,
+          -0.27000001072883606
+        ],
+        "max": [
+          0.27000001072883606,
+          2.1700000762939453,
+          0.27000001072883606
+        ],
+        "extent": [
+          0.5400000214576721,
+          2.1700000762939453,
+          0.5400000214576721
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "garden-lantern",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "garden-lantern.glb",
+      "bytes": 51416,
+      "sha256": "6c8c0f34bbe24fb0f0ac787614bc951d0386065cfae2e4c0c91f4a0246150820",
+      "triangles": 462,
+      "triangleBudget": 12000,
+      "drawPrimitives": 3,
+      "meshes": [
+        {
+          "name": "Lantern moulded foot.065",
+          "triangles": 462,
+          "primitives": 3
+        }
+      ],
+      "nodes": 1,
+      "materials": 3,
+      "materialNames": [
+        "Brushed antique gold",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 47
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -0.27000001072883606,
+          0.0,
+          -0.27000001072883606
+        ],
+        "max": [
+          0.27000001072883606,
+          2.1700000762939453,
+          0.27000001072883606
+        ],
+        "extent": [
+          0.5400000214576721,
+          2.1700000762939453,
+          0.5400000214576721
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "garden-lantern",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "royal-bridge-low.glb",
+      "bytes": 132756,
+      "sha256": "4883abb739e2693e3ab3045af0290465485cc190c25ef55b32d36bc1383cc693",
+      "triangles": 1784,
+      "triangleBudget": 12000,
+      "drawPrimitives": 3,
+      "meshes": [
+        {
+          "name": "Bridge curved arch spandrel.057",
+          "triangles": 1784,
+          "primitives": 3
+        }
+      ],
+      "nodes": 1,
+      "materials": 3,
+      "materialNames": [
+        "Carved sandstone",
+        "Ivory limestone",
+        "Brushed antique gold"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 42
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -3.0299999713897705,
+          0.0,
+          -0.6000000238418579
+        ],
+        "max": [
+          3.0299999713897705,
+          2.184000015258789,
+          0.6000000238418579
+        ],
+        "extent": [
+          6.059999942779541,
+          2.184000015258789,
+          1.2000000476837158
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "royal-bridge",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "royal-bridge.glb",
+      "bytes": 166300,
+      "sha256": "996a74a293e2d30c843ec92a2bb337b9d3f9014316fbbabea04b56538ce0e82e",
+      "triangles": 2440,
+      "triangleBudget": 12000,
+      "drawPrimitives": 3,
+      "meshes": [
+        {
+          "name": "Bridge curved arch spandrel.051",
+          "triangles": 2440,
+          "primitives": 3
+        }
+      ],
+      "nodes": 1,
+      "materials": 3,
+      "materialNames": [
+        "Carved sandstone",
+        "Ivory limestone",
+        "Brushed antique gold"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 42
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -3.0299999713897705,
+          0.0,
+          -0.6000000238418579
+        ],
+        "max": [
+          3.0299999713897705,
+          2.184000015258789,
+          0.6000000238418579
+        ],
+        "extent": [
+          6.059999942779541,
+          2.184000015258789,
+          1.2000000476837158
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "royal-bridge",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "royal-castle-low.glb",
+      "bytes": 363164,
+      "sha256": "c9d1ad50881b72624c60ebf35a5b613c21fea226a019b8b0ff9053083e56a027",
+      "triangles": 5495,
+      "triangleBudget": 8000,
+      "drawPrimitives": 7,
+      "meshes": [
+        {
+          "name": "Castle terrace plinth.019",
+          "triangles": 5495,
+          "primitives": 7
+        }
+      ],
+      "nodes": 1,
+      "materials": 7,
+      "materialNames": [
+        "Carved sandstone",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Brushed antique gold",
+        "Lavender layered cliff",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 122
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -3.25,
+          0.0,
+          -2.4000000953674316
+        ],
+        "max": [
+          3.25,
+          8.890000343322754,
+          2.8500001430511475
+        ],
+        "extent": [
+          6.5,
+          8.890000343322754,
+          5.250000238418579
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "royal-castle",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "royal-castle.glb",
+      "bytes": 1176212,
+      "sha256": "86f15ec118e440f7f117970f361d64f1490e1b859232cd193cb84ac5a47c9f81",
+      "triangles": 17795,
+      "triangleBudget": 20000,
+      "drawPrimitives": 7,
+      "meshes": [
+        {
+          "name": "Castle terrace plinth.017",
+          "triangles": 17795,
+          "primitives": 7
+        }
+      ],
+      "nodes": 1,
+      "materials": 7,
+      "materialNames": [
+        "Carved sandstone",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Brushed antique gold",
+        "Lavender layered cliff",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 125
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -3.25,
+          0.0,
+          -2.4000000953674316
+        ],
+        "max": [
+          3.25,
+          8.890000343322754,
+          2.8500001430511475
+        ],
+        "extent": [
+          6.5,
+          8.890000343322754,
+          5.250000238418579
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "royal-castle",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "royal-island-left-balanced.glb",
+      "bytes": 1684524,
+      "sha256": "b8c916c72953d4fea2b54576c08def890b7c455e6e832e3c4fd114ac8ff27381",
+      "triangles": 24722,
+      "triangleBudget": 25000,
+      "drawPrimitives": 10,
+      "meshes": [
+        {
+          "name": "left_broken_cliff_strata.003",
+          "triangles": 24722,
+          "primitives": 10
+        }
+      ],
+      "nodes": 3,
+      "materials": 10,
+      "materialNames": [
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Carved sandstone",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Brushed antique gold",
+        "Warm carved timber",
+        "Warm lit glass",
+        "Sakura blossom clusters",
+        "Deep evergreen foliage"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 181
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -8.29698657989502,
+          -7.029825687408447,
+          -5.908763408660889
+        ],
+        "max": [
+          8.926772117614746,
+          8.16100025177002,
+          6.843960762023926
+        ],
+        "extent": [
+          17.223758697509766,
+          15.190825939178467,
+          12.752724170684814
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "royal-island-left",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_end_left.001",
+          "translation": [
+            -6,
+            -9.5,
+            4.800000190734863
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_origin_left.001",
+          "translation": [
+            -5.5,
+            0.03999999910593033,
+            4.150000095367432
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "royal-island-left-distant.glb",
+      "bytes": 557368,
+      "sha256": "64eee89c658288933b5255fc2b853ae603e089890d7b0fd5a3937ebf320cf05a",
+      "triangles": 6495,
+      "triangleBudget": 8000,
+      "drawPrimitives": 10,
+      "meshes": [
+        {
+          "name": "left_broken_cliff_strata.007",
+          "triangles": 6495,
+          "primitives": 10
+        }
+      ],
+      "nodes": 3,
+      "materials": 10,
+      "materialNames": [
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Carved sandstone",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Brushed antique gold",
+        "Warm carved timber",
+        "Warm lit glass",
+        "Sakura blossom clusters",
+        "Deep evergreen foliage"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 175
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -8.45265007019043,
+          -7.029043197631836,
+          -5.937016010284424
+        ],
+        "max": [
+          8.90031623840332,
+          8.161001205444336,
+          6.812911510467529
+        ],
+        "extent": [
+          17.35296630859375,
+          15.190044403076172,
+          12.749927520751953
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "royal-island-left",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_end_left.001",
+          "translation": [
+            -6,
+            -9.5,
+            4.800000190734863
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_origin_left.001",
+          "translation": [
+            -5.5,
+            0.03999999910593033,
+            4.150000095367432
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "royal-island-left-low.glb",
+      "bytes": 922424,
+      "sha256": "d2f7efe3c3bfaf4e6c772f8c03a01830069328a49c1df7102271d045318386ae",
+      "triangles": 12990,
+      "triangleBudget": 16000,
+      "drawPrimitives": 10,
+      "meshes": [
+        {
+          "name": "left_broken_cliff_strata.005",
+          "triangles": 12990,
+          "primitives": 10
+        }
+      ],
+      "nodes": 3,
+      "materials": 10,
+      "materialNames": [
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Carved sandstone",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Brushed antique gold",
+        "Warm carved timber",
+        "Warm lit glass",
+        "Sakura blossom clusters",
+        "Deep evergreen foliage"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 178
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -8.45265007019043,
+          -7.029043197631836,
+          -5.937016010284424
+        ],
+        "max": [
+          8.90031623840332,
+          8.16100025177002,
+          6.812911510467529
+        ],
+        "extent": [
+          17.35296630859375,
+          15.190043449401855,
+          12.749927520751953
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "royal-island-left",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_end_left.001",
+          "translation": [
+            -6,
+            -9.5,
+            4.800000190734863
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_origin_left.001",
+          "translation": [
+            -5.5,
+            0.03999999910593033,
+            4.150000095367432
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "royal-island-left.glb",
+      "bytes": 2523008,
+      "sha256": "8d0effd56119e52bde37c99de9e0c8565f5238569d005364419f555ea50a12d4",
+      "triangles": 37766,
+      "triangleBudget": 40000,
+      "drawPrimitives": 10,
+      "meshes": [
+        {
+          "name": "left_broken_cliff_strata.001",
+          "triangles": 37766,
+          "primitives": 10
+        }
+      ],
+      "nodes": 3,
+      "materials": 10,
+      "materialNames": [
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Carved sandstone",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Brushed antique gold",
+        "Warm carved timber",
+        "Warm lit glass",
+        "Sakura blossom clusters",
+        "Deep evergreen foliage"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 190
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -8.370369911193848,
+          -7.328304290771484,
+          -6.062526702880859
+        ],
+        "max": [
+          9.177776336669922,
+          8.16100025177002,
+          6.771674156188965
+        ],
+        "extent": [
+          17.54814624786377,
+          15.489304542541504,
+          12.834200859069824
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "royal-island-left",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_end_left.001",
+          "translation": [
+            -6,
+            -9.5,
+            4.800000190734863
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_origin_left.001",
+          "translation": [
+            -5.5,
+            0.03999999910593033,
+            4.150000095367432
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "royal-island-right-balanced.glb",
+      "bytes": 1687152,
+      "sha256": "6de1c6fdc5dde9342d2c6e8abdfd30491e374b2c37e2e142b18437e4134ad89f",
+      "triangles": 24746,
+      "triangleBudget": 25000,
+      "drawPrimitives": 10,
+      "meshes": [
+        {
+          "name": "right_broken_cliff_strata.003",
+          "triangles": 24746,
+          "primitives": 10
+        }
+      ],
+      "nodes": 3,
+      "materials": 10,
+      "materialNames": [
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Carved sandstone",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Brushed antique gold",
+        "Warm carved timber",
+        "Warm lit glass",
+        "Sakura blossom clusters",
+        "Deep evergreen foliage"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 182
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -8.97620964050293,
+          -7.029825687408447,
+          -6.873772144317627
+        ],
+        "max": [
+          9.196624755859375,
+          7.935999870300293,
+          6.82266092300415
+        ],
+        "extent": [
+          18.172834396362305,
+          14.96582555770874,
+          13.696433067321777
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "royal-island-right",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_end_right.001",
+          "translation": [
+            6,
+            -9.5,
+            4.800000190734863
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_origin_right.001",
+          "translation": [
+            5.5,
+            0.03999999910593033,
+            4.150000095367432
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "royal-island-right-distant.glb",
+      "bytes": 559160,
+      "sha256": "94e4a213f1e740eec0e9a00cdc45f0945299cbeb125a2fa5fee2dd033727590f",
+      "triangles": 6506,
+      "triangleBudget": 8000,
+      "drawPrimitives": 10,
+      "meshes": [
+        {
+          "name": "right_broken_cliff_strata.007",
+          "triangles": 6506,
+          "primitives": 10
+        }
+      ],
+      "nodes": 3,
+      "materials": 10,
+      "materialNames": [
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Carved sandstone",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Brushed antique gold",
+        "Warm carved timber",
+        "Warm lit glass",
+        "Sakura blossom clusters",
+        "Deep evergreen foliage"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 176
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -8.366485595703125,
+          -7.029043197631836,
+          -6.585348606109619
+        ],
+        "max": [
+          9.140861511230469,
+          7.935999870300293,
+          6.815522193908691
+        ],
+        "extent": [
+          17.507347106933594,
+          14.965043067932129,
+          13.40087080001831
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "royal-island-right",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_end_right.001",
+          "translation": [
+            6,
+            -9.5,
+            4.800000190734863
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_origin_right.001",
+          "translation": [
+            5.5,
+            0.03999999910593033,
+            4.150000095367432
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "royal-island-right-low.glb",
+      "bytes": 925016,
+      "sha256": "7c944b016b92e9715615b9993a609b72ef0b961725379525ff7fbe921f791bcb",
+      "triangles": 13014,
+      "triangleBudget": 16000,
+      "drawPrimitives": 10,
+      "meshes": [
+        {
+          "name": "right_broken_cliff_strata.005",
+          "triangles": 13014,
+          "primitives": 10
+        }
+      ],
+      "nodes": 3,
+      "materials": 10,
+      "materialNames": [
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Carved sandstone",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Brushed antique gold",
+        "Warm carved timber",
+        "Warm lit glass",
+        "Sakura blossom clusters",
+        "Deep evergreen foliage"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 180
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -8.366485595703125,
+          -7.029043197631836,
+          -6.585348606109619
+        ],
+        "max": [
+          9.140861511230469,
+          7.935999870300293,
+          6.815522193908691
+        ],
+        "extent": [
+          17.507347106933594,
+          14.965043067932129,
+          13.40087080001831
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "royal-island-right",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_end_right.001",
+          "translation": [
+            6,
+            -9.5,
+            4.800000190734863
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_origin_right.001",
+          "translation": [
+            5.5,
+            0.03999999910593033,
+            4.150000095367432
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "royal-island-right.glb",
+      "bytes": 2526088,
+      "sha256": "fe1f2d222ecb5f960c67b18af1309da7d08a3bba4ee6f4b5e4060413f80080aa",
+      "triangles": 37798,
+      "triangleBudget": 40000,
+      "drawPrimitives": 10,
+      "meshes": [
+        {
+          "name": "right_broken_cliff_strata.001",
+          "triangles": 37798,
+          "primitives": 10
+        }
+      ],
+      "nodes": 3,
+      "materials": 10,
+      "materialNames": [
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Carved sandstone",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Brushed antique gold",
+        "Warm carved timber",
+        "Warm lit glass",
+        "Sakura blossom clusters",
+        "Deep evergreen foliage"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 190
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -9.09660816192627,
+          -7.328304290771484,
+          -6.586582183837891
+        ],
+        "max": [
+          9.275967597961426,
+          7.935999870300293,
+          6.7368855476379395
+        ],
+        "extent": [
+          18.372575759887695,
+          15.264304161071777,
+          13.32346773147583
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "royal-island-right",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_end_right.001",
+          "translation": [
+            6,
+            -9.5,
+            4.800000190734863
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_origin_right.001",
+          "translation": [
+            5.5,
+            0.03999999910593033,
+            4.150000095367432
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    }
+  ],
+  "failures": []
+}

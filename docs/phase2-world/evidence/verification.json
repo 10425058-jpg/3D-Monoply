@@ -1,0 +1,9 @@
+{
+  "build": { "command": "npm run build", "passed": true },
+  "unitTests": { "command": "node --test tests/*.test.mjs", "passed": true, "tests": 45 },
+  "assetInspection": { "command": "python tools/blender/validate_assets.py --manifest public/assets/models/environment/manifest.json", "passed": true, "glbs": 22, "report": "milestone-c/asset-validation.json" },
+  "matchedCameraAudit": { "command": "node scripts/phase2-audit.mjs after", "passed": true, "qualityTiers": ["low", "balanced", "high"], "cameras": ["overview", "three-quarter"], "warmupMs": 4000, "sampleMs": 5000, "report": "after/summary.json" },
+  "gameplayBrowserRegression": { "command": "GRAPHICS_REGRESSION_OUT=docs/phase2-world/evidence/regression node scripts/graphics-regression.mjs", "passed": true, "report": "regression/results.json" },
+  "motionBrowserRegression": { "command": "node scripts/environment-regression.mjs", "passed": true, "report": "regression/environment-motion.json" },
+  "cliHelp": { "command": "blender --background --factory-startup --python-exit-code 1 --python tools/blender/generate_environment.py -- --help", "passed": true, "blender": "5.2.3 LTS" }
+}

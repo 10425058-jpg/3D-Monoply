@@ -1,0 +1,112 @@
+{
+  "schema": "monopoly.environment-glb-inspection.v1",
+  "valid": true,
+  "assets": [
+    {
+      "file": "foundation-island.glb",
+      "bytes": 239988,
+      "sha256": "dec46fa926d68d6e27bfb07fad04339477128eb6932d6b3978cf397d98939128",
+      "triangles": 2137,
+      "triangleBudget": 12000,
+      "drawPrimitives": 3,
+      "meshes": [
+        {
+          "name": "left_broken_cliff_strata.001",
+          "triangles": 2137,
+          "primitives": 3
+        }
+      ],
+      "nodes": 3,
+      "materials": 3,
+      "materialNames": [
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Carved sandstone"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 62
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -8.370369911193848,
+          -7.328304290771484,
+          -6.062526702880859
+        ],
+        "max": [
+          9.177776336669922,
+          0.2163248062133789,
+          6.771674156188965
+        ],
+        "extent": [
+          17.54814624786377,
+          7.544629096984863,
+          12.834200859069824
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "foundation-island",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_end_left.001",
+          "translation": [
+            6,
+            -9.5,
+            4.800000190734863
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_origin_left.001",
+          "translation": [
+            5.5,
+            0.03999999910593033,
+            4.150000095367432
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    }
+  ],
+  "failures": []
+}
