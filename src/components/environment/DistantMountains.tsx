@@ -2,39 +2,50 @@ import { useEffect, useMemo } from 'react';
 import * as THREE from 'three';
 import type { EnvironmentQuality } from './environmentLayout';
 import { MOUNTAIN_LAYERS, mountainHeight } from './atmosphereLayout';
+import { variation } from './environmentLayout';
 
-/** Four independent distant ridge curtains, batched into one unlit draw.
- * No annular ground connects them to each other or to the gameplay board. */
+/** Four distant ridges with actual crest/flank depth, batched into one draw.
+ * Disconnected from gameplay; no land surface fills the board's open column. */
 export function DistantMountains({ quality }: { quality: EnvironmentQuality }) {
   const geometry = useMemo(() => {
-    const segments = quality === 'low' ? 96 : quality === 'balanced' ? 144 : 192;
+    const segments = quality === 'low' ? 80 : quality === 'balanced' ? 160 : 224;
+    const rows = quality === 'low' ? 3 : quality === 'balanced' ? 5 : 7;
     const positions: number[] = [], colors: number[] = [], opacity: number[] = [], indices: number[] = [];
     MOUNTAIN_LAYERS.forEach((layer,layerIndex) => {
       const offset = positions.length/3;
-      const baseColor = new THREE.Color(layer.color), warm = new THREE.Color('#e7b5b8');
-      for (let row=0;row<3;row++) for (let i=0;i<=segments;i++) {
+      const baseColor = new THREE.Color(layer.color);
+      for (let row=0;row<rows;row++) for (let i=0;i<=segments;i++) {
         const angle = i/segments*Math.PI*2;
-        const height = mountainHeight(angle,layerIndex);
-        const radius = layer.radius+row*2;
-        const drop = row === 0 ? 0 : row === 1 ? 13+layerIndex*2 : 45;
+        const height = mountainHeight(angle+Math.sin(row)*.018,layerIndex);
+        const radius = layer.radius+row*5.5;
+        const drop = Math.abs(row-(rows-1)*.30)*7.5 + variation(i%segments+row*31,layerIndex+915)*2.5;
         positions.push(Math.sin(angle)*radius,height-drop,Math.cos(angle)*radius);
-        const slope = (mountainHeight(angle+.012,layerIndex)-mountainHeight(angle-.012,layerIndex))/.024;
-        const illumination = .90+Math.max(-.12,Math.min(.10,-slope*.003));
-        const color = baseColor.clone().lerp(warm,Math.max(0,Math.cos(angle-2.75))*.10)
-          .multiplyScalar(illumination*(row === 1 ? .94 : 1));
+        const color = baseColor.clone();
         colors.push(color.r,color.g,color.b);
-        opacity.push(row === 2 ? 0 : layer.opacity);
-        if (row<2 && i<segments) {
+        opacity.push(row === 0 || row === rows-1 ? 0 : layer.opacity);
+        if (row<rows-1 && i<segments) {
           const a=offset+row*(segments+1)+i,b=a+segments+1;
           indices.push(a,b,a+1,a+1,b,b+1);
         }
       }
     });
-    const result = new THREE.BufferGeometry();
+    let result = new THREE.BufferGeometry();
     result.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
     result.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
     result.setAttribute('ridgeOpacity',new THREE.Float32BufferAttribute(opacity,1));
-    result.setIndex(indices); result.computeBoundingSphere();
+    result.setIndex(indices);
+    const surface=result.toNonIndexed();result.dispose();result=surface;
+    result.computeVertexNormals(); result.computeBoundingSphere();
+    // Directional modelling is baked into vertex colour: real flanks read as
+    // rock massifs without extra lights, shadows, textures or fragment noise.
+    const normals=result.getAttribute('normal'), tint=result.getAttribute('color');
+    const sun=new THREE.Vector3(.55,.72,-.65).normalize(), warm=new THREE.Color('#f2c4aa');
+    for(let i=0;i<tint.count;i++) {
+      const facing=Math.max(0,normals.getX(i)*sun.x+normals.getY(i)*sun.y+normals.getZ(i)*sun.z);
+      const color=new THREE.Color(tint.getX(i),tint.getY(i),tint.getZ(i));
+      color.lerp(warm,facing*.18).multiplyScalar(.54+facing*.46);
+      tint.setXYZ(i,color.r,color.g,color.b);
+    }
     return result;
   },[quality]);
   useEffect(() => () => geometry.dispose(),[geometry]);

@@ -1,0 +1,73 @@
+{
+  "build": {
+    "passed": true,
+    "command": "npm run build",
+    "bundle": "assets/index-GjDTeCLA.js"
+  },
+  "unitTests": {
+    "passed": true,
+    "count": 47,
+    "command": "node --test tests/*.test.mjs"
+  },
+  "binaryAssets": {
+    "passed": true,
+    "count": 22
+  },
+  "pairedCameraAudit": {
+    "passed": true,
+    "windows": 24,
+    "runOrders": [
+      "A/B",
+      "B/A"
+    ],
+    "report": "controlled-release/runs.json"
+  },
+  "sustainedHighOverview": {
+    "windows": 4,
+    "sampleMs": 20000,
+    "warmupMs": 10000,
+    "report": "high-sustained/runs.json"
+  },
+  "gameplay": {
+    "passed": true,
+    "report": "regression/results.json"
+  },
+  "contextRecovery": {
+    "passed": true,
+    "results": [
+      {
+        "quality": "low",
+        "contextLost": true,
+        "contextRestored": true,
+        "skyPixelsIdentical": 24700,
+        "dpr": 0.9,
+        "errors": []
+      },
+      {
+        "quality": "balanced",
+        "contextLost": true,
+        "contextRestored": true,
+        "skyPixelsIdentical": 24700,
+        "dpr": 1,
+        "errors": []
+      },
+      {
+        "quality": "high",
+        "contextLost": true,
+        "contextRestored": true,
+        "skyPixelsIdentical": 24700,
+        "dpr": 1,
+        "errors": []
+      }
+    ]
+  },
+  "motion": {
+    "passed": true,
+    "report": "regression/environment-motion.json"
+  },
+  "staticTileStrip": {
+    "passed": true,
+    "pixels": 14700,
+    "report": "static-tile-strip.json"
+  }
+}

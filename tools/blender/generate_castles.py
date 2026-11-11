@@ -70,6 +70,40 @@ def _hip_roof(materials, width, depth, height, location, name="Hipped slate roof
     return objects
 
 
+def _gable_roof(materials, width, depth, height, location, name="Royal chapel roof"):
+    """Swept pitched nave with an ivory gable and gilded verge/ridge."""
+    w,d=width/2,depth/2
+    profile=[(-w*1.08,0),(-w*.88,height*.26),(-w*.48,height*.72),(0,height),
+             (w*.48,height*.72),(w*.88,height*.26),(w*1.08,0)]
+    vertices=[(x,y,z) for y in [-d,d] for x,z in profile]
+    faces=[(i,i+1,i+8,i+7) for i in range(6)]
+    objects=[mesh(name+" swept slate pitches",vertices,faces,materials["blue"],location)]
+    x,y,z=location
+    objects.append(mesh(name+" ivory tympanum",[(-w,-.01,0),(w,-.01,0),(0,-.01,height*.95)],
+                        [(0,1,2)],materials["ivory"],(x,y-d,z)))
+    objects.append(mesh(name+" rear tympanum",[(-w,.01,0),(w,.01,0),(0,.01,height*.95)],
+                        [(2,1,0)],materials["ivory"],(x,y+d,z)))
+    objects.append(tube(name+" gold front verge",[(x+px,y-d-.025,z+pz+.02) for px,pz in profile],.025,materials["gold"],sides=4))
+    objects.append(tube(name+" gilded ridge",[(x,y-d,z+height+.03),(x,y+d,z+height+.03)],.035,materials["gold"],sides=5))
+    return objects
+
+
+def _loggia(materials, detail):
+    """A genuinely open three-bay gallery replaces one palace wing/turret."""
+    objects=[]
+    for index in range(3):
+        x=-2.03+(index-1)*.53
+        objects.append(arch("Palace open arcade",.46,1.42,.18,(x,-1.10,.58),materials["ivory"],.055,6 if detail=="low" else 9))
+    objects.append(box("Loggia balcony slab",(-2.03,-1.10,2.08),(1.82,.66,.15),materials["stone"],.025))
+    objects.append(box("Loggia upper chamber",(-2.03,.30,2.20),(1.75,1.90,.82),materials["ivory"],.045))
+    objects.extend(_gable_roof(materials,1.95,2.20,1.18,(-2.03,.30,2.61),"West gallery gable"))
+    if detail!="low":
+        for index in range(7):
+            objects.append(lathe("Loggia slender baluster",[(.035,0),(.055,.12),(.026,.31)],5,materials["stone"],(-2.80+index*.255,-1.35,2.15)))
+        objects.append(box("Loggia golden handrail",(-2.03,-1.35,2.49),(1.72,.055,.055),materials["gold"],0))
+    return objects
+
+
 def _heraldry(materials, location, scale=1):
     x,y,z=location
     shield=[(-.28,0,.50),(.28,0,.50),(.25,0,.15),(0,0,0),(-.25,0,.15)]
@@ -92,7 +126,12 @@ def generate_castle(materials, variant="left", detail="high", origin=(0,0,0), sc
     objects.append(box("Keep carved entrance lintel",(0,-.78,3.9),(2.7,.76,.95),materials["ivory"],.045))
     for floor in [.6,2.3,3.4,4.35]:
         objects.append(box("Keep cornice",(0,.1,floor),(2.86,2.55,.13),materials["stone"],.025))
-    objects.extend(_hip_roof(materials,3.1,2.8,1.1,(0,.12,4.4)))
+    if right:
+        objects.extend(_gable_roof(materials,3.1,2.8,1.72,(0,.12,4.4),"Palace vaulted nave"))
+        objects.extend(_window(materials,(0,-1.31,4.58),.43,1.02,0,detail,"Nave gilded lancet"))
+    else:
+        objects.extend(_hip_roof(materials,3.1,2.8,1.1,(0,.12,4.4)))
+        objects.extend(_gable_roof(materials,1.20,.48,.90,(0,-1.28,3.96),"Gatehouse heraldic pediment"))
     # Paired arched doorway skins sit 0.3m behind the actual projecting surround.
     objects.append(arch_panel("Entrance deep shadow reveal",1.47,2.6,.05,(0,-1.105,.4),materials["rock"],12))
     objects.append(arch_panel("Heavy arched oak doors",1.22,2.4,.05,(0,-1.16,.42),materials["wood"],12))
@@ -106,6 +145,9 @@ def generate_castle(materials, variant="left", detail="high", origin=(0,0,0), sc
         objects.append(box("Ceremonial stone stair",(0,-1.92-step*.18,.30-step*.055),(2.1+step*.17,.42,.14),materials["stone"],.025))
     for side in [-1,1]:
         wing_x=side*2.03
+        if right and side==-1:
+            objects.extend(_loggia(materials,detail))
+            continue
         objects.append(box("Castle side wing",(wing_x,.15,1.5),(1.75,2.38,2.33),materials["ivory"],.06))
         objects.append(box("Wing projecting footing",(wing_x,.15,.50),(1.89,2.50,.20),materials["stone"],.025))
         objects.extend(_hip_roof(materials,2.05,2.7,.87,(wing_x,.15,2.74),"Wing hipped roof"))
@@ -113,13 +155,15 @@ def generate_castle(materials, variant="left", detail="high", origin=(0,0,0), sc
             objects.extend(_window(materials,(wing_x+wx,-1.07,1.23),.31,.73,0,detail,"Wing lancet"))
         objects.extend(_heraldry(materials,(wing_x,-1.11,2.03),.7))
     # Vary the rear silhouette, tower hierarchy and offsets between left/right.
-    central=(.48,.84,.42) if right else (-.20,.87,.42)
-    objects.extend(_tower(materials,central,.74,5.45 if right else 5.85,2.00 if right else 1.85,detail,"Grand rear spire"))
+    central=(1.30,1.20,.42) if right else (-.20,.87,.42)
+    objects.extend(_tower(materials,central,.74,5.90 if right else 5.85,2.15 if right else 1.85,detail,"Grand rear spire"))
     for side in [-1,1]:
         x=side*2.45
         h=3.55+(side*.28 if right else 0)
-        objects.extend(_tower(materials,(x,.95,.39),.61,h,1.45,detail,"Rear flanking tower"))
-        objects.extend(_tower(materials,(side*1.32,-1.0,.39),.43,2.75,1.15,detail,"Entrance turret"))
+        if not right or side==-1:
+            objects.extend(_tower(materials,(x,.95,.39),.61,h,1.45,detail,"Rear flanking tower"))
+        if not right or side==1:
+            objects.extend(_tower(materials,(side*1.32,-1.0,.39),.43,3.25 if right else 2.75,1.32 if right else 1.15,detail,"Entrance turret"))
     # The front keep's upper windows remain readable between the turrets.
     for x in [-.73,.73]:
         objects.extend(_window(materials,(x,-1.12,3.45),.27,.69,0,detail,"Upper keep lancet"))

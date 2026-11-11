@@ -8,7 +8,7 @@ import { createHash } from 'node:crypto';
 // 1440x900 CSS pixels, DPR 1, 4s warmup, 5s per camera, all quality tiers.
 // This measures this browser/GPU, not a promise of student-laptop performance.
 const label = process.argv[2] || 'after';
-const out = path.resolve('docs/fantasy-polish/evidence', label);
+const out = path.resolve(process.env.AUDIT_EVIDENCE_ROOT || 'docs/fantasy-polish/evidence', label);
 const origin = process.env.AUDIT_URL || 'http://127.0.0.1:4175';
 const qualities = process.env.AUDIT_QUALITIES?.split(',') || ['low', 'balanced', 'high'];
 const sampleMs = Number(process.env.AUDIT_SAMPLE_MS || 5000);

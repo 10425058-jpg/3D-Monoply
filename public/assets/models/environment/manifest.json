@@ -11,9 +11,9 @@
       "id": "royal-island-left",
       "file": "royal-island-left.glb",
       "tier": "high",
-      "triangles": 37998,
-      "bytes": 2555044,
-      "sha256": "4b5cb4db4f7b84f97c9ccd5e116d9a8e24639bf53b2c80a7f5068fa4fe5c44e4",
+      "triangles": 38080,
+      "bytes": 2559096,
+      "sha256": "0f23f0ecb97d052296a54301b40781000b6bd106c68ca57f211032e94adc7234",
       "bounds": {
         "min": [
           -9.222052574157715,
@@ -82,9 +82,9 @@
       "id": "royal-island-left",
       "file": "royal-island-left-balanced.glb",
       "tier": "balanced",
-      "triangles": 23946,
-      "bytes": 1661112,
-      "sha256": "b3733497d1691672b2e61ef376df032731cd7a2afd8621f1bf18cf40798c8ed2",
+      "triangles": 24028,
+      "bytes": 1665164,
+      "sha256": "9255d8ed79131ff449d55b79fbf48bcd105c9cb3af252e02f263b629aebc409d",
       "bounds": {
         "min": [
           -9.686012268066406,
@@ -153,9 +153,9 @@
       "id": "royal-island-left",
       "file": "royal-island-left-low.glb",
       "tier": "low",
-      "triangles": 13086,
-      "bytes": 932692,
-      "sha256": "bf58b83a24a62db27c116fea55e4c5e52cd34413beb6cdf36c5ae9d11caf7b05",
+      "triangles": 13168,
+      "bytes": 936744,
+      "sha256": "4d01a7e8f877a99dc51f7133556207b05df56ca849805b9a65058c7055b0bb59",
       "bounds": {
         "min": [
           -9.214414596557617,
@@ -224,9 +224,9 @@
       "id": "royal-island-left",
       "file": "royal-island-left-distant.glb",
       "tier": "distant",
-      "triangles": 6542,
-      "bytes": 567932,
-      "sha256": "b0dcc7623e15aba2563b47155c9aafdb511a886e377c692b9b755aa4d9402307",
+      "triangles": 6584,
+      "bytes": 570104,
+      "sha256": "f27b24d589500c9d763240dc33fa02fe4abdcb03922fe86382b24c16d9ac7563",
       "bounds": {
         "min": [
           -9.214414596557617,
@@ -295,9 +295,9 @@
       "id": "royal-island-right",
       "file": "royal-island-right.glb",
       "tier": "high",
-      "triangles": 36703,
-      "bytes": 2437256,
-      "sha256": "aaecf3bd9abeb2a34b2741ecbb3fdfbcdfbf842d60b709d7e3757b66dceb3a24",
+      "triangles": 31387,
+      "bytes": 2113320,
+      "sha256": "b6a4943b78e0091e119dd3eb5bdd975c4619f22b8817ff040ab3c2537cf42ee7",
       "bounds": {
         "min": [
           -8.693978309631348,
@@ -306,7 +306,7 @@
         ],
         "max": [
           10.086484909057617,
-          8.656000137329102,
+          9.195999145507812,
           7.909859657287598
         ]
       },
@@ -366,9 +366,9 @@
       "id": "royal-island-right",
       "file": "royal-island-right-balanced.glb",
       "tier": "balanced",
-      "triangles": 23311,
-      "bytes": 1604520,
-      "sha256": "d02f88b08f44035b0e2dc200164b244986762967c3c87061467d30afaf7e9e23",
+      "triangles": 20731,
+      "bytes": 1453636,
+      "sha256": "16ca97c99a3af936be4ad2531cb62c33e8badc55e0da7934d20813850360452a",
       "bounds": {
         "min": [
           -8.628495216369629,
@@ -377,7 +377,7 @@
         ],
         "max": [
           9.952397346496582,
-          8.656000137329102,
+          9.195999145507812,
           7.896437168121338
         ]
       },
@@ -437,9 +437,9 @@
       "id": "royal-island-right",
       "file": "royal-island-right-low.glb",
       "tier": "low",
-      "triangles": 12649,
-      "bytes": 893332,
-      "sha256": "b2badd476111e4cf529f8812e7f7eb4f1d37745b04369cad593e4c7d48a14296",
+      "triangles": 11387,
+      "bytes": 824316,
+      "sha256": "3bb16297299e7d2d47e80e902d5852e2cf1d4b5dd7f28de592c2b6aacf5d9ab5",
       "bounds": {
         "min": [
           -8.094136238098145,
@@ -448,7 +448,7 @@
         ],
         "max": [
           9.952397346496582,
-          8.656000137329102,
+          9.195999145507812,
           7.885483264923096
         ]
       },
@@ -508,9 +508,9 @@
       "id": "royal-island-right",
       "file": "royal-island-right-distant.glb",
       "tier": "distant",
-      "triangles": 6323,
-      "bytes": 539516,
-      "sha256": "770fddf5b87012f25db103e910a035ab8df3e75a18851481f971b3c964b1181b",
+      "triangles": 5693,
+      "bytes": 503096,
+      "sha256": "0b36223e5417db4ddac69685ca9582ef1e363be69632b802706f091181ab5ab6",
       "bounds": {
         "min": [
           -8.094136238098145,
@@ -519,7 +519,7 @@
         ],
         "max": [
           9.952397346496582,
-          8.656000137329102,
+          9.195999145507812,
           7.885483264923096
         ]
       },
