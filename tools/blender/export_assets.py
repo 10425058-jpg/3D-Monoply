@@ -23,6 +23,8 @@ def export_glb(objects, destination, asset_id, detail, seed, metadata=None):
             clone = bpy.data.objects.new(source.name, None)
             bpy.context.collection.objects.link(clone)
             clone.matrix_world = source.matrix_world.copy()
+            for key, value in source.items():
+                clone[key] = value
             clone["role"] = "effect-anchor"
             staging.append(clone)
         elif source.type == "MESH":

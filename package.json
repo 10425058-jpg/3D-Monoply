@@ -15,7 +15,8 @@
     "test:graphics-browser": "node scripts/graphics-regression.mjs",
     "test:environment-assets": "node --test tests/environment-assets.test.mjs",
     "audit:environment": "node scripts/phase2-audit.mjs",
-    "test:environment-browser": "node scripts/environment-regression.mjs"
+    "test:environment-browser": "node scripts/environment-regression.mjs",
+    "audit:fantasy-polish": "node scripts/atmosphere-audit.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^9.105.4",

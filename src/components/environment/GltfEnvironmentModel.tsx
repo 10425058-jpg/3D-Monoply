@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
+import { finishEnvironmentMaterial } from './environmentMaterial';
 
 export interface EnvironmentPlacement {
   position: [number, number, number];
@@ -23,16 +24,7 @@ export function GltfEnvironmentModel({ file, placements, name, atmosphere = 0 }:
     scene.traverse(object => {
       if (!(object instanceof THREE.Mesh)) return;
       if (Array.isArray(object.material)) throw new Error(`Unsplit GLB material group: ${file}`);
-      const material = object.material.clone();
-      // Atmospheric separation is supplied by the sky/cloud layers. Avoid the
-      // scene's near gameplay fog bleaching these already distant PBR assets.
-      material.fog = false;
-      if (atmosphere && material instanceof THREE.MeshStandardMaterial) {
-        material.color.lerp(new THREE.Color('#c1b4d9'), atmosphere);
-        material.emissive.lerp(new THREE.Color('#81789d'), atmosphere);
-        material.emissiveIntensity = Math.max(material.emissiveIntensity, atmosphere);
-        material.metalness *= 1-atmosphere;
-      }
+      const material = finishEnvironmentMaterial(object.material, atmosphere);
       result.push({ geometry: object.geometry, material, matrix: object.matrixWorld.clone() });
     });
     return result;

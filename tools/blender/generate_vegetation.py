@@ -23,7 +23,7 @@ def _canopy_data(detail, material, tint_index):
     obj.name = f"Sakura_cluster_source_{detail}_{tint_index}"
     for vertex in obj.data.vertices:
         x, y, z = vertex.co
-        ripple = 1 + .065 * math.sin(x * 5 + y * 2.4) * math.cos(z * 4 - x)
+        ripple = 1 + .095 * math.sin(x * 5 + y * 2.4) * math.cos(z * 4 - x) + .035 * math.sin(y*7-z*3)
         vertex.co *= ripple
     obj.data.materials.append(material)
     for face in obj.data.polygons:
@@ -55,7 +55,7 @@ def _cluster(name, location, scale, material, detail, tint_index=0, rotation=0):
     return obj
 
 
-def generate_tree(materials, variant="large", detail="high", origin=(0, 0, 0), scale=1):
+def generate_tree(materials, variant="large", detail="high", origin=(0, 0, 0), scale=1, form="spreading"):
     """Generate a large / medium / small flowering tree, return local objects.
 
     High: ~1.4k triangles; low: <400. Cluster mesh data is shared across all
@@ -68,6 +68,8 @@ def generate_tree(materials, variant="large", detail="high", origin=(0, 0, 0), s
     size = {"large": 1, "medium": .78, "small": .55}.get(variant, 1)
     phase = rng.uniform(-.2, .2)
     trunk = [(0, 0, 0), (.10, .03, .55), (-.08, .06, 1.25), (.15, .13, 1.95), (.33, .10, 2.55)]
+    if form == "windward":
+        trunk = [(x+z*.18,y-z*.04,z) for x,y,z in trunk]
     objects = [tube(f"Sakura_{variant}_curved_trunk", trunk, [.23, .20, .16, .12, .055], materials["wood"], sides=sides)]
     root_count = 3 if low else 5
     for i in range(root_count):
@@ -84,12 +86,16 @@ def generate_tree(materials, variant="large", detail="high", origin=(0, 0, 0), s
         outer = i < (5 if low else 8)
         angle = i * 2.399963 + phase
         radial = (1.35 if outer else .65) * rng.uniform(.9, 1.12)
+        radial *= 1.15 if form == "umbrella" else .73 if form == "upright" else 1
         x = math.cos(angle) * radial
         y = math.sin(angle) * radial * .83
         z = (2.75 if outer else 3.45) + rng.uniform(-.12, .22)
+        if form == "umbrella": z -= .28
+        if form == "upright": z += .25 + .12*math.sin(angle)
+        if form == "windward": x += .5; y -= .12
         radius = rng.uniform(.78, 1.0) if outer else rng.uniform(.72, .87)
         objects.append(_cluster(f"Sakura_{variant}_blossom_{i:02d}", (x, y, z),
-                                (radius, radius * .89, radius * .76), materials["blossom"], detail,
+                                (radius, radius * .89, radius * (.57 if form == "umbrella" else .96 if form == "upright" else .70)), materials["blossom"], detail,
                                 (i + (1 if not outer else 0)) % 3, angle))
         if outer and (not low or i < 4):
             branch_start = (.03, .07, 1.30 + (i % 3) * .21)
