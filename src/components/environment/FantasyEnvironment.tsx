@@ -12,7 +12,7 @@ export function FantasyEnvironment({ quality = 'balanced' }: { quality?: Environ
   const { reducedMotion, visible } = useMotionPreferences();
   const animate = visible && !reducedMotion;
   return <group name="fantasy-outer-environment">
-    <FantasySky animate={animate} />
+    <FantasySky animate={animate} quality={quality} />
     <FantasySun />
     <DistantMountains quality={quality} />
     <Suspense fallback={null}><PremiumFantasyWorld quality={quality} animate={animate} /></Suspense>

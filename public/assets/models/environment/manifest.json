@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "generator": "tools/blender/generate_environment.py",
   "blenderVersion": "5.2.3 LTS",
-  "milestone": "nature",
+  "milestone": "final",
   "seed": 10425058,
   "license": "Original procedural project assets; repository license applies",
   "materials": "one embedded 128x128 surface atlas; shared PBR materials",
@@ -11,31 +11,51 @@
       "id": "royal-island-left",
       "file": "royal-island-left.glb",
       "tier": "high",
-      "triangles": 37766,
-      "bytes": 2523008,
-      "sha256": "8d0effd56119e52bde37c99de9e0c8565f5238569d005364419f555ea50a12d4",
+      "triangles": 37998,
+      "bytes": 2555044,
+      "sha256": "4b5cb4db4f7b84f97c9ccd5e116d9a8e24639bf53b2c80a7f5068fa4fe5c44e4",
       "bounds": {
         "min": [
-          -8.370369911193848,
-          -7.328304290771484,
-          -6.062526702880859
+          -9.222052574157715,
+          -9.334640502929688,
+          -5.365522384643555
         ],
         "max": [
-          9.177776336669922,
+          10.636165618896484,
           8.16100025177002,
-          6.771674156188965
+          6.467226028442383
         ]
       },
       "anchors": {
-        "waterfall_origin_left": [
-          -5.5,
+        "watercourse_0_left": [
+          -3.0,
+          0.085,
+          1.6
+        ],
+        "watercourse_1_left": [
+          -4.2,
+          0.07,
+          2.3
+        ],
+        "watercourse_2_left": [
+          -5.4,
+          0.06,
+          3.1
+        ],
+        "watercourse_3_left": [
+          -6.4,
           0.04,
-          4.15
+          3.7
+        ],
+        "waterfall_origin_left": [
+          -6.4,
+          0.04,
+          3.7
         ],
         "waterfall_end_left": [
-          -6.0,
-          -9.5,
-          4.8
+          -7.1,
+          -11.5,
+          4.55
         ]
       },
       "materials": [
@@ -62,31 +82,51 @@
       "id": "royal-island-left",
       "file": "royal-island-left-balanced.glb",
       "tier": "balanced",
-      "triangles": 24722,
-      "bytes": 1684524,
-      "sha256": "b8c916c72953d4fea2b54576c08def890b7c455e6e832e3c4fd114ac8ff27381",
+      "triangles": 23946,
+      "bytes": 1661112,
+      "sha256": "b3733497d1691672b2e61ef376df032731cd7a2afd8621f1bf18cf40798c8ed2",
       "bounds": {
         "min": [
-          -8.29698657989502,
-          -7.029825687408447,
-          -5.908763408660889
+          -9.686012268066406,
+          -8.955757141113281,
+          -5.326354503631592
         ],
         "max": [
-          8.926772117614746,
+          10.488056182861328,
           8.16100025177002,
-          6.843960762023926
+          6.438549041748047
         ]
       },
       "anchors": {
-        "waterfall_origin_left": [
-          -5.5,
+        "watercourse_0_left": [
+          -3.0,
+          0.085,
+          1.6
+        ],
+        "watercourse_1_left": [
+          -4.2,
+          0.07,
+          2.3
+        ],
+        "watercourse_2_left": [
+          -5.4,
+          0.06,
+          3.1
+        ],
+        "watercourse_3_left": [
+          -6.4,
           0.04,
-          4.15
+          3.7
+        ],
+        "waterfall_origin_left": [
+          -6.4,
+          0.04,
+          3.7
         ],
         "waterfall_end_left": [
-          -6.0,
-          -9.5,
-          4.8
+          -7.1,
+          -11.5,
+          4.55
         ]
       },
       "materials": [
@@ -113,31 +153,51 @@
       "id": "royal-island-left",
       "file": "royal-island-left-low.glb",
       "tier": "low",
-      "triangles": 12990,
-      "bytes": 922424,
-      "sha256": "d2f7efe3c3bfaf4e6c772f8c03a01830069328a49c1df7102271d045318386ae",
+      "triangles": 13086,
+      "bytes": 932692,
+      "sha256": "bf58b83a24a62db27c116fea55e4c5e52cd34413beb6cdf36c5ae9d11caf7b05",
       "bounds": {
         "min": [
-          -8.45265007019043,
-          -7.029043197631836,
-          -5.937016010284424
+          -9.214414596557617,
+          -8.954668998718262,
+          -5.0962324142456055
         ],
         "max": [
-          8.90031623840332,
+          10.488056182861328,
           8.16100025177002,
-          6.812911510467529
+          6.439874172210693
         ]
       },
       "anchors": {
-        "waterfall_origin_left": [
-          -5.5,
+        "watercourse_0_left": [
+          -3.0,
+          0.085,
+          1.6
+        ],
+        "watercourse_1_left": [
+          -4.2,
+          0.07,
+          2.3
+        ],
+        "watercourse_2_left": [
+          -5.4,
+          0.06,
+          3.1
+        ],
+        "watercourse_3_left": [
+          -6.4,
           0.04,
-          4.15
+          3.7
+        ],
+        "waterfall_origin_left": [
+          -6.4,
+          0.04,
+          3.7
         ],
         "waterfall_end_left": [
-          -6.0,
-          -9.5,
-          4.8
+          -7.1,
+          -11.5,
+          4.55
         ]
       },
       "materials": [
@@ -164,31 +224,51 @@
       "id": "royal-island-left",
       "file": "royal-island-left-distant.glb",
       "tier": "distant",
-      "triangles": 6495,
-      "bytes": 557368,
-      "sha256": "64eee89c658288933b5255fc2b853ae603e089890d7b0fd5a3937ebf320cf05a",
+      "triangles": 6542,
+      "bytes": 567932,
+      "sha256": "b0dcc7623e15aba2563b47155c9aafdb511a886e377c692b9b755aa4d9402307",
       "bounds": {
         "min": [
-          -8.45265007019043,
-          -7.029043197631836,
-          -5.937016010284424
+          -9.214414596557617,
+          -8.954668998718262,
+          -5.0962324142456055
         ],
         "max": [
-          8.90031623840332,
+          10.488056182861328,
           8.161001205444336,
-          6.812911510467529
+          6.439874172210693
         ]
       },
       "anchors": {
-        "waterfall_origin_left": [
-          -5.5,
+        "watercourse_0_left": [
+          -3.0,
+          0.085,
+          1.6
+        ],
+        "watercourse_1_left": [
+          -4.2,
+          0.07,
+          2.3
+        ],
+        "watercourse_2_left": [
+          -5.4,
+          0.06,
+          3.1
+        ],
+        "watercourse_3_left": [
+          -6.4,
           0.04,
-          4.15
+          3.7
+        ],
+        "waterfall_origin_left": [
+          -6.4,
+          0.04,
+          3.7
         ],
         "waterfall_end_left": [
-          -6.0,
-          -9.5,
-          4.8
+          -7.1,
+          -11.5,
+          4.55
         ]
       },
       "materials": [
@@ -215,31 +295,51 @@
       "id": "royal-island-right",
       "file": "royal-island-right.glb",
       "tier": "high",
-      "triangles": 37798,
-      "bytes": 2526088,
-      "sha256": "fe1f2d222ecb5f960c67b18af1309da7d08a3bba4ee6f4b5e4060413f80080aa",
+      "triangles": 36703,
+      "bytes": 2437256,
+      "sha256": "aaecf3bd9abeb2a34b2741ecbb3fdfbcdfbf842d60b709d7e3757b66dceb3a24",
       "bounds": {
         "min": [
-          -9.09660816192627,
-          -7.328304290771484,
-          -6.586582183837891
+          -8.693978309631348,
+          -10.470641136169434,
+          -7.282059192657471
         ],
         "max": [
-          9.275967597961426,
-          7.935999870300293,
-          6.7368855476379395
+          10.086484909057617,
+          8.656000137329102,
+          7.909859657287598
         ]
       },
       "anchors": {
-        "waterfall_origin_right": [
-          5.5,
+        "watercourse_0_right": [
+          3.3,
+          0.75,
+          1.85
+        ],
+        "watercourse_1_right": [
+          4.1,
+          0.12,
+          2.6
+        ],
+        "watercourse_2_right": [
+          5.3,
+          0.075,
+          3.3
+        ],
+        "watercourse_3_right": [
+          6.3,
           0.04,
-          4.15
+          4.0
+        ],
+        "waterfall_origin_right": [
+          6.3,
+          0.04,
+          4.0
         ],
         "waterfall_end_right": [
-          6.0,
-          -9.5,
-          4.8
+          7.0,
+          -13.0,
+          4.85
         ]
       },
       "materials": [
@@ -266,31 +366,51 @@
       "id": "royal-island-right",
       "file": "royal-island-right-balanced.glb",
       "tier": "balanced",
-      "triangles": 24746,
-      "bytes": 1687152,
-      "sha256": "6de1c6fdc5dde9342d2c6e8abdfd30491e374b2c37e2e142b18437e4134ad89f",
+      "triangles": 23311,
+      "bytes": 1604520,
+      "sha256": "d02f88b08f44035b0e2dc200164b244986762967c3c87061467d30afaf7e9e23",
       "bounds": {
         "min": [
-          -8.97620964050293,
-          -7.029825687408447,
-          -6.873772144317627
+          -8.628495216369629,
+          -10.043757438659668,
+          -8.065110206604004
         ],
         "max": [
-          9.196624755859375,
-          7.935999870300293,
-          6.82266092300415
+          9.952397346496582,
+          8.656000137329102,
+          7.896437168121338
         ]
       },
       "anchors": {
-        "waterfall_origin_right": [
-          5.5,
+        "watercourse_0_right": [
+          3.3,
+          0.75,
+          1.85
+        ],
+        "watercourse_1_right": [
+          4.1,
+          0.12,
+          2.6
+        ],
+        "watercourse_2_right": [
+          5.3,
+          0.075,
+          3.3
+        ],
+        "watercourse_3_right": [
+          6.3,
           0.04,
-          4.15
+          4.0
+        ],
+        "waterfall_origin_right": [
+          6.3,
+          0.04,
+          4.0
         ],
         "waterfall_end_right": [
-          6.0,
-          -9.5,
-          4.8
+          7.0,
+          -13.0,
+          4.85
         ]
       },
       "materials": [
@@ -317,31 +437,51 @@
       "id": "royal-island-right",
       "file": "royal-island-right-low.glb",
       "tier": "low",
-      "triangles": 13014,
-      "bytes": 925016,
-      "sha256": "7c944b016b92e9715615b9993a609b72ef0b961725379525ff7fbe921f791bcb",
+      "triangles": 12649,
+      "bytes": 893332,
+      "sha256": "b2badd476111e4cf529f8812e7f7eb4f1d37745b04369cad593e4c7d48a14296",
       "bounds": {
         "min": [
-          -8.366485595703125,
-          -7.029043197631836,
-          -6.585348606109619
+          -8.094136238098145,
+          -10.042669296264648,
+          -7.776366233825684
         ],
         "max": [
-          9.140861511230469,
-          7.935999870300293,
-          6.815522193908691
+          9.952397346496582,
+          8.656000137329102,
+          7.885483264923096
         ]
       },
       "anchors": {
-        "waterfall_origin_right": [
-          5.5,
+        "watercourse_0_right": [
+          3.3,
+          0.75,
+          1.85
+        ],
+        "watercourse_1_right": [
+          4.1,
+          0.12,
+          2.6
+        ],
+        "watercourse_2_right": [
+          5.3,
+          0.075,
+          3.3
+        ],
+        "watercourse_3_right": [
+          6.3,
           0.04,
-          4.15
+          4.0
+        ],
+        "waterfall_origin_right": [
+          6.3,
+          0.04,
+          4.0
         ],
         "waterfall_end_right": [
-          6.0,
-          -9.5,
-          4.8
+          7.0,
+          -13.0,
+          4.85
         ]
       },
       "materials": [
@@ -368,31 +508,51 @@
       "id": "royal-island-right",
       "file": "royal-island-right-distant.glb",
       "tier": "distant",
-      "triangles": 6506,
-      "bytes": 559160,
-      "sha256": "94e4a213f1e740eec0e9a00cdc45f0945299cbeb125a2fa5fee2dd033727590f",
+      "triangles": 6323,
+      "bytes": 539516,
+      "sha256": "770fddf5b87012f25db103e910a035ab8df3e75a18851481f971b3c964b1181b",
       "bounds": {
         "min": [
-          -8.366485595703125,
-          -7.029043197631836,
-          -6.585348606109619
+          -8.094136238098145,
+          -10.042669296264648,
+          -7.776366233825684
         ],
         "max": [
-          9.140861511230469,
-          7.935999870300293,
-          6.815522193908691
+          9.952397346496582,
+          8.656000137329102,
+          7.885483264923096
         ]
       },
       "anchors": {
-        "waterfall_origin_right": [
-          5.5,
+        "watercourse_0_right": [
+          3.3,
+          0.75,
+          1.85
+        ],
+        "watercourse_1_right": [
+          4.1,
+          0.12,
+          2.6
+        ],
+        "watercourse_2_right": [
+          5.3,
+          0.075,
+          3.3
+        ],
+        "watercourse_3_right": [
+          6.3,
           0.04,
-          4.15
+          4.0
+        ],
+        "waterfall_origin_right": [
+          6.3,
+          0.04,
+          4.0
         ],
         "waterfall_end_right": [
-          6.0,
-          -9.5,
-          4.8
+          7.0,
+          -13.0,
+          4.85
         ]
       },
       "materials": [

@@ -1,0 +1,15 @@
+{
+  "before": "docs\\fantasy-polish\\evidence\\before\\balanced-overview.png",
+  "after": "docs\\fantasy-polish\\evidence\\composition-b\\balanced-overview.png",
+  "rectangle": [
+    575,
+    200,
+    420,
+    35
+  ],
+  "pixels": 14700,
+  "changedPixels": 0,
+  "maxChannelDelta": 0,
+  "meanAbsoluteChannelDelta": 0.0,
+  "pixelIdentical": true
+}

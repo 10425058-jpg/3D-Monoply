@@ -7,7 +7,7 @@ Water is animated in the browser; exported empties mark its static cliff mouth.
 import math
 import random
 import bpy
-from core import mesh, tube
+from core import mesh, tube, box
 
 
 def _tint(obj, family, seed=0):
@@ -102,28 +102,30 @@ def generate_island(materials, variant="left", detail="high", seed=10425058):
     count = 44 if high else 32 if detail == "balanced" else 24
     sign = 1 if variant == "left" else -1
     angles = [i * math.tau / count for i in range(count)]
-    # Two composed outlines, not mirrored copies: left is a long crescent rim;
-    # right has a broad rear terrace and a cut-back front-right shoulder.
+    # Two deliberately different silhouettes: an elongated crescent village
+    # and a deeper, shouldered garden island. Plateaus remain quiet and flat.
+    extent_x, extent_y = (8.8, 5.7) if variant == "left" else (7.8, 6.7)
     def radius(angle):
         if variant == "left":
-            return 1 + .075 * math.sin(angle * 3 + .4) + .045 * math.sin(angle * 7 - .3)
-        return 1 + .085 * math.cos(angle * 4 - .6) + .05 * math.sin(angle * 3 + .8)
+            return 1 + .12 * math.sin(angle * 3 + .4) + .055 * math.cos(angle * 5 - .3) - .065 * max(0, math.sin(angle))
+        return 1 + .115 * math.cos(angle * 4 - .6) + .075 * math.sin(angle * 3 + .8)
 
     outlines = [radius(a) * (1 + rng.uniform(-.023, .023)) for a in angles]
     cliff_rings = []
-    profiles = ((1, -.22), (1.025, -1.15), (.89, -1.6), (.88, -3.35), (.60, -4.9), (.35, -6.4), (.10, -7.1))
+    depth_scale = 1.27 if variant == "left" else 1.43
+    profiles = ((1, -.22), (1.025, -1.15), (.84, -1.6), (.88, -3.35), (.55, -4.9), (.32, -6.4), (.055, -7.1))
     if not high:
-        profiles = ((1, -.22), (1.01, -1.2), (.87, -3.0), (.57, -4.8), (.12, -6.8))
+        profiles = ((1, -.22), (1.01, -1.2), (.82, -3.0), (.55, -4.8), (.055, -6.8))
     for level, (fraction, z) in enumerate(profiles):
         ring = []
         for i, angle in enumerate(angles):
-            fault = .045 * math.sin(i * 2.73 + level * 1.82) if level else 0
+            fault = (.065 * math.sin(i * 2.73 + level * 1.82) + .025 * math.cos(i * .93-level)) if level else 0
             horizontal = max(.045, fraction + fault)
-            shift_x = sign * level * .16
+            shift_x = -sign * level * .24
             shift_y = .14 * level * math.sin(level * .8)
-            ring.append((math.cos(angle) * 8 * outlines[i] * horizontal + shift_x,
-                         math.sin(angle) * 6 * outlines[i] * horizontal + shift_y,
-                         z + (0 if level == 0 else .23 * math.sin(i * 1.91 + level))))
+            ring.append((math.cos(angle) * extent_x * outlines[i] * horizontal + shift_x,
+                         math.sin(angle) * extent_y * outlines[i] * horizontal + shift_y,
+                         z * depth_scale + (0 if level == 0 else .32 * math.sin(i * 1.91 + level))))
         cliff_rings.append(ring)
     objects = [_surface(f"{variant}_broken_cliff_strata", cliff_rings, materials["rock"], cap_bottom=True)]
 
@@ -144,9 +146,9 @@ def generate_island(materials, variant="left", detail="high", seed=10425058):
     shard_count = 13 if high else 9 if detail == "balanced" else 6
     for i in range(shard_count):
         angle = math.tau * i / shard_count + .18
-        x = math.cos(angle) * 6.55 * radius(angle)
-        y = math.sin(angle) * 4.8 * radius(angle)
-        depth = rng.uniform(2.9, 5.5)
+        x = math.cos(angle) * extent_x * .84 * radius(angle)
+        y = math.sin(angle) * extent_y * .81 * radius(angle)
+        depth = rng.uniform(3.8, 7.2) * (1.08 if variant == "right" else 1)
         objects.append(_rock_shard(f"{variant}_hanging_rock_{i:02d}", x, y, -.9,
                                   rng.uniform(.67, 1.15), depth, materials["rock"], rng, detail))
         if high or i % 2 == 0:
@@ -157,7 +159,7 @@ def generate_island(materials, variant="left", detail="high", seed=10425058):
                                 [tuple(range(7))], materials["grass"]))
 
     # Small stepped shelves are intentionally asymmetric and sit below grade.
-    terraces = [(-6.0, -2.5, -.28, 1.7, 1.25), (5.9, 1.5, -.42, 1.65, 1.15)] if variant == "left" else [(-5.9, -2.5, -.3, 2.2, 1.5), (5.8, -1.5, -.55, 1.5, 1.0), (-5.1, 3.4, -.22, 1.8, 1.0)]
+    terraces = [(-6.8, -2.4, -.28, 1.8, 1.05), (6.3, 1.8, -.42, 1.75, 1.0)] if variant == "left" else [(-5.8, -2.8, -.3, 2.2, 1.45), (6.0, -2.0, -.55, 1.8, 1.25), (-4.7, 4.4, -.22, 1.8, 1.15), (6.0,-3.0,-.06,1.4,1.1)]
     for i, (x, y, z, sx, sy) in enumerate(terraces):
         segments = 9 if high else 7
         top = [(x + math.cos(j * math.tau / segments) * sx,
@@ -168,29 +170,42 @@ def generate_island(materials, variant="left", detail="high", seed=10425058):
 
     # Gently curved promenade from the entrance toward the village, plus a
     # separate carved channel whose last segment will meet animated water.
-    path_points = [(-5.2, -2.6, .085), (-3.7, -3.0, .08), (-1.8, -3.3, .075),
-                   (0, -3.35, .08), (1.8, -3.0, .07), (3.8, -2.4, .075), (5.8, -1.7, .08)]
+    path_points = [(-6.3, -2.3, .085), (-4.7, -2.5, .08), (-3.3, -2.9, .075),
+                   (-1.2, -2.85, .08), (1.0, -3.0, .07), (3.5, -2.5, .075), (5.4, -1.9, .08)]
     if variant == "right":
-        path_points = [(x, y + .35 * math.sin(x), z) for x, y, z in path_points]
+        # A raised rear castle garden is independent of the lower village.
+        outline = [(-2.7,-1.8,.72),(4.6,-1.8,.72),(5.0,-1.0,.72),(4.8,3.9,.72),
+                   (3.9,4.3,.72),(-2.1,4.1,.72),(-2.8,3.1,.72)]
+        lower = [(x,y,-.06) for x,y,_ in outline]
+        objects.append(_surface("right_raised_garden_retaining_cliff", [outline, lower], materials["stone"]))
+        objects.append(mesh("right_raised_garden_grade", outline, [tuple(range(len(outline)))], materials["grass"]))
+        for step in range(4):
+            objects.append(box("right_garden_processional_step", (1.0,-2.65+step*.24,.10+step*.18),
+                               (1.45,.34,.20),materials["stone"],.02))
+        path_points = [(-5.4,-1.8,.085),(-4.2,-3.4,.085),(-2.2,-3.7,.085),
+                       (0,-3.25,.085),(1.0,-2.95,.085),(2.7,-3.1,.085),(5.5,-4.0,.085)]
     objects.append(_path(f"{variant}_garden_promenade", path_points, [.6, .68, .72, .85, .72, .65, .5], materials["stone"]))
     # Face the falling water outward, away from the gameplay-board silhouette.
     water_sign = -sign
-    channel = [(water_sign * 2.7, -1.5, .085), (water_sign * 3.6, -2.5, .07),
-               (water_sign * 4.6, -3.4, .06), (water_sign * 5.5, -4.15, .04)]
-    objects.append(_path(f"{variant}_watercourse_bed", channel, [.68, .78, .9, 1.02], materials["stone"]))
+    channel = [(-3.0,-1.6,.085),(-4.2,-2.3,.07),(-5.4,-3.1,.06),(-6.4,-3.7,.04)] if variant == "left" else [
+        (3.3,-1.85,.75),(4.1,-2.6,.12),(5.3,-3.3,.075),(6.3,-4.0,.04)]
+    widths = [.65,.8,1.03,1.3] if variant == "left" else [.78,1.05,1.3,1.65]
+    objects.append(_path(f"{variant}_watercourse_bed", channel, widths, materials["stone"]))
+    for index, point in enumerate(channel):
+        objects.append(_empty(f"watercourse_{index}_{variant}", point, semantic="watercourse_route", variant=variant))
     for side in (-1, 1):
-        bank = [(x + side * .42, y, z + .06) for x, y, z in channel]
+        bank = [(x + side * width * .48, y, z + .06) for (x,y,z),width in zip(channel,widths)]
         objects.append(tube(f"{variant}_channel_bank_{side}", bank, .075, materials["stone"], sides=5))
     mouth = channel[-1]
-    objects.append(_empty(f"waterfall_origin_{variant}", mouth, width=1.02, semantic="waterfall_source", variant=variant))
-    objects.append(_empty(f"waterfall_end_{variant}", (mouth[0] + water_sign * .5, mouth[1] - .65, -9.5), semantic="waterfall_end", variant=variant))
+    objects.append(_empty(f"waterfall_origin_{variant}", mouth, width=widths[-1], semantic="waterfall_source", variant=variant))
+    objects.append(_empty(f"waterfall_end_{variant}", (mouth[0] + water_sign * .7, mouth[1] - .85, -11.5 if variant == "left" else -13.0), semantic="waterfall_end", variant=variant))
 
     # Moss runners hug the cliff rather than forming a heavy low green mound.
     vine_count = 15 if high else 9 if detail == "balanced" else 5
     for i in range(vine_count):
         angle = -math.pi + (i + .3) * math.tau / vine_count
-        x, y = math.cos(angle) * 8 * radius(angle), math.sin(angle) * 6 * radius(angle)
-        length = rng.uniform(.9, 2.7)
+        x, y = math.cos(angle) * extent_x * radius(angle), math.sin(angle) * extent_y * radius(angle)
+        length = rng.uniform(1.4, 3.6)
         points = [(x, y, -.15), (x * 1.015, y * 1.015, -.7),
                   (x * .99 + .1, y * .99, -length * .7), (x * .94, y * .94, -length)]
         objects.append(tube(f"{variant}_trailing_moss_{i:02d}", points,

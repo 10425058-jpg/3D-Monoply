@@ -54,27 +54,43 @@ def generate(args):
             if args.milestone != "foundation":
                 from generate_castles import generate_castle
                 from generate_villages import generate_house
-                objects += generate_castle(materials, variant=variant, detail=detail, origin=(0, 1.0, .16), scale=.9)
-                for index, (x, y, rotation) in enumerate([(-4.7, -1.3, -.2), (4.1, -1.8, .2), (-3.7, 2.8, .15)]):
+                castle_site = (-.65,1.15,.16) if variant == "left" else (1.0,1.0,.88)
+                objects += generate_castle(materials, variant=variant, detail=detail, origin=castle_site, scale=.9)
+                house_sites = [(-5.8,-.8,-.1,"cafe",.82),(4.9,-1.4,.35,"boutique",.85),(-3.2,-3.9,-.2,"cottage",.70)] if variant == "left" else [
+                    (-5.3,.6,.35,"boutique",.82),(5.5,2.8,-.35,"cottage",.70)]
+                for index, (x, y, rotation, house_variant, size) in enumerate(house_sites):
                     house_detail = "low" if detail != "high" and index > 0 else detail
-                    objects += generate_house(materials, variant=["cafe", "boutique", "cottage"][index], detail=house_detail,
-                        origin=(x, y, .16), scale=.8, rotation=rotation)
+                    objects += generate_house(materials, variant=house_variant, detail=house_detail,
+                        origin=(x, y, .16), scale=size, rotation=rotation)
             if args.milestone in ["nature", "final"]:
                 from generate_vegetation import generate_tree, generate_shrub, generate_garden_rocks
                 from generate_bridges import generate_bridge
                 from generate_lanterns import generate_lantern
-                tree_sites = [(-6,.2,1),(6,-.2,.8),(-4.5,2.9,.8),(3.8,3.1,.7),(1.8,-4.2,.65)]
+                from generate_gardens import generate_pavilion, generate_garden_accents
+                tree_sites = [(-6.6,1.8,.92,"umbrella"),(6.1,2.7,.82,"windward"),(3.9,-3.5,.72,"upright"),
+                              (-1.7,-4.5,.65,"umbrella"),(-4.0,3.8,.72,"windward")] if variant == "left" else [
+                              (-4.4,3.2,1.02,"windward"),(6.4,.5,.75,"upright"),(-1.6,-4.3,.70,"umbrella"),
+                              (2.7,-4.6,.6,"windward"),(-6.5,-1.0,.6,"upright")]
                 if detail == "balanced": tree_sites = tree_sites[:4]
                 if detail == "low": tree_sites = tree_sites[:3]
-                for index, (x, y, size) in enumerate(tree_sites):
-                    objects += generate_tree(materials, variant=index, detail=detail, origin=(x, y, .12), scale=size)
+                for index, (x, y, size, form) in enumerate(tree_sites):
+                    # A small distant tree uses its inexpensive silhouette LOD;
+                    # spend those saved triangles on the gardens, not more lobes.
+                    tree_detail = "low" if detail == "balanced" and index == 3 else detail
+                    objects += generate_tree(materials, variant=f"{variant}-{index}", detail=tree_detail, origin=(x,y,.12), scale=size, form=form)
                 water_sign = -1 if variant == "left" else 1
-                objects += generate_bridge(materials, detail=detail, origin=(water_sign*3.6,-2.5,.25), scale=.38, rotation=water_sign*.7854)
-                for x, y in [(-2.3,-3.4),(2.3,-3.4),(-5.2,1),(5.2,1)]:
+                bridge_site = (-4.2,-2.3,.25) if variant == "left" else (4.1,-2.6,.25)
+                objects += generate_bridge(materials, detail=detail, origin=bridge_site, scale=.38 if variant == "left" else .43, rotation=water_sign*.7854)
+                lamp_sites = [(-2.3,-3.4),(2.3,-3.4),(-5.2,1),(5.2,1)] if variant == "left" else [(-3.6,-3.2),(2.3,-3.8),(-3.8,1.5),(5.8,1.4)]
+                for x, y in lamp_sites:
                     objects += generate_lantern(materials, detail=detail, origin=(x, y, .12), scale=.65)
-                for index, (x, y) in enumerate([(-1.6,-3.9),(.3,-4.1),(4.9,2.5)]):
+                shrub_sites = [(-.7,-3.7),(1.4,-4.1),(5.2,2)] if variant == "left" else [(-5.2,-3.6),(-2.5,-4.3),(5.5,-.8)]
+                for index, (x, y) in enumerate(shrub_sites):
                     objects += generate_shrub(materials, detail=detail, origin=(x,y,.1), scale=.85, flowering=index != 1, seed=args.seed+index)
-                objects += generate_garden_rocks(materials, origin=(6.1,2.2,.12), scale=1.3, seed=args.seed)
+                objects += generate_garden_rocks(materials, origin=(-7.1,-1.3,.12) if variant == "left" else (4.8,-4.7,.12), scale=1.3, seed=args.seed)
+                objects += generate_garden_accents(materials, variant=variant, detail=detail)
+                if variant == "right":
+                    objects += generate_pavilion(materials, detail=detail, origin=(-4.2,-2.7,.12), scale=.9, rotation=.2)
             asset_id = "foundation-island" if args.milestone == "foundation" else f"royal-island-{variant}"
             suffix = "" if tier == "high" else f"-{tier}"
             records.append(export_glb(objects, args.out_dir / f"{asset_id}{suffix}.glb", asset_id, tier, args.seed,

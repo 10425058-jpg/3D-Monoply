@@ -128,9 +128,12 @@ export function GraphicsAudit({ quality }: { quality: string }) {
           if (!(object instanceof THREE.Mesh)) return;
           meshes++;
           const materials = Array.isArray(object.material) ? object.material : [object.material];
-          materials.forEach(material => Object.values(material).forEach(value => {
-            if (value instanceof THREE.Texture) textures.add(value);
-          }));
+          materials.forEach(material => {
+            Object.values(material).forEach(value => { if (value instanceof THREE.Texture) textures.add(value); });
+            if (material instanceof THREE.ShaderMaterial) Object.values(material.uniforms).forEach(uniform => {
+              if (uniform.value instanceof THREE.Texture) textures.add(uniform.value);
+            });
+          });
         });
         return { quality, three: THREE.REVISION, userAgent: navigator.userAgent,
           renderer: debug ? context.getParameter(debug.UNMASKED_RENDERER_WEBGL) : context.getParameter(context.RENDERER),

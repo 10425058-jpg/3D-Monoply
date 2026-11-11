@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 
 const origin = process.env.AUDIT_URL || 'http://127.0.0.1:4175';
-const out = 'docs/phase2-world/evidence/regression';
+const out = process.env.ENVIRONMENT_REGRESSION_OUT || 'docs/phase2-world/evidence/regression';
 const pause = ms => new Promise(resolve => setTimeout(resolve,ms));
 const browser = await puppeteer.launch({ executablePath: process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
 const errors = [];
@@ -24,7 +24,9 @@ try {
   assert.equal(moving.oldKingdomPresent,false);
   assert.equal(moving.shadowCasters,0);
   assert.equal(Object.keys(moving.waterfalls).length,2);
-  assert.ok(moving.triangles < 30000,'low environment geometry budget');
+  // Low now includes one existing simplified distant island for depth. The
+  // complete environment, including water and airship, still has a hard cap.
+  assert.ok(moving.triangles < 36000,'low environment geometry budget');
   assert.notDeepEqual(moving.airship,first.airship,'airship advances');
   assert.ok(moving.waterfalls['waterfall-left'] > first.waterfalls['waterfall-left'],'water advances');
 
