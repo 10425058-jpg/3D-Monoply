@@ -12,7 +12,10 @@
     "preview": "vite preview",
     "test:graphics": "node --test tests/graphics.test.mjs",
     "audit:graphics": "node scripts/graphics-audit.mjs",
-    "test:graphics-browser": "node scripts/graphics-regression.mjs"
+    "test:graphics-browser": "node scripts/graphics-regression.mjs",
+    "test:environment-assets": "node --test tests/environment-assets.test.mjs",
+    "audit:environment": "node scripts/phase2-audit.mjs",
+    "test:environment-browser": "node scripts/environment-regression.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^9.105.4",

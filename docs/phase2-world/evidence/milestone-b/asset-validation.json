@@ -1,0 +1,227 @@
+{
+  "schema": "monopoly.environment-glb-inspection.v1",
+  "valid": true,
+  "assets": [
+    {
+      "file": "royal-island-left-balanced.glb",
+      "bytes": 1172136,
+      "sha256": "537f2a19ffa502de5fb2ef6d699d56effdd49550c276e9428168e1cf9597eddd",
+      "triangles": 16002,
+      "triangleBudget": 25000,
+      "drawPrimitives": 8,
+      "meshes": [
+        {
+          "name": "left_broken_cliff_strata.001",
+          "triangles": 16002,
+          "primitives": 8
+        }
+      ],
+      "nodes": 3,
+      "materials": 8,
+      "materialNames": [
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Carved sandstone",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Brushed antique gold",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 152
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -8.29698657989502,
+          -7.029825687408447,
+          -5.908763408660889
+        ],
+        "max": [
+          8.926772117614746,
+          8.16100025177002,
+          6.843960762023926
+        ],
+        "extent": [
+          17.223758697509766,
+          15.190825939178467,
+          12.752724170684814
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "royal-island-left",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_end_left.001",
+          "translation": [
+            6,
+            -9.5,
+            4.800000190734863
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_origin_left.001",
+          "translation": [
+            5.5,
+            0.03999999910593033,
+            4.150000095367432
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "royal-island-right-balanced.glb",
+      "bytes": 1174768,
+      "sha256": "1877d0b4fb0b531789d849b0b693dfd52dbeb5e2abadeae5ee92af3e103eb54c",
+      "triangles": 16026,
+      "triangleBudget": 25000,
+      "drawPrimitives": 8,
+      "meshes": [
+        {
+          "name": "right_broken_cliff_strata.001",
+          "triangles": 16026,
+          "primitives": 8
+        }
+      ],
+      "nodes": 3,
+      "materials": 8,
+      "materialNames": [
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Carved sandstone",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Brushed antique gold",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 153
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -8.97620964050293,
+          -7.029825687408447,
+          -6.873772144317627
+        ],
+        "max": [
+          9.196624755859375,
+          7.935999870300293,
+          6.82266092300415
+        ],
+        "extent": [
+          18.172834396362305,
+          14.96582555770874,
+          13.696433067321777
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "royal-island-right",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_end_right.001",
+          "translation": [
+            -6,
+            -9.5,
+            4.800000190734863
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_origin_right.001",
+          "translation": [
+            -5.5,
+            0.03999999910593033,
+            4.150000095367432
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    }
+  ],
+  "failures": []
+}

@@ -30,3 +30,8 @@ dist-ssr
 
 # Temporary test profiles
 .chrome-profile/
+
+# Blender/Python local caches
+__pycache__/
+*.pyc
+*.blend1

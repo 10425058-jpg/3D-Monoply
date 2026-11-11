@@ -1,11 +1,9 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { FantasySky } from './FantasySky';
 import { FantasySun } from './FantasySun';
-import { DistantLandscape } from './DistantLandscape';
-import { FantasyKingdom } from './FantasyKingdom';
-import { Waterways } from './Waterways';
-import { FloatingClouds } from './FloatingClouds';
-import { FantasyAirship } from './FantasyAirship';
+import { DistantMountains } from './DistantMountains';
+import { PremiumFantasyWorld } from './PremiumFantasyWorld';
+import { AtmosphericClouds } from './AtmosphericClouds';
 import { useMotionPreferences } from '../../presentation/useMotionPreferences';
 import type { EnvironmentQuality } from './environmentLayout';
 
@@ -16,10 +14,8 @@ export function FantasyEnvironment({ quality = 'balanced' }: { quality?: Environ
   return <group name="fantasy-outer-environment">
     <FantasySky animate={animate} />
     <FantasySun />
-    <DistantLandscape quality={quality} />
-    <FantasyKingdom quality={quality} />
-    <Waterways animate={animate} />
-    <FantasyAirship animate={animate} />
-    <FloatingClouds quality={quality} animate={animate} />
+    <DistantMountains quality={quality} />
+    <Suspense fallback={null}><PremiumFantasyWorld quality={quality} animate={animate} /></Suspense>
+    <AtmosphericClouds quality={quality} animate={animate} />
   </group>;
 }

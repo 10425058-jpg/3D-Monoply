@@ -41,6 +41,25 @@ export function GraphicsAudit({ quality }: { quality: string }) {
         return true;
       },
       hovered: [] as number[],
+      environment() {
+        const world = scene.getObjectByName('premium-fantasy-world');
+        const waterfalls: Record<string, number> = {};
+        let triangles = 0, meshes = 0, shadowCasters = 0;
+        world?.traverse(object => {
+          if (!(object instanceof THREE.Mesh)) return;
+          meshes++; if (object.castShadow) shadowCasters++;
+          triangles += (object.geometry.index?.count ?? object.geometry.getAttribute('position').count) / 3 *
+            (object instanceof THREE.InstancedMesh ? object.count : 1);
+          if (object.material instanceof THREE.ShaderMaterial && object.material.uniforms.uTime) {
+            waterfalls[object.parent?.name ?? object.uuid] = object.material.uniforms.uTime.value;
+          }
+        });
+        const airship = scene.getObjectByName('fantasy-airship');
+        return { meshes, triangles, shadowCasters, waterfalls,
+          oldValleyPresent: !!scene.getObjectByName('kingdom-valley'),
+          oldKingdomPresent: !!scene.getObjectByName('distant-fantasy-kingdom'),
+          airship: airship ? { position: airship.position.toArray(), rotation: airship.rotation.toArray() } : null };
+      },
       game() {
         const game = useGameStore.getState();
         return { turnPhase: game.turnPhase, currentPlayerIndex: game.currentPlayerIndex,
@@ -77,6 +96,7 @@ export function GraphicsAudit({ quality }: { quality: string }) {
       tiles() {
         camera.updateMatrixWorld();
         const city = scene.getObjectByName('center-city');
+        const environment = scene.getObjectByName('premium-fantasy-world');
         const ray = new THREE.Raycaster();
         return Array.from({ length: 40 }, (_, id) => {
           const [x, , z] = getSpaceTransform(id).position;
@@ -84,12 +104,20 @@ export function GraphicsAudit({ quality }: { quality: string }) {
           const p = world.clone().project(camera);
           ray.setFromCamera(new THREE.Vector2(p.x, p.y), camera);
           const hit = city ? ray.intersectObject(city, true)[0] : null;
+          const environmentHits: THREE.Intersection[] = [];
+          environment?.traverseVisible(object => {
+            // Production intentionally disables background raycasts for input.
+            // Audit the actual opaque geometry rather than trusting that no-op.
+            if (object instanceof THREE.InstancedMesh) THREE.InstancedMesh.prototype.raycast.call(object, ray, environmentHits);
+            else if (object instanceof THREE.Mesh) THREE.Mesh.prototype.raycast.call(object, ray, environmentHits);
+          });
           const tileMeshes = ['corner-tile-top', 'edge-tile-top'].map(name => scene.getObjectByName(name)).filter(Boolean) as THREE.Object3D[];
           const tileHit = ray.intersectObjects(tileMeshes)[0];
           const tileIds = tileHit?.object.name === 'corner-tile-top' ? [0, 10, 20, 30] : Array.from({ length: 40 }, (_, n) => n).filter(n => n % 10);
           const rect = gl.domElement.getBoundingClientRect();
           return { id, x: rect.left + (p.x + 1) * state.size.width / 2, y: rect.top + (1 - p.y) * state.size.height / 2, depth: p.z,
             pickableTileId: tileHit?.instanceId === undefined ? null : tileIds[tileHit.instanceId],
+            occludedByEnvironment: environmentHits.some(h => h.distance < camera.position.distanceTo(world) - .15),
             occludedByCity: !!hit && hit.distance < camera.position.distanceTo(world) - .15 };
         });
       },

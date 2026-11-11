@@ -31,11 +31,13 @@ try {
     await page.setViewport({ width, height, deviceScaleFactor: 1, isMobile: width < 640, hasTouch: width < 640 });
     await page.goto(`${origin}/?graphicsAudit`, { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => !!window.__graphicsAudit);
+    await page.waitForFunction(() => window.__phase2Environment?.ready);
     await pause(4000);
     const tiles = await page.evaluate(() => window.__graphicsAudit.tiles());
     for (const p of tiles) {
       assert.ok(p.x > 0 && p.x < width && p.y > 0 && p.y < height && p.depth < 1, `tile ${p.id} clipped at ${width}x${height}`);
       assert.equal(p.occludedByCity, false, `tile ${p.id} hidden by city at ${width}x${height}`);
+      assert.equal(p.occludedByEnvironment, false, `tile ${p.id} hidden by environment at ${width}x${height}`);
       assert.equal(p.pickableTileId, p.id, `tile ${p.id} physical raycast at ${width}x${height}`);
     }
     await page.screenshot({ path: path.join(out, `overview-${width}x${height}.png`) });
@@ -55,13 +57,13 @@ try {
       try { await page.waitForFunction(id => window.__graphicsAudit.hovered.includes(id), { timeout: 3000 }, p.id); }
       catch (error) { throw new Error(`Hover tile ${p.id} at ${width}x${height}: ${JSON.stringify(await page.evaluate(() => window.__graphicsAudit.game()))}`, { cause: error }); }
     }
-    results.push({ viewport: [width, height], visibleTileCenters: tiles.length, unoccludedByCity: true,
+    results.push({ viewport: [width, height], visibleTileCenters: tiles.length, unoccludedByCity: true, unoccludedByEnvironment: true,
       picking: { type: width < 640 ? 'touch and geometric raycast' : 'mouse hover and geometric raycast', count: 40 },
       camera: await page.evaluate(() => window.__graphicsAudit.metadata().camera) });
   }
   await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1, isMobile: false, hasTouch: false });
   await page.goto(`${origin}/?graphicsAudit`, { waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => !!window.__graphicsAudit); await pause(3000);
+  await page.waitForFunction(() => !!window.__graphicsAudit && window.__phase2Environment?.ready); await pause(3000);
   const tile = await page.evaluate(() => window.__graphicsAudit.tiles().find(p => p.id === 1));
   await page.mouse.click(tile.x, tile.y);
   await page.waitForFunction(() => window.__graphicsAudit.game().selectedSpaceId === 1);
@@ -71,6 +73,7 @@ try {
   await topButton.click(); await pause(500);
   assert.equal(await page.evaluate(() => window.__graphicsAudit.game().cameraMode), 'top');
   assert.equal((await page.evaluate(() => window.__graphicsAudit.tiles())).filter(p => p.occludedByCity).length, 0);
+  assert.equal((await page.evaluate(() => window.__graphicsAudit.tiles())).filter(p => p.occludedByEnvironment).length, 0);
   await page.screenshot({ path: path.join(out, 'top-view.png') });
   await page.click('button[title="Switch to 3D Isometric View"]'); await pause(500);
   const presets = [];
@@ -78,6 +81,7 @@ try {
     await page.select('select[aria-label="Camera view"]', preset); await pause(250);
     const camera = await page.evaluate(() => window.__graphicsAudit.metadata().camera);
     assert.equal(!!camera.view?.enabled, preset === 'overview', `projection for ${preset}`);
+    assert.equal((await page.evaluate(() => window.__graphicsAudit.tiles())).filter(p => p.occludedByEnvironment).length, 0, `environment clear in ${preset}`);
     presets.push({ preset, position: camera.position });
   }
   await page.click('.camera-toolbar button'); await pause(250);
