@@ -1,0 +1,46 @@
+name: Generate priority 3 locked dependency trees (temporary)
+
+on:
+  push:
+    branches:
+      - ci/priority3-browser-e2e-node22-three
+
+permissions:
+  contents: write
+
+jobs:
+  update-lockfiles:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Regenerate frontend lockfile with compatible postprocessing
+        run: npm install --package-lock-only --ignore-scripts --no-audit
+      - name: Regenerate backend lockfile for Node 22 typings
+        working-directory: backend
+        run: npm install --package-lock-only --ignore-scripts --no-audit
+      - name: Verify pinned peer pair
+        run: |
+          node <<'NODE'
+          const assert = require('node:assert/strict');
+          const lock = require('./package-lock.json');
+          const pp = Object.entries(lock.packages).filter(([k]) => k.endsWith('/postprocessing')).map(([k,v]) => ({path:k,version:v.version,peer:v.peerDependencies?.three}));
+          assert.ok(pp.some(x => x.version === '6.35.6'), JSON.stringify(pp));
+          assert.ok(pp.every(x => x.version === '6.35.6'), 'Unexpected postprocessing version: ' + JSON.stringify(pp));
+          console.log(pp);
+          NODE
+      - name: Commit generated locks to feature branch
+        run: |
+          git add package-lock.json backend/package-lock.json
+          if git diff --cached --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "build: lock compatible postprocessing and Node 22 dependencies"
+          git push origin HEAD:ci/priority3-browser-e2e-node22-three
