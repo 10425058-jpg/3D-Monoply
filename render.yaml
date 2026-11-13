@@ -20,7 +20,7 @@ services:
     branch: main
     autoDeployTrigger: off
     healthCheckPath: /api/v1/health
-    buildCommand: npm ci && npm run build && cd backend && npm ci && npm run build
+    buildCommand: npm ci --include=dev && npm run build && cd backend && npm ci --include=dev && npm run build
     preDeployCommand: cd backend && npx prisma migrate deploy
     startCommand: cd backend && npm run start:prod
     envVars:
