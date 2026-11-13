@@ -6,10 +6,12 @@ on:
       - main
     paths:
       - 'src/**'
+      - 'backend/**'
       - 'package.json'
       - 'package-lock.json'
       - 'tests/**'
       - 'scripts/online-browser.mjs'
+      - 'scripts/online-browser/**'
       - 'vite.config.ts'
       - 'tsconfig.json'
       - '.github/workflows/ci.yml'
@@ -24,6 +26,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -31,7 +34,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '22'
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
@@ -44,3 +48,102 @@ jobs:
 
       - name: Build production bundle
         run: npm run build
+
+  browser-e2e:
+    name: Real Chrome / two players / PostgreSQL
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: monopoly
+          POSTGRES_PASSWORD: change-me
+          POSTGRES_DB: monopoly_dev
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U monopoly -d monopoly_dev"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      CI: 'true'
+      DATABASE_URL: postgresql://monopoly:change-me@localhost:5432/monopoly_dev?schema=public
+      JWT_ACCESS_SECRET: priority3-browser-test-only-secret-for-github-actions-123456
+      CORS_ORIGIN: http://localhost:3000
+      COOKIE_SECURE: 'false'
+      DISCONNECT_GRACE_SECONDS: '2'
+      NODE_ENV: production
+      SERVE_FRONTEND: 'true'
+      FRONTEND_DIST_DIR: ../dist
+      ONLINE_TEST_URL: http://localhost:3000
+      ONLINE_TEST_OUT: .online-test/priority3
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node.js 22 and npm caches
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            backend/package-lock.json
+
+      - name: Install Chrome for headless WebGL E2E
+        id: chrome
+        uses: browser-actions/setup-chrome@v2
+        with:
+          chrome-version: stable
+          install-dependencies: true
+
+      - name: Build real React frontend
+        run: npm ci --include=dev && npm run build
+
+      - name: Install and build NestJS backend
+        working-directory: backend
+        run: npm ci --include=dev && npm run build
+
+      - name: Apply versioned migrations to isolated PostgreSQL
+        working-directory: backend
+        run: npx prisma migrate deploy
+
+      - name: Start a same-origin production-style server
+        working-directory: backend
+        shell: bash
+        run: |
+          npm run start:prod > /tmp/online-e2e-server.log 2>&1 &
+          echo $! > /tmp/online-e2e-server.pid
+          for i in {1..50}; do
+            if curl -fsS http://localhost:3000/api/v1/health; then
+              echo
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/online-e2e-server.log
+          exit 1
+
+      - name: End-to-end multiplayer with two isolated Chrome profiles
+        env:
+          CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
+        run: npm run test:online-browser
+
+      - name: Upload screenshots and sanitized browser results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: priority3-real-browser-evidence
+          path: .online-test/priority3/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Print NestJS server log on failure
+        if: failure()
+        shell: bash
+        run: cat /tmp/online-e2e-server.log || true
