@@ -67,6 +67,7 @@ The initial migration includes all six gameplay CHECK constraints. For future sc
 | `npm run start:dev` | Run the server in watch mode |
 | `npm run build` / `npm run start:prod` | Build to `dist/` and run the build |
 | `npm test` | Rules engine unit tests |
+| `npm run test:integration` | Integration tests against a running backend and **disposable** PostgreSQL database (auth, room/match, Socket.IO and reconnect) |
 | `npm run lint` | Type-check without building |
 | `npm run smoke` | Plays the start of a real match against the running server (REST only) |
 | `npm run db:up` / `npm run db:down` | Start / stop the local PostgreSQL container |
@@ -74,6 +75,23 @@ The initial migration includes all six gameplay CHECK constraints. For future sc
 | `npx prisma migrate deploy` | Apply committed migrations in deployment environments |
 | `npm run db:constraints` | Apply `prisma/sql/constraints.sql` |
 | `npm run prisma:studio` | Browse the database in your browser |
+
+## Integration tests
+
+Step 3 adds `test/integration.test.mjs` and an automated GitHub Actions workflow
+(`.github/workflows/backend-integration-step3.yml`). The workflow creates a **temporary**
+PostgreSQL 16 database, applies committed migrations, builds/starts NestJS, and runs
+`npm run test:integration` with `DISCONNECT_GRACE_SECONDS=2` to exercise pause,
+reconnect and host failover quickly.
+
+For a local integration run, start a **dedicated test PostgreSQL database** and the
+backend server (with `DISCONNECT_GRACE_SECONDS=2`) first, then execute
+`npm run test:integration` in a separate terminal. The tests register users,
+create rooms/matches, and persist actions; **never use your production database**.
+The server must allow `http://localhost:5173` as a CORS origin.
+
+This suite checks real HTTP/Socket.IO/database behavior but does **not** simulate a
+full 80-turn game, restart the server in mid-match, or test token expiry after 15 minutes.
 
 ## Environment variables
 
