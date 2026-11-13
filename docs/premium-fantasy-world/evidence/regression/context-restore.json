@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "quality": "low",
+      "contextLost": true,
+      "contextRestored": true,
+      "skyPixelsIdentical": 24700,
+      "dpr": 0.9,
+      "errors": []
+    },
+    {
+      "quality": "balanced",
+      "contextLost": true,
+      "contextRestored": true,
+      "skyPixelsIdentical": 24700,
+      "dpr": 1,
+      "errors": []
+    },
+    {
+      "quality": "high",
+      "contextLost": true,
+      "contextRestored": true,
+      "skyPixelsIdentical": 24700,
+      "dpr": 1,
+      "errors": []
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "before": "docs\\premium-fantasy-world\\evidence\\regression\\context-low-before.png",
+  "after": "docs\\premium-fantasy-world\\evidence\\regression\\context-low-after.png",
+  "rectangle": [
+    450,
+    15,
+    380,
+    65
+  ],
+  "pixels": 24700,
+  "changedPixels": 0,
+  "maxChannelDelta": 0,
+  "meanAbsoluteChannelDelta": 0.0,
+  "pixelIdentical": true
+}

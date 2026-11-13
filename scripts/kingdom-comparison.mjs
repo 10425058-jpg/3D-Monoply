@@ -6,7 +6,7 @@ import path from 'node:path';
 
 // Alternate A/B then B/A in one browser, one open game page at a time. Downloads
 // and shader warmup are outside each sample. Keep every result, not the best.
-const out=`docs/fantasy-master/evidence/${process.env.COMPARISON_LABEL || 'controlled-final'}`;
+const out=`${process.env.COMPARISON_EVIDENCE_ROOT || 'docs/fantasy-master/evidence'}/${process.env.COMPARISON_LABEL || 'controlled-final'}`;
 const qualities=(process.env.COMPARISON_QUALITIES || 'low,balanced,high').split(',');
 const cameras=(process.env.COMPARISON_CAMERAS || 'overview,reference').split(',');
 const sampleMs=Number(process.env.COMPARISON_SAMPLE_MS || 5000);
@@ -22,7 +22,7 @@ try {
   for(let repeat=0;repeat<2;repeat++) for(const quality of qualities) {
     for(const side of repeat===0?['before','after']:['after','before']) {
       const origin=side==='before'?'http://127.0.0.1:4176':'http://127.0.0.1:4175';
-      const source=side==='before'?'.audit-master-baseline':'.';
+      const publicRoot=side==='before'?(process.env.COMPARISON_BEFORE_PUBLIC_ROOT || '.audit-master-baseline/public'):'public';
       const page=await browser.newPage(),errors=[],loads=[];
       await page.setCacheEnabled(false);
       page.on('pageerror',error=>errors.push(error.message));
@@ -56,8 +56,10 @@ try {
         const measurement=await page.evaluate(()=>window.__graphicsAudit.stop());
         assert.ok(measurement.samples.length>30);
         const p=(key,fraction=.5)=>{const values=measurement.samples.map(sample=>sample[key]).filter(value=>value!==null).sort((a,b)=>a-b);return values[Math.floor(values.length*fraction)]??null;};
-        const summary={repeat,quality,side,camera,sampleMs,warmupMs,fps:1000/(measurement.samples.reduce((n,s)=>n+s.frameMs,0)/measurement.samples.length),
-          frameP95:p('frameMs',.95),gpuP50:p('gpuMs'),calls:p('calls'),triangles:p('triangles'),textures:p('textures')};
+        const frameMeanMs=measurement.samples.reduce((n,s)=>n+s.frameMs,0)/measurement.samples.length;
+        const summary={repeat,quality,side,camera,sampleMs,warmupMs,fps:1000/frameMeanMs,frameMeanMs,
+          frameP50:p('frameMs'),frameP95:p('frameMs',.95),renderCpuP50:p('renderCpuMs'),gpuP50:p('gpuMs'),
+          calls:p('calls'),triangles:p('triangles'),textures:p('textures'),geometries:p('geometries')};
         records.push({...summary,metadata,samples:measurement.samples});console.log(JSON.stringify(summary));
         const baseline=records.find(record=>record.repeat===repeat&&record.quality===quality&&record.camera===camera&&record.side!==side);
         if(baseline) {
@@ -68,7 +70,7 @@ try {
       const environment=await page.evaluate(()=>window.__phase2Environment),responses=await Promise.all(loads);
       for(const url of environment.assetUrls) {
         const response=responses.find(item=>item.url===url);assert.equal(response?.status,200);
-        const bytes=await readFile(path.resolve(source,'public/assets/models/environment',path.basename(new URL(url).pathname)));
+        const bytes=await readFile(path.resolve(publicRoot,'assets/models/environment',path.basename(new URL(url).pathname)));
         assert.equal(response.sha,createHash('sha256').update(bytes).digest('hex'));
       }
       assert.deepEqual(errors,[]);await page.close();

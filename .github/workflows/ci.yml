@@ -13,6 +13,8 @@ on:
       - 'scripts/online-browser.mjs'
       - 'scripts/menu-*.mjs'
       - 'public/assets/menu/**'
+      - 'public/assets/models/environment/**'
+      - 'tools/blender/**'
       - 'scripts/online-browser/**'
       - 'vite.config.ts'
       - 'tsconfig.json'
@@ -50,6 +52,9 @@ jobs:
 
       - name: Existing presentation and camera tests
         run: node --test tests/animations.test.mjs tests/graphics.test.mjs
+
+      - name: Environment placements and actual Blender GLB receipts
+        run: node --test tests/environment.test.mjs tests/atmosphere.test.mjs tests/archipelago.test.mjs tests/environment-assets.test.mjs
 
       - name: Build production bundle
         run: npm run build

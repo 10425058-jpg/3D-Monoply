@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "oldTerrainRemoved": true,
+  "zeroEnvironmentShadowCasters": true,
+  "normalMotion": true,
+  "liveReducedMotion": true,
+  "liveVisibility": true,
+  "noProductionAuditGlobals": true,
+  "lowEnvironmentTriangles": 61903,
+  "errors": []
+}

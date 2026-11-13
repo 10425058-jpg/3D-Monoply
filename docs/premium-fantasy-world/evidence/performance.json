@@ -1,0 +1,740 @@
+{
+  "baselineCommit": "712693a47b7664469deb519ee5f89bddd04a2fc2",
+  "methodology": "24 sequential five-second samples, A/B then B/A, five-second warmup, 1440x900, seeded Solo, reduced motion, matched camera and DPR. No simultaneous audit workload.",
+  "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+  "rows": [
+    {
+      "quality": "low",
+      "camera": "overview",
+      "before": {
+        "fps": 73.31539623327453,
+        "frameMeanMs": 13.639699863562155,
+        "frameP50": 13.200000002980232,
+        "frameP95": 17.400000005960464,
+        "renderCpuP50": 9.800000011920929,
+        "gpuP50": 12.76452,
+        "calls": 1761,
+        "triangles": 150343,
+        "geometries": 1761,
+        "textures": 5,
+        "frames": 733,
+        "allocationEstimates": null
+      },
+      "after": {
+        "fps": 62.098137055906825,
+        "frameMeanMs": 16.103542673103092,
+        "frameP50": 14.799999997019768,
+        "frameP95": 25,
+        "renderCpuP50": 10.5,
+        "gpuP50": 14.19883,
+        "calls": 1790,
+        "triangles": 179655,
+        "geometries": 1790,
+        "textures": 8,
+        "frames": 621,
+        "allocationEstimates": {
+          "geometryAttributeBytes": 7573050,
+          "instanceAttributeBytes": 18592,
+          "textureRgbaBytes": 1152341.3333333335
+        }
+      },
+      "frameTimeChangePercent": 18.06376118379982
+    },
+    {
+      "quality": "low",
+      "camera": "reference",
+      "before": {
+        "fps": 78.25539442515434,
+        "frameMeanMs": 12.778671775227306,
+        "frameP50": 12.100000008940697,
+        "frameP95": 17.099999994039536,
+        "renderCpuP50": 10,
+        "gpuP50": 11.59136,
+        "calls": 1777,
+        "triangles": 158261,
+        "geometries": 1777,
+        "textures": 7,
+        "frames": 783,
+        "allocationEstimates": null
+      },
+      "after": {
+        "fps": 72.8490056960128,
+        "frameMeanMs": 13.727023319615911,
+        "frameP50": 13.200000002980232,
+        "frameP95": 17.700000002980232,
+        "renderCpuP50": 10.799999997019768,
+        "gpuP50": 12.73028,
+        "calls": 1808,
+        "triangles": 187603,
+        "geometries": 1808,
+        "textures": 10,
+        "frames": 729,
+        "allocationEstimates": {
+          "geometryAttributeBytes": 7573050,
+          "instanceAttributeBytes": 18592,
+          "textureRgbaBytes": 1152341.3333333335
+        }
+      },
+      "frameTimeChangePercent": 7.421362415983457
+    },
+    {
+      "quality": "balanced",
+      "camera": "overview",
+      "before": {
+        "fps": 39.91575569156502,
+        "frameMeanMs": 25.052763819058036,
+        "frameP50": 24.5,
+        "frameP95": 31.200000002980232,
+        "renderCpuP50": 20.400000005960464,
+        "gpuP50": 23.14994,
+        "calls": 2699,
+        "triangles": 249164,
+        "geometries": 1773,
+        "textures": 7,
+        "frames": 398,
+        "allocationEstimates": null
+      },
+      "after": {
+        "fps": 39.32870995819916,
+        "frameMeanMs": 25.42671755729741,
+        "frameP50": 25.100000008940697,
+        "frameP95": 29.099999994039536,
+        "renderCpuP50": 16.400000005960464,
+        "gpuP50": 23.83785,
+        "calls": 2729,
+        "triangles": 281142,
+        "geometries": 1803,
+        "textures": 10,
+        "frames": 393,
+        "allocationEstimates": {
+          "geometryAttributeBytes": 9470598,
+          "instanceAttributeBytes": 21024,
+          "textureRgbaBytes": 2725205.3333333344
+        }
+      },
+      "frameTimeChangePercent": 1.4926646055510195
+    },
+    {
+      "quality": "balanced",
+      "camera": "reference",
+      "before": {
+        "fps": 42.20506460770261,
+        "frameMeanMs": 23.69383886258749,
+        "frameP50": 22.5,
+        "frameP95": 34.099999994039536,
+        "renderCpuP50": 17.100000008940697,
+        "gpuP50": 21.23104,
+        "calls": 2705,
+        "triangles": 251026,
+        "geometries": 1779,
+        "textures": 8,
+        "frames": 422,
+        "allocationEstimates": null
+      },
+      "after": {
+        "fps": 42.32751288331108,
+        "frameMeanMs": 23.62529550830946,
+        "frameP50": 22.80000001192093,
+        "frameP95": 30.599999994039536,
+        "renderCpuP50": 15.5,
+        "gpuP50": 21.51859,
+        "calls": 2738,
+        "triangles": 283060,
+        "geometries": 1812,
+        "textures": 11,
+        "frames": 423,
+        "allocationEstimates": {
+          "geometryAttributeBytes": 9470598,
+          "instanceAttributeBytes": 21024,
+          "textureRgbaBytes": 2725205.3333333344
+        }
+      },
+      "frameTimeChangePercent": -0.28928766957329044
+    },
+    {
+      "quality": "high",
+      "camera": "overview",
+      "before": {
+        "fps": 35.575452937451956,
+        "frameMeanMs": 28.10926966293809,
+        "frameP50": 27.299999997019768,
+        "frameP95": 36,
+        "renderCpuP50": 16.899999991059303,
+        "gpuP50": 26.04353,
+        "calls": 2699,
+        "triangles": 279528,
+        "geometries": 1773,
+        "textures": 7,
+        "frames": 356,
+        "allocationEstimates": null
+      },
+      "after": {
+        "fps": 34.32643135215139,
+        "frameMeanMs": 29.132069970836792,
+        "frameP50": 27.700000002980232,
+        "frameP95": 39.599999994039536,
+        "renderCpuP50": 17.5,
+        "gpuP50": 26.44984,
+        "calls": 2729,
+        "triangles": 325596,
+        "geometries": 1803,
+        "textures": 10,
+        "frames": 343,
+        "allocationEstimates": {
+          "geometryAttributeBytes": 12542876,
+          "instanceAttributeBytes": 22432,
+          "textureRgbaBytes": 5434026.666666664
+        }
+      },
+      "frameTimeChangePercent": 3.6386584218061735
+    },
+    {
+      "quality": "high",
+      "camera": "reference",
+      "before": {
+        "fps": 37.94211574851477,
+        "frameMeanMs": 26.35593667543815,
+        "frameP50": 25.599999994039536,
+        "frameP95": 34.29999999701977,
+        "renderCpuP50": 17.899999991059303,
+        "gpuP50": 24.23835,
+        "calls": 2715,
+        "triangles": 287963,
+        "geometries": 1789,
+        "textures": 9,
+        "frames": 379,
+        "allocationEstimates": null
+      },
+      "after": {
+        "fps": 37.39476473297082,
+        "frameMeanMs": 26.74171122992262,
+        "frameP50": 26.099999994039536,
+        "frameP95": 29.799999997019768,
+        "renderCpuP50": 18.30000001192093,
+        "gpuP50": 24.89174,
+        "calls": 2748,
+        "triangles": 334087,
+        "geometries": 1822,
+        "textures": 12,
+        "frames": 374,
+        "allocationEstimates": {
+          "geometryAttributeBytes": 12542876,
+          "instanceAttributeBytes": 22432,
+          "textureRgbaBytes": 5434026.666666664
+        }
+      },
+      "frameTimeChangePercent": 1.4637102799081259
+    }
+  ],
+  "individualWindows": [
+    {
+      "repeat": 0,
+      "quality": "low",
+      "camera": "overview",
+      "beforeFps": 74.3970241189909,
+      "afterFps": 57.34151165817701,
+      "frameTimeChangePercent": 29.743744047915644
+    },
+    {
+      "repeat": 0,
+      "quality": "low",
+      "camera": "reference",
+      "beforeFps": 77.8062244978207,
+      "afterFps": 71.70821348686503,
+      "frameTimeChangePercent": 8.503922653257344
+    },
+    {
+      "repeat": 0,
+      "quality": "balanced",
+      "camera": "overview",
+      "beforeFps": 40.506126050324276,
+      "afterFps": 38.82795612836614,
+      "frameTimeChangePercent": 4.322066081485398
+    },
+    {
+      "repeat": 0,
+      "quality": "balanced",
+      "camera": "reference",
+      "beforeFps": 40.76249850130591,
+      "afterFps": 42.89362381289289,
+      "frameTimeChangePercent": -4.968396517121521
+    },
+    {
+      "repeat": 0,
+      "quality": "high",
+      "camera": "overview",
+      "beforeFps": 35.42125275165099,
+      "afterFps": 35.382308845577214,
+      "frameTimeChangePercent": 0.11006603962375738
+    },
+    {
+      "repeat": 0,
+      "quality": "high",
+      "camera": "reference",
+      "beforeFps": 38.03575360841458,
+      "afterFps": 37.97645459819439,
+      "frameTimeChangePercent": 0.15614677791173648
+    },
+    {
+      "repeat": 1,
+      "quality": "low",
+      "camera": "overview",
+      "beforeFps": 72.23322728472318,
+      "afterFps": 66.86418962199726,
+      "frameTimeChangePercent": 8.029765548761848
+    },
+    {
+      "repeat": 1,
+      "quality": "low",
+      "camera": "reference",
+      "beforeFps": 78.70398114309924,
+      "afterFps": 73.99112106533985,
+      "frameTimeChangePercent": 6.36949408240155
+    },
+    {
+      "repeat": 1,
+      "quality": "balanced",
+      "camera": "overview",
+      "beforeFps": 39.32505367071977,
+      "afterFps": 39.829473810524824,
+      "frameTimeChangePercent": -1.2664494193537879
+    },
+    {
+      "repeat": 1,
+      "quality": "balanced",
+      "camera": "reference",
+      "beforeFps": 43.65063473626805,
+      "afterFps": 41.757844652712585,
+      "frameTimeChangePercent": 4.532777252507247
+    },
+    {
+      "repeat": 1,
+      "quality": "high",
+      "camera": "overview",
+      "beforeFps": 35.729256072933,
+      "afterFps": 33.26786644757288,
+      "frameTimeChangePercent": 7.39869997145457
+    },
+    {
+      "repeat": 1,
+      "quality": "high",
+      "camera": "reference",
+      "beforeFps": 37.84844601093912,
+      "afterFps": 36.81251625554883,
+      "frameTimeChangePercent": 2.8140694001979494
+    }
+  ],
+  "bundle": {
+    "before": {
+      "totalBytes": 1655415,
+      "totalGzipBytes": 474321,
+      "files": [
+        {
+          "file": "game-effects-BFkN5mXo.js",
+          "bytes": 1219502,
+          "gzipBytes": 336278,
+          "sha256": "a2da51b23df75367d7e193e8e4b65632af94f4480055c04db947d854d8d69418"
+        },
+        {
+          "file": "index-gFIq6IQg.js",
+          "bytes": 194143,
+          "gzipBytes": 61784,
+          "sha256": "ce187e7e32861913d00a8a890a20de943904a6905d48c1e4d5af286491a07ae9"
+        },
+        {
+          "file": "OnlineMatchScreen-CKDJt5lU.js",
+          "bytes": 10247,
+          "gzipBytes": 3715,
+          "sha256": "2da931d91a7aa74a03d4d89994061826b50997a4adef9a439223107ba9c3f853"
+        },
+        {
+          "file": "RoomScreen-kfY8_oKF.js",
+          "bytes": 54619,
+          "gzipBytes": 17422,
+          "sha256": "7da3a10cecf2071a076da5b00d98fea876f5732732f40a03aa2200121bdc856f"
+        },
+        {
+          "file": "SoloGame-CnLokgIS.js",
+          "bytes": 176904,
+          "gzipBytes": 55122,
+          "sha256": "98af1543e696d0c2fb9719e448a87c57398b2cb82fc14c3630137835a0951317"
+        }
+      ]
+    },
+    "after": {
+      "totalBytes": 1661254,
+      "totalGzipBytes": 476302,
+      "files": [
+        {
+          "file": "game-effects-CY6Nw7S-.js",
+          "bytes": 1225341,
+          "gzipBytes": 338251,
+          "sha256": "0363e20b86272cafbd5c8d777be47acec53111bc552807aa99ad1453cb69e3c8"
+        },
+        {
+          "file": "index-_8PIJi2v.js",
+          "bytes": 194143,
+          "gzipBytes": 61789,
+          "sha256": "59fd803403d0cab5a2093ea8ef57136d6ea60b086998d8d44a1b063019aa5e7d"
+        },
+        {
+          "file": "OnlineMatchScreen-ChK7Upcl.js",
+          "bytes": 10247,
+          "gzipBytes": 3715,
+          "sha256": "ec68272907f7c0e4999667e43be15fe4e04658988be2ebb143814d6769bc8833"
+        },
+        {
+          "file": "RoomScreen-CbzZ_KjH.js",
+          "bytes": 54619,
+          "gzipBytes": 17425,
+          "sha256": "b2eb70361b0fc06a915dad12c62253eef742d580c290255efdd091f985e5c706"
+        },
+        {
+          "file": "SoloGame-Dx6OGKZ6.js",
+          "bytes": 176904,
+          "gzipBytes": 55122,
+          "sha256": "68d232cf1a0cbf6267900232567af43dba5a46edb7a1fcd53b70a252c21e39ab"
+        }
+      ]
+    },
+    "addedBytes": 5839,
+    "addedGzipBytes": 1981
+  },
+  "newAssetBytes": 2470356,
+  "loading": [
+    {
+      "name": "balanced-wide",
+      "readyMs": 3923,
+      "assetDurations": [
+        {
+          "url": "/assets/models/environment/royal-island-left-balanced.glb",
+          "duration": 20.400000005960464,
+          "transferSize": 1665464
+        },
+        {
+          "url": "/assets/models/environment/royal-island-right-balanced.glb",
+          "duration": 19.200000002980232,
+          "transferSize": 1453936
+        },
+        {
+          "url": "/assets/models/environment/fantasy-airship-balanced.glb",
+          "duration": 6.5,
+          "transferSize": 125352
+        },
+        {
+          "url": "/assets/models/environment/royal-island-left-distant.glb",
+          "duration": 12.899999991059303,
+          "transferSize": 570404
+        },
+        {
+          "url": "/assets/models/environment/sky-observatory-balanced.glb",
+          "duration": 9.200000002980232,
+          "transferSize": 225848
+        },
+        {
+          "url": "/assets/models/environment/sky-ruins-balanced.glb",
+          "duration": 8.700000002980232,
+          "transferSize": 181820
+        },
+        {
+          "url": "/assets/models/environment/sky-hamlet-balanced.glb",
+          "duration": 15.099999994039536,
+          "transferSize": 325788
+        }
+      ]
+    },
+    {
+      "name": "balanced-orbit",
+      "readyMs": 725,
+      "assetDurations": [
+        {
+          "url": "/assets/models/environment/royal-island-left-balanced.glb",
+          "duration": 8.099999994039536,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/royal-island-right-balanced.glb",
+          "duration": 7.5999999940395355,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/fantasy-airship-balanced.glb",
+          "duration": 3.2999999970197678,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/royal-island-left-distant.glb",
+          "duration": 5.9000000059604645,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/sky-observatory-balanced.glb",
+          "duration": 4.299999997019768,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/sky-ruins-balanced.glb",
+          "duration": 4.299999997019768,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/sky-hamlet-balanced.glb",
+          "duration": 4.9000000059604645,
+          "transferSize": 300
+        }
+      ]
+    },
+    {
+      "name": "balanced-reverse",
+      "readyMs": 686,
+      "assetDurations": [
+        {
+          "url": "/assets/models/environment/royal-island-left-balanced.glb",
+          "duration": 7.200000002980232,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/royal-island-right-balanced.glb",
+          "duration": 6.799999997019768,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/fantasy-airship-balanced.glb",
+          "duration": 3.1000000089406967,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/royal-island-left-distant.glb",
+          "duration": 5.4000000059604645,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/sky-observatory-balanced.glb",
+          "duration": 4.5,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/sky-ruins-balanced.glb",
+          "duration": 4.800000011920929,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/sky-hamlet-balanced.glb",
+          "duration": 5.399999991059303,
+          "transferSize": 300
+        }
+      ]
+    },
+    {
+      "name": "balanced-close",
+      "readyMs": 698,
+      "assetDurations": [
+        {
+          "url": "/assets/models/environment/royal-island-left-balanced.glb",
+          "duration": 6.600000008940697,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/royal-island-right-balanced.glb",
+          "duration": 6.200000002980232,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/fantasy-airship-balanced.glb",
+          "duration": 2.7000000029802322,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/royal-island-left-distant.glb",
+          "duration": 5,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/sky-observatory-balanced.glb",
+          "duration": 4.299999997019768,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/sky-ruins-balanced.glb",
+          "duration": 4.4000000059604645,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/sky-hamlet-balanced.glb",
+          "duration": 5,
+          "transferSize": 300
+        }
+      ]
+    },
+    {
+      "name": "balanced-laptop",
+      "readyMs": 707,
+      "assetDurations": [
+        {
+          "url": "/assets/models/environment/royal-island-left-balanced.glb",
+          "duration": 6.9000000059604645,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/royal-island-right-balanced.glb",
+          "duration": 6.299999997019768,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/fantasy-airship-balanced.glb",
+          "duration": 2.5999999940395355,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/royal-island-left-distant.glb",
+          "duration": 4.700000002980232,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/sky-observatory-balanced.glb",
+          "duration": 3.9000000059604645,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/sky-ruins-balanced.glb",
+          "duration": 4.100000008940697,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/sky-hamlet-balanced.glb",
+          "duration": 5,
+          "transferSize": 300
+        }
+      ]
+    },
+    {
+      "name": "high-desktop",
+      "readyMs": 714,
+      "assetDurations": [
+        {
+          "url": "/assets/models/environment/royal-island-left.glb",
+          "duration": 87.5,
+          "transferSize": 2559396
+        },
+        {
+          "url": "/assets/models/environment/royal-island-right.glb",
+          "duration": 91.09999999403954,
+          "transferSize": 2113620
+        },
+        {
+          "url": "/assets/models/environment/royal-island-left-distant.glb",
+          "duration": 5.4000000059604645,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/fantasy-airship.glb",
+          "duration": 5.9000000059604645,
+          "transferSize": 164976
+        },
+        {
+          "url": "/assets/models/environment/royal-island-right-distant.glb",
+          "duration": 8.700000002980232,
+          "transferSize": 503396
+        },
+        {
+          "url": "/assets/models/environment/sky-observatory.glb",
+          "duration": 6.799999997019768,
+          "transferSize": 251088
+        },
+        {
+          "url": "/assets/models/environment/sky-ruins.glb",
+          "duration": 10,
+          "transferSize": 210720
+        },
+        {
+          "url": "/assets/models/environment/sky-hamlet.glb",
+          "duration": 11.799999997019768,
+          "transferSize": 597416
+        }
+      ]
+    },
+    {
+      "name": "low-portrait",
+      "readyMs": 2012,
+      "assetDurations": [
+        {
+          "url": "/assets/models/environment/royal-island-left-low.glb",
+          "duration": 12.799999997019768,
+          "transferSize": 937044
+        },
+        {
+          "url": "/assets/models/environment/royal-island-right-low.glb",
+          "duration": 11.5,
+          "transferSize": 824616
+        },
+        {
+          "url": "/assets/models/environment/fantasy-airship-low.glb",
+          "duration": 6.299999997019768,
+          "transferSize": 106060
+        },
+        {
+          "url": "/assets/models/environment/royal-island-left-distant.glb",
+          "duration": 12.600000008940697,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/sky-observatory-low.glb",
+          "duration": 6.399999991059303,
+          "transferSize": 204636
+        },
+        {
+          "url": "/assets/models/environment/sky-ruins-low.glb",
+          "duration": 6.5,
+          "transferSize": 165884
+        },
+        {
+          "url": "/assets/models/environment/sky-hamlet-low.glb",
+          "duration": 8.599999994039536,
+          "transferSize": 309856
+        }
+      ]
+    },
+    {
+      "name": "balanced-landscape",
+      "readyMs": 687,
+      "assetDurations": [
+        {
+          "url": "/assets/models/environment/royal-island-left-balanced.glb",
+          "duration": 7.5999999940395355,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/royal-island-right-balanced.glb",
+          "duration": 7.0999999940395355,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/fantasy-airship-balanced.glb",
+          "duration": 2.5,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/royal-island-left-distant.glb",
+          "duration": 5.799999997019768,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/sky-observatory-balanced.glb",
+          "duration": 4.799999997019768,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/sky-ruins-balanced.glb",
+          "duration": 4.5,
+          "transferSize": 300
+        },
+        {
+          "url": "/assets/models/environment/sky-hamlet-balanced.glb",
+          "duration": 5.300000011920929,
+          "transferSize": 300
+        }
+      ]
+    }
+  ]
+}

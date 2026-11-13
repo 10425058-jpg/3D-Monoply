@@ -1,0 +1,74 @@
+{
+  "passed": true,
+  "baselineCommit": "712693a47b7664469deb519ee5f89bddd04a2fc2",
+  "node": "v24.21.0",
+  "blender": "5.2.3 LTS",
+  "frontendBuild": {
+    "passed": true,
+    "javascript": [
+      {
+        "file": "game-effects-CY6Nw7S-.js",
+        "bytes": 1225341,
+        "gzipBytes": 338251,
+        "sha256": "0363e20b86272cafbd5c8d777be47acec53111bc552807aa99ad1453cb69e3c8"
+      },
+      {
+        "file": "index-_8PIJi2v.js",
+        "bytes": 194143,
+        "gzipBytes": 61789,
+        "sha256": "59fd803403d0cab5a2093ea8ef57136d6ea60b086998d8d44a1b063019aa5e7d"
+      },
+      {
+        "file": "OnlineMatchScreen-ChK7Upcl.js",
+        "bytes": 10247,
+        "gzipBytes": 3715,
+        "sha256": "ec68272907f7c0e4999667e43be15fe4e04658988be2ebb143814d6769bc8833"
+      },
+      {
+        "file": "RoomScreen-CbzZ_KjH.js",
+        "bytes": 54619,
+        "gzipBytes": 17425,
+        "sha256": "b2eb70361b0fc06a915dad12c62253eef742d580c290255efdd091f985e5c706"
+      },
+      {
+        "file": "SoloGame-Dx6OGKZ6.js",
+        "bytes": 176904,
+        "gzipBytes": 55122,
+        "sha256": "68d232cf1a0cbf6267900232567af43dba5a46edb7a1fcd53b70a252c21e39ab"
+      }
+    ]
+  },
+  "unitTests": {
+    "passed": 68,
+    "failed": 0,
+    "artifact": "unit-tests.xml"
+  },
+  "realTwoPlayerBrowser": {
+    "passed": 10,
+    "failed": 0,
+    "artifact": "online-final/results.json"
+  },
+  "softwareWebGlRetest": {
+    "passed": 10,
+    "failed": 0,
+    "artifact": "online-software/results.json",
+    "launch": "CI=true, ANGLE SwiftShader"
+  },
+  "actualGlbInspection": {
+    "passed": true,
+    "models": 31
+  },
+  "cameraViews": 8,
+  "graphics": true,
+  "motion": true,
+  "contextRecovery": true,
+  "mountAndDownloadResilience": true,
+  "nestedProductionPrefix": true,
+  "worstControlledMeanFrameChangePercent": 18.06376118379982,
+  "limitations": [
+    "844x390 retains the existing HUD and small fitted board; fog visibility is corrected, layout is unchanged.",
+    "One intermediate reused-database browser run timed out in lobby join before mounting 3D; the final fresh-database run passes all 10 scenarios. Root cause was not established.",
+    "game-dev CLI unavailable; installed Blender and repository validator were used directly.",
+    "Local Node 24 verification is separate from required Node 22 GitHub CI. No representative-device or live-deployment certification."
+  ]
+}

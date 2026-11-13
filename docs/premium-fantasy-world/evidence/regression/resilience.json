@@ -1,0 +1,683 @@
+{
+  "passed": true,
+  "mountCycles": [
+    {
+      "environment": {
+        "meshes": 72,
+        "triangles": 61903,
+        "shadowCasters": 0,
+        "waterfalls": {
+          "waterfall-left": 0,
+          "waterfall-right": 0,
+          "waterfall-hamlet-0": 0,
+          "waterfall-hamlet-1": 0,
+          "waterfall-hamlet-2": 0
+        },
+        "fallbacks": 0,
+        "landmarks": [
+          "skyway-observatory",
+          "skyway-ruins",
+          "skyway-hamlet"
+        ],
+        "oldValleyPresent": false,
+        "oldKingdomPresent": false,
+        "airship": {
+          "position": [
+            -42,
+            -11,
+            -72.4
+          ],
+          "rotation": [
+            0,
+            -0.32,
+            0,
+            "XYZ"
+          ]
+        }
+      },
+      "metadata": {
+        "quality": "low",
+        "three": "164",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "gpuTimerAvailable": true,
+        "viewport": [
+          1440,
+          900
+        ],
+        "dpr": 0.9,
+        "drawingBuffer": [
+          1296,
+          810
+        ],
+        "fogRange": [
+          48,
+          150
+        ],
+        "clipping": [
+          0.5,
+          400
+        ],
+        "camera": {
+          "position": [
+            0,
+            49.96679067741256,
+            19.153921663717956
+          ],
+          "fov": 40,
+          "view": {
+            "enabled": true,
+            "fullWidth": 1440,
+            "fullHeight": 900,
+            "offsetX": -74,
+            "offsetY": 42.816701245597784,
+            "width": 1440,
+            "height": 900
+          },
+          "target": [
+            0,
+            0.7,
+            0
+          ]
+        },
+        "meshes": 1818,
+        "materialTextures": [
+          {
+            "name": "Sunset atmosphere 512x256",
+            "width": 512,
+            "height": 256
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Walnut grain 128x32",
+            "width": 128,
+            "height": 32
+          }
+        ],
+        "allocationEstimates": {
+          "geometryAttributeBytes": 7573050,
+          "instanceAttributeBytes": 18592,
+          "textureRgbaBytes": 1152341.3333333335
+        },
+        "memory": {
+          "geometries": 1790,
+          "textures": 8
+        },
+        "programs": 18
+      },
+      "canvases": 1,
+      "assetUrls": [
+        "http://127.0.0.1:4175/assets/models/environment/royal-island-left-low.glb",
+        "http://127.0.0.1:4175/assets/models/environment/royal-island-right-low.glb",
+        "http://127.0.0.1:4175/assets/models/environment/fantasy-airship-low.glb",
+        "http://127.0.0.1:4175/assets/models/environment/royal-island-left-distant.glb",
+        "http://127.0.0.1:4175/assets/models/environment/sky-observatory-low.glb",
+        "http://127.0.0.1:4175/assets/models/environment/sky-ruins-low.glb",
+        "http://127.0.0.1:4175/assets/models/environment/sky-hamlet-low.glb"
+      ]
+    },
+    {
+      "environment": {
+        "meshes": 72,
+        "triangles": 61903,
+        "shadowCasters": 0,
+        "waterfalls": {
+          "waterfall-left": 0,
+          "waterfall-right": 0,
+          "waterfall-hamlet-0": 0,
+          "waterfall-hamlet-1": 0,
+          "waterfall-hamlet-2": 0
+        },
+        "fallbacks": 0,
+        "landmarks": [
+          "skyway-observatory",
+          "skyway-ruins",
+          "skyway-hamlet"
+        ],
+        "oldValleyPresent": false,
+        "oldKingdomPresent": false,
+        "airship": {
+          "position": [
+            -42,
+            -11,
+            -72.4
+          ],
+          "rotation": [
+            0,
+            -0.32,
+            0,
+            "XYZ"
+          ]
+        }
+      },
+      "metadata": {
+        "quality": "low",
+        "three": "164",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "gpuTimerAvailable": true,
+        "viewport": [
+          1440,
+          900
+        ],
+        "dpr": 0.9,
+        "drawingBuffer": [
+          1296,
+          810
+        ],
+        "fogRange": [
+          48,
+          150
+        ],
+        "clipping": [
+          0.5,
+          400
+        ],
+        "camera": {
+          "position": [
+            0,
+            49.96679067741256,
+            19.153921663717956
+          ],
+          "fov": 40,
+          "view": {
+            "enabled": true,
+            "fullWidth": 1440,
+            "fullHeight": 900,
+            "offsetX": -74,
+            "offsetY": 42.816701245597784,
+            "width": 1440,
+            "height": 900
+          },
+          "target": [
+            0,
+            0.7,
+            0
+          ]
+        },
+        "meshes": 1818,
+        "materialTextures": [
+          {
+            "name": "Sunset atmosphere 512x256",
+            "width": 512,
+            "height": 256
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Walnut grain 128x32",
+            "width": 128,
+            "height": 32
+          }
+        ],
+        "allocationEstimates": {
+          "geometryAttributeBytes": 7573050,
+          "instanceAttributeBytes": 18592,
+          "textureRgbaBytes": 1152341.3333333335
+        },
+        "memory": {
+          "geometries": 1790,
+          "textures": 8
+        },
+        "programs": 18
+      },
+      "canvases": 1,
+      "assetUrls": [
+        "http://127.0.0.1:4175/assets/models/environment/royal-island-left-low.glb",
+        "http://127.0.0.1:4175/assets/models/environment/royal-island-right-low.glb",
+        "http://127.0.0.1:4175/assets/models/environment/fantasy-airship-low.glb",
+        "http://127.0.0.1:4175/assets/models/environment/royal-island-left-distant.glb",
+        "http://127.0.0.1:4175/assets/models/environment/sky-observatory-low.glb",
+        "http://127.0.0.1:4175/assets/models/environment/sky-ruins-low.glb",
+        "http://127.0.0.1:4175/assets/models/environment/sky-hamlet-low.glb"
+      ]
+    },
+    {
+      "environment": {
+        "meshes": 72,
+        "triangles": 61903,
+        "shadowCasters": 0,
+        "waterfalls": {
+          "waterfall-left": 0,
+          "waterfall-right": 0,
+          "waterfall-hamlet-0": 0,
+          "waterfall-hamlet-1": 0,
+          "waterfall-hamlet-2": 0
+        },
+        "fallbacks": 0,
+        "landmarks": [
+          "skyway-observatory",
+          "skyway-ruins",
+          "skyway-hamlet"
+        ],
+        "oldValleyPresent": false,
+        "oldKingdomPresent": false,
+        "airship": {
+          "position": [
+            -42,
+            -11,
+            -72.4
+          ],
+          "rotation": [
+            0,
+            -0.32,
+            0,
+            "XYZ"
+          ]
+        }
+      },
+      "metadata": {
+        "quality": "low",
+        "three": "164",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "gpuTimerAvailable": true,
+        "viewport": [
+          1440,
+          900
+        ],
+        "dpr": 0.9,
+        "drawingBuffer": [
+          1296,
+          810
+        ],
+        "fogRange": [
+          48,
+          150
+        ],
+        "clipping": [
+          0.5,
+          400
+        ],
+        "camera": {
+          "position": [
+            0,
+            49.96679067741256,
+            19.153921663717956
+          ],
+          "fov": 40,
+          "view": {
+            "enabled": true,
+            "fullWidth": 1440,
+            "fullHeight": 900,
+            "offsetX": -74,
+            "offsetY": 42.816701245597784,
+            "width": 1440,
+            "height": 900
+          },
+          "target": [
+            0,
+            0.7,
+            0
+          ]
+        },
+        "meshes": 1818,
+        "materialTextures": [
+          {
+            "name": "Sunset atmosphere 512x256",
+            "width": 512,
+            "height": 256
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Walnut grain 128x32",
+            "width": 128,
+            "height": 32
+          }
+        ],
+        "allocationEstimates": {
+          "geometryAttributeBytes": 7573050,
+          "instanceAttributeBytes": 18592,
+          "textureRgbaBytes": 1152341.3333333335
+        },
+        "memory": {
+          "geometries": 1790,
+          "textures": 8
+        },
+        "programs": 18
+      },
+      "canvases": 1,
+      "assetUrls": [
+        "http://127.0.0.1:4175/assets/models/environment/royal-island-left-low.glb",
+        "http://127.0.0.1:4175/assets/models/environment/royal-island-right-low.glb",
+        "http://127.0.0.1:4175/assets/models/environment/fantasy-airship-low.glb",
+        "http://127.0.0.1:4175/assets/models/environment/royal-island-left-distant.glb",
+        "http://127.0.0.1:4175/assets/models/environment/sky-observatory-low.glb",
+        "http://127.0.0.1:4175/assets/models/environment/sky-ruins-low.glb",
+        "http://127.0.0.1:4175/assets/models/environment/sky-hamlet-low.glb"
+      ]
+    },
+    {
+      "environment": {
+        "meshes": 72,
+        "triangles": 61903,
+        "shadowCasters": 0,
+        "waterfalls": {
+          "waterfall-left": 0,
+          "waterfall-right": 0,
+          "waterfall-hamlet-0": 0,
+          "waterfall-hamlet-1": 0,
+          "waterfall-hamlet-2": 0
+        },
+        "fallbacks": 0,
+        "landmarks": [
+          "skyway-observatory",
+          "skyway-ruins",
+          "skyway-hamlet"
+        ],
+        "oldValleyPresent": false,
+        "oldKingdomPresent": false,
+        "airship": {
+          "position": [
+            -42,
+            -11,
+            -72.4
+          ],
+          "rotation": [
+            0,
+            -0.32,
+            0,
+            "XYZ"
+          ]
+        }
+      },
+      "metadata": {
+        "quality": "low",
+        "three": "164",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "gpuTimerAvailable": true,
+        "viewport": [
+          1440,
+          900
+        ],
+        "dpr": 0.9,
+        "drawingBuffer": [
+          1296,
+          810
+        ],
+        "fogRange": [
+          48,
+          150
+        ],
+        "clipping": [
+          0.5,
+          400
+        ],
+        "camera": {
+          "position": [
+            0,
+            49.96679067741256,
+            19.153921663717956
+          ],
+          "fov": 40,
+          "view": {
+            "enabled": true,
+            "fullWidth": 1440,
+            "fullHeight": 900,
+            "offsetX": -74,
+            "offsetY": 42.816701245597784,
+            "width": 1440,
+            "height": 900
+          },
+          "target": [
+            0,
+            0.7,
+            0
+          ]
+        },
+        "meshes": 1818,
+        "materialTextures": [
+          {
+            "name": "Sunset atmosphere 512x256",
+            "width": 512,
+            "height": 256
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Kingdom_Surface_Atlas_128",
+            "width": 128,
+            "height": 128
+          },
+          {
+            "name": "Walnut grain 128x32",
+            "width": 128,
+            "height": 32
+          }
+        ],
+        "allocationEstimates": {
+          "geometryAttributeBytes": 7573050,
+          "instanceAttributeBytes": 18592,
+          "textureRgbaBytes": 1152341.3333333335
+        },
+        "memory": {
+          "geometries": 1790,
+          "textures": 8
+        },
+        "programs": 18
+      },
+      "canvases": 1,
+      "assetUrls": [
+        "http://127.0.0.1:4175/assets/models/environment/royal-island-left-low.glb",
+        "http://127.0.0.1:4175/assets/models/environment/royal-island-right-low.glb",
+        "http://127.0.0.1:4175/assets/models/environment/fantasy-airship-low.glb",
+        "http://127.0.0.1:4175/assets/models/environment/royal-island-left-distant.glb",
+        "http://127.0.0.1:4175/assets/models/environment/sky-observatory-low.glb",
+        "http://127.0.0.1:4175/assets/models/environment/sky-ruins-low.glb",
+        "http://127.0.0.1:4175/assets/models/environment/sky-hamlet-low.glb"
+      ]
+    }
+  ],
+  "modelResponses": [
+    {
+      "url": "http://127.0.0.1:4175/assets/models/environment/royal-island-left-low.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4175/assets/models/environment/royal-island-right-low.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4175/assets/models/environment/fantasy-airship-low.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4175/assets/models/environment/royal-island-left-distant.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4175/assets/models/environment/sky-ruins-low.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4175/assets/models/environment/sky-observatory-low.glb",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4175/assets/models/environment/sky-hamlet-low.glb",
+      "status": 200
+    }
+  ],
+  "missingOptionalAsset": {
+    "fallbackVisible": true,
+    "boardPointerSelection": true,
+    "warnings": [
+      "[Fantasy environment] sky-observatory-low.glb could not load; using its scenic fallback. Could not load http://127.0.0.1:4175/assets/models/environment/sky-observatory-low.glb: Failed to fetch",
+      "[Fantasy environment] asset readiness could not load; using its scenic fallback. Could not load http://127.0.0.1:4175/assets/models/environment/sky-observatory-low.glb: Failed to fetch"
+    ],
+    "faultErrors": []
+  },
+  "productionPrefix": {
+    "url": "http://127.0.0.1:4177/3D-Monoply",
+    "assetUrls": [
+      "http://127.0.0.1:4177/3D-Monoply/assets/models/environment/royal-island-left-low.glb",
+      "http://127.0.0.1:4177/3D-Monoply/assets/models/environment/royal-island-right-low.glb",
+      "http://127.0.0.1:4177/3D-Monoply/assets/models/environment/fantasy-airship-low.glb",
+      "http://127.0.0.1:4177/3D-Monoply/assets/models/environment/royal-island-left-distant.glb",
+      "http://127.0.0.1:4177/3D-Monoply/assets/models/environment/sky-observatory-low.glb",
+      "http://127.0.0.1:4177/3D-Monoply/assets/models/environment/sky-ruins-low.glb",
+      "http://127.0.0.1:4177/3D-Monoply/assets/models/environment/sky-hamlet-low.glb"
+    ],
+    "responses": [
+      {
+        "url": "http://127.0.0.1:4177/3D-Monoply/assets/models/environment/royal-island-left-distant.glb",
+        "status": 200
+      },
+      {
+        "url": "http://127.0.0.1:4177/3D-Monoply/assets/models/environment/royal-island-left-low.glb",
+        "status": 200
+      },
+      {
+        "url": "http://127.0.0.1:4177/3D-Monoply/assets/models/environment/royal-island-right-low.glb",
+        "status": 200
+      },
+      {
+        "url": "http://127.0.0.1:4177/3D-Monoply/assets/models/environment/sky-observatory-low.glb",
+        "status": 200
+      },
+      {
+        "url": "http://127.0.0.1:4177/3D-Monoply/assets/models/environment/fantasy-airship-low.glb",
+        "status": 200
+      },
+      {
+        "url": "http://127.0.0.1:4177/3D-Monoply/assets/models/environment/sky-ruins-low.glb",
+        "status": 200
+      },
+      {
+        "url": "http://127.0.0.1:4177/3D-Monoply/assets/models/environment/sky-hamlet-low.glb",
+        "status": 200
+      }
+    ],
+    "errors": []
+  }
+}

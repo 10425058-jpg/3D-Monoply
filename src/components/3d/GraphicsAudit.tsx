@@ -54,8 +54,9 @@ export function GraphicsAudit({ quality }: { quality: string }) {
       environment() {
         const world = scene.getObjectByName('premium-fantasy-world');
         const waterfalls: Record<string, number> = {};
-        let triangles = 0, meshes = 0, shadowCasters = 0;
+        let triangles = 0, meshes = 0, shadowCasters = 0, fallbacks = 0;
         world?.traverse(object => {
+          if (object.name === 'environment-landmark-fallback') fallbacks++;
           if (!(object instanceof THREE.Mesh)) return;
           meshes++; if (object.castShadow) shadowCasters++;
           triangles += (object.geometry.index?.count ?? object.geometry.getAttribute('position').count) / 3 *
@@ -65,7 +66,8 @@ export function GraphicsAudit({ quality }: { quality: string }) {
           }
         });
         const airship = scene.getObjectByName('fantasy-airship');
-        return { meshes, triangles, shadowCasters, waterfalls,
+        return { meshes, triangles, shadowCasters, waterfalls, fallbacks,
+          landmarks: ['skyway-observatory', 'skyway-ruins', 'skyway-hamlet'].filter(name => !!world?.getObjectByName(name)),
           oldValleyPresent: !!scene.getObjectByName('kingdom-valley'),
           oldKingdomPresent: !!scene.getObjectByName('distant-fantasy-kingdom'),
           airship: airship ? { position: airship.position.toArray(), rotation: airship.rotation.toArray() } : null };
@@ -133,10 +135,18 @@ export function GraphicsAudit({ quality }: { quality: string }) {
       },
       metadata() {
         const textures = new Set<THREE.Texture>();
+        const buffers = new Set<THREE.BufferAttribute | THREE.InterleavedBuffer>();
+        let instanceAttributeBytes = 0;
         let meshes = 0;
         scene.traverse(object => {
           if (!(object instanceof THREE.Mesh)) return;
           meshes++;
+          for (const attribute of [...Object.values(object.geometry.attributes), object.geometry.index]) {
+            if (attribute) buffers.add(attribute instanceof THREE.InterleavedBufferAttribute ? attribute.data : attribute);
+          }
+          if (object instanceof THREE.InstancedMesh) {
+            instanceAttributeBytes += object.instanceMatrix.array.byteLength + (object.instanceColor?.array.byteLength ?? 0);
+          }
           const materials = Array.isArray(object.material) ? object.material : [object.material];
           materials.forEach(material => {
             Object.values(material).forEach(value => { if (value instanceof THREE.Texture) textures.add(value); });
@@ -149,10 +159,20 @@ export function GraphicsAudit({ quality }: { quality: string }) {
           renderer: debug ? context.getParameter(debug.UNMASKED_RENDERER_WEBGL) : context.getParameter(context.RENDERER),
           gpuTimerAvailable: !!timer, viewport: [state.size.width, state.size.height], dpr: gl.getPixelRatio(),
           drawingBuffer: gl.getDrawingBufferSize(new THREE.Vector2()).toArray(),
+          fogRange: scene.fog instanceof THREE.Fog ? [scene.fog.near,scene.fog.far] : null,
+          clipping: [camera.near,camera.far],
           camera: { position: camera.position.toArray(), fov: (camera as THREE.PerspectiveCamera).fov,
             view: (camera as THREE.PerspectiveCamera).view,
             target: (state.get().controls as any)?.target.toArray() },
           meshes, materialTextures: [...textures].map(t => ({ name: t.name, width: t.image?.width, height: t.image?.height })),
+          // Allocation estimates from actual scene buffers/images. WebGL does
+          // not expose driver VRAM; these deliberately aren't labelled VRAM.
+          allocationEstimates: {
+            geometryAttributeBytes: [...buffers].reduce((sum, buffer) => sum + buffer.array.byteLength, 0),
+            instanceAttributeBytes,
+            textureRgbaBytes: [...textures].reduce((sum, texture) => sum +
+              (texture.image?.width ?? 0) * (texture.image?.height ?? 0) * 4 * (texture.generateMipmaps ? 4 / 3 : 1), 0),
+          },
           memory: { ...gl.info.memory }, programs: gl.info.programs?.length };
       },
     };

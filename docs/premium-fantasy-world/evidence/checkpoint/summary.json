@@ -1,0 +1,30 @@
+[
+  {
+    "quality": "balanced",
+    "camera": "overview",
+    "fps": 39.523043944344714,
+    "frameP50": 25.100000008940697,
+    "frameP95": 32.599999994039536,
+    "renderCpuP50": 22.400000005960464,
+    "gpuP50": 23.82547,
+    "calls": 2729,
+    "triangles": 269862,
+    "textures": 10,
+    "geometries": 1803,
+    "samples": 59
+  },
+  {
+    "quality": "balanced",
+    "camera": "reference",
+    "fps": 41.26455906821963,
+    "frameP50": 23.899999991059303,
+    "frameP95": 32.20000000298023,
+    "renderCpuP50": 17.900000005960464,
+    "gpuP50": 22.38718,
+    "calls": 2738,
+    "triangles": 271780,
+    "textures": 11,
+    "geometries": 1812,
+    "samples": 62
+  }
+]

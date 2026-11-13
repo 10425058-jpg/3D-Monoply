@@ -23,10 +23,13 @@ try {
   assert.equal(moving.oldValleyPresent,false);
   assert.equal(moving.oldKingdomPresent,false);
   assert.equal(moving.shadowCasters,0);
-  assert.equal(Object.keys(moving.waterfalls).length,2);
-  // Low now includes one existing simplified distant island for depth. The
-  // complete environment, including water and airship, still has a hard cap.
-  assert.ok(moving.triangles < 36000,'low environment geometry budget');
+  assert.equal(Object.keys(moving.waterfalls).length,5);
+  assert.equal(moving.landmarks.length,3);
+  assert.equal(moving.fallbacks,0);
+  // Two hero kingdoms, ten supporting destinations and a distant silhouette.
+  // The low island/water/airship subsystem stays below 65k. Sky and ridges are
+  // measured separately in the whole-scene rendering audit.
+  assert.ok(moving.triangles < 65000,'low environment geometry budget');
   assert.notDeepEqual(moving.airship,first.airship,'airship advances');
   assert.ok(moving.waterfalls['waterfall-left'] > first.waterfalls['waterfall-left'],'water advances');
 
