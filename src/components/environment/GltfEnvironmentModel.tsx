@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { finishEnvironmentMaterial } from './environmentMaterial';
+import { releaseInstanceBuffers } from './instanceResources';
 
 export interface EnvironmentPlacement {
   position: [number, number, number];
@@ -48,7 +49,7 @@ function ModelPart({ geometry, material, matrix, placements }: {
     const instance = ref.current!;
     instance.instanceMatrix.needsUpdate = true; instance.computeBoundingSphere();
     // Instance buffers belong to this component; cached geometry/atlas do not.
-    return () => { instance.dispose(); };
+    return () => { releaseInstanceBuffers(instance); };
   }, [placements, matrix]);
   return <instancedMesh ref={ref} args={[geometry, material, placements.length]} dispose={null} raycast={() => {}}
     castShadow={false} receiveShadow={false} />;

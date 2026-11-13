@@ -2,7 +2,7 @@ import React, { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { RoundedBox } from '@react-three/drei';
 import * as THREE from 'three';
-import { useGameStore } from '../../store/useGameStore';
+import { useSceneStore, useSceneState as useGameStore } from '../../presentation/SceneStore';
 import { DIE_REST_ROTATIONS } from '../../presentation/animationMath';
 import { useMotionPreferences } from '../../presentation/useMotionPreferences';
 import { isGameReset } from '../../presentation/effectEvents';
@@ -33,6 +33,7 @@ const PIP_POSITIONS = DICE_FACES.flatMap(face => PIP_LAYOUTS[face.value].map(([x
 const Die: React.FC<{
   value: number; rolling: boolean; index: number; speed: number; reduced: boolean; visible: boolean; trails: boolean;
 }> = ({ value, rolling, index, speed, reduced, visible, trails }) => {
+  const store = useSceneStore();
   const die = useRef<THREE.Group>(null);
   const pips = useRef<THREE.InstancedMesh>(null);
   const halo = useRef<THREE.Mesh>(null);
@@ -45,7 +46,7 @@ const Die: React.FC<{
   const target = useMemo(() => new THREE.Quaternion().setFromEuler(new THREE.Euler(...DIE_REST_ROTATIONS[value])), [value]);
   const rest = useRef(target.clone());
 
-  useEffect(() => useGameStore.subscribe((next, previous) => {
+  useEffect(() => store.subscribe((next, previous) => {
     if (next.dice !== previous.dice) rest.current.setFromEuler(new THREE.Euler(...DIE_REST_ROTATIONS[next.dice[index]]));
     if (isGameReset(previous, next)) {
       hadRoll.current = false; landed.current = null;
@@ -58,7 +59,7 @@ const Die: React.FC<{
       landed.current = performance.now();
       die.current?.quaternion.copy(rest.current);
     }
-  }), [index]);
+  }), [index, store]);
 
   useLayoutEffect(() => {
     PIP_POSITIONS.forEach((point, i) => {
@@ -71,7 +72,7 @@ const Die: React.FC<{
   useFrame(() => {
     if (!die.current || !visible) return;
     const now = performance.now();
-    const actual = useGameStore.getState();
+    const actual = store.getState();
     const rollingNow = actual.turnPhase === 'ROLLING';
     const age = landed.current === null ? Infinity : (now - landed.current) / 1000;
     die.current.visible = rollingNow || age < 2.2;

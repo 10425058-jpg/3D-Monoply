@@ -2,12 +2,13 @@ import { useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { getSpaceTransform } from '../../data/boardData';
-import { useGameStore } from '../../store/useGameStore';
+import { useSceneStore } from '../../presentation/SceneStore';
 
 /** Explicit opt-in diagnostics. No instrumentation or globals in ordinary play. */
 export const graphicsAuditEnabled = () => new URLSearchParams(window.location.search).has('graphicsAudit');
 
 export function GraphicsAudit({ quality }: { quality: string }) {
+  const store = useSceneStore();
   const state = useThree();
   useEffect(() => {
     const { gl, camera, scene } = state;
@@ -70,7 +71,7 @@ export function GraphicsAudit({ quality }: { quality: string }) {
           airship: airship ? { position: airship.position.toArray(), rotation: airship.rotation.toArray() } : null };
       },
       game() {
-        const game = useGameStore.getState();
+        const game = store.getState();
         return { turnPhase: game.turnPhase, currentPlayerIndex: game.currentPlayerIndex,
           selectedSpaceId: game.selectedSpaceId, hoveredSpaceId: game.hoveredSpaceId,
           cameraMode: game.cameraMode, dice: game.dice,
@@ -155,7 +156,7 @@ export function GraphicsAudit({ quality }: { quality: string }) {
           memory: { ...gl.info.memory }, programs: gl.info.programs?.length };
       },
     };
-    const unsubscribe = useGameStore.subscribe((next, previousState) => {
+    const unsubscribe = store.subscribe((next, previousState) => {
       if (next.hoveredSpaceId !== null && next.hoveredSpaceId !== previousState.hoveredSpaceId) audit.hovered.push(next.hoveredSpaceId);
       if (audit.hovered.length > 200) audit.hovered.shift();
     });
@@ -167,7 +168,7 @@ export function GraphicsAudit({ quality }: { quality: string }) {
       gl.render = originalRender; gl.info.autoReset = originalAutoReset;
       pending.forEach(query => context.deleteQuery(query)); delete (window as any).__graphicsAudit;
     };
-  }, [state, quality]);
+  }, [state, quality, store]);
   useFrame(() => (window as any).__graphicsAudit?.frame(), -100);
   return null;
 }

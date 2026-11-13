@@ -1,0 +1,59 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { ArrowLeft, LogOut, ShieldCheck, UserRound } from 'lucide-react';
+import SoloApp from './App';
+import { SceneStoreProvider } from './presentation/SceneStore';
+import { PresentationProvider } from './presentation/PresentationProvider';
+import { session, SOCKET_URL } from './online/config';
+import { OnlineController } from './online/onlineController';
+import { AuthScreen, Dialog, ErrorNotice, Lobby, Menu, OnlineLayout, OnlineMatch, Settings, WaitingRoom, privateInvites, useSession, type Quality } from './online/components';
+import { describeError } from './online/apiClient';
+import './online/online.css';
+
+const route = () => location.hash.slice(1) || (new URLSearchParams(location.search).has('graphicsAudit') ? 'solo' : 'home');
+export const navigate = (path: string) => { location.hash = path; };
+function initialQuality(): Quality {
+  try { const value = localStorage.getItem('monopoly-graphics-quality'); if (value === 'low' || value === 'balanced' || value === 'high') return value; } catch {}
+  return navigator.hardwareConcurrency <= 4 ? 'low' : 'balanced';
+}
+function RoomScreen({ id, match, quality, settings }: { id: string; match: boolean; quality: Quality; settings: () => void }) {
+  const [controller, setController] = useState<OnlineController | null>(null);
+  useEffect(() => {
+    const current = new OnlineController(session, SOCKET_URL, match ? { matchId: id } : { roomId: id }, next => navigate(`online/match/${next}`));
+    setController(current); current.start(); return () => current.stop();
+  }, [id, match]);
+  if (!controller) return null;
+  if (!match) return <WaitingRoom controller={controller} onLeave={() => navigate('online/lobby')} />;
+  return <SceneStoreProvider value={controller.presenter.store}><PresentationProvider><OnlineMatch controller={controller} quality={quality} settings={settings} onLobby={() => navigate('online/lobby')} /></PresentationProvider></SceneStoreProvider>;
+}
+export default function Application() {
+  const [path, setPath] = useState(route); const auth = useSession();
+  const [quality, updateQuality] = useState<Quality>(initialQuality); const [settings, setSettings] = useState(false);
+  const [profile, setProfile] = useState(false); const [loggingOut, setLoggingOut] = useState(false); const [logoutError, setLogoutError] = useState<string | null>(null);
+  const previousUser = useRef<string | null>(null);
+  useEffect(() => {
+    if (auth.status === 'anonymous') { privateInvites.clear(); setProfile(false); }
+    if (auth.user) {
+      if (previousUser.current && previousUser.current !== auth.user.id) { privateInvites.clear(); navigate('online/lobby'); }
+      previousUser.current = auth.user.id;
+    }
+  }, [auth.user?.id, auth.status]);
+  useEffect(() => { const update = () => setPath(route()); window.addEventListener('hashchange', update); return () => window.removeEventListener('hashchange', update); }, []);
+  useEffect(() => { if (path.startsWith('online') && auth.status === 'idle') void session.restore(); }, [path, auth.status]);
+  const setQuality = (value: Quality) => { updateQuality(value); try { localStorage.setItem('monopoly-graphics-quality', value); } catch {} };
+  const home = () => navigate('home'); const solo = () => navigate('solo'); const online = () => navigate('online/lobby');
+  const [_, area, id] = path.split('/');
+  const uuid = id && /^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(id);
+  let content: React.ReactNode;
+  if (path === 'solo') content = <PresentationProvider><SoloApp /><button className="city-solo-home" onClick={home}><ArrowLeft size={14} />Main menu</button></PresentationProvider>;
+  else if (!path.startsWith('online')) content = <PresentationProvider><Menu quality={quality} solo={solo} online={online} settings={() => setSettings(true)} /></PresentationProvider>;
+  else if (auth.status !== 'authenticated') content = <AuthScreen onHome={home} onSuccess={() => { if (area !== 'room' && area !== 'match') online(); }} />;
+  else if (area === 'match' && uuid) content = <RoomScreen key={`${auth.user?.id}-${id}`} id={id} match quality={quality} settings={() => setSettings(true)} />;
+  else content = <OnlineLayout title={area === 'room' && uuid ? 'Waiting room' : 'Find your next adventure.'}
+    subtitle={area === 'room' && uuid ? 'A seat for every friend. A city full of possibilities.' : 'Join a table, invite your friends, and make this little city yours.'}
+    home={home} solo={solo} settings={() => setSettings(true)} profile={() => { setLogoutError(null); setProfile(true); }}>
+    {area === 'room' && uuid ? <RoomScreen key={`${auth.user?.id}-${id}`} id={id} match={false} quality={quality} settings={() => setSettings(true)} /> : <Lobby key={auth.user?.id} enterRoom={room => navigate(`online/room/${room.roomId}`)} />}
+  </OnlineLayout>;
+  return <>{content}{settings && <Settings quality={quality} setQuality={setQuality} onClose={() => setSettings(false)} />}
+    {profile && <Dialog title="Your place in the city" onClose={() => { if (!loggingOut) setProfile(false); }}><div className="city-profile-detail"><span className="city-seat-avatar"><UserRound size={40} /></span><h2>{auth.user?.username}</h2><p>{auth.user?.email}</p><span className="city-status"><ShieldCheck size={15} />Signed in securely</span></div><ErrorNotice message={logoutError} /><button className="city-button outline" disabled={loggingOut} onClick={async () => { setLoggingOut(true); setLogoutError(null); try { await session.logout(); privateInvites.clear(); setProfile(false); home(); } catch (error) { setLogoutError(describeError(error)); } finally { setLoggingOut(false); } }}><LogOut size={17} />{loggingOut ? 'Signing out…' : 'Sign out'}</button></Dialog>}
+  </>;
+}

@@ -8,6 +8,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "tsc --noEmit",
+    "test:online": "node --import tsx --test tests/online.test.ts",
+    "test:online-browser": "node scripts/online-browser.mjs",
     "test:animations": "node --test tests/animations.test.mjs",
     "preview": "vite preview",
     "test:graphics": "node --test tests/graphics.test.mjs",
@@ -28,6 +30,7 @@
     "lucide-react": "^0.378.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "socket.io-client": "^4.8.1",
     "three": "^0.164.1",
     "zustand": "^4.5.2"
   },
@@ -42,6 +45,7 @@
     "postcss": "^8.4.38",
     "puppeteer-core": "^25.16.0",
     "tailwindcss": "^3.4.3",
+    "tsx": "^4.19.2",
     "typescript": "^5.4.5",
     "vite": "^5.2.11"
   }

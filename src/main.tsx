@@ -1,8 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
+import App from './Application';
 import './index.css';
-import { PresentationProvider } from './presentation/PresentationProvider';
 
 const rootElement = document.getElementById('root');
 
@@ -14,6 +13,6 @@ if (!rootElement) {
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <PresentationProvider><App /></PresentationProvider>
+    <App />
   </React.StrictMode>
 );

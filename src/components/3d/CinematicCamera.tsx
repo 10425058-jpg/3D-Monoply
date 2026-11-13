@@ -3,7 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import * as THREE from 'three';
-import { useGameStore } from '../../store/useGameStore';
+import { useSceneState as useGameStore } from '../../presentation/SceneStore';
 import { getSpaceTransform } from '../../data/boardData';
 import { overviewCamera } from './overviewCamera';
 
