@@ -338,11 +338,51 @@ test('REST + Socket.IO: lobby events, match idempotency, privacy, disconnect and
     const terminal = ok(await api('GET', '/matches/' + matchId, { token: bob.token }));
     assert.equal(terminal.status, 'FINISHED');
     assert.deepEqual(terminal.allowedActions, []);
+    assert.equal(terminal.standings.length, 2, 'Results must survive a missed terminal notification');
+    assert.equal(terminal.standings[0].playerId, terminal.winnerPlayerId);
+    assert.deepEqual(terminal.standings.map((row) => row.rank), [1, 2]);
+    assert.ok(terminal.standings.every((row) => Number.isInteger(row.netWorth) && row.netWorth >= row.money));
+    assert.deepEqual(ok(await api('GET', '/matches/' + matchId, { token: alice.token })).standings, terminal.standings);
     const closed = ok(await api('GET', '/rooms/' + roomId, { token: bob.token }));
     assert.equal(closed.status, 'CLOSED');
     rejected(await api('POST', '/rooms/' + roomId + '/join', {
       token: outsider.token, body: {},
     }), 409, 'ROOM_CLOSED');
+  } finally {
+    for (const socket of sockets) socket.disconnect();
+  }
+});
+
+test('Presence: closing one of two match tabs keeps the player connected', async () => {
+  const alice = await makeUser('tabs_a');
+  const bob = await makeUser('tabs_b');
+  const room = ok(await api('POST', '/rooms', {
+    token: alice.token, body: { mapId: 'central-castle', maxPlayers: 2, isPrivate: false },
+  }), 201).room;
+  ok(await api('POST', '/rooms/' + room.roomId + '/join', { token: bob.token, body: {} }));
+  ok(await api('PATCH', '/rooms/' + room.roomId + '/ready', { token: bob.token, body: { isReady: true } }));
+  const { matchId } = ok(await api('POST', '/rooms/' + room.roomId + '/start', {
+    token: alice.token, body: { rulesetId: 'mini-v1', contentVersion: VERSION },
+  }), 201);
+  const sockets = [];
+  try {
+    const a = await connect(alice.token); sockets.push(a);
+    const b1 = await connect(bob.token); sockets.push(b1);
+    const b2 = await connect(bob.token); sockets.push(b2);
+    for (const socket of sockets) await subscribe(socket, 'match:join', { matchId }, 'match:snapshot');
+    b1.disconnect();
+    await new Promise(resolve => setTimeout(resolve, 250));
+    const withSecondTab = ok(await api('GET', '/matches/' + matchId, { token: alice.token }));
+    assert.equal(withSecondTab.players.find(p => p.userId === bob.id).connectionStatus, 'CONNECTED');
+    assert.equal(withSecondTab.status, 'IN_PROGRESS');
+    const gone = waitFor(a, 'player:connection_changed', e => e.payload?.connectionStatus === 'DISCONNECTED');
+    b2.disconnect(); await gone;
+    const withNoTabs = ok(await api('GET', '/matches/' + matchId, { token: alice.token }));
+    assert.equal(withNoTabs.players.find(p => p.userId === bob.id).connectionStatus, 'DISCONNECTED');
+    // Close the disposable match through its normal voluntary action.
+    ok(await api('POST', '/matches/' + matchId + '/actions/forfeit', {
+      token: bob.token, body: actionBody(withNoTabs.stateVersion),
+    }));
   } finally {
     for (const socket of sockets) socket.disconnect();
   }
