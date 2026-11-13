@@ -72,12 +72,14 @@ Start the database (Docker Desktop must be running):
 npm run db:up
 ```
 
-Create the tables. This also creates a `prisma/migrations/` folder. Commit that folder.
+Create the database from the already committed migrations. The initial migration includes the game's six CHECK constraints.
 
 ```bash
-npx prisma migrate dev --name init
-npm run db:constraints
+npx prisma migrate deploy
+npx prisma migrate status
 ```
+
+When you **change** `prisma/schema.prisma` later, create a new migration in development with `npx prisma migrate dev --name describe_change` and commit the generated files. Do not regenerate the initial migration.
 
 Check the code, then start the server:
 
