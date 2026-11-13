@@ -40,10 +40,11 @@ public hostname. Never use `*` with credentialed CORS.
 2. Open [Render Dashboard](https://dashboard.render.com/) and connect the
    GitHub repository `10425058-jpg/3D-Monoply`.
 3. Choose **New → Blueprint**, select this repository and its `render.yaml`.
-4. Review the planned **one web service** and **one PostgreSQL 16** instance
-   in the **Singapore** region. Both plans in this Blueprint are paid.
-   **Do not proceed unless the costs, billing, database size and retention meet
-   your needs.**
+4. Review the planned **Starter web service** and **PostgreSQL 16** instance
+   with compute plan `0.1c-256mb` and **15 GB disk** in **Singapore**.
+   These are PAID resources, billed separately for compute and database storage.
+   **Do not proceed unless you have reviewed current prices in your dashboard,
+   workspace tier, storage/compute charges and billing limits.**
 5. Approve the Blueprint sync. Render generates `JWT_ACCESS_SECRET` and wires
    the PostgreSQL private connection string automatically; do not paste or
    commit either secret. Verify generated `JWT_ACCESS_SECRET` is nonempty.
@@ -72,9 +73,47 @@ Review each Prisma migration first; do not casually roll back applied schemas.
 - `COOKIE_SECURE=true`, `NODE_ENV=production`, and a randomly generated JWT
   signing secret are set by the Blueprint.
 
-The live database must have automated backups/restore procedures appropriate to
-your data. Verify that your selected database plan includes the needed features
-and retention; don't assume this Blueprint itself creates backups.
+## Database backups: required before accepting real users
+
+Render's paid PostgreSQL instances offer continuous Point-in-Time Recovery (PITR).
+Current recovery windows depend on the **workspace tier**, not the database
+compute size: **3 days for Hobby, 7 days for Pro+**. The Free database instance
+does not provide PITR. The recovery operation creates a **new, separately billed
+database instance** rather than rolling back the existing database in place.
+
+Before inviting real players, open the PostgreSQL **Recovery** tab on Render,
+confirm PITR is enabled, and verify the recovery-window dates. Create an
+**on-demand logical backup** when available and store it safely outside the
+application/database. Do a restore drill in an isolated instance before launch;
+confirm that migrations and expected tables are present and that the original
+DB remains unchanged. A backup that has never been restored is not fully tested.
+
+The Blueprint cannot prove backups are active or usable: that requires an actual
+provisioned database and a real restore test in your Render account. Never store
+backup exports or DB credentials in the public Git repository. For ongoing
+operation, schedule periodic logical exports to external storage if you require
+retention beyond the short PITR window. Monitor storage utilization; the
+`diskSizeGB: 15` allocation is not unlimited and cannot be reduced in place.
+
+References:
+- https://render.com/docs/postgresql-backups
+- https://render.com/docs/blueprint-spec
+- https://render.com/docs/compute-plans
+
+## Proxy security and per-player rate limits
+
+The Render Blueprint sets `TRUST_PROXY_HOPS=1`. Express trusts only the
+nearest reverse-proxy hop for `req.ip` (never `trust proxy=true`).
+This is needed for accurate per-client throttling when Render terminates TLS.
+Do **not** configure this on a server exposed directly to arbitrary clients,
+or change the hop count without verifying the infrastructure. Local development
+uses `TRUST_PROXY_HOPS=0` by default. The CI suite tests spoofed
+`X-Forwarded-For` prefixes and verifies that separate client IPs receive
+independent rate limits.
+
+Run the dedicated GitHub Actions security check before deployment. It inspects
+**production** npm dependencies separately from dev/test dependencies. Audit
+results describe potential exposures; a clean audit is not a security guarantee.
 
 ## Acceptance test after Render deployment
 

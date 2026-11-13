@@ -7,7 +7,8 @@ databases:
     user: miniature_city
     postgresMajorVersion: "16"
     region: singapore
-    plan: basic-256mb
+    plan: 0.1c-256mb
+    diskSizeGB: 15
     ipAllowList: []
 
 services:
@@ -18,7 +19,7 @@ services:
     plan: starter
     numInstances: 1
     branch: main
-    autoDeployTrigger: off
+    autoDeployTrigger: 'off'
     healthCheckPath: /api/v1/health
     buildCommand: npm ci --include=dev && npm run build && cd backend && npm ci --include=dev && npm run build
     preDeployCommand: cd backend && npx prisma migrate deploy
@@ -34,6 +35,9 @@ services:
         value: ../dist
       - key: COOKIE_SECURE
         value: "true"
+      # Render terminates HTTPS at its edge and forwards to exactly one app proxy hop.
+      - key: TRUST_PROXY_HOPS
+        value: "1"
       - key: JWT_ACCESS_SECRET
         generateValue: true
       - key: DATABASE_URL

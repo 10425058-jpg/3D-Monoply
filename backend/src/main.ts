@@ -13,6 +13,9 @@ import { assertConfig, config } from './config';
 async function bootstrap(): Promise<void> {
   assertConfig();
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  // req.ip is used by auth rate limiting. Trust precisely the Render edge hop,
+  // not arbitrary user-supplied X-Forwarded-For chain entries.
+  app.set('trust proxy', config.trustProxyHops);
 
   // All REST routes live under /api/v1 (docs/API-CONTRACT.md §1).
   app.setGlobalPrefix('api/v1');

@@ -1,0 +1,134 @@
+name: Priority 1 security and deployment hardening
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'package*.json'
+      - 'render.yaml'
+      - '.github/workflows/priority1-security.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  vulnerability-audit:
+    name: Audit production dependency trees
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Audit frontend production dependencies
+        run: |
+          npm audit --omit=dev --json > /tmp/frontend-prod-audit.json || true
+          node -e '
+            const j = require("/tmp/frontend-prod-audit.json");
+            const high = Object.entries(j.vulnerabilities || {}).filter(([_,v])=>["high","critical"].includes(v.severity));
+            for (const [name,v] of high) console.log(name, v.severity, "fixAvailable:", JSON.stringify(v.fixAvailable), "via:", JSON.stringify(v.via).slice(0,500));
+            console.log("Frontend production vulnerabilities",JSON.stringify(j.metadata?.vulnerabilities));
+            if (high.length) process.exitCode = 1;
+          '
+      - name: Audit backend production dependencies
+        working-directory: backend
+        run: |
+          npm audit --omit=dev --json > /tmp/backend-prod-audit.json || true
+          node -e '
+            const j = require("/tmp/backend-prod-audit.json");
+            const high = Object.entries(j.vulnerabilities || {}).filter(([_,v])=>["high","critical"].includes(v.severity));
+            for (const [name,v] of high) console.log(name, v.severity, "fixAvailable:", JSON.stringify(v.fixAvailable), "via:", JSON.stringify(v.via).slice(0,500));
+            console.log("Backend production vulnerabilities",JSON.stringify(j.metadata?.vulnerabilities));
+            if (high.length) process.exitCode = 1;
+          '
+
+  proxy-rate-limits:
+    name: Validate proxy IP boundaries
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: monopoly
+          POSTGRES_PASSWORD: change-me
+          POSTGRES_DB: monopoly_dev
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U monopoly -d monopoly_dev"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://monopoly:change-me@localhost:5432/monopoly_dev?schema=public
+      JWT_ACCESS_SECRET: proxy-ci-test-secret-not-for-production-1234567890
+      CORS_ORIGIN: http://localhost:5173
+      TRUST_PROXY_HOPS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies and build
+        working-directory: backend
+        run: npm ci && npm run lint && npm run build
+      - name: Apply migrations
+        working-directory: backend
+        run: npx prisma migrate deploy
+      - name: Start server with one trusted proxy hop
+        working-directory: backend
+        shell: bash
+        run: |
+          (npm run start:prod > /tmp/proxy-server.log 2>&1 &)
+          for i in {1..35}; do
+            if curl -fsS http://localhost:3000/api/v1/health; then exit 0; fi
+            sleep 2
+          done
+          cat /tmp/proxy-server.log; exit 1
+      - name: Prove per-IP rate limits and resist spoofed first XFF hop
+        shell: bash
+        run: |
+          node <<'NODE'
+          const assert = require('node:assert/strict');
+          const base = 'http://127.0.0.1:3000/api/v1/auth/csrf';
+          async function attempt(forwarded) {
+            const res = await fetch(base, {headers:{'X-Forwarded-For': forwarded, Origin: 'http://localhost:5173'}});
+            return res.status;
+          }
+          (async () => {
+            for (let i = 0; i < 30; i++) assert.equal(await attempt('198.51.100.' + (i%10+1) + ', 203.0.113.11'), 401);
+            assert.equal(await attempt('198.51.100.99, 203.0.113.11'), 429,
+              'Forging earlier XFF entries must not evade one-client limit');
+            assert.equal(await attempt('198.51.100.99, 203.0.113.12'), 401,
+              'A different immediate client behind edge must have a separate budget');
+            console.log('PASS: 30 requests share quota despite spoofed XFF prefix; next client is independent');
+          })().catch(e => { console.error(e); process.exitCode=1; });
+          NODE
+      - name: Server log on failure
+        if: failure()
+        run: cat /tmp/proxy-server.log || true
+
+  blueprint-structure:
+    name: Validate Blueprint fields
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Blueprint plans, fixed storage and settings
+        run: |
+          ruby -ryaml -e '
+            y=YAML.load_file("render.yaml")
+            db=y.fetch("databases").fetch(0)
+            svc=y.fetch("services").fetch(0)
+            abort "Wrong PostgreSQL plan" unless db.fetch("plan")=="0.1c-256mb"
+            abort "Invalid disk size" unless db.fetch("diskSizeGB")==15
+            abort "Database must be private" unless db.fetch("ipAllowList")==[]
+            abort "Unexpected web plan" unless svc.fetch("plan")=="starter"
+            abort "Must run a single in-memory socket process" unless svc.fetch("numInstances")==1
+            env=svc.fetch("envVars").to_h{|item| [item.fetch("key"), item.fetch("value",nil)]}
+            abort "Missing one edge proxy" unless env["TRUST_PROXY_HOPS"]=="1"
+            abort "Secure cookie required" unless env["COOKIE_SECURE"]=="true"
+            abort "No automatic production deploys" unless svc["autoDeployTrigger"]=="off"
+            abort "Migration deploy required" unless svc.fetch("preDeployCommand").include?("prisma migrate deploy")
+            puts "PASS: Render Blueprint shape and deployment safeguards"
+          '
