@@ -32,7 +32,8 @@
     "react-dom": "^18.3.1",
     "socket.io-client": "^4.8.1",
     "three": "^0.164.1",
-    "zustand": "^4.5.2"
+    "zustand": "^4.5.2",
+    "postprocessing": "6.35.6"
   },
   "devDependencies": {
     "@types/canvas-confetti": "^1.6.4",
@@ -53,8 +54,6 @@
     "node": ">=22.12 <23"
   },
   "overrides": {
-    "@react-three/postprocessing": {
-      "postprocessing": "6.35.6"
-    }
+    "postprocessing": "$postprocessing"
   }
 }
