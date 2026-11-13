@@ -93,6 +93,31 @@ The initial migration includes all six gameplay CHECK constraints. For future sc
 | `npm run db:constraints` | Apply `prisma/sql/constraints.sql` |
 | `npm run prisma:studio` | Browse the database in your browser |
 
+## Resume Match and session maintenance (priority 2)
+
+- `GET /api/v1/matches/active` requires an access JWT and returns up to 20
+  latest `IN_PROGRESS` or `PAUSED` matches **belonging to that user only**.
+  The result includes match ID, room ID, map, turn, status, and timestamps,
+  but never players' secret decks or other users' private snapshots.
+- The online Lobby's **Continue playing** section uses this endpoint. Clicking
+  Resume opens the existing server-authoritative match using its ID; the
+  existing recovery flow subscribes to `/game` and fetches a personalized snapshot.
+- `SessionCleanupService` runs on startup and once per hour; each sweep
+  removes at most 1,000 already-expired sessions or sessions revoked over
+  seven days earlier. Recent revoked sessions and valid active sessions remain.
+  SQL indexes on expiration and revocation were added in a committed migration.
+  This service assumes the existing single-instance backend deployment.
+- Browser logout now clears in-memory credentials immediately, even if
+  revocation fails due to network loss. A **non-secret localStorage marker**
+  blocks cookie-based session restoration until the remote logout is retried
+  successfully. When back online, it retries CSRF bootstrap and server logout.
+  Do not clear local storage to bypass the pending marker: the old refresh
+  cookie may still be valid on the server.
+- This pending-marker protection requires persistent browser storage. When
+  the browser denies storage access, an offline logout cannot guarantee
+  sign-out will survive a full reload before server revocation. For public
+  launch, confirm storage is available in your supported browser matrix.
+
 ## Integration tests
 
 Step 3 adds `test/integration.test.mjs`; Step 4 consolidates all backend checks into
