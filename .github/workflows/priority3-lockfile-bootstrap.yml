@@ -27,7 +27,7 @@ jobs:
           // Legacy lock pinned 6.39.6 under the wrapper; the root override
           // now requires 6.35.6, so discard only that stale nested node.
           delete lock.packages['node_modules/@react-three/postprocessing/node_modules/postprocessing'];
-          fs.writeFileSync(p, JSON.stringify(lock, null, 2) + '\\n');
+          fs.writeFileSync(p, JSON.stringify(lock, null, 2));
           NODE
       - name: Regenerate frontend lockfile with compatible postprocessing
         run: npm install --package-lock-only --ignore-scripts --no-audit
