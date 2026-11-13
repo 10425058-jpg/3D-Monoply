@@ -1,0 +1,17 @@
+# Local development database only. Do not use these credentials in production.
+services:
+  postgres:
+    image: postgres:16
+    container_name: monopoly-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: monopoly
+      POSTGRES_PASSWORD: change-me
+      POSTGRES_DB: monopoly_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - monopoly-pgdata:/var/lib/postgresql/data
+
+volumes:
+  monopoly-pgdata:

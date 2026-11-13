@@ -1,0 +1,233 @@
+// Prisma schema for 3D Monopoly online (mini-v1).
+// Source of truth: docs/DATABASE-DESIGN.md v1.1.2.
+//
+// Notes:
+// - Status columns are VARCHAR (as in the design doc), validated by the application.
+// - CHECK constraints cannot be written in Prisma; they live in prisma/sql/constraints.sql.
+// - "One active membership per (room, user)" and "one active member per (room, seat)" are
+//   enforced by RoomsService inside a transaction that locks the room row.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  username     String   @unique @db.VarChar(24)
+  email        String   @unique @db.VarChar(255)
+  passwordHash String   @map("password_hash") // never returned to clients
+  avatarUrl    String?  @map("avatar_url")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  sessions        UserSession[]
+  hostedRooms     Room[]        @relation("RoomHost")
+  roomMemberships RoomMember[]
+  matchSeats      MatchPlayer[]
+
+  @@map("users")
+}
+
+model UserSession {
+  id               String    @id @default(uuid()) @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  refreshTokenHash String    @unique @map("refresh_token_hash") // SHA-256 of the cookie value
+  csrfTokenHash    String    @map("csrf_token_hash")
+  rotatedFromId    String?   @map("rotated_from_id") @db.Uuid
+  expiresAt        DateTime  @map("expires_at") @db.Timestamptz(6)
+  revokedAt        DateTime? @map("revoked_at") @db.Timestamptz(6)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rotatedFrom UserSession?  @relation("SessionRotation", fields: [rotatedFromId], references: [id], onDelete: SetNull)
+  rotatedTo   UserSession[] @relation("SessionRotation")
+
+  @@index([userId])
+  @@map("user_sessions")
+}
+
+model Room {
+  id             String   @id @default(uuid()) @db.Uuid
+  hostUserId     String   @map("host_user_id") @db.Uuid
+  status         String   @db.VarChar(20) // WAITING | IN_PROGRESS | CLOSED
+  mapId          String   @map("map_id") @db.VarChar(80)
+  maxPlayers     Int      @map("max_players") @db.SmallInt
+  isPrivate      Boolean  @default(false) @map("is_private")
+  inviteCodeHash String?  @map("invite_code_hash")
+  roomRevision   Int      @default(0) @map("room_revision")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  host    User         @relation("RoomHost", fields: [hostUserId], references: [id])
+  members RoomMember[]
+  match   Match? // one match per room; RoomState.matchId is derived from this
+
+  @@index([status, isPrivate, createdAt])
+  @@map("rooms")
+}
+
+model RoomMember {
+  id        String    @id @default(uuid()) @db.Uuid
+  roomId    String    @map("room_id") @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  seatOrder Int       @map("seat_order") @db.SmallInt
+  token     String    @db.VarChar(64)
+  color     String    @db.VarChar(16)
+  isReady   Boolean   @default(false) @map("is_ready")
+  isHost    Boolean   @default(false) @map("is_host")
+  joinedAt  DateTime  @default(now()) @map("joined_at") @db.Timestamptz(6)
+  leftAt    DateTime? @map("left_at") @db.Timestamptz(6)
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([roomId, userId])
+  @@map("room_members")
+}
+
+model Match {
+  id                     String    @id @default(uuid()) @db.Uuid
+  roomId                 String    @unique @map("room_id") @db.Uuid
+  status                 String    @db.VarChar(20) // IN_PROGRESS | PAUSED | FINISHED | ABANDONED
+  mapId                  String    @map("map_id") @db.VarChar(80)
+  rulesetId              String    @map("ruleset_id") @db.VarChar(80)
+  contentVersion         String    @map("content_version") @db.VarChar(80)
+  currentPlayerId        String?   @map("current_player_id") @db.Uuid
+  turnNumber             Int       @default(1) @map("turn_number")
+  completedTurns         Int       @default(0) @map("completed_turns")
+  turnPhase              String    @map("turn_phase") @db.VarChar(40)
+  stateVersion           Int       @default(0) @map("state_version")
+  diceState              Json?     @map("dice_state")
+  lastCardResolved       Json?     @map("last_card_resolved")
+  doublesCount           Int       @default(0) @map("doubles_count") @db.SmallInt
+  pendingExtraRoll       Boolean   @default(false) @map("pending_extra_roll")
+  pendingPurchaseSpaceId Int?      @map("pending_purchase_space_id")
+  winnerPlayerId         String?   @map("winner_player_id") @db.Uuid
+  finishReason           String?   @map("finish_reason") @db.VarChar(24) // LAST_PLAYER | TURN_LIMIT
+  pausedAt               DateTime? @map("paused_at") @db.Timestamptz(6)
+  pauseReason            String?   @map("pause_reason") @db.VarChar(80)
+  allPlayersOfflineSince DateTime? @map("all_players_offline_since") @db.Timestamptz(6)
+  startedAt              DateTime  @default(now()) @map("started_at") @db.Timestamptz(6)
+  updatedAt              DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  endedAt                DateTime? @map("ended_at") @db.Timestamptz(6)
+
+  room          Room                @relation(fields: [roomId], references: [id])
+  currentPlayer MatchPlayer?        @relation("MatchCurrentPlayer", fields: [currentPlayerId], references: [id], onDelete: SetNull)
+  winnerPlayer  MatchPlayer?        @relation("MatchWinner", fields: [winnerPlayerId], references: [id], onDelete: SetNull)
+  players       MatchPlayer[]       @relation("MatchPlayers")
+  ownerships    PropertyOwnership[]
+  decks         MatchDeck[]
+  actions       ProcessedAction[]
+  events        GameEvent[]
+
+  @@index([status])
+  @@map("matches")
+}
+
+model MatchPlayer {
+  id               String    @id @default(uuid()) @db.Uuid
+  matchId          String    @map("match_id") @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  seatOrder        Int       @map("seat_order") @db.SmallInt
+  usernameSnapshot String    @map("username_snapshot") @db.VarChar(24)
+  token            String    @db.VarChar(64)
+  color            String    @db.VarChar(16)
+  position         Int       @default(0) @db.SmallInt
+  money            Int       @default(1500)
+  inJail           Boolean   @default(false) @map("in_jail")
+  jailTurns        Int       @default(0) @map("jail_turns") @db.SmallInt
+  heldJailCardIds  Json      @default("[]") @map("held_jail_card_ids")
+  isBankrupt       Boolean   @default(false) @map("is_bankrupt")
+  connectionStatus String    @default("CONNECTED") @map("connection_status") @db.VarChar(16)
+  disconnectedAt   DateTime? @map("disconnected_at") @db.Timestamptz(6)
+  finalRank        Int?      @map("final_rank") @db.SmallInt
+
+  match           Match               @relation("MatchPlayers", fields: [matchId], references: [id], onDelete: Cascade)
+  user            User                @relation(fields: [userId], references: [id])
+  currentIn       Match[]             @relation("MatchCurrentPlayer")
+  wonMatches      Match[]             @relation("MatchWinner")
+  ownedProperties PropertyOwnership[]
+  actions         ProcessedAction[]
+  events          GameEvent[]
+
+  @@unique([matchId, seatOrder])
+  @@unique([matchId, userId])
+  @@map("match_players")
+}
+
+model PropertyOwnership {
+  id            String   @id @default(uuid()) @db.Uuid
+  matchId       String   @map("match_id") @db.Uuid
+  spaceId       Int      @map("space_id")
+  ownerPlayerId String?  @map("owner_player_id") @db.Uuid
+  houses        Int      @default(0) @db.SmallInt // always 0 in mini-v1
+  isMortgaged   Boolean  @default(false) @map("is_mortgaged") // always false in mini-v1
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  match Match        @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  owner MatchPlayer? @relation(fields: [ownerPlayerId], references: [id], onDelete: SetNull)
+
+  @@unique([matchId, spaceId])
+  @@map("property_ownerships")
+}
+
+// SECRET: never send deck contents to a client.
+// ordered_card_ids is the current draw pile (index 0 = next card). A drawn card goes to the
+// bottom of the pile straight away, except a Get Out of Jail Free card, which leaves the pile
+// while a player holds it and is appended again when used. draw_cursor counts draws so far.
+model MatchDeck {
+  id              String   @id @default(uuid()) @db.Uuid
+  matchId         String   @map("match_id") @db.Uuid
+  deckType        String   @map("deck_type") @db.VarChar(16) // chance | chest
+  orderedCardIds  Json     @map("ordered_card_ids")
+  drawCursor      Int      @default(0) @map("draw_cursor")
+  returnedCardIds Json     @default("[]") @map("returned_card_ids")
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@unique([matchId, deckType])
+  @@map("match_decks")
+}
+
+// Idempotency records: one row per accepted clientActionId.
+model ProcessedAction {
+  id                   String   @id @default(uuid()) @db.Uuid
+  matchId              String   @map("match_id") @db.Uuid
+  clientActionId       String   @map("client_action_id") @db.Uuid
+  actorPlayerId        String   @map("actor_player_id") @db.Uuid
+  requestHash          String   @map("request_hash")
+  expectedStateVersion Int      @map("expected_state_version")
+  resultStateVersion   Int      @map("result_state_version")
+  responseJson         Json     @map("response_json")
+  createdAt            DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  match Match       @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  actor MatchPlayer @relation(fields: [actorPlayerId], references: [id], onDelete: Cascade)
+
+  @@unique([matchId, clientActionId])
+  @@map("processed_actions")
+}
+
+// Append-only ordered event log. Several events may share one state_version.
+model GameEvent {
+  id            String   @id @default(uuid()) @db.Uuid
+  matchId       String   @map("match_id") @db.Uuid
+  sequence      Int
+  stateVersion  Int      @map("state_version")
+  actorPlayerId String?  @map("actor_player_id") @db.Uuid
+  eventType     String   @map("event_type") @db.VarChar(80)
+  payload       Json
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  match Match        @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  actor MatchPlayer? @relation(fields: [actorPlayerId], references: [id], onDelete: SetNull)
+
+  @@unique([matchId, sequence])
+  @@map("game_events")
+}

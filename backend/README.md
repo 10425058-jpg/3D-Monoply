@@ -1,0 +1,184 @@
+# 3D Monopoly — Backend
+
+NestJS + TypeScript server for online multiplayer (`mini-v1` rules on `central-castle@1`),
+with PostgreSQL through Prisma and Socket.IO for live notifications.
+
+It implements the contracts in `docs/` (v1.1.2): `API-CONTRACT.md`, `SOCKET-EVENTS.md`,
+`GAME-STATE.md`, `DATABASE-DESIGN.md` and `ONLINE-MVP-RULES.md`.
+
+## Status — read this first
+
+| Part | State |
+|---|---|
+| Rules engine (`src/game/`) | **Tested.** 57 automated tests pass, including 500 random full games. |
+| Server layer (auth, rooms, matches, sockets, database) | **Written but never run.** It was type-checked without the real NestJS/Prisma packages. Expect to fix some errors the first time you run `npm install`, `npm run lint` and `npm run start:dev`. |
+| Database migration | **Not created yet.** You generate it in step 4 below. |
+
+Nothing here has been played end to end in two browsers. Do that before telling anyone online mode works
+(`docs/INTEGRATION-PLAN.md` §3).
+
+**New here? Read [`GUIDE.md`](./GUIDE.md) first.** It walks through setup, running, testing and debugging step by step.
+
+## Requirements
+
+- **Node.js 20.6 or newer** (`node -v`)
+- **Docker Desktop** for the local PostgreSQL database (or your own PostgreSQL 16)
+
+## Setup (first time)
+
+Run everything inside the `backend/` folder.
+
+```bash
+cd backend
+
+# 1. Install packages (also generates the Prisma client)
+npm install
+
+# 2. Create your local settings
+cp .env.example .env          # Windows PowerShell: copy .env.example .env
+#    Open .env and replace JWT_ACCESS_SECRET with a long random string.
+
+# 3. Start PostgreSQL
+npm run db:up
+
+# 4. Create the tables (this writes prisma/migrations/ — commit that folder)
+npx prisma migrate dev --name init
+
+# 5. Add the CHECK constraints Prisma cannot express (money >= 0, seats 0-3, ...)
+npm run db:constraints
+
+# 6. Check the code
+npm test                      # rules engine tests
+npm run lint                  # type-check everything
+
+# 7. Start the server (restarts when you save a file)
+npm run start:dev
+```
+
+Then open <http://localhost:3000/api/v1/health>. You should see `{"data":{"status":"ok"},"meta":{}}`.
+A `503` with `DEPENDENCY_UNAVAILABLE` means the server runs but cannot reach PostgreSQL.
+
+Run `npm run db:constraints` again after every new migration. It is safe to repeat.
+
+## Scripts
+
+| Command | What it does |
+|---|---|
+| `npm run start:dev` | Run the server in watch mode |
+| `npm run build` / `npm run start:prod` | Build to `dist/` and run the build |
+| `npm test` | Rules engine unit tests |
+| `npm run lint` | Type-check without building |
+| `npm run smoke` | Plays the start of a real match against the running server (REST only) |
+| `npm run db:up` / `npm run db:down` | Start / stop the local PostgreSQL container |
+| `npm run db:migrate` | Create and apply a migration after editing `schema.prisma` |
+| `npm run db:constraints` | Apply `prisma/sql/constraints.sql` |
+| `npm run prisma:studio` | Browse the database in your browser |
+
+## Environment variables
+
+See `.env.example`. **Never commit `.env`.**
+
+| Variable | Purpose |
+|---|---|
+| `PORT` | Server port (default 3000) |
+| `CORS_ORIGIN` | Frontend URL(s) allowed to call the API and sockets, comma-separated |
+| `DATABASE_URL` | PostgreSQL connection string |
+| `JWT_ACCESS_SECRET` | Signs the 15-minute access tokens (32+ characters) |
+| `COOKIE_SECURE` | `true` on HTTPS, `false` on `http://localhost` |
+| `DISCONNECT_GRACE_SECONDS` | Optional. Lower it to test pause/resume quickly (default 120) |
+
+## Folder structure
+
+```text
+backend/
+  prisma/
+    schema.prisma           # all tables (docs/DATABASE-DESIGN.md)
+    sql/constraints.sql     # CHECK constraints
+  src/
+    main.ts, app.module.ts  # startup, /api/v1 prefix, CORS
+    config.ts, env.ts       # settings from .env
+    common/                 # error format, { data, meta } wrapper, rate limit, validators
+    prisma/                 # database connection
+    health/                 # GET /health
+    auth/                   # register, login, refresh, logout, csrf, access-token guard
+    users/                  # GET / PATCH /users/me
+    rooms/                  # lobby: list, create, join, leave, ready, invite, start
+    game/
+      content/              # board + cards, generated from the frontend's src/data
+      rules/                # the rules engine — pure TypeScript, no database or network
+    matches/
+      matches.service.ts    # snapshot + actions (idempotency, versions, one transaction)
+      lifecycle.service.ts  # presence, pause/resume, host failover, 24-hour abandon
+      match-store.ts        # load/save a match, public snapshot
+    realtime/               # Socket.IO "/game" namespace (subscriptions only)
+  test/engine.test.ts       # rules tests
+```
+
+## REST API (`/api/v1`)
+
+Success: `{ "data": ..., "meta": {} }`. Error: `{ "error": { "code", "message", "details" } }`.
+Protected routes need `Authorization: Bearer <accessToken>`.
+
+| Method | Path | Notes |
+|---|---|---|
+| GET | `/health` | public |
+| POST | `/auth/register`, `/auth/login` | return `user, accessToken, expiresIn, csrfToken`; set the refresh cookie |
+| POST | `/auth/refresh`, `/auth/logout` | refresh cookie + `X-CSRF-Token` header |
+| GET | `/auth/csrf` | new CSRF token after a page reload |
+| GET, PATCH | `/users/me` | profile |
+| GET | `/rooms?limit=&cursor=` | public waiting rooms |
+| POST | `/rooms` | create; private rooms return `inviteCode` once |
+| GET | `/rooms/:roomId` | members only |
+| POST | `/rooms/:roomId/join`, `/leave`, `/start`, `/invite/rotate` | |
+| PATCH | `/rooms/:roomId/ready` | |
+| GET | `/matches/:matchId` | the caller's personal snapshot |
+| POST | `/matches/:matchId/actions/:action` | `roll-dice`, `buy-property`, `decline-property`, `end-turn`, `pay-jail-bail`, `use-jail-card`, `forfeit`, `forfeit-player`, `abandon` |
+
+Every action body carries `clientActionId` (UUID), `expectedStateVersion` and
+`contentVersion: "central-castle@1"`. Sending the same request twice returns the first response
+and changes nothing.
+
+## Socket.IO (`/game` namespace)
+
+Connect with `io("http://localhost:3000/game", { auth: { token: accessToken } })`.
+Client events: `room:join`, `room:leave`, `match:join`, `match:leave`. Nothing else.
+All game changes go through REST; the socket only notifies.
+
+## How an action is processed
+
+1. Check the access token and that the caller is a player in the match.
+2. Lock the match row, so actions on one match run one at a time.
+3. Look up `clientActionId`. An exact retry gets the stored response.
+4. Check `contentVersion`, then `expectedStateVersion`.
+5. Run the rules engine (`src/game/rules/engine.ts`).
+6. Save the new state, the processed action and the events in one transaction.
+7. After the commit, broadcast the events over Socket.IO.
+
+## Where this differs from the docs
+
+Raise these with the team and update the docs or the code:
+
+1. **Extra event `game:money_changed`** `{playerId, amount, balance, reason}` for GO salary, tax, bail,
+   purchases and card payments. The docs list no event for these, so clients could not animate them.
+   `game:player_moved` also carries `passedGo`.
+2. **No partial unique indexes.** "One active membership per room and user" and "one member per seat"
+   are enforced in code while the room row is locked, not by a database index. Prisma cannot declare
+   partial indexes.
+3. **`POST /rooms/:roomId/leave` during a match is rejected** (`ROOM_ALREADY_STARTED`). Players use
+   `forfeit`. The docs do not say what should happen.
+4. **New matches start with every player `DISCONNECTED`.** Each player has the normal grace period to
+   send `match:join`. Otherwise a player who never opens the game would count as connected forever.
+5. **`match:leave` counts as that socket going offline** for the disconnect rules.
+6. **Pause and resume each add 1 to `stateVersion`.** A connection change alone does not.
+7. **`room:host_changed` is also sent on the match channel**, so players who left the lobby channel see it.
+8. **`game:rent_paid` is not sent when the payer goes bankrupt**; `game:player_bankrupt` is sent instead.
+9. **`stateVersion` starts at 0** for a new match.
+10. **The deck is stored as a draw pile**: `ordered_card_ids[0]` is the next card, a drawn card goes
+    straight to the bottom, `draw_cursor` counts draws, and `returned_card_ids` stays empty.
+
+## Known limits
+
+- **One server process only.** The socket registry and the rate limiter are in memory.
+- **Events are broadcast straight after the commit.** There is no outbox, so a crash between the two
+  loses the broadcast; clients recover with `GET /matches/:matchId`.
+- **No tests for the server layer yet.** `docs/INTEGRATION-PLAN.md` §5 lists the ones required.
