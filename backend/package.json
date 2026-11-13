@@ -10,7 +10,7 @@
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main",
     "lint": "tsc --noEmit -p tsconfig.json",
-    "test": "node --import tsx --test test/engine.test.ts",
+    "test": "node --import tsx --test test/engine.test.ts test/session-cleanup.test.ts",
     "smoke": "node scripts/smoke.mjs",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
