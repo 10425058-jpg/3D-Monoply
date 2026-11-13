@@ -28,7 +28,7 @@ jobs:
           node <<'NODE'
           const assert = require('node:assert/strict');
           const lock = require('./package-lock.json');
-          const pp = Object.entries(lock.packages).filter(([k]) => k.endsWith('/postprocessing')).map(([k,v]) => ({path:k,version:v.version,peer:v.peerDependencies?.three}));
+          const pp = Object.entries(lock.packages).filter(([k]) => k === 'node_modules/postprocessing' || k.endsWith('/node_modules/postprocessing')).map(([k,v]) => ({path:k,version:v.version,peer:v.peerDependencies?.three}));
           assert.ok(pp.some(x => x.version === '6.35.6'), JSON.stringify(pp));
           assert.ok(pp.every(x => x.version === '6.35.6'), 'Unexpected postprocessing version: ' + JSON.stringify(pp));
           console.log(pp);
