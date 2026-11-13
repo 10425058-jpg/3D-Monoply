@@ -41,11 +41,11 @@ cp .env.example .env          # Windows PowerShell: copy .env.example .env
 # 3. Start PostgreSQL
 npm run db:up
 
-# 4. Create the tables (this writes prisma/migrations/ — commit that folder)
-npx prisma migrate dev --name init
+# 4. Apply the committed migrations (creates all tables and CHECK constraints)
+npx prisma migrate deploy
 
-# 5. Add the CHECK constraints Prisma cannot express (money >= 0, seats 0-3, ...)
-npm run db:constraints
+# Migration status (optional)
+npx prisma migrate status
 
 # 6. Check the code
 npm test                      # rules engine tests
@@ -58,7 +58,7 @@ npm run start:dev
 Then open <http://localhost:3000/api/v1/health>. You should see `{"data":{"status":"ok"},"meta":{}}`.
 A `503` with `DEPENDENCY_UNAVAILABLE` means the server runs but cannot reach PostgreSQL.
 
-Run `npm run db:constraints` again after every new migration. It is safe to repeat.
+The initial migration includes all six gameplay CHECK constraints. For future schema changes, add corresponding SQL constraints to a versioned migration. `npm run db:constraints` remains available for maintenance but is not required after the initial deployment.
 
 ## Scripts
 
@@ -70,7 +70,8 @@ Run `npm run db:constraints` again after every new migration. It is safe to repe
 | `npm run lint` | Type-check without building |
 | `npm run smoke` | Plays the start of a real match against the running server (REST only) |
 | `npm run db:up` / `npm run db:down` | Start / stop the local PostgreSQL container |
-| `npm run db:migrate` | Create and apply a migration after editing `schema.prisma` |
+| `npm run db:migrate` | Create and apply a new development migration after editing `schema.prisma` |
+| `npx prisma migrate deploy` | Apply committed migrations in deployment environments |
 | `npm run db:constraints` | Apply `prisma/sql/constraints.sql` |
 | `npm run prisma:studio` | Browse the database in your browser |
 
