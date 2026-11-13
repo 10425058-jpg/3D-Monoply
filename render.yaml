@@ -19,7 +19,7 @@ services:
     plan: starter
     numInstances: 1
     branch: main
-    autoDeployTrigger: off
+    autoDeployTrigger: 'off'
     healthCheckPath: /api/v1/health
     buildCommand: npm ci --include=dev && npm run build && cd backend && npm ci --include=dev && npm run build
     preDeployCommand: cd backend && npx prisma migrate deploy
