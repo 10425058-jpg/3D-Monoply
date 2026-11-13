@@ -22,6 +22,9 @@ export const config = {
   ])],
   jwtAccessSecret: process.env.JWT_ACCESS_SECRET ?? '',
   cookieSecure: process.env.COOKIE_SECURE === 'true',
+  // Trust only the single Render edge proxy; direct local development trusts none.
+  // Never use trust proxy=true: it accepts client-forged leftmost X-Forwarded-For entries.
+  trustProxyHops: Number(process.env.TRUST_PROXY_HOPS ?? '0'),
 
   accessTokenTtlSeconds: 900, // 15 minutes
   refreshTokenTtlMs: 7 * 24 * 60 * 60 * 1000, // 7 days
@@ -34,6 +37,12 @@ export const config = {
 };
 
 export function assertConfig(): void {
+  if (![0, 1].includes(config.trustProxyHops)) {
+    throw new Error('TRUST_PROXY_HOPS must be 0 or 1. Confirm proxy topology before changing it.');
+  }
+  if (process.env.RENDER === 'true' && config.trustProxyHops !== 1) {
+    throw new Error('Render requires TRUST_PROXY_HOPS=1 for correct per-client rate limits.');
+  }
   if (config.jwtAccessSecret.length < 32) {
     throw new Error('JWT_ACCESS_SECRET is missing or too short (need 32+ characters). Copy .env.example to .env and set it.');
   }
