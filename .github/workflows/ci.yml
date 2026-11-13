@@ -11,6 +11,8 @@ on:
       - 'package-lock.json'
       - 'tests/**'
       - 'scripts/online-browser.mjs'
+      - 'scripts/menu-*.mjs'
+      - 'public/assets/menu/**'
       - 'scripts/online-browser/**'
       - 'vite.config.ts'
       - 'tsconfig.json'
@@ -42,6 +44,9 @@ jobs:
 
       - name: Online security, state and lifecycle tests
         run: npm run test:online
+
+      - name: Menu loading boundary tests
+        run: npm run test:menu
 
       - name: Existing presentation and camera tests
         run: node --test tests/animations.test.mjs tests/graphics.test.mjs
@@ -133,6 +138,12 @@ jobs:
         env:
           CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
         run: npm run test:online-browser
+
+      - name: Main menu / lazy gameplay / responsive navigation
+        env:
+          CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
+          MENU_TEST_OUT: .online-test/priority3/menu
+        run: npm run test:menu-browser
 
       - name: Upload screenshots and sanitized browser results
         if: always()

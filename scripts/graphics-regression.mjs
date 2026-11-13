@@ -29,7 +29,7 @@ try {
   });
   for (const [width, height] of [[1440, 900], [1366, 768], [768, 1024], [390, 844]]) {
     await page.setViewport({ width, height, deviceScaleFactor: 1, isMobile: width < 640, hasTouch: width < 640 });
-    await page.goto(`${origin}/?graphicsAudit`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`${origin}/?graphicsAudit#solo`, { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => !!window.__graphicsAudit);
     await page.waitForFunction(() => window.__phase2Environment?.ready);
     await pause(4000);
@@ -62,7 +62,7 @@ try {
       camera: await page.evaluate(() => window.__graphicsAudit.metadata().camera) });
   }
   await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1, isMobile: false, hasTouch: false });
-  await page.goto(`${origin}/?graphicsAudit`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${origin}/?graphicsAudit#solo`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => !!window.__graphicsAudit && window.__phase2Environment?.ready); await pause(3000);
   const tile = await page.evaluate(() => window.__graphicsAudit.tiles().find(p => p.id === 1));
   await page.mouse.click(tile.x, tile.y);

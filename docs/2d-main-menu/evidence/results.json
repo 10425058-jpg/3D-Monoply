@@ -1,0 +1,51 @@
+{
+  "initialJavaScriptBytes": 194143,
+  "menuImageBytes": 561430,
+  "results": [
+    {
+      "viewport": [
+        1440,
+        900
+      ],
+      "menuCanvasCount": 0,
+      "menuWebglContexts": 0,
+      "gameplayRequestsBeforeStart": 0,
+      "settings": true,
+      "onlineNavigation": true
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "menuCanvasCount": 0,
+      "menuWebglContexts": 0,
+      "gameplayRequestsBeforeStart": 0,
+      "settings": true,
+      "onlineNavigation": true
+    },
+    {
+      "viewport": [
+        360,
+        640
+      ],
+      "menuCanvasCount": 0,
+      "menuWebglContexts": 0,
+      "gameplayRequestsBeforeStart": 0,
+      "settings": true,
+      "onlineNavigation": true
+    },
+    {
+      "viewport": [
+        844,
+        390
+      ],
+      "menuCanvasCount": 0,
+      "menuWebglContexts": 0,
+      "gameplayRequestsBeforeStart": 0,
+      "settings": true,
+      "onlineNavigation": true
+    }
+  ],
+  "errors": []
+}
