@@ -11,13 +11,30 @@ It implements the contracts in `docs/` (v1.1.2): `API-CONTRACT.md`, `SOCKET-EVEN
 | Part | State |
 |---|---|
 | Rules engine (`src/game/`) | **Tested.** 57 automated tests pass, including 500 random full games. |
-| Server layer (auth, rooms, matches, sockets, database) | **Written but never run.** It was type-checked without the real NestJS/Prisma packages. Expect to fix some errors the first time you run `npm install`, `npm run lint` and `npm run start:dev`. |
-| Database migration | **Not created yet.** You generate it in step 4 below. |
+| Server layer (auth, rooms, matches, sockets, database) | **CI-verified.** NestJS starts against an isolated PostgreSQL instance, the REST smoke test passes, and HTTP/Socket.IO integration tests exercise auth, room and match flows. |
+| Database migration | **Committed and CI-verified.** Apply the versioned migration with `npx prisma migrate deploy`. |
 
 Nothing here has been played end to end in two browsers. Do that before telling anyone online mode works
 (`docs/INTEGRATION-PLAN.md` §3).
 
 **New here? Read [`GUIDE.md`](./GUIDE.md) first.** It walks through setup, running, testing and debugging step by step.
+
+## Continuous integration
+
+Every pull request targeting `main` that changes `backend/**` or the backend CI
+workflow runs a single GitHub Actions check: **Backend CI / Backend / PostgreSQL / Socket.IO**.
+The same workflow runs after backend changes are pushed to `main`, and it can be
+run manually using **Actions → Backend CI → Run workflow**.
+
+The check uses Node.js 22, `npm ci` with the committed `backend/package-lock.json`,
+an isolated PostgreSQL 16 service, Prisma schema/drift/integrity checks, all 57
+rules engine tests, NestJS type-check/build, REST smoke tests, and HTTP/Socket.IO
+integration tests. The old separate step-1/2/3 verification workflows were removed
+to avoid duplicated work. Database and JWT settings in CI are **test-only**.
+
+When updating backend dependencies, run `npm install` inside `backend/` and
+commit both `package.json` and `package-lock.json`. CI uses `npm ci` and
+fails if they are out of sync.
 
 ## Requirements
 
@@ -78,8 +95,8 @@ The initial migration includes all six gameplay CHECK constraints. For future sc
 
 ## Integration tests
 
-Step 3 adds `test/integration.test.mjs` and an automated GitHub Actions workflow
-(`.github/workflows/backend-integration-step3.yml`). The workflow creates a **temporary**
+Step 3 adds `test/integration.test.mjs`; Step 4 consolidates all backend checks into
+`.github/workflows/backend-ci.yml`. This workflow creates a **temporary**
 PostgreSQL 16 database, applies committed migrations, builds/starts NestJS, and runs
 `npm run test:integration` with `DISCONNECT_GRACE_SECONDS=2` to exercise pause,
 reconnect and host failover quickly.
