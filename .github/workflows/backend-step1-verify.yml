@@ -1,0 +1,78 @@
+name: Backend runtime verification (step 1)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-step1-verify.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: monopoly
+          POSTGRES_PASSWORD: change-me
+          POSTGRES_DB: monopoly_dev
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U monopoly -d monopoly_dev"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    defaults:
+      run:
+        working-directory: backend
+
+    env:
+      DATABASE_URL: postgresql://monopoly:change-me@localhost:5432/monopoly_dev?schema=public
+      JWT_ACCESS_SECRET: backend-step-1-test-only-secret-not-for-production-1234567890
+      CORS_ORIGIN: http://localhost:5173
+      COOKIE_SECURE: 'false'
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install actual dependencies
+        run: npm install
+      - name: Type-check
+        run: npm run lint
+      - name: Rules engine unit tests
+        run: npm test
+      - name: Compile NestJS
+        run: npm run build
+      - name: Provision ephemeral DB for runtime verification only
+        run: npx prisma db push
+      - name: Apply SQL constraints
+        run: npm run db:constraints
+      - name: Start production server and check /health
+        shell: bash
+        run: |
+          (npm run start:prod > /tmp/monopoly-backend-step1.log 2>&1 &)
+          for i in {1..45}; do
+            if curl --fail --silent http://localhost:3000/api/v1/health; then
+              echo
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Backend did not become healthy."
+          cat /tmp/monopoly-backend-step1.log
+          exit 1
+      - name: Exercise REST smoke test
+        run: npm run smoke
+      - name: Print server log on failure
+        if: failure()
+        run: cat /tmp/monopoly-backend-step1.log || true
