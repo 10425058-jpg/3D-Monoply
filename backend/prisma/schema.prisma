@@ -48,6 +48,8 @@ model UserSession {
   rotatedTo   UserSession[] @relation("SessionRotation")
 
   @@index([userId])
+  @@index([expiresAt])
+  @@index([revokedAt])
   @@map("user_sessions")
 }
 
