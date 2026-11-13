@@ -13,6 +13,7 @@ const SOCKET_URL = new URL(BASE).origin + '/game';
 const ORIGIN = 'http://localhost:5173';
 const VERSION = 'central-castle@1';
 const prisma = new PrismaClient();
+const registeredUsers = [];
 test.after(async () => prisma.$disconnect());
 
 function randomName(label) {
@@ -63,7 +64,9 @@ async function makeUser(label) {
   assert.ok(data.csrfToken);
   assert.equal(data.user.username, username);
   assert.ok(!Object.hasOwn(data.user, 'passwordHash'));
-  return { username, email, password, id: data.user.id, token: data.accessToken, csrf: data.csrfToken, cookie: r.cookie };
+  const user = { username, email, password, id: data.user.id, token: data.accessToken, csrf: data.csrfToken, cookie: r.cookie };
+  registeredUsers.push(user);
+  return user;
 }
 
 function waitFor(socket, event, check = () => true, timeoutMs = 10000) {
@@ -354,8 +357,12 @@ test('REST + Socket.IO: lobby events, match idempotency, privacy, disconnect and
 });
 
 test('Presence: closing one of two match tabs keeps the player connected', async () => {
-  const alice = await makeUser('tabs_a');
-  const bob = await makeUser('tabs_b');
+  // The CI smoke test registers two users before this suite. Reuse real HTTP-created
+  // fixtures so the combined run respects the unchanged ten-registrations/minute limit.
+  // Running this test alone still creates its own users through the real API.
+  const [existingAlice, existingBob] = registeredUsers.slice(-2);
+  const alice = existingAlice ?? await makeUser('tabs_a');
+  const bob = existingBob ?? await makeUser('tabs_b');
   const room = ok(await api('POST', '/rooms', {
     token: alice.token, body: { mapId: 'central-castle', maxPlayers: 2, isPrivate: false },
   }), 201).room;

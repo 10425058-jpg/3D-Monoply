@@ -19,6 +19,8 @@ The browser run used isolated Chrome contexts for Alice and Bob, the actual Vite
 
 The definitive sanitized browser receipt is [evidence/results.json](./online-frontend/evidence/results.json). The script remains in the repository and supports environment overrides documented in [ONLINE-FRONTEND.md](./ONLINE-FRONTEND.md).
 
+The presence integration test reuses accounts created through real HTTP earlier in the suite. This keeps CI's preceding smoke test plus integration tests within the unchanged ten-registrations-per-minute limit. Running that test alone still creates fresh accounts through the API.
+
 ## Browser scenarios
 
 - **A — Solo:** actual local roll, movement to a property, purchase, turn handoff and AI movement. Only this Solo RNG was fixed for reproducibility; all online dice remained backend-generated.
