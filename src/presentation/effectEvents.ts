@@ -1,6 +1,6 @@
-import type { useGameStore } from '../store/useGameStore';
+import type { SceneState } from './SceneStore';
 
-export type GameSnapshot = ReturnType<typeof useGameStore.getState>;
+export type GameSnapshot = SceneState;
 export type EffectKind = 'roll' | 'dice-land' | 'move' | 'money' | 'ownership' | 'build' |
   'mortgage' | 'turn' | 'card' | 'auction' | 'trade' | 'jail' | 'bankrupt' | 'victory' | 'raid';
 export interface EffectChange {

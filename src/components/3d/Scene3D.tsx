@@ -10,11 +10,11 @@ import { GameplayEffects } from './GameplayEffects';
 import { FantasySkyBackground } from './FantasySkyBackground';
 import { CAMERA_PRESETS, CameraPreset, CinematicCamera, useReducedMotion } from './CinematicCamera';
 import { GraphicsAudit, graphicsAuditEnabled } from './GraphicsAudit';
-import { useGameStore } from '../../store/useGameStore';
+import { useSceneState as useGameStore } from '../../presentation/SceneStore';
 
 type GraphicsQuality = 'low' | 'balanced' | 'high';
 
-export const Scene3D: React.FC<{ quality?: GraphicsQuality }> = ({ quality = 'balanced' }) => {
+export const Scene3D = React.memo<{ quality?: GraphicsQuality }>(({ quality = 'balanced' }) => {
   const reducedMotion = useReducedMotion();
   const selected = useGameStore(s => s.selectedSpaceId);
   const [request, setRequest] = useState<{ preset: CameraPreset; sequence: number }>({ preset: 'overview', sequence: 0 });
@@ -62,6 +62,6 @@ export const Scene3D: React.FC<{ quality?: GraphicsQuality }> = ({ quality = 'ba
       <button type="button" onClick={() => focus('overview')}>Reset view</button>
     </nav>
   </div>;
-};
+});
 
 export default Scene3D;

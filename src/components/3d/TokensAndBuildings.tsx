@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import { AnimatedToken } from './AnimatedToken';
 import { useMotionPreferences } from '../../presentation/useMotionPreferences';
 import * as THREE from 'three';
-import { useGameStore } from '../../store/useGameStore';
+import { useSceneState as useGameStore } from '../../presentation/SceneStore';
 import { BOARD_SPACES, getSpaceTransform } from '../../data/boardData';
 import { TokenType } from '../../types/game';
 

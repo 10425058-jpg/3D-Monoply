@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { Player } from '../../types/game';
 import { getSpaceTransform } from '../../data/boardData';
-import { useGameStore } from '../../store/useGameStore';
+import { useSceneStore } from '../../presentation/SceneStore';
 import { isGameReset } from '../../presentation/effectEvents';
 import { hopPose, isAdjacentTile, movementDuration } from '../../presentation/animationMath';
 
@@ -12,6 +12,7 @@ type Step = { from: number; to: number; at: number; duration: number; teleport: 
 export function AnimatedToken({ player, index, reduced, visible, trails, children }: {
   player: Player; index: number; reduced: boolean; visible: boolean; trails: boolean; children: React.ReactNode;
 }) {
+  const store = useSceneStore();
   const root = useRef<THREE.Group>(null);
   const trail = useRef<THREE.InstancedMesh>(null);
   const steps = useRef<Step[]>([]);
@@ -31,7 +32,7 @@ export function AnimatedToken({ player, index, reduced, visible, trails, childre
   }, [trails]);
   useEffect(() => {
     const reset = () => { steps.current = []; landedAt.current = -Infinity; };
-    const unsubscribe = useGameStore.subscribe((next, previous) => {
+    const unsubscribe = store.subscribe((next, previous) => {
       if (isGameReset(previous, next)) { reset(); return; }
       const before = previous.players.find(p => p.id === player.id);
       const after = next.players.find(p => p.id === player.id);
@@ -43,12 +44,12 @@ export function AnimatedToken({ player, index, reduced, visible, trails, childre
     });
     document.addEventListener('visibilitychange', reset);
     return () => { unsubscribe(); reset(); document.removeEventListener('visibilitychange', reset); };
-  }, [player.id]);
+  }, [player.id, store]);
 
   useFrame(() => {
     const group = root.current;
     if (!group || !visible) return;
-    const actual = useGameStore.getState().players.find(p => p.id === player.id);
+    const actual = store.getState().players.find(p => p.id === player.id);
     if (!actual) return;
     const now = performance.now();
     // Consume expired segments without ever drawing a chord across a corner.

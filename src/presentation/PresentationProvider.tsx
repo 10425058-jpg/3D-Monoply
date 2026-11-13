@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useGameStore } from '../store/useGameStore';
+import { useSceneStore } from './SceneStore';
 import { sounds } from '../utils/audio';
 import { collectEffectChanges, isGameReset, primaryEffect, PresentationEvent } from './effectEvents';
 
@@ -8,6 +8,7 @@ export const usePresentationEvents = () => useContext(PresentationContext);
 let nextEventId = 0;
 
 export function PresentationProvider({ children }: { children: React.ReactNode }) {
+  const store = useSceneStore();
   const [events, setEvents] = useState<PresentationEvent[]>([]);
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -18,7 +19,7 @@ export function PresentationProvider({ children }: { children: React.ReactNode }
       setEvents([...pending]);
       if (pending.length) timer = setTimeout(publish, Math.max(16, Math.min(...pending.map(e => e.expiresAt)) - performance.now()));
     };
-    const unsubscribe = useGameStore.subscribe((next, previous) => {
+    const unsubscribe = store.subscribe((next, previous) => {
       if (isGameReset(previous, next)) { pending = []; publish(); sounds.cancel(); return; }
       if (document.hidden) return;
       const changes = collectEffectChanges(previous, next);
@@ -50,6 +51,6 @@ export function PresentationProvider({ children }: { children: React.ReactNode }
       window.removeEventListener('keydown', unlock);
       document.removeEventListener('visibilitychange', hide);
     };
-  }, []);
+  }, [store]);
   return <PresentationContext.Provider value={events}>{children}</PresentationContext.Provider>;
 }

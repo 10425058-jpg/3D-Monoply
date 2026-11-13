@@ -1,0 +1,46 @@
+{
+  "origin": "http://localhost:5174",
+  "results": [
+    {
+      "scenario": "B: register, logout, login, CSRF reload restoration, memory-only credentials",
+      "passed": true
+    },
+    {
+      "scenario": "C: public room, live membership/readiness, host start, both clients enter existing 3D scene",
+      "passed": true
+    },
+    {
+      "scenario": "H: exact action replay returns the original committed roll",
+      "passed": true
+    },
+    {
+      "scenario": "E: server dice, 3D movement, balances, ownership and turn handoff agree",
+      "passed": true
+    },
+    {
+      "scenario": "F: reload restores session and rejoins the same committed match",
+      "passed": true
+    },
+    {
+      "scenario": "Multiple tabs: concurrent CSRF restoration preserves identity and match presence",
+      "passed": true
+    },
+    {
+      "scenario": "G: real socket loss, authoritative pause, cookie recovery and resume",
+      "passed": true
+    },
+    {
+      "scenario": "I: server terminal state, identical results and standings survive reload",
+      "passed": true
+    },
+    {
+      "scenario": "D: private room hidden, wrong/old codes rejected, rotated invite joins through real authorization",
+      "passed": true
+    },
+    {
+      "scenario": "A: Solo roll, property action, turn handoff and AI movement still work",
+      "passed": true
+    }
+  ],
+  "browserErrors": []
+}

@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { RoundedBox, Text } from '@react-three/drei';
 import { BOARD_SPACES, getSpaceTransform } from '../../data/boardData';
-import { useGameStore } from '../../store/useGameStore';
+import { useSceneState as useGameStore } from '../../presentation/SceneStore';
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three-stdlib';
 import { createWalnutGrain } from './boardMaterials';

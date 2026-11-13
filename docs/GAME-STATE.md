@@ -57,6 +57,8 @@ interface MatchState {
   stateVersion:number; pausedAt:string|null; pauseReason:string|null;
   allPlayersOfflineSince:string|null;
   startedAt:string; updatedAt:string;
+  // Additive implementation field: recover results after missing game:finished.
+  standings:Array<{playerId:Id; rank:number; money:Money; netWorth:Money}>;
 }
 interface RoomMember {
   userId:Id; username:string; avatarUrl:string|null;

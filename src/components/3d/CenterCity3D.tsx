@@ -1,7 +1,7 @@
 import React, { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useGameStore } from '../../store/useGameStore';
+import { useSceneState as useGameStore } from '../../presentation/SceneStore';
 import { CASTLE_COLORS } from './castle/CastleMaterials';
 import { ContactOcclusion } from './ContactOcclusion';
 import { CentralCastle } from './castle/CentralCastle';

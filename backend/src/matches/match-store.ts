@@ -5,7 +5,7 @@ import { Prisma } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
 import { config } from '../config';
 import { CONTENT } from '../game/content';
-import { allowedActions } from '../game/rules/engine';
+import { allowedActions, netWorth } from '../game/rules/engine';
 import { ActionName, DeckType, DiceState, EngineEvent, EngineState, LastCardResolved } from '../game/rules/types';
 import { MatchBroadcast } from '../realtime/realtime.service';
 
@@ -218,6 +218,7 @@ export interface PublicMatchState {
   allPlayersOfflineSince: string | null;
   startedAt: string;
   updatedAt: string;
+  standings: Array<{ playerId: string; rank: number; money: number; netWorth: number }>;
 }
 
 const iso = (d: Date | null) => (d ? d.toISOString() : null);
@@ -281,6 +282,10 @@ export function projectMatchState(m: LoadedMatch, viewerUserId: string, nowMs: n
     allPlayersOfflineSince: iso(m.allPlayersOfflineSince),
     startedAt: m.startedAt.toISOString(),
     updatedAt: m.updatedAt.toISOString(),
+    // The terminal event may be missed. Persisted ranks must survive page reloads.
+    standings: m.status === 'FINISHED' ? state.players
+      .map((p) => ({ playerId: p.playerId, rank: p.finalRank ?? 0, money: p.money, netWorth: netWorth(state, p, CONTENT) }))
+      .sort((a, b) => a.rank - b.rank) : [],
   };
 }
 
