@@ -17,7 +17,8 @@
     "db:migrate": "prisma migrate dev",
     "db:constraints": "prisma db execute --file prisma/sql/constraints.sql --schema prisma/schema.prisma",
     "prisma:generate": "prisma generate",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "test:integration": "node --test --test-concurrency=1 test/integration.test.mjs"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.15",
@@ -42,7 +43,8 @@
     "@types/node": "^20.12.12",
     "prisma": "^5.22.0",
     "tsx": "^4.19.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "socket.io-client": "^4.8.1"
   },
   "engines": {
     "node": ">=20.6"
