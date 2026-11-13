@@ -13,6 +13,11 @@ export interface Room {
 }
 export interface RoomSummary { roomId: string; mapId: string; memberCount: number; maxPlayers: number; status: 'WAITING' }
 export interface RoomPage { items: RoomSummary[]; nextCursor: string | null }
+export interface ActiveMatchSummary {
+  matchId: string; roomId: string; status: 'IN_PROGRESS' | 'PAUSED';
+  mapId: string; turnNumber: number; startedAt: string; updatedAt: string;
+}
+export interface ActiveMatchPage { items: ActiveMatchSummary[] }
 export type ActionName = 'roll-dice' | 'buy-property' | 'decline-property' | 'end-turn' |
   'pay-jail-bail' | 'use-jail-card' | 'forfeit' | 'forfeit-player' | 'abandon';
 export interface OnlinePlayer {
