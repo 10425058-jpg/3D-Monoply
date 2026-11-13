@@ -1,0 +1,98 @@
+name: Production same-origin deploy readiness (step 6)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'render.yaml'
+      - 'backend/src/main.ts'
+      - 'backend/src/config.ts'
+      - '.github/workflows/deploy-readiness.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  render-readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: monopoly
+          POSTGRES_PASSWORD: change-me
+          POSTGRES_DB: monopoly_dev
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U monopoly -d monopoly_dev"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://monopoly:change-me@localhost:5432/monopoly_dev?schema=public
+      JWT_ACCESS_SECRET: deployment-readiness-test-secret-only-12345678901234567
+      RENDER_EXTERNAL_URL: https://miniature-city-online.onrender.com
+      CORS_ORIGIN: http://localhost:5173
+      DISCONNECT_GRACE_SECONDS: '2'
+      COOKIE_SECURE: 'true'
+      SERVE_FRONTEND: 'true'
+      FRONTEND_DIST_DIR: ../dist
+      NODE_ENV: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            backend/package-lock.json
+      - name: Build Vite frontend
+        run: npm ci --include=dev && npm run build
+      - name: Build NestJS backend
+        working-directory: backend
+        run: npm ci --include=dev && npm run lint && npm run build
+      - name: Apply production-style committed migrations
+        working-directory: backend
+        run: npx prisma migrate deploy
+      - name: Start same-origin production application
+        working-directory: backend
+        shell: bash
+        run: |
+          (npm run start:prod > /tmp/step6-server.log 2>&1 &)
+          for i in {1..50}; do
+            if curl -fsS http://localhost:3000/api/v1/health; then
+              echo
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/step6-server.log
+          exit 1
+      - name: Verify frontend, API, origin security and secure refresh cookie
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS http://localhost:3000/ > /tmp/step6-index.html
+          grep -q '<div id="root"' /tmp/step6-index.html
+          JS_ASSET=$(grep -oE 'src="./assets/[^"]+\.js"' /tmp/step6-index.html | head -n 1 | sed 's/^src="//;s/"$//')
+          if [ -n "$JS_ASSET" ]; then curl -fsS "http://localhost:3000/${JS_ASSET#./}" > /dev/null; fi
+          TRUSTED_CODE=$(curl -s -o /tmp/step6-trusted.json -w '%{http_code}' -H "Origin: $RENDER_EXTERNAL_URL" http://localhost:3000/api/v1/auth/csrf)
+          UNTRUSTED_CODE=$(curl -s -o /tmp/step6-untrusted.json -w '%{http_code}' -H 'Origin: https://untrusted.example' http://localhost:3000/api/v1/auth/csrf)
+          test "$TRUSTED_CODE" = 401
+          test "$UNTRUSTED_CODE" = 403
+          echo "PASS: same-origin SPA + API, trusted/untrusted origin CSRF controls"
+          USERNAME="deploytest_${GITHUB_RUN_ID}"
+          curl -sS -D /tmp/step6-headers.txt -o /tmp/step6-register.json -H 'Content-Type: application/json' \
+            -d "{\"username\":\"$USERNAME\",\"email\":\"$USERNAME@example.com\",\"password\":\"SecureDevTest12345\"}" \
+            http://localhost:3000/api/v1/auth/register
+          grep -qi 'Set-Cookie: refresh_token=.*Secure;.*SameSite=Lax' /tmp/step6-headers.txt
+          grep -q '"accessToken"' /tmp/step6-register.json
+          echo "PASS: secure refresh cookie and auth response"
+      - name: Backend API/Socket.IO integration regression
+        working-directory: backend
+        run: npm run test:integration
+      - name: Server output on failure
+        if: failure()
+        run: cat /tmp/step6-server.log || true
