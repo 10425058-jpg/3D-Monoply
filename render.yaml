@@ -1,0 +1,44 @@
+# Step 6: a single HTTPS origin serves Vite + NestJS + Socket.IO.
+# Creating this Blueprint provisions paid resources; review pricing before sync.
+# No infrastructure is created merely by committing this file.
+databases:
+  - name: miniature-city-postgres
+    databaseName: miniature_city
+    user: miniature_city
+    postgresMajorVersion: "16"
+    region: singapore
+    plan: basic-256mb
+    ipAllowList: []
+
+services:
+  - type: web
+    name: miniature-city-online
+    runtime: node
+    region: singapore
+    plan: starter
+    numInstances: 1
+    branch: main
+    autoDeployTrigger: off
+    healthCheckPath: /api/v1/health
+    buildCommand: npm ci && npm run build && cd backend && npm ci && npm run build
+    preDeployCommand: cd backend && npx prisma migrate deploy
+    startCommand: cd backend && npm run start:prod
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: SERVE_FRONTEND
+        value: "true"
+      - key: FRONTEND_DIST_DIR
+        value: ../dist
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: miniature-city-postgres
+          property: connectionString
+      # RENDER_EXTERNAL_URL is provided by Render at runtime. Add custom domains
+      # to CORS_ORIGIN through the dashboard if you enable them later.
