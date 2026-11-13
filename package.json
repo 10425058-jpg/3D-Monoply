@@ -32,11 +32,12 @@
     "react-dom": "^18.3.1",
     "socket.io-client": "^4.8.1",
     "three": "^0.164.1",
-    "zustand": "^4.5.2"
+    "zustand": "^4.5.2",
+    "postprocessing": "6.35.6"
   },
   "devDependencies": {
     "@types/canvas-confetti": "^1.6.4",
-    "@types/node": "^20.12.12",
+    "@types/node": "^22.16.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@types/three": "^0.164.0",
@@ -48,5 +49,11 @@
     "tsx": "^4.19.2",
     "typescript": "^5.4.5",
     "vite": "^5.2.11"
+  },
+  "engines": {
+    "node": ">=22.12 <23"
+  },
+  "overrides": {
+    "postprocessing": "$postprocessing"
   }
 }

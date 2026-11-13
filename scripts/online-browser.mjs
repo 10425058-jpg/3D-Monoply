@@ -8,8 +8,14 @@ import path from 'node:path';
 const origin = process.env.ONLINE_TEST_URL || 'http://localhost:5174';
 const output = path.resolve(process.env.ONLINE_TEST_OUT || '.online-test');
 await mkdir(output, { recursive: true });
+// CI Chrome runs without a hardware GPU. SwiftShader makes the real R3F
+// scene render headlessly. No sandbox disabling is used for local developers.
+const ciChromeArgs = process.env.CI
+  ? ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage',
+     '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader']
+  : [];
 const browser = await puppeteer.launch({ executablePath: process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true,
-  args: ['--disable-background-timer-throttling', '--disable-renderer-backgrounding'] });
+  args: ['--disable-background-timer-throttling', '--disable-renderer-backgrounding', ...ciChromeArgs] });
 const observations = new Map(); const errors = []; const results = [];
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 async function until(fn, message, timeout = 30000) {
@@ -64,10 +70,26 @@ async function register(page, label) {
 }
 async function matchReady(page) {
   await page.bringToFront();
-  await page.waitForSelector('.city-match');
-  await page.waitForFunction(() => document.querySelector('.city-match-header .city-connection.connected'));
-  await page.waitForFunction(() => !!window.__graphicsAudit?.game()?.players.length);
-  await until(() => observations.get(page).match, 'match snapshot');
+  // GitHub's software WebGL renderer can take substantially longer to mount
+  // the real Three.js scene after a page reload. Keep the full 3D assertion;
+  // never bypass it just because the React HUD already says "Connected".
+  const timeout = process.env.CI ? 120000 : 30000;
+  await page.waitForSelector('.city-match', { timeout });
+  await page.waitForFunction(() => !!document.querySelector('.city-match-header .city-connection.connected'), { timeout });
+  try {
+    await page.waitForFunction(() => !!window.__graphicsAudit?.game()?.players.length, { timeout });
+  } catch (error) {
+    const diagnostics = await page.evaluate(() => ({
+      url: location.href,
+      graphicsAuditEnabled: new URLSearchParams(location.search).has('graphicsAudit'),
+      auditPresent: !!window.__graphicsAudit,
+      canvasCount: document.querySelectorAll('canvas').length,
+      connection: document.querySelector('.city-match-header .city-connection')?.textContent,
+      renderState: document.querySelector('.city-match')?.getAttribute('class'),
+    })).catch(() => ({ browser: 'unresponsive' }));
+    throw new Error('3D renderer did not initialize in time: ' + JSON.stringify(diagnostics) + '; ' + error);
+  }
+  await until(() => observations.get(page).match, 'fresh authoritative match snapshot', timeout);
 }
 async function synchronized(a, b) {
   await until(async () => {
@@ -157,8 +179,9 @@ try {
   await a.setViewport({ width: 390, height: 844 }); await shot(a, '06-online-match-mobile');
   assert.equal(await a.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
   await a.setViewport({ width: 1440, height: 900 }); passed('E: server dice, 3D movement, balances, ownership and turn handoff agree');
-  const matchUrl = b.url(); await b.reload({ waitUntil: 'domcontentloaded' }); await matchReady(b); await synchronized(a, b); passed('F: reload restores session and rejoins the same committed match');
+  const matchUrl = b.url(); observations.get(b).match = null; await b.reload({ waitUntil: 'domcontentloaded' }); await matchReady(b); await synchronized(a, b); passed('F: reload restores session and rejoins the same committed match');
   const secondTab = await pageFor(cb); await go(secondTab, 'online/lobby'); await secondTab.waitForSelector('.city-lobby-actions');
+  observations.get(b).match = null;
   await Promise.all([b.reload({ waitUntil: 'domcontentloaded' }), secondTab.reload({ waitUntil: 'domcontentloaded' })]);
   await matchReady(b); await secondTab.waitForSelector('.city-lobby-actions');
   assert.ok(await secondTab.$eval('.city-sidebar-profile', (el, expected) => el.textContent.includes(expected), bob.username));
