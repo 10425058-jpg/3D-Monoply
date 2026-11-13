@@ -1,9 +1,8 @@
 name: Step 2 - generate baseline migration SQL for review
 
 on:
-  push:
-    branches:
-      - db/step2-prisma-migrations
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: read
