@@ -1,0 +1,27 @@
+name: Step 2 - generate baseline migration SQL for review
+
+on:
+  push:
+    branches:
+      - db/step2-prisma-migrations
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install backend packages
+        working-directory: backend
+        run: npm install
+      - name: Print Prisma-generated initial migration SQL
+        working-directory: backend
+        run: |
+          echo '===BEGIN_PRISMA_INITIAL_SQL==='
+          npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script
+          echo '===END_PRISMA_INITIAL_SQL==='
