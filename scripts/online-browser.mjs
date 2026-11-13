@@ -8,8 +8,14 @@ import path from 'node:path';
 const origin = process.env.ONLINE_TEST_URL || 'http://localhost:5174';
 const output = path.resolve(process.env.ONLINE_TEST_OUT || '.online-test');
 await mkdir(output, { recursive: true });
+// CI Chrome runs without a hardware GPU. SwiftShader makes the real R3F
+// scene render headlessly. No sandbox disabling is used for local developers.
+const ciChromeArgs = process.env.CI
+  ? ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage',
+     '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader']
+  : [];
 const browser = await puppeteer.launch({ executablePath: process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true,
-  args: ['--disable-background-timer-throttling', '--disable-renderer-backgrounding'] });
+  args: ['--disable-background-timer-throttling', '--disable-renderer-backgrounding', ...ciChromeArgs] });
 const observations = new Map(); const errors = []; const results = [];
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 async function until(fn, message, timeout = 30000) {
