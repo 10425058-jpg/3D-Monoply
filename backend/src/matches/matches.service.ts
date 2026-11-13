@@ -109,6 +109,34 @@ export class MatchesService {
     return { matchId: match.id, stateVersion: 0 };
   }
 
+  /** GET /matches/active — only ongoing matches belonging to this user.
+   * Never return another player's private data or any secret deck contents.
+   * A user may belong to several active matches; list all recent 20.
+   */
+  async listActive(userId: string) {
+    const matches = await this.prisma.match.findMany({
+      where: {
+        status: { in: ['IN_PROGRESS', 'PAUSED'] },
+        players: { some: { userId } },
+      },
+      orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+      take: 20,
+      select: {
+        id: true, roomId: true, status: true, mapId: true,
+        turnNumber: true, startedAt: true, updatedAt: true,
+      },
+    });
+    return { items: matches.map(m => ({
+      matchId: m.id,
+      roomId: m.roomId,
+      status: m.status,
+      mapId: m.mapId,
+      turnNumber: m.turnNumber,
+      startedAt: m.startedAt.toISOString(),
+      updatedAt: m.updatedAt.toISOString(),
+    })) };
+  }
+
   /** GET /matches/:matchId — the viewer's personal snapshot. Participants only. */
   async getSnapshot(matchId: string, userId: string): Promise<PublicMatchState> {
     const m = await loadMatch(this.prisma, matchId);

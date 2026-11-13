@@ -9,7 +9,7 @@ import { CHANCE_CARDS, COMMUNITY_CHEST_CARDS } from '../data/cardsData';
 import { session } from './config';
 import { describeError } from './apiClient';
 import type { OnlineController } from './onlineController';
-import type { ActionName, Room, RoomPage, RoomSummary } from './types';
+import type { ActionName, ActiveMatchPage, ActiveMatchSummary, Room, RoomPage, RoomSummary } from './types';
 
 export type Quality = 'low' | 'balanced' | 'high';
 export const privateInvites = new Map<string, string>();
@@ -99,7 +99,10 @@ export function OnlineLayout({ children, title, subtitle, home, solo, settings, 
       <section className="city-hub-content"><div className="city-page-heading"><div><span className="city-eyebrow">LET’S PLAY TOGETHER</span><h1>{title}</h1><p>{subtitle}</p></div><span className="city-status"><span className="city-online-dot" />Online</span></div>{children}</section></div>
     <footer className="city-shell-footer">MINIATURE CITY EDITION<span>2–4 friends. One shared adventure.</span></footer></main>;
 }
-export function Lobby({ enterRoom }: { enterRoom: (room: Room) => void }) {
+export function Lobby({ enterRoom, resumeMatch }: { enterRoom: (room: Room) => void; resumeMatch: (matchId: string) => void }) {
+  const [activeMatches, setActiveMatches] = useState<ActiveMatchSummary[]>([]);
+  const [activeLoading, setActiveLoading] = useState(true);
+  const [activeError, setActiveError] = useState<string | null>(null);
   const [rooms, setRooms] = useState<RoomSummary[]>([]); const [cursor, setCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true); const [error, setError] = useState<string | null>(null);
   const [modal, setModal] = useState<'create' | 'join' | null>(null); const [pending, setPending] = useState(false);
@@ -112,13 +115,38 @@ export function Lobby({ enterRoom }: { enterRoom: (room: Room) => void }) {
     } catch (error) { if (request === generation.current) setError(describeError(error)); }
     finally { if (request === generation.current) setLoading(false); }
   };
-  useEffect(() => { mounted.current = true; void load(); return () => { mounted.current = false; ++generation.current; }; }, []);
+  const loadActive = async () => {
+    setActiveLoading(true); setActiveError(null);
+    try {
+      const page = await session.api.request<ActiveMatchPage>('/matches/active');
+      if (mounted.current) setActiveMatches(page.items);
+    } catch (error) {
+      if (mounted.current) setActiveError(describeError(error));
+    } finally { if (mounted.current) setActiveLoading(false); }
+  };
+  useEffect(() => {
+    mounted.current = true; void load(); void loadActive();
+    return () => { mounted.current = false; ++generation.current; };
+  }, []);
   const run = async (fn: () => Promise<Room>) => {
     if (lock.current) return; lock.current = true; setPending(true); setError(null);
     try { const room = await fn(); if (mounted.current) enterRoom(room); } catch (error) { if (mounted.current) setError(describeError(error)); }
     finally { lock.current = false; setPending(false); }
   };
-  return <><div className="city-lobby-actions"><button className="city-button gold" onClick={() => { setError(null); setModal('create'); }}><Plus size={20} />Create a room</button><button className="city-button outline" onClick={() => { setError(null); setModal('join'); }}><LockKeyhole size={18} />Join private</button><button className="city-button outline city-refresh" onClick={() => void load()} disabled={loading}><RefreshCw size={18} className={loading ? 'city-spin' : ''} />Refresh</button></div>
+  return <><section className="city-resume-section" aria-label="Your active games">
+    <div className="city-list-heading"><h2>Continue playing</h2><span>Your games are saved on the server</span></div>
+    <ErrorNotice message={activeError} />
+    {activeLoading && !activeMatches.length
+      ? <Busy text="Looking for your active games…" />
+      : activeMatches.length ? <div className="city-resume-list">{activeMatches.map(match =>
+          <article className="city-room-row" key={match.matchId}>
+            <span className="city-room-icon tone-1"><Dice5 size={25} /></span>
+            <div><h3>Central Castle <small>#{short(match.matchId)}</small></h3>
+              <p>Turn {match.turnNumber} · {match.status === 'PAUSED' ? 'Paused — waiting for reconnect' : 'In progress'}</p></div>
+            <button className="city-button purple" onClick={() => resumeMatch(match.matchId)}>Resume match<ArrowRight size={17} /></button>
+          </article>)}</div>
+      : <p className="city-no-matches">No unfinished matches yet.</p>}
+  </section><div className="city-lobby-actions"><button className="city-button gold" onClick={() => { setError(null); setModal('create'); }}><Plus size={20} />Create a room</button><button className="city-button outline" onClick={() => { setError(null); setModal('join'); }}><LockKeyhole size={18} />Join private</button><button className="city-button outline city-refresh" onClick={() => { void load(); void loadActive(); }} disabled={loading || activeLoading}><RefreshCw size={18} className={loading ? 'city-spin' : ''} />Refresh</button></div>
     <div className="city-list-heading"><h2>Public rooms</h2><span>Find your next game</span></div><ErrorNotice message={modal ? null : error} />
     {loading && rooms.length === 0 ? <Busy text="Finding a table for you…" /> : rooms.length === 0 ? <div className="city-empty"><Users size={44} /><h3>A new city is waiting.</h3><p>{error && !modal ? 'The online service could not be reached. Try refreshing.' : 'No public rooms just yet. Create one and invite a friend.'}</p><button className="city-button outline" onClick={() => setModal('create')}>Start the first room<Plus size={18} /></button></div> : <div className="city-room-list">{rooms.map((room, index) => <article className="city-room-row" key={room.roomId}>
       <span className={`city-room-icon tone-${index % 3}`}><Castle size={26} /></span><div><h3>Central Castle <small>#{short(room.roomId)}</small></h3><p><Users size={14} />{room.memberCount} / {room.maxPlayers} players<span>·</span>Miniature City</p></div><span className="city-status">Waiting</span><button className="city-button blue" disabled={pending || room.memberCount >= room.maxPlayers} onClick={() => void run(() => session.api.request<Room>(`/rooms/${room.roomId}/join`, { method: 'POST', body: {} }))}>{room.memberCount >= room.maxPlayers ? 'Full' : 'Join'}<ArrowRight size={18} /></button></article>)}</div>}

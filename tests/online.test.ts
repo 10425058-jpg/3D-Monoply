@@ -67,17 +67,54 @@ test('failed refresh clears memory authentication; profile failure cannot leave 
   const broken = new SessionManager('', (async url => String(url).endsWith('/csrf') ? json({ csrfToken: 'x' }) : String(url).endsWith('/refresh') ? json(tokens) : json('INTERNAL_ERROR', 500)) as typeof fetch);
   await broken.restore(); assert.equal(broken.getSnapshot().status, 'anonymous'); assert.equal(broken.getSnapshot().accessToken, null);
 });
-test('logout revokes via CSRF, clears memory, and preserves a usable session on service outage', async () => {
-  let unavailable = false;
-  const manager = new SessionManager('', (async url => {
-    if (String(url).endsWith('/login')) return json({ ...tokens, user });
-    if (unavailable) return json('DEPENDENCY_UNAVAILABLE', 503);
-    return json({ csrfToken: 'bootstrapped' });
-  }) as typeof fetch);
-  await manager.authenticate('login', { email: user.email, password: 'test' }); unavailable = true;
-  await assert.rejects(manager.logout()); assert.equal(manager.getSnapshot().status, 'authenticated');
-  unavailable = false; await manager.logout(); assert.equal(manager.getSnapshot().user, null); assert.equal(manager.getSnapshot().accessToken, null);
+test('offline logout clears local tokens, survives reload and defers cookie revocation safely', async () => {
+  const originalStorage = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
+  const memory = new Map<string, string>();
+  Object.defineProperty(globalThis, 'localStorage', {
+    configurable: true,
+    value: {
+      getItem: (key: string) => memory.get(key) ?? null,
+      setItem: (key: string, val: string) => { memory.set(key, val); },
+      removeItem: (key: string) => { memory.delete(key); },
+    },
+  });
+  try {
+    let offline = false; let logoutCalls = 0; let refreshCalls = 0;
+    const transport = (async (url: string | URL | Request) => {
+      const path = String(url);
+      if (path.endsWith('/login')) return json({ ...tokens, user });
+      if (offline) return json('DEPENDENCY_UNAVAILABLE', 503);
+      if (path.endsWith('/csrf')) return json({ csrfToken: 'bootstrapped' });
+      if (path.endsWith('/logout')) { logoutCalls++; return json({ success: true }); }
+      if (path.endsWith('/refresh')) { refreshCalls++; return json(tokens); }
+      return json(user);
+    }) as typeof fetch;
+    const manager = new SessionManager('', transport);
+    await manager.authenticate('login', { email: user.email, password: 'test' });
+    assert.equal(manager.getSnapshot().status, 'authenticated');
+    offline = true;
+    await manager.logout(); // user should be signed out locally even on 503
+    assert.equal(manager.getSnapshot().status, 'anonymous');
+    assert.equal(manager.getSnapshot().accessToken, null);
+    assert.equal(memory.get('miniature-city-pending-logout'), '1');
+
+    // Simulate full-page reload: the HttpOnly cookie may still exist remotely.
+    const newPage = new SessionManager('', transport);
+    await newPage.restore();
+    assert.equal(newPage.getSnapshot().status, 'anonymous');
+    assert.equal(refreshCalls, 0, 'Offline logout must never silently restore the old cookie');
+    await assert.rejects(newPage.authenticate('login', { email: user.email, password: 'test' }), /sign-out/i);
+    offline = false;
+    await newPage.authenticate('login', { email: user.email, password: 'test' });
+    assert.equal(logoutCalls, 1, 'Pending remote session must be revoked before new login');
+    assert.equal(memory.get('miniature-city-pending-logout'), undefined);
+    assert.equal(newPage.getSnapshot().status, 'authenticated');
+  } finally {
+    if (originalStorage) Object.defineProperty(globalThis, 'localStorage', originalStorage);
+    else Reflect.deleteProperty(globalThis, 'localStorage');
+  }
 });
+
 test('UUID mapping preserves server seats, tokens, ownership, bankruptcy and dice across reordered arrays', () => {
   const s = snapshot(); s.dice = { values: [6, 2], total: 8, rolledByPlayerId: 'uuid-a' }; s.players[0].isBankrupt = true;
   const mapped = mapMatch(s); const reordered = mapMatch({ ...s, players: [...s.players].reverse() });

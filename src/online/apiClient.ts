@@ -2,7 +2,8 @@ export class ApiError extends Error {
   constructor(public code: string, public status = 0) { super(errorMessage(code)); this.name = 'ApiError'; }
 }
 const messages: Record<string, string> = {
-  UNAUTHORIZED: 'Your session has expired. Please sign in again.', INVALID_CREDENTIALS: 'Email or password is incorrect.',
+  UNAUTHORIZED: 'Your session has expired. Please sign in again.',
+  LOGOUT_PENDING: 'Your sign-out is waiting for the server. Please reconnect and try again.', INVALID_CREDENTIALS: 'Email or password is incorrect.',
   CSRF_INVALID: 'Your session changed in another tab. Please try again.', USERNAME_TAKEN: 'That username is already taken.',
   EMAIL_TAKEN: 'That email is already registered.', ROOM_FULL: 'This room is full.', ROOM_ALREADY_STARTED: 'This match has already started.',
   ROOM_CLOSED: 'This room has closed. Create a new room to play again.', INVALID_INVITE_CODE: 'That invite code is incorrect.',

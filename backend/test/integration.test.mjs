@@ -251,6 +251,13 @@ test('REST + Socket.IO: lobby events, match idempotency, privacy, disconnect and
       token: alice.token, body: { rulesetId: 'mini-v1', contentVersion: VERSION },
     }), 201);
     const matchId = started.matchId;
+    const aliceActive = ok(await api('GET', '/matches/active', { token: alice.token }));
+    const bobActive = ok(await api('GET', '/matches/active', { token: bob.token }));
+    const outsiderActive = ok(await api('GET', '/matches/active', { token: outsider.token }));
+    assert.equal(aliceActive.items.find(m => m.matchId === matchId)?.status, 'IN_PROGRESS');
+    assert.equal(bobActive.items.find(m => m.matchId === matchId)?.roomId, roomId);
+    assert.ok(!outsiderActive.items.some(m => m.matchId === matchId), 'Nonparticipant saw a private match');
+    rejected(await api('GET', '/matches/active'), 401, 'UNAUTHORIZED');
     assert.equal((await startedA).payload.matchId, matchId);
     assert.equal((await startedB).payload.matchId, matchId);
 
@@ -346,6 +353,8 @@ test('REST + Socket.IO: lobby events, match idempotency, privacy, disconnect and
     assert.deepEqual(terminal.standings.map((row) => row.rank), [1, 2]);
     assert.ok(terminal.standings.every((row) => Number.isInteger(row.netWorth) && row.netWorth >= row.money));
     assert.deepEqual(ok(await api('GET', '/matches/' + matchId, { token: alice.token })).standings, terminal.standings);
+    const noLongerActive = ok(await api('GET', '/matches/active', { token: bob.token }));
+    assert.ok(!noLongerActive.items.some(m => m.matchId === matchId), 'Finished match must disappear from Resume list');
     const closed = ok(await api('GET', '/rooms/' + roomId, { token: bob.token }));
     assert.equal(closed.status, 'CLOSED');
     rejected(await api('POST', '/rooms/' + roomId + '/join', {
@@ -392,5 +401,33 @@ test('Presence: closing one of two match tabs keeps the player connected', async
     }));
   } finally {
     for (const socket of sockets) socket.disconnect();
+  }
+});
+
+
+test('Database cleanup: expire old sessions, preserve live sessions, and keep relations valid', async () => {
+  const owner = registeredUsers[0];
+  assert.ok(owner, 'Fixture user required');
+  const now = new Date();
+  const expiredAt = new Date(now.getTime() - 24 * 3600 * 1000);
+  const future = new Date(now.getTime() + 24 * 3600 * 1000);
+  const oldRevocation = new Date(now.getTime() - 8 * 24 * 3600 * 1000);
+  const createSession = (expiresAt, revokedAt) => prisma.userSession.create({
+    data: { userId: owner.id, refreshTokenHash: randomUUID(), csrfTokenHash: randomUUID(), expiresAt, revokedAt },
+  });
+  const expired = await createSession(expiredAt, null);
+  const revoked = await createSession(future, oldRevocation);
+  const valid = await createSession(future, null);
+  try {
+    const { SessionCleanupService } = await import('../dist/auth/session-cleanup.service.js');
+    const service = new SessionCleanupService(prisma);
+    await service.cleanupOnce(now);
+    const remaining = await prisma.userSession.findMany({
+      where: { id: { in: [expired.id, revoked.id, valid.id] } },
+      select: { id: true },
+    });
+    assert.deepEqual(remaining.map(s => s.id), [valid.id], 'Only unexpired, non-revoked session may survive cleanup');
+  } finally {
+    await prisma.userSession.deleteMany({ where: { id: { in: [expired.id, revoked.id, valid.id] } } });
   }
 });
