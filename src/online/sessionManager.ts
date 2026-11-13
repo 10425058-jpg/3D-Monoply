@@ -123,8 +123,11 @@ export class SessionManager {
   private flushPendingLogout = (): Promise<void> => {
     if (!this.pendingLogout && !readPendingLogout()) return Promise.resolve();
     if (this.logoutFlight) return this.logoutFlight;
-    const flight = this.cookieLock(async () => {
+    // Wait for an older refresh BEFORE acquiring the cookie lock.
+    // Waiting for refresh inside the lock can deadlock another tab's rotation.
+    const flight = (async () => {
       await this.refreshFlight?.catch(() => {});
+      return this.cookieLock(async () => {
       try {
         const { csrfToken } = await this.api.request<{ csrfToken: string }>('/auth/csrf', { authorized: false });
         await this.api.request('/auth/logout', { method: 'POST', body: {}, authorized: false, csrf: csrfToken });
@@ -134,7 +137,8 @@ export class SessionManager {
       }
       this.pendingLogout = false;
       writePendingLogout(false);
-    }).finally(() => { if (this.logoutFlight === flight) this.logoutFlight = null; });
+      });
+    })().finally(() => { if (this.logoutFlight === flight) this.logoutFlight = null; });
     this.logoutFlight = flight;
     return flight;
   };
