@@ -33,6 +33,8 @@ jobs:
       DATABASE_URL: postgresql://monopoly:change-me@localhost:5432/monopoly_dev?schema=public
       JWT_ACCESS_SECRET: deployment-readiness-test-secret-only-12345678901234567
       RENDER_EXTERNAL_URL: https://miniature-city-online.onrender.com
+      CORS_ORIGIN: http://localhost:5173
+      DISCONNECT_GRACE_SECONDS: '2'
       COOKIE_SECURE: 'true'
       SERVE_FRONTEND: 'true'
       FRONTEND_DIST_DIR: ../dist
@@ -90,8 +92,6 @@ jobs:
           echo "PASS: secure refresh cookie and auth response"
       - name: Backend API/Socket.IO integration regression
         working-directory: backend
-        env:
-          DISCONNECT_GRACE_SECONDS: '2'
         run: npm run test:integration
       - name: Server output on failure
         if: failure()
