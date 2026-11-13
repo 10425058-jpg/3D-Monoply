@@ -18,6 +18,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Remove stale incompatible nested resolution from old lockfile
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const p = 'package-lock.json';
+          const lock = JSON.parse(fs.readFileSync(p, 'utf8'));
+          // Legacy lock pinned 6.39.6 under the wrapper; the root override
+          // now requires 6.35.6, so discard only that stale nested node.
+          delete lock.packages['node_modules/@react-three/postprocessing/node_modules/postprocessing'];
+          fs.writeFileSync(p, JSON.stringify(lock, null, 2) + '\\n');
+          NODE
       - name: Regenerate frontend lockfile with compatible postprocessing
         run: npm install --package-lock-only --ignore-scripts --no-audit
       - name: Regenerate backend lockfile for Node 22 typings
