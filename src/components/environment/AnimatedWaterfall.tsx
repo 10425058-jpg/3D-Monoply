@@ -25,8 +25,8 @@ function ribbon(points: THREE.Vector3[], width: number, across?: THREE.Vector3) 
 
 /** Water attaches to actual exported cliff anchors, in glTF Y-up metres.
  * No fluid simulation, refraction, shadow maps or extra post-processing passes. */
-export function AnimatedWaterfall({ file, variant, animate, low }: {
-  file: string; variant: 'left' | 'right'; animate: boolean; low: boolean;
+export function AnimatedWaterfall({ file, variant, animate, low, name }: {
+  file: string; variant: 'left' | 'right'; animate: boolean; low: boolean; name?: string;
 }) {
   const { scene } = useGLTF(environmentModelUrl(file));
   const { end, geometry, river } = useMemo(() => {
@@ -73,7 +73,7 @@ export function AnimatedWaterfall({ file, variant, animate, low }: {
       #include <tonemapping_fragment>
       #include <colorspace_fragment>
     }`;
-  return <group name={`waterfall-${variant}`}>
+  return <group name={name ?? `waterfall-${variant}`}>
     {[geometry,river].map((part,index) => <mesh key={index} geometry={part} raycast={() => {}}>
       <shaderMaterial uniforms={{...uniforms,uCascade:{value:index === 0 ? 1 : 0}}} transparent depthWrite={false} side={THREE.DoubleSide}
         vertexShader="varying vec2 vUv; void main(){vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}" fragmentShader={fragment} />

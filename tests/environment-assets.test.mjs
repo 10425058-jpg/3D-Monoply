@@ -82,6 +82,21 @@ test('completed world manifest matches the shipped asset bytes and geometry', ()
   assert.equal(run('--manifest', path.join(models, 'manifest.json')).valid, true);
 });
 
+test('supporting kingdoms match their Blender receipts, topology budgets and waterfall anchors', () => {
+  const receipt = JSON.parse(readFileSync(path.join(models, 'archipelago-manifest.json'), 'utf8'));
+  assert.equal(receipt.assets.length, 9);
+  assert.equal(run('--manifest', path.join(models, 'archipelago-manifest.json')).valid, true);
+  for (const asset of receipt.assets) {
+    assert.ok(asset.triangles <= (asset.tier === 'high' ? 8000 : 4000));
+    assert.ok(asset.bytes < 650000);
+    assert.ok(asset.bounds.max[1] < 7, 'landmark fits its board-safe placement envelope');
+    if (asset.id === 'sky-hamlet') {
+      assert.ok(Object.keys(asset.anchors).some(name => name.startsWith('waterfall_origin_left')));
+      assert.ok(Object.keys(asset.anchors).some(name => name.startsWith('waterfall_end_left')));
+    }
+  }
+});
+
 test('a malformed GLB header is rejected', () => {
   const filename = fixture(() => {});
   const bytes = readFileSync(filename);

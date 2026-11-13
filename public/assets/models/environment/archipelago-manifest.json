@@ -1,0 +1,454 @@
+{
+  "schemaVersion": 1,
+  "generator": "tools/blender/generate_archipelago.py",
+  "blenderVersion": "5.2.3 LTS",
+  "seed": 10425058,
+  "license": "Original procedural project assets; repository MIT license applies",
+  "materials": "existing shared embedded 128x128 surface atlas",
+  "assets": [
+    {
+      "id": "sky-observatory",
+      "file": "sky-observatory.glb",
+      "tier": "high",
+      "triangles": 3808,
+      "bytes": 250788,
+      "sha256": "ea3ab5f55efe53e47c96ff761297fb87945d797b9f18737c1617966d59e4cbf8",
+      "bounds": {
+        "min": [
+          -6.098554611206055,
+          -6.982473850250244,
+          -4.829124927520752
+        ],
+        "max": [
+          6.836183547973633,
+          6.679999828338623,
+          5.831129550933838
+        ]
+      },
+      "anchors": {},
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    },
+    {
+      "id": "sky-observatory",
+      "file": "sky-observatory-balanced.glb",
+      "tier": "balanced",
+      "triangles": 3314,
+      "bytes": 225548,
+      "sha256": "f3e2e48ce7bb873db11c8df814fb422bdd8af15abd61fafca647bb6bd69ffc4a",
+      "bounds": {
+        "min": [
+          -5.802138805389404,
+          -7.014663219451904,
+          -4.839173793792725
+        ],
+        "max": [
+          6.942608833312988,
+          6.679999828338623,
+          5.9445576667785645
+        ]
+      },
+      "anchors": {},
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    },
+    {
+      "id": "sky-observatory",
+      "file": "sky-observatory-low.glb",
+      "tier": "low",
+      "triangles": 2954,
+      "bytes": 204336,
+      "sha256": "ee6fbcb87ec34f0994bd7fb3b41506edd7545e7f257c386897325ae708424962",
+      "bounds": {
+        "min": [
+          -5.543689727783203,
+          -7.007400989532471,
+          -4.868964672088623
+        ],
+        "max": [
+          6.798568248748779,
+          6.679999828338623,
+          5.8150410652160645
+        ]
+      },
+      "anchors": {},
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    },
+    {
+      "id": "sky-ruins",
+      "file": "sky-ruins.glb",
+      "tier": "high",
+      "triangles": 2660,
+      "bytes": 210420,
+      "sha256": "9d1132cf3ad020900aa48dc209198f2f9d236c427fc6faacb97dfc37ab130edb",
+      "bounds": {
+        "min": [
+          -6.680886268615723,
+          -6.97767448425293,
+          -4.850710868835449
+        ],
+        "max": [
+          7.5095744132995605,
+          4.559999942779541,
+          5.890642166137695
+        ]
+      },
+      "anchors": {},
+      "materials": [
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Sakura blossom clusters",
+        "Warm carved timber"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    },
+    {
+      "id": "sky-ruins",
+      "file": "sky-ruins-balanced.glb",
+      "tier": "balanced",
+      "triangles": 2290,
+      "bytes": 181520,
+      "sha256": "0fcd9ac7a37432844c7bc8e7a045800b469ce31c9fd3d84f25aef8389efad317",
+      "bounds": {
+        "min": [
+          -6.689067363739014,
+          -7.015038967132568,
+          -5.093739032745361
+        ],
+        "max": [
+          6.950748443603516,
+          4.559999942779541,
+          5.731382846832275
+        ]
+      },
+      "anchors": {},
+      "materials": [
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Sakura blossom clusters",
+        "Warm carved timber"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    },
+    {
+      "id": "sky-ruins",
+      "file": "sky-ruins-low.glb",
+      "tier": "low",
+      "triangles": 2090,
+      "bytes": 165584,
+      "sha256": "ac1dc258b5ddc75cc53ff2264710baa355cc68a19e6ad2bd4ad1fe66305115b5",
+      "bounds": {
+        "min": [
+          -5.98528528213501,
+          -6.996104717254639,
+          -4.823085784912109
+        ],
+        "max": [
+          7.446159839630127,
+          4.559999942779541,
+          6.3370890617370605
+        ]
+      },
+      "anchors": {},
+      "materials": [
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Sakura blossom clusters",
+        "Warm carved timber"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    },
+    {
+      "id": "sky-hamlet",
+      "file": "sky-hamlet.glb",
+      "tier": "high",
+      "triangles": 7600,
+      "bytes": 597116,
+      "sha256": "920518f8179de7dee1dc32711859af1621b5f5bd686d5f03f94f631e30715eee",
+      "bounds": {
+        "min": [
+          -8.357283592224121,
+          -6.993777751922607,
+          -3.9927515983581543
+        ],
+        "max": [
+          9.343746185302734,
+          3.4358954429626465,
+          5.018514633178711
+        ]
+      },
+      "anchors": {
+        "watercourse_0_left": [
+          -2.8,
+          0.13,
+          0.1
+        ],
+        "watercourse_1_left": [
+          -2.4,
+          0.12,
+          1.5
+        ],
+        "watercourse_2_left": [
+          -1.4,
+          0.1,
+          2.6
+        ],
+        "watercourse_3_left": [
+          -0.5,
+          0.08,
+          3.6
+        ],
+        "waterfall_origin_left": [
+          -0.5,
+          0.08,
+          3.6
+        ],
+        "waterfall_end_left": [
+          -0.6,
+          -10.2,
+          4.2
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    },
+    {
+      "id": "sky-hamlet",
+      "file": "sky-hamlet-balanced.glb",
+      "tier": "balanced",
+      "triangles": 3932,
+      "bytes": 325488,
+      "sha256": "551ec144e94dec8f858e85fe7023a37d310f663be79b762f28e98c061c042368",
+      "bounds": {
+        "min": [
+          -8.029047966003418,
+          -7.012732028961182,
+          -3.9333808422088623
+        ],
+        "max": [
+          9.144683837890625,
+          3.4358954429626465,
+          4.715536117553711
+        ]
+      },
+      "anchors": {
+        "watercourse_0_left": [
+          -2.8,
+          0.13,
+          0.1
+        ],
+        "watercourse_1_left": [
+          -2.4,
+          0.12,
+          1.5
+        ],
+        "watercourse_2_left": [
+          -1.4,
+          0.1,
+          2.6
+        ],
+        "watercourse_3_left": [
+          -0.5,
+          0.08,
+          3.6
+        ],
+        "waterfall_origin_left": [
+          -0.5,
+          0.08,
+          3.6
+        ],
+        "waterfall_end_left": [
+          -0.6,
+          -10.2,
+          4.2
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    },
+    {
+      "id": "sky-hamlet",
+      "file": "sky-hamlet-low.glb",
+      "tier": "low",
+      "triangles": 3732,
+      "bytes": 309556,
+      "sha256": "388acf475ee0e322bf3b418369498d3102325e7a02b0bb33b773ee8cff9606f7",
+      "bounds": {
+        "min": [
+          -7.207022190093994,
+          -6.940616607666016,
+          -3.9846155643463135
+        ],
+        "max": [
+          9.054665565490723,
+          3.4358954429626465,
+          4.930677890777588
+        ]
+      },
+      "anchors": {
+        "watercourse_0_left": [
+          -2.8,
+          0.13,
+          0.1
+        ],
+        "watercourse_1_left": [
+          -2.4,
+          0.12,
+          1.5
+        ],
+        "watercourse_2_left": [
+          -1.4,
+          0.1,
+          2.6
+        ],
+        "watercourse_3_left": [
+          -0.5,
+          0.08,
+          3.6
+        ],
+        "waterfall_origin_left": [
+          -0.5,
+          0.08,
+          3.6
+        ],
+        "waterfall_end_left": [
+          -0.6,
+          -10.2,
+          4.2
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    }
+  ]
+}

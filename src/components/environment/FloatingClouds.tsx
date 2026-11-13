@@ -38,25 +38,34 @@ export function FloatingClouds({ quality, animate }: { quality: EnvironmentQuali
           gl_Position=projectionMatrix*mv;
         }`}
       fragmentShader={`varying vec2 vUv; varying float vSunGlow; varying float vSeed; varying float vOpacity;
-        float puff(vec2 p,vec2 center,vec2 size){vec2 q=(p-center)/size;float r=max(0.,1.-dot(q,q)*.65);return r*r*r;}
+        void puff(vec2 p,vec2 center,vec2 size,inout vec3 normal,inout float cover){
+          vec2 q=(p-center)/size;float r=dot(q,q),h=sqrt(max(0.,1.-r));
+          float weight=h*h*h;normal+=vec3(q*.78,h)*weight;
+          cover=max(cover,1.-smoothstep(.60,1.02,r));
+        }
         float hash(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
         float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
           return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.)),f.x),f.y);}
         void main(){
-          vec2 p=vUv; p.y+=(vSeed-.5)*.10;
-          float shape=puff(p,vec2(.13,.36),vec2(.17,.29))*.63+
-            puff(p,vec2(.31,.50),vec2(.23,.36))*.88+
-            puff(p,vec2(.52,.57),vec2(.26,.40))+
-            puff(p,vec2(.72,.47),vec2(.22,.33))*.86+
-            puff(p,vec2(.88,.34),vec2(.16,.26))*.57+
-            puff(p,vec2(.48,.27),vec2(.43,.21))*.68;
-          float detail=noise(p*vec2(9.,6.)+vSeed*17.)*.7+noise(p*vec2(20.,13.)-vSeed*11.)*.3;
-          shape+=(detail-.5)*.13;
-          float alpha=smoothstep(.09,.64,shape)*vOpacity;
+          vec2 p=vUv; p.y+=(vSeed-.5)*.09;
+          vec3 normal=vec3(0.);float cover=0.;
+          puff(p,vec2(.13,.38),vec2(.17,.23),normal,cover);
+          puff(p,vec2(.30,.52+vSeed*.04),vec2(.21,.31),normal,cover);
+          puff(p,vec2(.52,.57),vec2(.24,.37),normal,cover);
+          puff(p,vec2(.73,.49-vSeed*.05),vec2(.22,.29),normal,cover);
+          puff(p,vec2(.88,.36),vec2(.15,.20),normal,cover);
+          puff(p,vec2(.49,.31),vec2(.42,.22),normal,cover);
+          float detail=noise(p*vec2(18.,11.)+vSeed*17.);
+          float feather=smoothstep(0.,.055,vUv.x)*smoothstep(0.,.055,1.-vUv.x)*
+            smoothstep(0.,.055,vUv.y)*smoothstep(0.,.055,1.-vUv.y);
+          float alpha=cover*vOpacity*feather;
           if(alpha<.002)discard;
-          float rim=smoothstep(.35,.85,p.y)*(.72+detail*.28);
-          vec3 shade=mix(vec3(.36,.29,.52),vec3(.91,.70,.75),rim);
-          shade=mix(shade,vec3(1.,.73,.48),vSunGlow*(.23+rim*.30));
+          normal=normalize(normal+vec3(0.,0.,.015));
+          float lit=max(0.,dot(normal,normalize(vec3(.45,.82,.54))));
+          float rim=smoothstep(.27,.85,p.y);
+          vec3 shade=mix(vec3(.34,.27,.48),vec3(1.,.85,.78),.16+lit*.68+rim*.10);
+          shade*=.97+detail*.035;
+          shade=mix(shade,vec3(1.,.78,.53),vSunGlow*(.15+rim*.20));
           gl_FragColor=vec4(shade,alpha);
           #include <tonemapping_fragment>
           #include <colorspace_fragment>

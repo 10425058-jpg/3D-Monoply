@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useGLTF } from '@react-three/drei';
 import { environmentModelUrl } from './GltfEnvironmentModel';
 import { FloatingIsland, qualityAsset } from './FantasyAssets';
@@ -6,8 +6,10 @@ import { AnimatedWaterfall } from './AnimatedWaterfall';
 import { FantasyAirship } from './FantasyAirship';
 import type { EnvironmentPlacement } from './GltfEnvironmentModel';
 import type { EnvironmentQuality } from './environmentLayout';
+import { SupportingKingdoms, supportingFiles } from './SupportingKingdoms';
+import { EnvironmentAssetBoundary } from './EnvironmentAssetBoundary';
 
-export const WORLD_MILESTONE = 'fantasy-polish';
+export const WORLD_MILESTONE = 'premium-archipelago';
 export const LEFT_ISLAND: EnvironmentPlacement = { position: [-29, -24, -20], scale: 1.3, rotation: .6 };
 export const RIGHT_ISLAND: EnvironmentPlacement = { position: [28, -22, -20], scale: 1.3, rotation: .16 };
 const LEFT_PLACEMENTS = [LEFT_ISLAND];
@@ -22,6 +24,7 @@ export function PremiumFantasyWorld({ quality, animate }: { quality: Environment
   const files = [qualityAsset('royal-island-left',quality), qualityAsset('royal-island-right',quality), qualityAsset('fantasy-airship',quality)];
   files.push(qualityAsset('royal-island-left','distant'));
   if (quality === 'high') files.push(qualityAsset('royal-island-right','distant'));
+  files.push(...supportingFiles(quality));
   // Warm just this quality's URLs in parallel; never fetch every LOD on startup.
   files.forEach(file => useGLTF.preload(environmentModelUrl(file)));
   return <group name="premium-fantasy-world">
@@ -33,11 +36,27 @@ export function PremiumFantasyWorld({ quality, animate }: { quality: Environment
     <FloatingIsland variant="left" quality="distant" placements={quality === 'low' ? LOW_FAR_LEFT : FAR_LEFT} />
     {quality === 'high' && <FloatingIsland variant="right" quality="distant" placements={FAR_RIGHT} />}
     <FantasyAirship quality={quality} animate={animate} />
-    <EnvironmentReady files={files} quality={quality} />
+    <SupportingKingdoms quality={quality} animate={animate} />
+    <EnvironmentAssetBoundary key={`ready-${quality}`} label="asset readiness" fallback={null}>
+      <Suspense fallback={null}><EnvironmentReady files={files} quality={quality} /></Suspense>
+    </EnvironmentAssetBoundary>
   </group>;
 }
 
 export function EnvironmentReady({ files, quality }: { files: string[]; quality: EnvironmentQuality }) {
+  // Individual URLs share the exact cache keys used by the visible models.
+  // Loading the array as a new useGLTF key would download every GLB twice.
+  // The enclosing Suspense commits the marker only once all children resolve.
+  return <>{files.map(file => <LoadedEnvironmentAsset key={file} file={file} />)}
+    <EnvironmentReadyMarker files={files} quality={quality} /></>;
+}
+
+function LoadedEnvironmentAsset({ file }: { file: string }) {
+  useGLTF(environmentModelUrl(file));
+  return null;
+}
+
+function EnvironmentReadyMarker({ files, quality }: { files: string[]; quality: EnvironmentQuality }) {
   useEffect(() => {
     if (!new URLSearchParams(window.location.search).has('graphicsAudit')) return;
     const state = { ready: true, milestone: WORLD_MILESTONE, quality, assetUrls: files.map(environmentModelUrl) };

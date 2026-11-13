@@ -61,3 +61,24 @@ The browser scripts use installed Chrome and `puppeteer-core`, already in the pr
 The stdlib validator checks actual binary positions/indices, bounds, transforms, material/triangle/file budgets, embedded image dimensions/CRC/decoded pixel colours and the texels reached by exported UVs. Mutation tests exercise malformed files, bad indices/bounds, external texture links and valid-but-black PNGs. It is a project-specific inspection, not a claim that the Khronos conformance validator or a missing game-dev CLI ran.
 
 All authored geometry and the generated atlas are original project assets under the repository MIT license. User references guided the art direction; no reference image or third-party mesh is embedded.
+
+## Supporting archipelago
+
+`generate_archipelago.py` creates the original celestial observatory, ivy-covered
+sanctuary ruins and millstream hamlet. It uses the same construction API, embedded
+atlas and official Blender GLB exporter. It writes only nine `sky-*.glb` LODs and
+`archipelago-manifest.json`; existing royal island exports remain intact.
+
+```sh
+blender --background --factory-startup --python-exit-code 1 --python tools/blender/generate_archipelago.py
+python tools/blender/validate_assets.py --manifest public/assets/models/environment/archipelago-manifest.json
+```
+
+Blender 5.2.3 LTS produced the checked-in bytes. All three models have high,
+balanced and low topology, applied Y-up runtime transforms, a ground origin,
+UVs, correct normals and one embedded 128px atlas. Each is below 8,000 triangles
+and 650,000 bytes; balanced/low are below 4,000 triangles. Millstream route and
+waterfall empties attach the browser animation to the actual exported cliff.
+The ten destinations reuse three material-batched model draws, rather than
+cloning an independent scene for each island. See the [new report](../../docs/premium-fantasy-world/README.md)
+for the actual inventory, placement safety, screenshots and measurements.

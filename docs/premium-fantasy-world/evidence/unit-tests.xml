@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+	<testcase name="all six authoritative dice faces settle facing up" time="0.002062" classname="test" file="C:\Users\admin\3D-Monoply\tests\animations.test.mjs"/>
+	<testcase name="hop starts and ends on the actual tile, with eased endpoints" time="0.000473" classname="test" file="C:\Users\admin\3D-Monoply\tests\animations.test.mjs"/>
+	<testcase name="corner wrapping and backwards steps are adjacent; jail jumps are not" time="0.000369" classname="test" file="C:\Users\admin\3D-Monoply\tests\animations.test.mjs"/>
+	<testcase name="identical snapshots and unrelated UI changes emit nothing" time="0.000891" classname="test" file="C:\Users\admin\3D-Monoply\tests\animations.test.mjs"/>
+	<testcase name="money effects use only the confirmed delta and never alter balances" time="0.000283" classname="test" file="C:\Users\admin\3D-Monoply\tests\animations.test.mjs"/>
+	<testcase name="purchase effect waits for confirmed ownership" time="0.000287" classname="test" file="C:\Users\admin\3D-Monoply\tests\animations.test.mjs"/>
+	<testcase name="hotel upgrades and downgrades preserve actual building counts" time="0.000291" classname="test" file="C:\Users\admin\3D-Monoply\tests\animations.test.mjs"/>
+	<testcase name="roll/landing events follow phase changes and exact stored dice" time="0.000370" classname="test" file="C:\Users\admin\3D-Monoply\tests\animations.test.mjs"/>
+	<testcase name="turn announcements do not replay on money or property updates" time="0.000249" classname="test" file="C:\Users\admin\3D-Monoply\tests\animations.test.mjs"/>
+	<testcase name="restart cancels effects rather than showing refunds or purchases" time="0.000259" classname="test" file="C:\Users\admin\3D-Monoply\tests\animations.test.mjs"/>
+	<testcase name="card, jail, mortgage and bankruptcy events are edge-triggered" time="0.000298" classname="test" file="C:\Users\admin\3D-Monoply\tests\animations.test.mjs"/>
+	<testcase name="two restarts sharing a millisecond still cancel the previous effects" time="0.000165" classname="test" file="C:\Users\admin\3D-Monoply\tests\animations.test.mjs"/>
+	<testcase name="confirmed trade log IDs and auction wins are not replayed" time="0.000256" classname="test" file="C:\Users\admin\3D-Monoply\tests\animations.test.mjs"/>
+	<testcase name="audio requires a gesture, obeys mute/volume, caps voices and disconnects" time="0.026023" classname="test" file="C:\Users\admin\3D-Monoply\tests\animations.test.mjs"/>
+	<testcase name="victory takes sound priority over simultaneous bankruptcy and transfers" time="0.000175" classname="test" file="C:\Users\admin\3D-Monoply\tests\animations.test.mjs"/>
+	<testcase name="actual exported landmark bounds stay below gameplay and outside its column at every tier" time="0.000707" classname="test" file="C:\Users\admin\3D-Monoply\tests\archipelago.test.mjs"/>
+	<testcase name="mountain ridges close without a seam, remain distant and have four atmospheric depths" time="0.003648" classname="test" file="C:\Users\admin\3D-Monoply\tests\atmosphere.test.mjs"/>
+	<testcase name="new cloud banks are deterministic, bounded and leave the under-board column empty" time="0.001906" classname="test" file="C:\Users\admin\3D-Monoply\tests\atmosphere.test.mjs"/>
+	<testcase name="actual exported GLBs have valid buffers, geometry, textured PBR, applied origins and bounded cost" time="2.873288" classname="test" file="C:\Users\admin\3D-Monoply\tests\environment-assets.test.mjs"/>
+	<testcase name="foundation generation receipt matches the actual artifact bytes and geometry" time="1.136744" classname="test" file="C:\Users\admin\3D-Monoply\tests\environment-assets.test.mjs"/>
+	<testcase name="completed world manifest matches the shipped asset bytes and geometry" time="2.607617" classname="test" file="C:\Users\admin\3D-Monoply\tests\environment-assets.test.mjs"/>
+	<testcase name="supporting kingdoms match their Blender receipts, topology budgets and waterfall anchors" time="3.615636" classname="test" file="C:\Users\admin\3D-Monoply\tests\environment-assets.test.mjs"/>
+	<testcase name="a malformed GLB header is rejected" time="0.138959" classname="test" file="C:\Users\admin\3D-Monoply\tests\environment-assets.test.mjs"/>
+	<testcase name="declared vertex bounds must match the actual binary positions" time="1.110192" classname="test" file="C:\Users\admin\3D-Monoply\tests\environment-assets.test.mjs"/>
+	<testcase name="out-of-range triangle indices are rejected" time="0.177655" classname="test" file="C:\Users\admin\3D-Monoply\tests\environment-assets.test.mjs"/>
+	<testcase name="external texture URLs cannot silently escape the self-contained GLB contract" time="1.126833" classname="test" file="C:\Users\admin\3D-Monoply\tests\environment-assets.test.mjs"/>
+	<testcase name="a structurally valid all-black PNG is rejected before browser integration" time="0.164871" classname="test" file="C:\Users\admin\3D-Monoply\tests\environment-assets.test.mjs"/>
+	<testcase name="background layout is deterministic and does not consume gameplay randomness" time="0.001100" classname="test" file="C:\Users\admin\3D-Monoply\tests\environment.test.mjs"/>
+	<testcase name="valley surface stays well below the board across its whole footprint" time="0.004693" classname="test" file="C:\Users\admin\3D-Monoply\tests\environment.test.mjs"/>
+	<testcase name="castles, villages and waterways remain outside the playable board" time="0.000285" classname="test" file="C:\Users\admin\3D-Monoply\tests\environment.test.mjs"/>
+	<testcase name="quality tiers have explicit bounded budgets and retain scenery at low quality" time="0.000165" classname="test" file="C:\Users\admin\3D-Monoply\tests\environment.test.mjs"/>
+	<testcase name="foreground apron is lower while the rear landscape height is preserved" time="0.000223" classname="test" file="C:\Users\admin\3D-Monoply\tests\environment.test.mjs"/>
+	<testcase name="terrain opens toward the foreground with a continuous, feathered inner rim" time="0.001237" classname="test" file="C:\Users\admin\3D-Monoply\tests\environment.test.mjs"/>
+	<testcase name="clouds leave open air below the board in every quality tier" time="0.001489" classname="test" file="C:\Users\admin\3D-Monoply\tests\environment.test.mjs"/>
+	<testcase name="live reduced-motion and visibility changes stop even an already queued frame" time="0.007451" classname="test" file="C:\Users\admin\3D-Monoply\tests\environment.test.mjs"/>
+	<testcase name="1920x1080 overview fits the board in HUD safe space" time="0.004569" classname="test" file="C:\Users\admin\3D-Monoply\tests\graphics.test.mjs"/>
+	<testcase name="1920x1080 top fits the board in HUD safe space" time="0.000528" classname="test" file="C:\Users\admin\3D-Monoply\tests\graphics.test.mjs"/>
+	<testcase name="1440x900 overview fits the board in HUD safe space" time="0.000298" classname="test" file="C:\Users\admin\3D-Monoply\tests\graphics.test.mjs"/>
+	<testcase name="1440x900 top fits the board in HUD safe space" time="0.000258" classname="test" file="C:\Users\admin\3D-Monoply\tests\graphics.test.mjs"/>
+	<testcase name="1366x768 overview fits the board in HUD safe space" time="0.000272" classname="test" file="C:\Users\admin\3D-Monoply\tests\graphics.test.mjs"/>
+	<testcase name="1366x768 top fits the board in HUD safe space" time="0.000302" classname="test" file="C:\Users\admin\3D-Monoply\tests\graphics.test.mjs"/>
+	<testcase name="1024x768 overview fits the board in HUD safe space" time="0.000276" classname="test" file="C:\Users\admin\3D-Monoply\tests\graphics.test.mjs"/>
+	<testcase name="1024x768 top fits the board in HUD safe space" time="0.000282" classname="test" file="C:\Users\admin\3D-Monoply\tests\graphics.test.mjs"/>
+	<testcase name="768x1024 overview fits the board in HUD safe space" time="0.000434" classname="test" file="C:\Users\admin\3D-Monoply\tests\graphics.test.mjs"/>
+	<testcase name="768x1024 top fits the board in HUD safe space" time="0.000671" classname="test" file="C:\Users\admin\3D-Monoply\tests\graphics.test.mjs"/>
+	<testcase name="390x844 overview fits the board in HUD safe space" time="0.000283" classname="test" file="C:\Users\admin\3D-Monoply\tests\graphics.test.mjs"/>
+	<testcase name="390x844 top fits the board in HUD safe space" time="0.000339" classname="test" file="C:\Users\admin\3D-Monoply\tests\graphics.test.mjs"/>
+	<testcase name="360x640 overview fits the board in HUD safe space" time="0.000207" classname="test" file="C:\Users\admin\3D-Monoply\tests\graphics.test.mjs"/>
+	<testcase name="360x640 top fits the board in HUD safe space" time="0.003290" classname="test" file="C:\Users\admin\3D-Monoply\tests\graphics.test.mjs"/>
+	<testcase name="the menu entry graph excludes all gameplay renderers, assets, rules and WebGL packages" time="0.060087" classname="test" file="C:\Users\admin\3D-Monoply\tests\menu-loading.test.mjs"/>
+	<testcase name="explicit Solo and verified-match modules retain the existing real 3D engine" time="0.178333" classname="test" file="C:\Users\admin\3D-Monoply\tests\menu-loading.test.mjs"/>
+	<testcase name="the decorative menu image is a compact local JPEG, independent of game assets" time="0.000573" classname="test" file="C:\Users\admin\3D-Monoply\tests\menu-loading.test.mjs"/>
+	<testcase name="HTTP envelope parsing accepts data and masks internal messages and non-JSON outages" time="0.003336" classname="test" file="C:\Users\admin\3D-Monoply\tests\online.test.ts"/>
+	<testcase name="authorized 401 refreshes once and resends the exact action body" time="0.001122" classname="test" file="C:\Users\admin\3D-Monoply\tests\online.test.ts"/>
+	<testcase name="a second 401 is surfaced without an infinite refresh loop" time="0.000409" classname="test" file="C:\Users\admin\3D-Monoply\tests\online.test.ts"/>
+	<testcase name="restore and concurrent refresh use CSRF bootstrap before a single cookie rotation" time="0.003918" classname="test" file="C:\Users\admin\3D-Monoply\tests\online.test.ts"/>
+	<testcase name="failed refresh clears memory authentication; profile failure cannot leave restore spinning" time="0.001141" classname="test" file="C:\Users\admin\3D-Monoply\tests\online.test.ts"/>
+	<testcase name="offline logout clears local tokens, survives reload and defers cookie revocation safely" time="0.002756" classname="test" file="C:\Users\admin\3D-Monoply\tests\online.test.ts"/>
+	<testcase name="UUID mapping preserves server seats, tokens, ownership, bankruptcy and dice across reordered arrays" time="0.000666" classname="test" file="C:\Users\admin\3D-Monoply\tests\online.test.ts"/>
+	<testcase name="online scene has only presentation controls, without Solo commands or future decks" time="0.000378" classname="test" file="C:\Users\admin\3D-Monoply\tests\online.test.ts"/>
+	<testcase name="a canceled committed animation cannot overwrite a newer snapshot" time="0.757069" classname="test" file="C:\Users\admin\3D-Monoply\tests\online.test.ts"/>
+	<testcase name="proactive expiry refresh is single-flight and also reconciles cross-tab identity" time="0.000830" classname="test" file="C:\Users\admin\3D-Monoply\tests\online.test.ts"/>
+	<testcase name="event tracker rejects duplicates/out-of-order events, detects gaps and retains same-version presence" time="0.000183" classname="test" file="C:\Users\admin\3D-Monoply\tests\online.test.ts"/>
+	<testcase name="socket lifecycle subscribes after connect, reauthenticates, and removes every listener" time="0.014203" classname="test" file="C:\Users\admin\3D-Monoply\tests\online.test.ts"/>
+	<testcase name="uncertain actions block double clicks and manual retry reuses the complete original request" time="0.001838" classname="test" file="C:\Users\admin\3D-Monoply\tests\online.test.ts"/>
+	<testcase name="version conflicts fetch a fresh personalized snapshot and never retry with a fresh UUID" time="0.000597" classname="test" file="C:\Users\admin\3D-Monoply\tests\online.test.ts"/>
+	<testcase name="late room notifications cannot redirect or repopulate a screen after it is disposed" time="0.000146" classname="test" file="C:\Users\admin\3D-Monoply\tests\online.test.ts"/>
+	<testcase name="scene departure releases instance buffers when R3F masks dispose, preserving cached GLB resources" time="0.000704" classname="test" file="C:\Users\admin\3D-Monoply\tests\online.test.ts"/>
+	<!-- tests 68 -->
+	<!-- suites 0 -->
+	<!-- pass 68 -->
+	<!-- fail 0 -->
+	<!-- cancelled 0 -->
+	<!-- skipped 0 -->
+	<!-- todo 0 -->
+	<!-- duration_ms 13101.9397 -->
+</testsuites>

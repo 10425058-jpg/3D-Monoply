@@ -45,3 +45,17 @@ docs/fantasy-master/evidence/controlled/*.png
 docs/fantasy-master/evidence/controlled-final/*.png
 docs/fantasy-master/evidence/controlled-display/*.png
 docs/fantasy-master/evidence/regression/context-*.png
+
+# Intermediate art captures; final matched evidence is retained.
+docs/premium-fantasy-world/evidence/checkpoint/*.png
+docs/premium-fantasy-world/evidence/online/*.png
+docs/premium-fantasy-world/evidence/regression/context-*.png
+# The final controlled A/B captures supersede these intermediate desktop pairs.
+docs/premium-fantasy-world/evidence/before/*-overview.png
+docs/premium-fantasy-world/evidence/before/*-reference.png
+docs/premium-fantasy-world/evidence/after/*-overview.png
+docs/premium-fantasy-world/evidence/after/*-reference.png
+docs/premium-fantasy-world/evidence/after/low.json
+docs/premium-fantasy-world/evidence/after/balanced.json
+docs/premium-fantasy-world/evidence/after/high.json
+docs/premium-fantasy-world/evidence/after/summary.json

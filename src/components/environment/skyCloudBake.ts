@@ -26,8 +26,8 @@ vec4 cloudBank(vec2 p,float warm){
   normal.xy+=(vec2(noise(p*16.),noise(p*21.+3.))-.5)*.065;
   float lit=clamp(dot(normal,normalize(vec3(.60,.75,.62))),0.,1.);
   float belly=smoothstep(-.63,.55,p.y);
-  vec3 shade=mix(vec3(.21,.12,.34),vec3(.30,.14,.27),warm);
-  vec3 light=mix(vec3(.82,.50,.49),vec3(1.,.72,.40),warm);
+  vec3 shade=mix(vec3(.26,.20,.40),vec3(.36,.22,.34),warm);
+  vec3 light=mix(vec3(.95,.72,.70),vec3(1.,.81,.56),warm);
   vec3 color=mix(shade,light,.14+lit*.76)*(.80+belly*.20);
   float silver=pow(max(0.,normal.x*.6+normal.y*.8),5.)*warm;
   color+=vec3(.32,.17,.045)*silver;
@@ -41,14 +41,20 @@ void main(){
   vec3 d=vec3(-cos(phi)*sin(theta),cos(theta),sin(phi)*sin(theta));
   float elevation=asin(clamp(d.y,-1.,1.)),sunDot=max(0.,dot(d,uSun));
   float horizon=exp(-pow((elevation+.62)*2.7,2.)),warm=pow(sunDot,7.);
-  vec3 sky=mix(vec3(.15,.10,.33),vec3(.27,.13,.34),1.-smoothstep(-1.45,.15,elevation));
-  sky=mix(sky,vec3(.79,.235,.23),horizon*.69);
+  vec3 sky=mix(vec3(.21,.30,.54),vec3(.32,.20,.43),1.-smoothstep(-1.45,.15,elevation));
+  sky=mix(sky,vec3(.90,.37,.32),horizon*.69);
+  sky=mix(sky,vec3(.24,.42,.67),smoothstep(-.55,.60,elevation)*.55);
   sky=mix(sky,vec3(1.,.58,.22),warm*.63);
   float front=1.-smoothstep(-.68,.10,d.z),cover=0.;
   composite(sky,cover,cloudBank((d.xy-vec2(-.27,-.30))/vec2(.20,.075),warm),front);
   composite(sky,cover,cloudBank((d.xy-vec2(.54,-.26))/vec2(.18,.095),warm),front);
   composite(sky,cover,cloudBank((d.xy-vec2(-.59,-.77))/vec2(.25,.16),warm),front*.79);
   composite(sky,cover,cloudBank((d.xy-vec2(.59,-.81))/vec2(.28,.17),warm),front*.83);
+  // A lower, distant shelf wraps the steep overview and reverse orbit. It is
+  // atmosphere in the sky texture, never a foreground mesh over the board.
+  float azimuth=atan(d.x,d.z);
+  vec2 shelf=vec2(sin(azimuth*3.+.7)*1.5,(d.y+.91)/.06);
+  composite(sky,cover,cloudBank(shelf,warm),.31*(1.-smoothstep(-.84,-.65,d.y))*smoothstep(-1.,-.98,d.y));
   // Continuous direction-space wisps wrap around the rest of the sky.
   vec2 uv=vec2(d.x*14.+d.z*3.,d.y*35.+d.z*5.);
   float streak=noise(uv)*.65+noise(uv*2.1)*.35;
