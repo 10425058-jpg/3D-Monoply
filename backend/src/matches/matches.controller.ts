@@ -24,6 +24,12 @@ const EXTRA_FIELDS: Record<ActionName, string[]> = {
 export class MatchesController {
   constructor(private readonly matches: MatchesService) {}
 
+  // Fixed route must precede the dynamic :matchId route.
+  @Get('active')
+  active(@UserId() userId: string) {
+    return this.matches.listActive(userId);
+  }
+
   @Get(':matchId')
   snapshot(@Param('matchId') matchId: string, @UserId() userId: string) {
     if (!isUuid(matchId)) throw matchNotFound();
