@@ -1,0 +1,38 @@
+// Server-owned card content "central-castle@1".
+// Generated from the frontend's src/data/cardsData.ts (gameplay fields only).
+import type { Card } from '../rules/types';
+
+export const CARDS: Card[] = [
+  {id: 'ch_1', deck: 'chance', title: 'Advance to GO', actionType: 'move_to', targetSpaceId: 0},
+  {id: 'ch_2', deck: 'chance', title: 'Advance to Illinois Ave.', actionType: 'move_to', targetSpaceId: 24},
+  {id: 'ch_3', deck: 'chance', title: 'Advance to St. Charles Place', actionType: 'move_to', targetSpaceId: 11},
+  {id: 'ch_4', deck: 'chance', title: 'Advance to Nearest Utility', actionType: 'nearest_utility'},
+  {id: 'ch_5', deck: 'chance', title: 'Advance to Nearest Railroad', actionType: 'nearest_railroad'},
+  {id: 'ch_6', deck: 'chance', title: 'Bank Pays Dividend', actionType: 'collect', amount: 50},
+  {id: 'ch_7', deck: 'chance', title: 'Get Out of Jail Free', actionType: 'get_out_of_jail'},
+  {id: 'ch_8', deck: 'chance', title: 'Go Back 3 Spaces', actionType: 'move_relative', steps: -3},
+  {id: 'ch_9', deck: 'chance', title: 'Go to Jail', actionType: 'go_to_jail'},
+  {id: 'ch_10', deck: 'chance', title: 'General Property Repairs', actionType: 'repairs', perHouse: 25, perHotel: 100},
+  {id: 'ch_11', deck: 'chance', title: 'Speeding Fine', actionType: 'pay', amount: 15},
+  {id: 'ch_12', deck: 'chance', title: 'Trip to Reading Railroad', actionType: 'move_to', targetSpaceId: 5},
+  {id: 'ch_13', deck: 'chance', title: 'Walk on the Boardwalk', actionType: 'move_to', targetSpaceId: 39},
+  {id: 'ch_14', deck: 'chance', title: 'Chairman of the Board', actionType: 'pay_each_player', amount: 50},
+  {id: 'ch_15', deck: 'chance', title: 'Building Loan Matures', actionType: 'collect', amount: 150},
+  {id: 'ch_16', deck: 'chance', title: 'Crossword Competition', actionType: 'collect', amount: 100},
+  {id: 'cc_1', deck: 'chest', title: 'Advance to GO', actionType: 'move_to', targetSpaceId: 0},
+  {id: 'cc_2', deck: 'chest', title: 'Bank Error in Your Favor', actionType: 'collect', amount: 200},
+  {id: 'cc_3', deck: 'chest', title: 'Doctor’s Fee', actionType: 'pay', amount: 50},
+  {id: 'cc_4', deck: 'chest', title: 'Sale of Stock', actionType: 'collect', amount: 50},
+  {id: 'cc_5', deck: 'chest', title: 'Get Out of Jail Free', actionType: 'get_out_of_jail'},
+  {id: 'cc_6', deck: 'chest', title: 'Go to Jail', actionType: 'go_to_jail'},
+  {id: 'cc_7', deck: 'chest', title: 'Holiday Fund Matures', actionType: 'collect', amount: 100},
+  {id: 'cc_8', deck: 'chest', title: 'Income Tax Refund', actionType: 'collect', amount: 20},
+  {id: 'cc_9', deck: 'chest', title: 'It Is Your Birthday', actionType: 'collect_from_each_player', amount: 10},
+  {id: 'cc_10', deck: 'chest', title: 'Life Insurance Matures', actionType: 'collect', amount: 100},
+  {id: 'cc_11', deck: 'chest', title: 'Hospital Fees', actionType: 'pay', amount: 100},
+  {id: 'cc_12', deck: 'chest', title: 'School Fees', actionType: 'pay', amount: 50},
+  {id: 'cc_13', deck: 'chest', title: 'Consultancy Fee', actionType: 'collect', amount: 25},
+  {id: 'cc_14', deck: 'chest', title: 'Street Repairs Assessment', actionType: 'repairs', perHouse: 40, perHotel: 115},
+  {id: 'cc_15', deck: 'chest', title: 'Beauty Contest Prize', actionType: 'collect', amount: 10},
+  {id: 'cc_16', deck: 'chest', title: 'Inheritance', actionType: 'collect', amount: 100},
+];
