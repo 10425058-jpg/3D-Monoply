@@ -36,6 +36,14 @@ const assets=await json(`${evidence}/asset-validation.json`);
 assert.ok(assets.valid);
 const views=await json(`${evidence}/after/views.json`);
 const online=await json(`${evidence}/online-final/results.json`);
+let softwareOnline=null;
+try { softwareOnline=await json(`${evidence}/online-software/results.json`); }
+catch(error) { if(error.code!=='ENOENT')throw error; }
+if(softwareOnline) {
+  assert.equal(softwareOnline.results.length,10);
+  assert.ok(softwareOnline.results.every(result=>result.passed));
+  assert.deepEqual(softwareOnline.browserErrors,[]);
+}
 const graphics=await json(`${evidence}/regression/results.json`);
 const motion=await json(`${evidence}/regression/environment-motion.json`);
 const context=await json(`${evidence}/regression/context-restore.json`);
@@ -79,6 +87,7 @@ await writeFile(`${root}/performance.md`,md);
 const verification={passed:true,baselineCommit:performance.baselineCommit,node:process.version,blender:manifest.blenderVersion,
   frontendBuild:{passed:true,javascript:afterBundle.files},unitTests:{passed:68,failed:0,artifact:'unit-tests.xml'},
   realTwoPlayerBrowser:{passed:online.results.length,failed:online.browserErrors.length,artifact:'online-final/results.json'},
+  softwareWebGlRetest:softwareOnline?{passed:10,failed:0,artifact:'online-software/results.json',launch:'CI=true, ANGLE SwiftShader'}:null,
   actualGlbInspection:{passed:assets.valid,models:assets.assets.length},cameraViews:views.length,
   graphics:graphicsPassed,motion:motion.passed,contextRecovery:context.passed,mountAndDownloadResilience:resilience.passed,
   nestedProductionPrefix:!!resilience.productionPrefix,worstControlledMeanFrameChangePercent:Math.max(...rows.map(row=>row.frameTimeChangePercent)),

@@ -48,6 +48,12 @@
     "failed": 0,
     "artifact": "online-final/results.json"
   },
+  "softwareWebGlRetest": {
+    "passed": 10,
+    "failed": 0,
+    "artifact": "online-software/results.json",
+    "launch": "CI=true, ANGLE SwiftShader"
+  },
   "actualGlbInspection": {
     "passed": true,
     "models": 31

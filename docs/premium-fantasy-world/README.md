@@ -106,6 +106,7 @@ The pre-edit audit and earlier art checkpoints remain available too.
 | `premium-world-resilience.mjs` | Four mounts/unmounts, stable live allocations, one download per GLB across cycles, actual failed-download fallback with pointer selection, nested deployment URL; [results](evidence/regression/resilience.json) |
 | `atmosphere-context.mjs` | Real context loss/recovery at all three qualities, with 24,700 identical static-sky pixels per quality; [results](evidence/regression/context-restore.json) |
 | `online-browser.mjs` on fresh PostgreSQL + NestJS | All 10 real two-player scenarios pass, including authentication, room readiness, synchronized actions, reload, socket recovery, results and Solo AI; [results](evidence/online-final/results.json) |
+| `CI=true online-browser.mjs` with ANGLE SwiftShader | All 10 scenarios also pass locally with the foreground/state-wait correction and actual environment readiness gate; [software run](evidence/online-software/results.json) |
 | Final controlled rendering audit | Both run orders retain all 24 windows; camera/DPR, all board rays, served GLB hashes and console checks pass |
 
 ![Real online match](evidence/online-final/06-online-match-desktop.png)
@@ -114,6 +115,15 @@ The CI workflow now also runs the environment placement and binary asset tests,
 and triggers on model/generator edits. Local verification used Node 24.21.0;
 required GitHub CI uses the repository's Node 22 configuration. Remote CI and
 live deployment are separate from these local results.
+
+The first Node 22 CI run passed the build, unit and GLB gates, then timed out in
+the browser harness's rendered-state wait after reloading a client. Its
+[failure record](https://github.com/10425058-jpg/3D-Monoply/actions/runs/43434128415)
+is retained. The harness now foregrounds each client before inspecting its live
+scene, polls the committed state independently of background animation frames,
+uses the existing 120-second software-renderer budget in CI, and records expected
+and observed values on failure. All synchronization assertions remain, and scene
+readiness additionally requires the actual environment assets to load.
 
 ## Reproduce
 

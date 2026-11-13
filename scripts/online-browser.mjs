@@ -81,11 +81,13 @@ async function matchReady(page) {
   await page.waitForFunction(() => !!document.querySelector('.city-match-header .city-connection.connected'), { timeout });
   try {
     await page.waitForFunction(() => !!window.__graphicsAudit?.game()?.players.length, { timeout });
+    await page.waitForFunction(() => window.__phase2Environment?.ready, { timeout });
   } catch (error) {
     const diagnostics = await page.evaluate(() => ({
       url: location.href,
       graphicsAuditEnabled: new URLSearchParams(location.search).has('graphicsAudit'),
       auditPresent: !!window.__graphicsAudit,
+      environmentReady: !!window.__phase2Environment?.ready,
       canvasCount: document.querySelectorAll('canvas').length,
       connection: document.querySelector('.city-match-header .city-connection')?.textContent,
       renderState: document.querySelector('.city-match')?.getAttribute('class'),
@@ -101,11 +103,24 @@ async function synchronized(a, b) {
     return JSON.stringify(x.players.map(p => [p.playerId, p.position, p.money, p.isBankrupt])) === JSON.stringify(y.players.map(p => [p.playerId, p.position, p.money, p.isBankrupt])) && JSON.stringify(x.properties) === JSON.stringify(y.properties);
   }, 'identical committed snapshots');
   for (const p of [a, b]) {
+    // Chrome may pause background requestAnimationFrame callbacks even when
+    // timer/renderer background throttling flags are disabled. Inspect each
+    // live scene in the foreground, just as click() and matchReady() do.
+    await p.bringToFront();
     const snapshot = observations.get(p).match;
-    await p.waitForFunction(expected => {
-      const scene = window.__graphicsAudit?.game();
-      return scene && !['ROLLING', 'MOVING'].includes(scene.turnPhase) && expected.players.every(player => scene.players.find(p => p.id === player.seatOrder)?.position === player.position) && (!expected.dice || JSON.stringify(scene.dice) === JSON.stringify(expected.dice.values));
-    }, {}, snapshot);
+    try {
+      await p.waitForFunction(expected => {
+        const scene = window.__graphicsAudit?.game();
+        return scene && !['ROLLING', 'MOVING'].includes(scene.turnPhase) && expected.players.every(player => scene.players.find(p => p.id === player.seatOrder)?.position === player.position) && (!expected.dice || JSON.stringify(scene.dice) === JSON.stringify(expected.dice.values));
+      }, { timeout: process.env.CI ? 120000 : 30000, polling: 100 }, snapshot);
+    } catch (error) {
+      const observed = await p.evaluate(() => ({ scene: window.__graphicsAudit?.game(),
+        hidden: document.hidden, visibility: document.visibilityState,
+        environmentReady: !!window.__phase2Environment?.ready })).catch(() => ({ browser: 'unresponsive' }));
+      const expected = { version: snapshot.stateVersion, phase: snapshot.turnPhase, dice: snapshot.dice?.values,
+        players: snapshot.players.map(player => ({ seat: player.seatOrder, position: player.position, money: player.money })) };
+      throw new Error(`Rendered match did not settle: ${JSON.stringify({ expected, observed })}`, { cause: error });
+    }
     const scene = await p.evaluate(() => window.__graphicsAudit.game());
     for (const player of snapshot.players) {
       assert.equal(scene.players.find(p => p.id === player.seatOrder)?.position, player.position, '3D token follows committed UUID/seat mapping');
