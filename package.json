@@ -48,5 +48,13 @@
     "tsx": "^4.19.2",
     "typescript": "^5.4.5",
     "vite": "^5.2.11"
+  },
+  "engines": {
+    "node": ">=22.12 <23"
+  },
+  "overrides": {
+    "@react-three/postprocessing": {
+      "postprocessing": "6.35.6"
+    }
   }
 }
