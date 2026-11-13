@@ -20,7 +20,7 @@ try {
     let seed = 10425058;
     Math.random = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
   });
-  await page.goto(`${process.env.AUDIT_URL || 'http://127.0.0.1:4175'}/?graphicsAudit`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.goto(`${process.env.AUDIT_URL || 'http://127.0.0.1:4175'}/?graphicsAudit#solo`, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForFunction(() => window.__graphicsAudit); await pause(3000);
   const camera = await page.evaluate(() => window.__graphicsAudit.metadata().camera);
   await page.screenshot({ path: path.join(out, 'overview.png') });

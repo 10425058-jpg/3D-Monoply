@@ -37,7 +37,7 @@ try {
         let seed=10425058;Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
         localStorage.setItem('monopoly-graphics-quality',tier);
       },quality);
-      await page.goto(`${origin}/?graphicsAudit`,{waitUntil:'domcontentloaded',timeout:60000});
+      await page.goto(`${origin}/?graphicsAudit#solo`,{waitUntil:'domcontentloaded',timeout:60000});
       await page.waitForFunction(()=>!!window.__graphicsAudit&&window.__phase2Environment?.ready,{timeout:60000});
       await wait(warmupMs);
       for(const camera of cameras) {

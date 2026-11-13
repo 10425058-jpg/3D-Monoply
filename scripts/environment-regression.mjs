@@ -15,7 +15,7 @@ try {
   await page.setViewport({width:1440,height:900,deviceScaleFactor:1});
   await page.evaluateOnNewDocument(() => localStorage.setItem('monopoly-graphics-quality','low'));
   await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'no-preference'}]);
-  await page.goto(`${origin}/?graphicsAudit`,{waitUntil:'domcontentloaded'});
+  await page.goto(`${origin}/?graphicsAudit#solo`,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(() => !!window.__graphicsAudit && window.__phase2Environment?.ready);
   await pause(500);
   const snapshot = () => page.evaluate(() => window.__graphicsAudit.environment());
@@ -48,7 +48,7 @@ try {
   await pause(500);
   assert.ok((await snapshot()).waterfalls['waterfall-left'] > hidden.waterfalls['waterfall-left']);
 
-  await page.goto(origin,{waitUntil:'domcontentloaded'}); await pause(1500);
+  await page.goto(origin + '/#solo',{waitUntil:'domcontentloaded'}); await pause(1500);
   assert.equal(await page.evaluate(() => '__graphicsAudit' in window || '__phase2Environment' in window),false,'ordinary play has no audit globals');
   assert.deepEqual(errors,[]);
   const result = {passed:true,oldTerrainRemoved:true,zeroEnvironmentShadowCasters:true,

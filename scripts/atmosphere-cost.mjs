@@ -20,7 +20,7 @@ try {
     localStorage.setItem('monopoly-graphics-quality','balanced');
     let seed=10425058; Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
   });
-  await page.goto(`${origin}/?graphicsAudit`,{waitUntil:'domcontentloaded'});
+  await page.goto(`${origin}/?graphicsAudit#solo`,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>!!window.__graphicsAudit && window.__phase2Environment?.ready);
   await pause(4000);
   await page.evaluate(()=>window.__graphicsAudit.camera([4.5,27,40],[0,.7,0]));

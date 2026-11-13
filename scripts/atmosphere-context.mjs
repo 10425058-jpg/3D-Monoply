@@ -20,7 +20,7 @@ try {
       localStorage.setItem('monopoly-graphics-quality',tier);
       let seed=10425058; Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
     },quality);
-    await page.goto(`${origin}/?graphicsAudit`,{waitUntil:'domcontentloaded'});
+    await page.goto(`${origin}/?graphicsAudit#solo`,{waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>!!window.__graphicsAudit && window.__phase2Environment?.ready);
     await pause(2500);
     const before = `${out}/context-${quality}-before.png`, after = `${out}/context-${quality}-after.png`;

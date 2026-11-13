@@ -9,6 +9,8 @@
     "build": "tsc && vite build",
     "lint": "tsc --noEmit",
     "test:online": "node --import tsx --test tests/online.test.ts",
+    "test:menu": "node --test tests/menu-loading.test.mjs",
+    "test:menu-browser": "node scripts/menu-browser.mjs",
     "test:online-browser": "node scripts/online-browser.mjs",
     "test:animations": "node --test tests/animations.test.mjs",
     "preview": "vite preview",

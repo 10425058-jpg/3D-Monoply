@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { assertNoGameplay, observeCanvasCreation } from './menu-boundary.mjs';
 
 const origin = process.env.ONLINE_TEST_URL || 'http://localhost:5174';
 const output = path.resolve(process.env.ONLINE_TEST_OUT || '.online-test');
@@ -30,7 +31,9 @@ async function click(page, label) {
   await handle.asElement().click(); await handle.dispose();
 }
 async function pageFor(context, width = 1440, height = 900) {
-  const page = await context.newPage(); observations.set(page, { match: null, actions: [], credentials: null });
+  const page = await context.newPage(); observations.set(page, { match: null, actions: [], credentials: null, requests: [] });
+  await observeCanvasCreation(page);
+  page.on('request', request => observations.get(page).requests.push(new URL(request.url()).pathname));
   await page.setViewport({ width, height, deviceScaleFactor: 1 });
   await page.evaluateOnNewDocument(() => localStorage.setItem('monopoly-graphics-quality', 'low'));
   page.on('pageerror', error => errors.push(error.message));
@@ -118,19 +121,24 @@ let a, b;
 try {
   const ca = await browser.createBrowserContext(); const cb = await browser.createBrowserContext();
   a = await pageFor(ca); b = await pageFor(cb);
-  await go(a, 'home'); await a.waitForSelector('.city-menu-panel'); await a.waitForFunction(() => !!window.__graphicsAudit); await pause(2500); await shot(a, '01-menu-desktop');
+  await go(a, 'home'); await a.waitForSelector('.main-menu-panel');
+  await a.waitForFunction(() => document.querySelector('.main-menu-art')?.naturalWidth > 0);
+  await assertNoGameplay(a, observations.get(a).requests, 'Main menu'); await shot(a, '01-menu-desktop');
   await go(a, 'online/lobby'); await a.waitForSelector('input[name=email]'); await shot(a, '02-auth-desktop');
+  await assertNoGameplay(a, observations.get(a).requests, 'Authentication');
   await a.setViewport({ width: 390, height: 844 }); await shot(a, '02-auth-mobile');
   assert.equal(await a.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
   await a.setViewport({ width: 1440, height: 900 });
   const alice = await register(a, 'Alice');
-  await click(a, 'My profile'); await click(a, 'Sign out'); await a.waitForSelector('.city-menu-panel');
+  await click(a, 'My profile'); await click(a, 'Sign out'); await a.waitForSelector('.main-menu-panel');
   await go(a, 'online/lobby'); await a.waitForSelector('input[name=email]'); await a.type('input[name=email]', alice.email); await a.type('input[name=password]', alice.password); await click(a, 'Sign in');
   await a.waitForSelector('.city-lobby-actions'); await a.reload({ waitUntil: 'domcontentloaded' }); await a.waitForSelector('.city-lobby-actions');
   assert.ok((await ca.cookies()).some(c => c.name === 'refresh_token' && c.httpOnly && c.sameSite === 'Lax'));
   const stored = await a.evaluate(() => ({ ...localStorage, ...sessionStorage }));
   assert.ok(!Object.keys(stored).some(k => /token|csrf|password/i.test(k))); passed('B: register, logout, login, CSRF reload restoration, memory-only credentials');
   const bob = await register(b, 'Bob');
+  await assertNoGameplay(a, observations.get(a).requests, 'Authenticated lobby');
+  await assertNoGameplay(b, observations.get(b).requests, 'Second player lobby');
   await shot(a, '03-lobby-desktop');
   await click(a, 'Create a room'); await a.click('input[name=players][value="2"]'); await click(a, 'Create room');
   await a.waitForSelector('.city-seats'); const roomId = new URL(a.url()).hash.split('/').at(-1);
@@ -140,7 +148,21 @@ try {
   await a.waitForFunction(name => document.querySelector('.city-seats').textContent.includes(name), {}, bob.username);
   await click(b, 'I’m ready'); await a.waitForFunction(() => [...document.querySelectorAll('button')].some(b => b.textContent.includes('Start game') && !b.disabled));
   await shot(a, '05-waiting-room');
-  await click(a, 'Start game'); await matchReady(a); await matchReady(b);
+  await assertNoGameplay(a, observations.get(a).requests, 'Host waiting room');
+  await assertNoGameplay(b, observations.get(b).requests, 'Guest waiting room');
+  // Delay the real REST response to prove the renderer cannot load from the URL alone.
+  const heldSnapshots = [];
+  await a.setRequestInterception(true);
+  const holdSnapshot = request => {
+    if (request.method() === 'GET' && /\/api\/v1\/matches\/[^/]+$/.test(new URL(request.url()).pathname)) heldSnapshots.push(request);
+    else void request.continue();
+  };
+  a.on('request', holdSnapshot);
+  await click(a, 'Start game'); await until(() => heldSnapshots.length > 0, 'match snapshot pending');
+  await assertNoGameplay(a, observations.get(a).requests, 'Match awaiting server confirmation');
+  for (const request of heldSnapshots) await request.continue();
+  a.off('request', holdSnapshot); await a.setRequestInterception(false);
+  await matchReady(a); await matchReady(b);
   assert.equal(observations.get(a).match.matchId, observations.get(b).match.matchId); passed('C: public room, live membership/readiness, host start, both clients enter existing 3D scene');
   await synchronized(a, b);
   let duplicateChecked = false;
@@ -217,6 +239,11 @@ try {
   await a.waitForFunction(name => document.querySelector('.city-seats').textContent.includes(name), {}, bob.username); passed('D: private room hidden, wrong/old codes rejected, rotated invite joins through real authorization');
   await click(b, 'Leave room'); await click(a, 'Leave room');
   await a.waitForSelector('.city-lobby-actions'); await b.waitForSelector('.city-lobby-actions');
+  const rejectedMatch = await pageFor(ca);
+  await go(rejectedMatch, 'online/match/00000000-0000-4000-8000-000000000000');
+  await rejectedMatch.waitForSelector('.city-error');
+  await assertNoGameplay(rejectedMatch, observations.get(rejectedMatch).requests, 'Server-rejected match URL');
+  await rejectedMatch.close(); await a.bringToFront();
   // Seed only the existing Solo RNG: 1 + 2 lands on a purchasable property at space 3.
   await go(a, 'solo'); await a.waitForFunction(() => !!window.__graphicsAudit?.game()?.players.length);
   await a.evaluate(() => {
