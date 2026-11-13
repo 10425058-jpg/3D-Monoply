@@ -14,7 +14,12 @@ function positiveInt(value: string | undefined, fallback: number): number {
 
 export const config = {
   port: positiveInt(process.env.PORT, 3000),
-  corsOrigins: list(process.env.CORS_ORIGIN, 'http://localhost:5173'),
+  // Render supplies its own HTTPS origin automatically at runtime. Custom
+  // domains can be added with CORS_ORIGIN (comma-separated exact origins).
+  corsOrigins: [...new Set([
+    ...list(process.env.CORS_ORIGIN, process.env.RENDER_EXTERNAL_URL ? '' : 'http://localhost:5173'),
+    ...(process.env.RENDER_EXTERNAL_URL ? [process.env.RENDER_EXTERNAL_URL] : []),
+  ])],
   jwtAccessSecret: process.env.JWT_ACCESS_SECRET ?? '',
   cookieSecure: process.env.COOKIE_SECURE === 'true',
 
