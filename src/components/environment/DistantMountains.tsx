@@ -9,18 +9,19 @@ import { variation } from './environmentLayout';
 export function DistantMountains({ quality }: { quality: EnvironmentQuality }) {
   const geometry = useMemo(() => {
     const segments = quality === 'low' ? 80 : quality === 'balanced' ? 160 : 224;
-    const rows = quality === 'low' ? 3 : quality === 'balanced' ? 5 : 7;
+    const rows = quality === 'low' ? 7 : quality === 'balanced' ? 12 : 16;
     const positions: number[] = [], colors: number[] = [], opacity: number[] = [], indices: number[] = [];
     MOUNTAIN_LAYERS.forEach((layer,layerIndex) => {
       const offset = positions.length/3;
       const baseColor = new THREE.Color(layer.color);
       for (let row=0;row<rows;row++) for (let i=0;i<=segments;i++) {
         const angle = i/segments*Math.PI*2;
-        const height = mountainHeight(angle+Math.sin(row)*.018,layerIndex);
-        const radius = layer.radius+row*5.5;
-        const drop = Math.abs(row-(rows-1)*.30)*7.5 + variation(i%segments+row*31,layerIndex+915)*2.5;
+        const cross = row/(rows-1);
+        const height = mountainHeight(angle+Math.sin(cross*9)*.028,layerIndex);
+        const radius = layer.radius+cross*24;
+        const drop = Math.abs(cross-.28)*34 + variation(i%segments+row*31,layerIndex+915)*3.4;
         positions.push(Math.sin(angle)*radius,height-drop,Math.cos(angle)*radius);
-        const color = baseColor.clone();
+        const color = baseColor.clone().lerp(new THREE.Color('#f9c2df'),Math.max(0,1-drop/15)*.25);
         colors.push(color.r,color.g,color.b);
         opacity.push(row === 0 || row === rows-1 ? 0 : layer.opacity);
         if (row<rows-1 && i<segments) {
@@ -43,7 +44,7 @@ export function DistantMountains({ quality }: { quality: EnvironmentQuality }) {
     for(let i=0;i<tint.count;i++) {
       const facing=Math.max(0,normals.getX(i)*sun.x+normals.getY(i)*sun.y+normals.getZ(i)*sun.z);
       const color=new THREE.Color(tint.getX(i),tint.getY(i),tint.getZ(i));
-      color.lerp(warm,facing*.18).multiplyScalar(.54+facing*.46);
+      color.lerp(warm,facing*.29).multiplyScalar(.46+facing*.54);
       tint.setXYZ(i,color.r,color.g,color.b);
     }
     return result;

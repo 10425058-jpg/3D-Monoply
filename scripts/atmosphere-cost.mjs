@@ -6,7 +6,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 // Keep a separate label so this never replaces matched before/after evidence.
 const label = process.argv[2] || 'cost-isolation';
 const origin = process.env.AUDIT_URL || 'http://127.0.0.1:4175';
-const out = `docs/fantasy-polish/evidence/${label}`;
+const out = `${process.env.AUDIT_EVIDENCE_ROOT || 'docs/fantasy-polish/evidence'}/${label}`;
 const pause = ms => new Promise(resolve => setTimeout(resolve,ms));
 const browser = await puppeteer.launch({executablePath:process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
 try {

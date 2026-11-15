@@ -97,6 +97,26 @@ test('supporting kingdoms match their Blender receipts, topology budgets and wat
   }
 });
 
+test('sunset scenery matches actual Blender bytes, three LODs and safe foundation bounds', () => {
+  const filename=path.join(models,'sunset-manifest.json');
+  const receipt=JSON.parse(readFileSync(filename,'utf8'));
+  assert.equal(receipt.assets.length,15);
+  assert.equal(run('--manifest',filename).valid,true);
+  for(const id of ['crown-foundation','royal-garden-dressing','royal-island-citadel','sky-windmill','sky-garden']) {
+    const variants=['high','balanced','low'].map(tier=>receipt.assets.find(asset=>asset.id===id&&asset.tier===tier));
+    assert.ok(variants.every(Boolean));
+    assert.ok(variants[0].triangles>variants[1].triangles&&variants[1].triangles>variants[2].triangles);
+    for(const asset of variants) {
+      if(id==='crown-foundation')assert.ok(asset.bounds.max[1]<-.5,'foundation and banners stay below all tiles');
+      else if(id!=='royal-garden-dressing') {
+        const names=Object.keys(asset.anchors);
+        assert.ok(names.some(name=>name.startsWith('waterfall_origin_left')));
+        assert.ok(names.some(name=>name.startsWith('waterfall_end_left')));
+      }
+    }
+  }
+});
+
 test('a malformed GLB header is rejected', () => {
   const filename = fixture(() => {});
   const bytes = readFileSync(filename);
