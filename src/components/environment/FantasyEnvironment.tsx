@@ -24,6 +24,8 @@ export function FantasyEnvironment({ quality = 'balanced' }: { quality?: Environ
         <PremiumFantasyWorld quality={quality} animate={animate} />
       </Suspense>
     </EnvironmentAssetBoundary>
-    <AtmosphericClouds quality={quality} animate={animate} />
+    <EnvironmentAssetBoundary key={`clouds-${quality}`} label="soft cloud atlas" fallback={null}>
+      <Suspense fallback={null}><AtmosphericClouds quality={quality} animate={animate} /></Suspense>
+    </EnvironmentAssetBoundary>
   </group>;
 }

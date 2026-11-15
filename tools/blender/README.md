@@ -1,5 +1,42 @@
 # Procedural fantasy environment
 
+## Environment visual polish V2
+
+The [V2 report](../../docs/environment-visual-polish-v2/README.md) preserves the
+original exports and refines only the two hero islands, distant citadel and
+board foundation. `polish_environment_v2.py` imports those existing GLBs with
+`bpy`, reshapes below-grade cliffs, adds embedded eroded ledges, simplifies
+hidden geometry and rebakes cavity vertex shading. The original architecture,
+atlas, paths, foliage and effect anchors are retained. Twelve `-v2` exports
+and `polish-v2-manifest.json` include source-file SHA256 receipts.
+
+Both commands below were executed with installed **Blender 5.2.3 LTS**:
+
+```sh
+blender --background --factory-startup --python-exit-code 1 --python tools/blender/polish_environment_v2.py
+blender --background --factory-startup --python-exit-code 1 --python tools/blender/bake_clouds_v2.py
+```
+
+On this Windows host use PowerShell's `&` operator with
+`C:\Program Files\Blender Foundation\Blender 5.2\blender.exe`. The refinement
+script supports `--only royal-island-left` and `--tiers balanced`; selected
+receipts merge without modifying other variants. `bake_clouds_v2.py` uses
+Blender's bundled NumPy to integrate eight irregular fractal-density volumes
+offline, with six optical-depth lighting taps and straight-alpha PNG packing.
+It produces three quality atlases and hash receipts under
+`public/assets/textures/environment`. No reference image is sampled.
+
+```sh
+python tools/blender/validate_assets.py --manifest public/assets/models/environment/polish-v2-manifest.json
+python tools/blender/validate_cloud_atlas.py
+npm run test:environment-assets
+```
+
+Blender/Python are authoring dependencies only. The deployed runtime loads GLB
+and PNG files through Three.js/R3F/Drei. Original distant LODs remain in use.
+Keep the saved V2 baseline evidence from main at `842217f`; do not regenerate
+`before` measurements or its layout snapshot from candidate sources.
+
 The concept-directed sunset continuation is documented in
 [the sunset kingdom report](../../docs/sunset-kingdom/README.md). Its source is
 `generate_sunset_kingdom.py`: a crown foundation, royal garden dressing, skyline

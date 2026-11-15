@@ -2,8 +2,9 @@ import { GltfEnvironmentModel } from './GltfEnvironmentModel';
 import type { EnvironmentPlacement } from './GltfEnvironmentModel';
 import type { EnvironmentQuality } from './environmentLayout';
 
+const REFINED_MODELS=new Set(['royal-island-left','royal-island-right','royal-island-citadel','crown-foundation']);
 export const qualityAsset = (id: string, quality: EnvironmentQuality | 'distant') =>
-  `${id}${quality === 'high' ? '' : `-${quality}`}.glb`;
+  `${quality!=='distant'&&REFINED_MODELS.has(id)?`${id}-v2`:id}${quality === 'high' ? '' : `-${quality}`}.glb`;
 
 export function FloatingIsland({ variant, quality, placements }: {
   variant: 'left' | 'right'; quality: EnvironmentQuality | 'distant'; placements: readonly EnvironmentPlacement[];

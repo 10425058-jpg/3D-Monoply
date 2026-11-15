@@ -26,7 +26,9 @@ export function CameraAtmosphere() {
       scene.fog.far = 150 + shift;
     }
     const perspective = camera as THREE.PerspectiveCamera;
-    const far = Math.max(400, distance + 220);
+    // Broad V2 massifs extend about 285m from the world origin. Keep them inside
+    // the far plane when the existing responsive camera pulls away.
+    const far = Math.max(400, distance + 300);
     if (Math.abs(perspective.far - far) > .1) { perspective.far = far; perspective.updateProjectionMatrix(); }
   });
   return null;

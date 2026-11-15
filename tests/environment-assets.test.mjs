@@ -5,6 +5,7 @@ import { mkdtempSync, readFileSync, readdirSync, rmdirSync, unlinkSync, writeFil
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { deflateSync } from 'node:zlib';
+import { createHash } from 'node:crypto';
 
 const root = path.resolve(import.meta.dirname, '..');
 const models = path.join(root, 'public/assets/models/environment');
@@ -115,6 +116,34 @@ test('sunset scenery matches actual Blender bytes, three LODs and safe foundatio
       }
     }
   }
+});
+
+test('V2 refined originals preserve source provenance and water anchors at every topology tier',()=>{
+  const receipt=JSON.parse(readFileSync(path.join(models,'polish-v2-manifest.json'),'utf8'));
+  assert.equal(receipt.assets.length,12);
+  assert.equal(run('--manifest',path.join(models,'polish-v2-manifest.json')).valid,true);
+  const originals=['manifest.json','sunset-manifest.json'].flatMap(file=>JSON.parse(readFileSync(path.join(models,file),'utf8')).assets);
+  for(const asset of receipt.assets){
+    const original=originals.find(record=>record.file===asset.sourceFile);
+    assert.ok(original);
+    assert.equal(createHash('sha256').update(readFileSync(path.join(models,asset.sourceFile))).digest('hex'),asset.sourceSha256);
+    assert.ok(asset.triangles<original.triangles,'visible refinement also trims hidden topology');
+    if(asset.id==='crown-foundation-v2')assert.ok(asset.bounds.max[1]<-.5);
+    for(const [name,point] of Object.entries(original.anchors)){
+      if(!name.startsWith('water'))continue;
+      const stem=name.replace(/\.\d+$/,'');
+      const refined=Object.entries(asset.anchors).find(([key])=>key.replace(/\.\d+$/,'')===stem)?.[1];
+      assert.ok(refined,`${asset.file} preserves ${stem}`);
+      assert.ok(point.every((value,i)=>Math.abs(value-refined[i])<.001));
+    }
+  }
+});
+
+test('offline cloud PNGs contain eight distinct soft RGBA silhouettes with mip-safe gutters',()=>{
+  const validator=path.join(root,'tools/blender/validate_cloud_atlas.py');
+  const report=JSON.parse(execFileSync(python,[validator],{cwd:root,encoding:'utf8'}));
+  assert.equal(report.valid,true);assert.equal(report.assets.length,3);
+  assert.ok(report.assets.every(asset=>asset.variants.length===8&&asset.bytes<330000));
 });
 
 test('a malformed GLB header is rejected', () => {

@@ -12,10 +12,10 @@ export function FantasyAirship({ animate, quality }: { animate: boolean; quality
   useFrame((_, delta) => {
     if (!ref.current || !mayAnimateEnvironment(animate)) return;
     time.current += Math.min(delta,.1);
-    ref.current.position.set(22+Math.sin(time.current*.025)*2.2,-17+Math.sin(time.current*.17)*.45,-112+Math.cos(time.current*.025)*.6);
+    ref.current.position.set(30+Math.sin(time.current*.025)*2.2,-10+Math.sin(time.current*.17)*.45,-75+Math.cos(time.current*.025)*.6);
     ref.current.rotation.set(0,-.32+Math.sin(time.current*.025)*.035,Math.sin(time.current*.12)*.018);
   });
-  return <group ref={ref} name="fantasy-airship" position={[22,-17,-111.4]} rotation={[0,-.32,0]}>
+  return <group ref={ref} name="fantasy-airship" position={[30,-10,-74.4]} rotation={[0,-.32,0]}>
     <GltfEnvironmentModel file={qualityAsset('fantasy-airship',quality)} placements={PLACEMENTS} name="blender-airship" />
   </group>;
 }

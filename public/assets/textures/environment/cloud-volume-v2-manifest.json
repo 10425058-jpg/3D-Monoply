@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "generator": "tools/blender/bake_clouds_v2.py",
+  "seed": 10425058,
+  "method": "3D fractal density, offline Beer-Lambert integration and six optical-depth lighting taps",
+  "license": "Original procedural project textures; repository MIT license applies",
+  "colorSpace": "linear RGB, straight alpha",
+  "variants": 8,
+  "assets": [
+    {
+      "tier": "low",
+      "columns": 4,
+      "rows": 2,
+      "file": "cloud-volume-v2-low.png",
+      "width": 512,
+      "height": 160,
+      "bytes": 58433,
+      "sha256": "74886d9bcce7803ee012a5423a336e24bbed1d55619197348e78a349d25c25c8"
+    },
+    {
+      "tier": "balanced",
+      "columns": 4,
+      "rows": 2,
+      "file": "cloud-volume-v2-balanced.png",
+      "width": 896,
+      "height": 256,
+      "bytes": 145285,
+      "sha256": "8a8497298f520ff8694f229ab55dabd9111b446482c44163d3418dd27c75deb8"
+    },
+    {
+      "tier": "high",
+      "columns": 4,
+      "rows": 2,
+      "file": "cloud-volume-v2-high.png",
+      "width": 1280,
+      "height": 384,
+      "bytes": 262560,
+      "sha256": "6ed362cc776e21d48b8898af3a709a91bf327216975a67e1c99894b98b16d750"
+    }
+  ]
+}

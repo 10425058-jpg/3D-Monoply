@@ -1,60 +1,53 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect,useMemo } from 'react';
 import * as THREE from 'three';
 import type { EnvironmentQuality } from './environmentLayout';
-import { MOUNTAIN_LAYERS, mountainHeight } from './atmosphereLayout';
-import { variation } from './environmentLayout';
+import { MOUNTAIN_LAYERS,mountainPatches,massifHeight } from './atmosphereLayout';
 
-/** Four distant ridges with actual crest/flank depth, batched into one draw.
- * Disconnected from gameplay; no land surface fills the board's open column. */
-export function DistantMountains({ quality }: { quality: EnvironmentQuality }) {
-  const geometry = useMemo(() => {
-    const segments = quality === 'low' ? 80 : quality === 'balanced' ? 160 : 224;
-    const rows = quality === 'low' ? 7 : quality === 'balanced' ? 12 : 16;
-    const positions: number[] = [], colors: number[] = [], opacity: number[] = [], indices: number[] = [];
-    MOUNTAIN_LAYERS.forEach((layer,layerIndex) => {
-      const offset = positions.length/3;
-      const baseColor = new THREE.Color(layer.color);
-      for (let row=0;row<rows;row++) for (let i=0;i<=segments;i++) {
-        const angle = i/segments*Math.PI*2;
-        const cross = row/(rows-1);
-        const height = mountainHeight(angle+Math.sin(cross*9)*.028,layerIndex);
-        const radius = layer.radius+cross*24;
-        const drop = Math.abs(cross-.28)*34 + variation(i%segments+row*31,layerIndex+915)*3.4;
-        positions.push(Math.sin(angle)*radius,height-drop,Math.cos(angle)*radius);
-        const color = baseColor.clone().lerp(new THREE.Color('#f9c2df'),Math.max(0,1-drop/15)*.25);
-        colors.push(color.r,color.g,color.b);
-        opacity.push(row === 0 || row === rows-1 ? 0 : layer.opacity);
-        if (row<rows-1 && i<segments) {
-          const a=offset+row*(segments+1)+i,b=a+segments+1;
-          indices.push(a,b,a+1,a+1,b,b+1);
-        }
+/** Separate broad 3D massifs, each with multiple peaks and real front/back
+ * slopes, merged into one draw. Distant terrain never enters the board column. */
+export function DistantMountains({quality}:{quality:EnvironmentQuality}){
+  const geometry=useMemo(()=>{
+    const columns=quality==='low'?18:quality==='balanced'?30:42;
+    const rows=quality==='low'?12:quality==='balanced'?20:28;
+    const positions:number[]=[],colors:number[]=[],opacity:number[]=[],indices:number[]=[];
+    const patches=mountainPatches();
+    patches.forEach(patch=>{
+      const offset=positions.length/3,layer=MOUNTAIN_LAYERS[patch.layer];
+      const baseColor=new THREE.Color(layer.color),summit=new THREE.Color('#d9c9da');
+      for(let row=0;row<=rows;row++)for(let col=0;col<=columns;col++){
+        const u=col/columns*2-1,v=row/rows*2-1;
+        const height=massifHeight(u,v,patch),radius=patch.radius+v*patch.depth/2;
+        positions.push(Math.sin(patch.angle)*radius+Math.cos(patch.angle)*u*patch.width/2,height,
+          Math.cos(patch.angle)*radius-Math.sin(patch.angle)*u*patch.width/2);
+        const tint=baseColor.clone().lerp(summit,Math.max(0,(height-patch.base)/patch.height)*.22);
+        colors.push(tint.r,tint.g,tint.b);
+        const feather=Math.min(1,(1-Math.abs(u))*5,(1-Math.abs(v))*5);
+        opacity.push(layer.opacity*Math.max(0,feather));
+        if(row<rows&&col<columns){const a=offset+row*(columns+1)+col,b=a+columns+1;indices.push(a,b,a+1,a+1,b,b+1);}
       }
     });
-    let result = new THREE.BufferGeometry();
+    const result=new THREE.BufferGeometry();
     result.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
     result.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
-    result.setAttribute('ridgeOpacity',new THREE.Float32BufferAttribute(opacity,1));
-    result.setIndex(indices);
-    const surface=result.toNonIndexed();result.dispose();result=surface;
-    result.computeVertexNormals(); result.computeBoundingSphere();
-    // Directional modelling is baked into vertex colour: real flanks read as
-    // rock massifs without extra lights, shadows, textures or fragment noise.
-    const normals=result.getAttribute('normal'), tint=result.getAttribute('color');
-    const sun=new THREE.Vector3(.55,.72,-.65).normalize(), warm=new THREE.Color('#f2c4aa');
-    for(let i=0;i<tint.count;i++) {
-      const facing=Math.max(0,normals.getX(i)*sun.x+normals.getY(i)*sun.y+normals.getZ(i)*sun.z);
+    result.setAttribute('ridgeOpacity',new THREE.Float32BufferAttribute(opacity,1));result.setIndex(indices);
+    result.computeVertexNormals();result.computeBoundingSphere();
+    const normals=result.getAttribute('normal'),tint=result.getAttribute('color');
+    const sun=new THREE.Vector3(-.48,.72,.56).normalize(),warm=new THREE.Color('#f0ceb4');
+    for(let i=0;i<tint.count;i++){
+      const normal=new THREE.Vector3().fromBufferAttribute(normals,i);
+      const facing=Math.max(0,normal.dot(sun));
       const color=new THREE.Color(tint.getX(i),tint.getY(i),tint.getZ(i));
-      color.lerp(warm,facing*.29).multiplyScalar(.46+facing*.54);
+      color.multiplyScalar(.48+facing*.52).lerp(warm,Math.pow(facing,4)*.11);
       tint.setXYZ(i,color.r,color.g,color.b);
     }
     return result;
   },[quality]);
-  useEffect(() => () => geometry.dispose(),[geometry]);
-  return <mesh geometry={geometry} name="mountain-ranges" renderOrder={-2} raycast={() => {}}>
+  useEffect(()=>()=>geometry.dispose(),[geometry]);
+  return <mesh geometry={geometry} name="mountain-ranges" renderOrder={-2} raycast={()=>{}}>
     <shaderMaterial transparent depthWrite={false} side={THREE.DoubleSide} forceSinglePass vertexColors
-      vertexShader={`attribute float ridgeOpacity; varying vec3 vTint; varying float vOpacity;
+      vertexShader={`attribute float ridgeOpacity;varying vec3 vTint;varying float vOpacity;
         void main(){vTint=color;vOpacity=ridgeOpacity;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`}
-      fragmentShader={`varying vec3 vTint; varying float vOpacity;
+      fragmentShader={`varying vec3 vTint;varying float vOpacity;
         void main(){gl_FragColor=vec4(vTint,vOpacity);
           #include <tonemapping_fragment>
           #include <colorspace_fragment>

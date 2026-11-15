@@ -12,6 +12,9 @@ const out = path.resolve(process.env.AUDIT_EVIDENCE_ROOT || 'docs/fantasy-polish
 const origin = process.env.AUDIT_URL || 'http://127.0.0.1:4175';
 const qualities = process.env.AUDIT_QUALITIES?.split(',') || ['low', 'balanced', 'high'];
 const sampleMs = Number(process.env.AUDIT_SAMPLE_MS || 5000);
+const cameraNames=(process.env.AUDIT_CAMERAS || 'overview,reference').split(',');
+const cameraPoses={reference:[4.5,27,40],wide:[28,45,60]};
+assert.ok(cameraNames.every(name=>['overview','reference','wide'].includes(name)));
 assert.ok(sampleMs >= 1000 && Number.isFinite(sampleMs), 'sample window must be at least 1s');
 assert.ok(qualities.every(quality => ['low', 'balanced', 'high'].includes(quality)), 'unknown quality');
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -27,7 +30,7 @@ try {
     // Each tier needs an observed 200 + body hash, even when another tab loaded
     // the same distant GLB. Exclude conditional 304 responses from this gate.
     await page.setCacheEnabled(false);
-    const errors = [], assetLoads = [], failedRequests = [];
+    const errors = [], assetLoads = [], textureLoads = [], failedRequests = [];
     page.on('pageerror', error => errors.push(error.message));
     page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
     page.on('response', response => {
@@ -35,6 +38,10 @@ try {
         assetLoads.push(response.buffer().then(body => ({ url: response.url(), status: response.status(),
           bytes: body.length, sha256: createHash('sha256').update(body).digest('hex') }))
           .catch(error => ({ url: response.url(), status: response.status(), error: error.message })));
+      }
+      if (/\/assets\/textures\/environment\/.*\.png(?:\?|$)/.test(response.url())) {
+        textureLoads.push(response.buffer().then(body=>({url:response.url(),status:response.status(),bytes:body.length,
+          sha256:createHash('sha256').update(body).digest('hex')})));
       }
     });
     page.on('requestfailed', request => failedRequests.push({ url: request.url(), error: request.failure()?.errorText }));
@@ -50,9 +57,9 @@ try {
     await page.waitForFunction(() => window.__phase2Environment?.ready, { timeout: 60000 });
     await pause(4000);
     const scenarios = [];
-    for (const cameraName of ['overview', 'reference']) {
-      if (cameraName === 'reference') {
-        await page.evaluate(() => window.__graphicsAudit.camera([4.5, 27, 40], [0, .7, 0]));
+    for (const cameraName of cameraNames) {
+      if (cameraPoses[cameraName]) {
+        await page.evaluate(position => window.__graphicsAudit.camera(position, [0, .7, 0]),cameraPoses[cameraName]);
         await pause(1000);
       }
       const camera = await page.evaluate(() => window.__graphicsAudit.metadata().camera);
@@ -92,6 +99,7 @@ try {
     }
     const environment = await page.evaluate(() => window.__phase2Environment || null);
     const assetResponses = await Promise.all(assetLoads);
+    const textureResponses=await Promise.all(textureLoads);
     assert.deepEqual(errors, [], 'browser rendering errors');
     assert.deepEqual(failedRequests, [], 'failed browser network requests');
     assert.ok(environment?.ready && environment.assetUrls?.length, 'loaded asset readiness');
@@ -101,6 +109,12 @@ try {
       const artifact = await readFile(path.resolve('public/assets/models/environment', path.basename(new URL(assetUrl, origin).pathname)));
       assert.equal(response.sha256, createHash('sha256').update(artifact).digest('hex'), `served GLB matches exported public artifact: ${assetUrl}`);
     }
+    for(const textureUrl of environment.textureUrls||[]){
+      const response=textureResponses.find(item=>item.url===textureUrl);
+      assert.equal(response?.status,200,`cloud atlas loaded: ${textureUrl}`);
+      const bytes=await readFile(path.resolve('public/assets/textures/environment',path.basename(new URL(textureUrl).pathname)));
+      assert.equal(response.sha256,createHash('sha256').update(bytes).digest('hex'));
+    }
     if (label !== 'before') {
       const before = JSON.parse(await readFile(path.resolve(out, '../before', `${quality}.json`), 'utf8'));
       scenarios.forEach((scenario, index) => {
@@ -109,7 +123,7 @@ try {
         assert.equal(scenario.metadata.dpr, before.scenarios[index].metadata.dpr);
       });
     }
-    await writeFile(path.join(out, `${quality}.json`), JSON.stringify({ label, quality, motion: 'reduced', sampleMs, warmupMs: 4000, environment, assetResponses, failedRequests, errors, scenarios }, null, 2));
+    await writeFile(path.join(out, `${quality}.json`), JSON.stringify({ label, quality, motion: 'reduced', sampleMs, warmupMs: 4000, environment, assetResponses, textureResponses, failedRequests, errors, scenarios }, null, 2));
     await page.close();
   }
   await writeFile(path.join(out, 'summary.json'), JSON.stringify(summaries, null, 2));

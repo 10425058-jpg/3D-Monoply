@@ -13,11 +13,12 @@ function ribbon(points: THREE.Vector3[], width: number, cascade: boolean, across
     const tangent = points[Math.min(i+1,points.length-1)].clone().sub(points[Math.max(0,i-1)]);
     const sideways = across ?? new THREE.Vector3(-tangent.z,0,tangent.x).normalize();
     const outward = new THREE.Vector3(sideways.z,0,-sideways.x);
-    const spread = width * (cascade ? 1 + Math.sin(fraction*Math.PI*.85)*.48 : .85);
+    const opening=Math.min(1,fraction/.20);
+    const spread = width * (cascade ? 1+opening*opening*(3-2*opening)*.34+Math.sin(fraction*Math.PI*.82)*.55 : .85);
     for (let j=0;j<columns;j++) {
       const u=j/(columns-1), x=(u-.5)*spread;
       // Convex, scalloped curtain retains a silhouette at oblique angles.
-      const depth=cascade ? Math.sin(u*Math.PI)*width*.23 + Math.sin(u*17+fraction*8)*width*.025 : 0;
+      const depth=cascade ? Math.sin(u*Math.PI)*width*.28 + Math.sin(u*13+fraction*8)*width*.035 : 0;
       positions.push(point.x+sideways.x*x+outward.x*depth,point.y,point.z+sideways.z*x+outward.z*depth);
       uv.push(u,fraction);
       if (i && j) {
@@ -101,16 +102,20 @@ export function AnimatedWaterfall({ file, variant, animate, low, name }: {
         vertexShader={`attribute float cascade;varying float vCascade;varying vec2 vUv;
           void main(){vUv=uv;vCascade=cascade;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`}
         fragmentShader={`uniform float uTime;varying float vCascade;varying vec2 vUv;
+          float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
+          float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
+            return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.)),f.x),f.y);}
           void main(){
-            float x=vUv.x+sin(vUv.y*10.-uTime*1.8)*.008;
-            float streak=pow(.5+.5*sin(x*77.+sin(x*19.)*2.6),4.);
-            float flow=.5+.5*sin(vUv.y*49.-uTime*9.+sin(x*35.)*1.6);
-            float filaments=pow(.5+.5*sin(x*161.+vUv.y*3.-uTime*.6),9.);
-            float edges=smoothstep(0.,.10,vUv.x)*smoothstep(0.,.10,1.-vUv.x);
-            float foam=streak*(.32+flow*.40)+filaments*.22+pow(1.-vUv.y,14.)*.6;
-            vec3 color=mix(vec3(.07,.48,.66),vec3(.88,.98,1.),clamp(.20+foam,0.,1.));
-            float tail=1.-smoothstep(.70,1.,vUv.y)*vCascade;
-            gl_FragColor=vec4(color,edges*tail*.92);
+            float x=vUv.x+sin(vUv.y*7.-uTime*1.5)*.012;
+            float sheets=noise(vec2(x*8.,vUv.y*1.7-uTime*.42));
+            float ripples=noise(vec2(x*17.,vUv.y*16.-uTime*3.1));
+            float glints=pow(.5+.5*sin(x*64.+sin(vUv.y*4.-uTime)*.45),12.)*.12;
+            float edges=smoothstep(0.,.13,vUv.x)*smoothstep(0.,.13,1.-vUv.x);
+            float crest=exp(-vUv.y*29.)*(.65+noise(vec2(x*23.,uTime*.8))*.35);
+            vec3 color=mix(vec3(.015,.21,.33),vec3(.50,.85,1.),.21+sheets*.40+ripples*.08+glints);
+            color=mix(color,vec3(.93,.98,1.),crest*.78);
+            float tail=1.-smoothstep(.62,1.,vUv.y)*vCascade;
+            gl_FragColor=vec4(color,edges*tail*(.84+sheets*.12));
             #include <tonemapping_fragment>
             #include <colorspace_fragment>
           }`} />
@@ -122,7 +127,8 @@ export function AnimatedWaterfall({ file, variant, animate, low, name }: {
             mv.xy+=corner*size*length(modelMatrix[0].xyz);gl_Position=projectionMatrix*mv;}`}
         fragmentShader={`uniform float uTime;varying vec2 vUv;
           void main(){vec2 q=vUv;
-            float cloud=exp(-dot(q,q)*3.)*(.24+.025*sin(q.x*9.+uTime));
+            q.x+=sin(q.y*4.+uTime*.4)*.08;
+            float cloud=exp(-dot(q,q)*2.7)*(.25+.025*sin(q.x*9.+uTime));
             gl_FragColor=vec4(.76,.92,1.,cloud);
             #include <tonemapping_fragment>
             #include <colorspace_fragment>

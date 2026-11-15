@@ -1,5 +1,5 @@
 import { Suspense, useEffect } from 'react';
-import { useGLTF } from '@react-three/drei';
+import { useGLTF, useTexture } from '@react-three/drei';
 import { environmentModelUrl } from './GltfEnvironmentModel';
 import { FloatingIsland, qualityAsset } from './FantasyAssets';
 import { AnimatedWaterfall } from './AnimatedWaterfall';
@@ -10,9 +10,10 @@ import { SupportingKingdoms, supportingFiles } from './SupportingKingdoms';
 import { EnvironmentAssetBoundary } from './EnvironmentAssetBoundary';
 import { SunsetKingdoms, sunsetFiles } from './SunsetKingdoms';
 import { LEFT_ISLAND, RIGHT_ISLAND } from './sunsetKingdomLayout';
+import { cloudAtlasUrl } from './cloudAtlas';
 export { LEFT_ISLAND, RIGHT_ISLAND } from './sunsetKingdomLayout';
 
-export const WORLD_MILESTONE = 'sunset-kingdom';
+export const WORLD_MILESTONE = 'visual-polish-v2';
 const LEFT_PLACEMENTS = [LEFT_ISLAND];
 const RIGHT_PLACEMENTS = [RIGHT_ISLAND];
 const FAR_LEFT: EnvironmentPlacement[] = [{ position: [-46,-42,-91], scale: .5, rotation: .4 },
@@ -51,7 +52,13 @@ export function EnvironmentReady({ files, quality }: { files: string[]; quality:
   // Loading the array as a new useGLTF key would download every GLB twice.
   // The enclosing Suspense commits the marker only once all children resolve.
   return <>{files.map(file => <LoadedEnvironmentAsset key={file} file={file} />)}
+    <LoadedCloudAtlas quality={quality} />
     <EnvironmentReadyMarker files={files} quality={quality} /></>;
+}
+
+function LoadedCloudAtlas({quality}:{quality:EnvironmentQuality}){
+  useTexture(cloudAtlasUrl(quality));
+  return null;
 }
 
 function LoadedEnvironmentAsset({ file }: { file: string }) {
@@ -62,7 +69,7 @@ function LoadedEnvironmentAsset({ file }: { file: string }) {
 function EnvironmentReadyMarker({ files, quality }: { files: string[]; quality: EnvironmentQuality }) {
   useEffect(() => {
     if (!new URLSearchParams(window.location.search).has('graphicsAudit')) return;
-    const state = { ready: true, milestone: WORLD_MILESTONE, quality, assetUrls: files.map(environmentModelUrl) };
+    const state = { ready: true, milestone: WORLD_MILESTONE, quality, assetUrls: files.map(environmentModelUrl),textureUrls:[cloudAtlasUrl(quality)] };
     (window as any).__phase2Environment = state;
     return () => { if ((window as any).__phase2Environment === state) delete (window as any).__phase2Environment; };
   }, [files.join('|'), quality]);
