@@ -11,6 +11,26 @@ const layoutUrl = asModule(transpile('../src/components/environment/environmentL
 const source = transpile('../src/components/environment/atmosphereLayout.ts')
   .replace("'./environmentLayout'",JSON.stringify(layoutUrl));
 const atmosphere = await import(asModule(source));
+const cloudSource=transpile('../src/components/environment/cloudAtlas.ts')
+  .replace("'three'",JSON.stringify(new URL('../node_modules/three/build/three.module.js',import.meta.url).href))
+  .replace("'./environmentLayout'",JSON.stringify(layoutUrl));
+const {createCloudAtlas}=await import(asModule(cloudSource));
+
+test('generated cloud pixels have soft alpha and no cyan byte-overflow flecks',()=>{
+  const texture=createCloudAtlas('balanced'),pixels=texture.image.data;
+  let transparent=0,soft=0,solid=0;
+  for(let i=0;i<pixels.length;i+=4) {
+    const [r,g,b,a]=pixels.subarray(i,i+4);
+    if(!a)transparent++;
+    else if(a<128)soft++;
+    else {
+      solid++;
+      assert.equal(g>r+30&&b>r+30,false,'bright cloud highlights cannot wrap their red byte to cyan');
+    }
+  }
+  assert.ok(transparent>1000&&soft>100&&solid>1000,'atlas includes empty sky, feathered silhouettes and billow bodies');
+  texture.dispose();
+});
 
 test('mountain ridges close without a seam, remain distant and have four atmospheric depths', () => {
   assert.equal(atmosphere.MOUNTAIN_LAYERS.length,4);
@@ -32,14 +52,14 @@ test('new cloud banks are deterministic, bounded and leave the under-board colum
   const original=Math.random;
   Math.random=()=>{throw new Error('clouds consumed gameplay random stream');};
   try {
-    for (const [quality,count] of [['low',20],['balanced',32],['high',44]]) {
+    for (const [quality,count] of [['low',28],['balanced',44],['high',60]]) {
       const clouds=atmosphere.atmosphereCloudLayout(quality);
       assert.equal(clouds.length,count);
       assert.deepEqual(clouds,atmosphere.atmosphereCloudLayout(quality));
       clouds.forEach(({position:[x,y,z],size:[width,height]})=>{
-        assert.ok(Math.hypot(x,z)-width/2>30,'cloud footprint must not fill the board column');
-        assert.ok(y+height/2 < -38,'cloud tops stay behind and below the board');
-        assert.ok(width<45&&height<14,'no enormous foreground bank');
+        assert.ok(Math.hypot(x,z)-Math.hypot(width,height)/2>25,'cloud footprint must clear the board column');
+        assert.ok(y+height/2 < (Math.hypot(x,z)>130?12:-18),'higher clouds remain at a distant sky depth');
+        assert.ok(width<61&&height<40,'cloud bank dimensions remain bounded');
       });
     }
   } finally { Math.random=original; }

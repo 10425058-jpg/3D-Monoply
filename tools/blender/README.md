@@ -1,5 +1,27 @@
 # Procedural fantasy environment
 
+The concept-directed sunset continuation is documented in
+[the sunset kingdom report](../../docs/sunset-kingdom/README.md). Its source is
+`generate_sunset_kingdom.py`: a crown foundation, royal garden dressing, skyline
+citadel with an open sky bridge, windmill hamlet and blossom belvedere. The
+fifteen original GLBs have high/balanced/low topology, baked vertex cavity shading,
+embedded atlas textures and runtime waterfall/lantern anchors. It writes only
+these assets and `sunset-manifest.json`, preserving all earlier GLB bytes.
+
+```sh
+blender --background --factory-startup --python-exit-code 1 --python tools/blender/generate_sunset_kingdom.py
+```
+
+To update a single LOD without touching completed exports:
+
+```sh
+blender --background --factory-startup --python-exit-code 1 --python tools/blender/generate_sunset_kingdom.py -- --only sky-garden --tiers high
+```
+
+Generation was executed with installed Blender **5.2.3 LTS**. The optional
+`game-dev` CLI is absent on this host; the repository's binary validator and
+real Chrome import checks were used. No paid generation provider was used.
+
 The shipped GLBs are already generated and validated. Running the game does not require Blender. Continue from these files; regenerate only an asset you intend to change.
 
 The master continuation preserves the completed landscape/prop exports and updates only the two royal island composites. The left five-spire gatehouse and right three-tower palace now have different gables, silhouettes and an open loggia. See [the current report](../../docs/fantasy-master/README.md) for same-camera evidence, final triangle inventory and continuation limits. Use `--only royal-island-left,royal-island-right` to reproduce that export without rebuilding completed props.

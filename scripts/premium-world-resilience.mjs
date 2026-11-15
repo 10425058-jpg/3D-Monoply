@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 
 const origin=process.env.AUDIT_URL || 'http://127.0.0.1:4175';
-const out='docs/premium-fantasy-world/evidence/regression';
+const out=process.env.ENVIRONMENT_REGRESSION_OUT || 'docs/premium-fantasy-world/evidence/regression';
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 await mkdir(out,{recursive:true});
 const browser=await puppeteer.launch({executablePath:process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
@@ -24,7 +24,7 @@ try {
     assert.equal(state.canvases,1);
     assert.equal(state.environment.fallbacks,0);
     assert.equal(state.environment.landmarks.length,3);
-    assert.equal(Object.keys(state.environment.waterfalls).length,5);
+    assert.equal(Object.keys(state.environment.waterfalls).length,15);
     if(cycles.length) {
       assert.equal(state.environment.meshes,cycles[0].environment.meshes,'no duplicate environment instances');
       assert.deepEqual(state.metadata.allocationEstimates,cycles[0].metadata.allocationEstimates,'no growing live buffer allocations');

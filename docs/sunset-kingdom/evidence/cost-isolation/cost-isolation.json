@@ -1,0 +1,52 @@
+{
+  "viewport": [
+    1440,
+    900
+  ],
+  "quality": "balanced",
+  "camera": [
+    4.5,
+    27,
+    40
+  ],
+  "sampleMs": 3000,
+  "results": [
+    {
+      "scenario": "all-visible",
+      "fps": 34.638955502239064,
+      "gpuP50": 27.23974,
+      "renderCpuP50": 16.5,
+      "calls": 2787,
+      "triangles": 352088,
+      "samples": 104
+    },
+    {
+      "scenario": "clouds-off",
+      "fps": 34.3768773780207,
+      "gpuP50": 27.26425,
+      "renderCpuP50": 14.600000001490116,
+      "calls": 2786,
+      "triangles": 352000,
+      "samples": 103
+    },
+    {
+      "scenario": "mountains-off",
+      "fps": 34.99533395548998,
+      "gpuP50": 26.9353,
+      "renderCpuP50": 14.099999997764826,
+      "calls": 2786,
+      "triangles": 338008,
+      "samples": 105
+    },
+    {
+      "scenario": "both-off",
+      "fps": 35.002333488890564,
+      "gpuP50": 26.50825,
+      "renderCpuP50": 14.699999999254942,
+      "calls": 2785,
+      "triangles": 337920,
+      "samples": 105
+    }
+  ],
+  "errors": []
+}

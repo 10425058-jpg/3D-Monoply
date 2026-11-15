@@ -59,3 +59,7 @@ docs/premium-fantasy-world/evidence/after/low.json
 docs/premium-fantasy-world/evidence/after/balanced.json
 docs/premium-fantasy-world/evidence/after/high.json
 docs/premium-fantasy-world/evidence/after/summary.json
+
+# Art checkpoints are replaced by matched final production captures.
+docs/sunset-kingdom/evidence/checkpoint/
+docs/sunset-kingdom/evidence/regression/context-*.png

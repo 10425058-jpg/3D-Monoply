@@ -1,0 +1,991 @@
+{
+  "schemaVersion": 1,
+  "generator": "tools/blender/generate_sunset_kingdom.py",
+  "blenderVersion": "5.2.3 LTS",
+  "seed": 10425058,
+  "license": "Original procedural project assets; repository MIT license applies",
+  "materials": "embedded 128x128 atlas, vertex cavity shading, opaque PBR",
+  "assets": [
+    {
+      "id": "crown-foundation",
+      "file": "crown-foundation.glb",
+      "tier": "high",
+      "triangles": 6446,
+      "bytes": 581168,
+      "sha256": "073af4dd9c804639976186f3777e8e6976b63e5d55ef9b9e24128388f5eea114",
+      "bounds": {
+        "min": [
+          -13.396265029907227,
+          -11.546371459960938,
+          -13.396265029907227
+        ],
+        "max": [
+          13.367206573486328,
+          -0.6190304160118103,
+          13.171982765197754
+        ]
+      },
+      "anchors": {},
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    },
+    {
+      "id": "crown-foundation",
+      "file": "crown-foundation-balanced.glb",
+      "tier": "balanced",
+      "triangles": 4086,
+      "bytes": 385364,
+      "sha256": "97c320eaf532f7016eb4e43041a964956bc609ae16eabc345a558522453f8ec6",
+      "bounds": {
+        "min": [
+          -13.396265029907227,
+          -11.533655166625977,
+          -13.248794555664062
+        ],
+        "max": [
+          13.367206573486328,
+          -0.6190304160118103,
+          13.3096342086792
+        ]
+      },
+      "anchors": {},
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    },
+    {
+      "id": "crown-foundation",
+      "file": "crown-foundation-low.glb",
+      "tier": "low",
+      "triangles": 2466,
+      "bytes": 246020,
+      "sha256": "da5846e1860ff07ffb9459964c1a771875cb5e72ea749c226c429e3743d3b5b8",
+      "bounds": {
+        "min": [
+          -13.003592491149902,
+          -11.489967346191406,
+          -13.367206573486328
+        ],
+        "max": [
+          13.367206573486328,
+          -0.6190304160118103,
+          13.396265029907227
+        ]
+      },
+      "anchors": {},
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    },
+    {
+      "id": "royal-garden-dressing",
+      "file": "royal-garden-dressing.glb",
+      "tier": "high",
+      "triangles": 5460,
+      "bytes": 433904,
+      "sha256": "9287d3a87c375242989daa93351be6f2b558e9a25af68520f091dd450564f618",
+      "bounds": {
+        "min": [
+          -7.798868656158447,
+          0.028913378715515137,
+          -4.4629998207092285
+        ],
+        "max": [
+          6.477843284606934,
+          2.2109997272491455,
+          5.032408714294434
+        ]
+      },
+      "anchors": {
+        "sunset_glow_0": [
+          -2.3,
+          1.0815,
+          4.3
+        ],
+        "sunset_glow_1": [
+          2.3,
+          1.0815,
+          4.3
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Meadow and moss",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    },
+    {
+      "id": "royal-garden-dressing",
+      "file": "royal-garden-dressing-balanced.glb",
+      "tier": "balanced",
+      "triangles": 3852,
+      "bytes": 314084,
+      "sha256": "343feb1a52391be1c7862cdf0656c2974e6de08de1544886e2990849db1bb32d",
+      "bounds": {
+        "min": [
+          -7.798868656158447,
+          0.028913378715515137,
+          -4.454746723175049
+        ],
+        "max": [
+          6.477843284606934,
+          2.2109997272491455,
+          5.032408714294434
+        ]
+      },
+      "anchors": {
+        "sunset_glow_0": [
+          -2.3,
+          1.0815,
+          4.3
+        ],
+        "sunset_glow_1": [
+          2.3,
+          1.0815,
+          4.3
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Meadow and moss",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    },
+    {
+      "id": "royal-garden-dressing",
+      "file": "royal-garden-dressing-low.glb",
+      "tier": "low",
+      "triangles": 2130,
+      "bytes": 175792,
+      "sha256": "1b399ffd90f98f63db060fb83fb6d5af4f60ff23159618f5e22fd58c8a138eea",
+      "bounds": {
+        "min": [
+          -7.583765983581543,
+          0.028913378715515137,
+          -4.430550575256348
+        ],
+        "max": [
+          6.477843284606934,
+          2.2109997272491455,
+          4.9179792404174805
+        ]
+      },
+      "anchors": {
+        "sunset_glow_0": [
+          -2.3,
+          1.0815,
+          4.3
+        ],
+        "sunset_glow_1": [
+          2.3,
+          1.0815,
+          4.3
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Meadow and moss",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    },
+    {
+      "id": "royal-island-citadel",
+      "file": "royal-island-citadel.glb",
+      "tier": "high",
+      "triangles": 39450,
+      "bytes": 2636532,
+      "sha256": "f6516ff53cb00d0afde3e82279d34104aedf1d8ba683a4ce5d62c87ceb7e4611",
+      "bounds": {
+        "min": [
+          -6.680886268615723,
+          -6.97767448425293,
+          -5.091193199157715
+        ],
+        "max": [
+          12.300000190734863,
+          11.489999771118164,
+          5.890642166137695
+        ]
+      },
+      "anchors": {
+        "watercourse_0_left": [
+          -2.4,
+          0.13,
+          1.4
+        ],
+        "watercourse_1_left": [
+          -2.5,
+          0.13,
+          2.4
+        ],
+        "watercourse_2_left": [
+          -2.7,
+          0.1,
+          3.6
+        ],
+        "watercourse_3_left": [
+          -3.1,
+          0.08,
+          4.65
+        ],
+        "waterfall_origin_left": [
+          -3.1,
+          0.08,
+          4.65
+        ],
+        "waterfall_end_left": [
+          -3.6,
+          -15.5,
+          5.7
+        ],
+        "sunset_glow_0": [
+          -1.95,
+          1.0815,
+          3.3
+        ],
+        "sunset_glow_1": [
+          1.95,
+          1.0815,
+          3.3
+        ],
+        "sunset_glow_2": [
+          10.1,
+          0.706,
+          1.1
+        ],
+        "sunset_glow_portal": [
+          -0.2,
+          1.55,
+          0.64
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    },
+    {
+      "id": "royal-island-citadel",
+      "file": "royal-island-citadel-balanced.glb",
+      "tier": "balanced",
+      "triangles": 23888,
+      "bytes": 1623864,
+      "sha256": "c34840ad4d677fdfb51dac97c76662fc644522121573cae92a6eaac34d8fde7a",
+      "bounds": {
+        "min": [
+          -6.689067363739014,
+          -7.015038967132568,
+          -5.093739032745361
+        ],
+        "max": [
+          12.300000190734863,
+          11.489999771118164,
+          5.731382846832275
+        ]
+      },
+      "anchors": {
+        "watercourse_0_left": [
+          -2.4,
+          0.13,
+          1.4
+        ],
+        "watercourse_1_left": [
+          -2.5,
+          0.13,
+          2.4
+        ],
+        "watercourse_2_left": [
+          -2.7,
+          0.1,
+          3.6
+        ],
+        "watercourse_3_left": [
+          -3.1,
+          0.08,
+          4.65
+        ],
+        "waterfall_origin_left": [
+          -3.1,
+          0.08,
+          4.65
+        ],
+        "waterfall_end_left": [
+          -3.6,
+          -15.5,
+          5.7
+        ],
+        "sunset_glow_0": [
+          -1.95,
+          1.0815,
+          3.3
+        ],
+        "sunset_glow_1": [
+          1.95,
+          1.0815,
+          3.3
+        ],
+        "sunset_glow_2": [
+          10.1,
+          0.706,
+          1.1
+        ],
+        "sunset_glow_portal": [
+          -0.2,
+          1.55,
+          0.64
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    },
+    {
+      "id": "royal-island-citadel",
+      "file": "royal-island-citadel-low.glb",
+      "tier": "low",
+      "triangles": 13136,
+      "bytes": 864604,
+      "sha256": "1d67a76dc0a8ac4586be04ef0ebb5356cdc7bb53c9f751c479e953d9df21a855",
+      "bounds": {
+        "min": [
+          -6.495023250579834,
+          -6.996104717254639,
+          -5.0149335861206055
+        ],
+        "max": [
+          12.300000190734863,
+          11.489999771118164,
+          6.3370890617370605
+        ]
+      },
+      "anchors": {
+        "watercourse_0_left": [
+          -2.4,
+          0.13,
+          1.4
+        ],
+        "watercourse_1_left": [
+          -2.5,
+          0.13,
+          2.4
+        ],
+        "watercourse_2_left": [
+          -2.7,
+          0.1,
+          3.6
+        ],
+        "watercourse_3_left": [
+          -3.1,
+          0.08,
+          4.65
+        ],
+        "waterfall_origin_left": [
+          -3.1,
+          0.08,
+          4.65
+        ],
+        "waterfall_end_left": [
+          -3.6,
+          -15.5,
+          5.7
+        ],
+        "sunset_glow_0": [
+          -1.95,
+          1.0815,
+          3.3
+        ],
+        "sunset_glow_1": [
+          1.95,
+          1.0815,
+          3.3
+        ],
+        "sunset_glow_2": [
+          10.1,
+          0.706,
+          1.1
+        ],
+        "sunset_glow_portal": [
+          -0.2,
+          1.55,
+          0.64
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    },
+    {
+      "id": "sky-windmill",
+      "file": "sky-windmill.glb",
+      "tier": "high",
+      "triangles": 11448,
+      "bytes": 892156,
+      "sha256": "0ecb5c3af65a77944a209995dc79f2555a30531ab2c82084efa0b05cf7b3d83d",
+      "bounds": {
+        "min": [
+          -8.357283592224121,
+          -6.993777751922607,
+          -4.084798812866211
+        ],
+        "max": [
+          9.343746185302734,
+          6.372946739196777,
+          5.018514633178711
+        ]
+      },
+      "anchors": {
+        "watercourse_0_left": [
+          -1.8,
+          0.13,
+          0.8
+        ],
+        "watercourse_1_left": [
+          -1.3,
+          0.12,
+          1.9
+        ],
+        "watercourse_2_left": [
+          0.0,
+          0.11,
+          2.8
+        ],
+        "watercourse_3_left": [
+          1.0,
+          0.09,
+          3.6
+        ],
+        "waterfall_origin_left": [
+          1.0,
+          0.09,
+          3.6
+        ],
+        "waterfall_end_left": [
+          1.4,
+          -12.5,
+          4.8
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    },
+    {
+      "id": "sky-windmill",
+      "file": "sky-windmill-balanced.glb",
+      "tier": "balanced",
+      "triangles": 8406,
+      "bytes": 666628,
+      "sha256": "0dea69884a253a6e76bada2f1bb8ecf3a63d9fc668b60803c53e521ee2b37cbc",
+      "bounds": {
+        "min": [
+          -8.029047966003418,
+          -7.012732028961182,
+          -4.040381908416748
+        ],
+        "max": [
+          9.144683837890625,
+          6.372946739196777,
+          4.715536117553711
+        ]
+      },
+      "anchors": {
+        "watercourse_0_left": [
+          -1.8,
+          0.13,
+          0.8
+        ],
+        "watercourse_1_left": [
+          -1.3,
+          0.12,
+          1.9
+        ],
+        "watercourse_2_left": [
+          0.0,
+          0.11,
+          2.8
+        ],
+        "watercourse_3_left": [
+          1.0,
+          0.09,
+          3.6
+        ],
+        "waterfall_origin_left": [
+          1.0,
+          0.09,
+          3.6
+        ],
+        "waterfall_end_left": [
+          1.4,
+          -12.5,
+          4.8
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    },
+    {
+      "id": "sky-windmill",
+      "file": "sky-windmill-low.glb",
+      "tier": "low",
+      "triangles": 3956,
+      "bytes": 325476,
+      "sha256": "e184fc5f538bf731c4eb22af4b1751a0b09e0cef55ec532bf86a7bf37e1a10fb",
+      "bounds": {
+        "min": [
+          -7.299382209777832,
+          -6.940616607666016,
+          -4.025574207305908
+        ],
+        "max": [
+          9.054665565490723,
+          6.24806547164917,
+          4.930677890777588
+        ]
+      },
+      "anchors": {
+        "watercourse_0_left": [
+          -1.8,
+          0.13,
+          0.8
+        ],
+        "watercourse_1_left": [
+          -1.3,
+          0.12,
+          1.9
+        ],
+        "watercourse_2_left": [
+          0.0,
+          0.11,
+          2.8
+        ],
+        "watercourse_3_left": [
+          1.0,
+          0.09,
+          3.6
+        ],
+        "waterfall_origin_left": [
+          1.0,
+          0.09,
+          3.6
+        ],
+        "waterfall_end_left": [
+          1.4,
+          -12.5,
+          4.8
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    },
+    {
+      "id": "sky-garden",
+      "file": "sky-garden.glb",
+      "tier": "high",
+      "triangles": 11574,
+      "bytes": 883272,
+      "sha256": "aa06989ae490758b20d96b26d1fa8d902d92acad0b0cf977b7f332a9954b7e23",
+      "bounds": {
+        "min": [
+          -6.541576385498047,
+          -6.982473850250244,
+          -4.889914512634277
+        ],
+        "max": [
+          6.836183547973633,
+          5.328228950500488,
+          5.831129550933838
+        ]
+      },
+      "anchors": {
+        "watercourse_0_left": [
+          1.8,
+          0.15,
+          1.4
+        ],
+        "watercourse_1_left": [
+          2.2,
+          0.12,
+          2.3
+        ],
+        "watercourse_2_left": [
+          2.7,
+          0.1,
+          3.5
+        ],
+        "watercourse_3_left": [
+          3.2,
+          0.08,
+          4.25
+        ],
+        "waterfall_origin_left": [
+          3.2,
+          0.08,
+          4.25
+        ],
+        "waterfall_end_left": [
+          4.0,
+          -13.0,
+          5.5
+        ],
+        "sunset_glow_0": [
+          -1.7,
+          1.258,
+          2.7
+        ],
+        "sunset_glow_1": [
+          1.9,
+          1.258,
+          2.7
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    },
+    {
+      "id": "sky-garden",
+      "file": "sky-garden-balanced.glb",
+      "tier": "balanced",
+      "triangles": 7742,
+      "bytes": 604312,
+      "sha256": "90c454a6a90f9e68cd47e4eb5a31817af50248870cb952ff9e09f3671039878e",
+      "bounds": {
+        "min": [
+          -6.468299388885498,
+          -7.014663219451904,
+          -4.839173793792725
+        ],
+        "max": [
+          6.942608833312988,
+          5.450204372406006,
+          5.9445576667785645
+        ]
+      },
+      "anchors": {
+        "watercourse_0_left": [
+          1.8,
+          0.15,
+          1.4
+        ],
+        "watercourse_1_left": [
+          2.2,
+          0.12,
+          2.3
+        ],
+        "watercourse_2_left": [
+          2.7,
+          0.1,
+          3.5
+        ],
+        "watercourse_3_left": [
+          3.2,
+          0.08,
+          4.25
+        ],
+        "waterfall_origin_left": [
+          3.2,
+          0.08,
+          4.25
+        ],
+        "waterfall_end_left": [
+          4.0,
+          -13.0,
+          5.5
+        ],
+        "sunset_glow_0": [
+          -1.7,
+          1.258,
+          2.7
+        ],
+        "sunset_glow_1": [
+          1.9,
+          1.258,
+          2.7
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    },
+    {
+      "id": "sky-garden",
+      "file": "sky-garden-low.glb",
+      "tier": "low",
+      "triangles": 4128,
+      "bytes": 327500,
+      "sha256": "65a5300dfb23465a1d73f2629f2f391c0fa3ca76590bfe2b2a4f1e4481f97695",
+      "bounds": {
+        "min": [
+          -6.41616153717041,
+          -7.007400989532471,
+          -4.868964672088623
+        ],
+        "max": [
+          6.798568248748779,
+          5.421471118927002,
+          5.8150410652160645
+        ]
+      },
+      "anchors": {
+        "watercourse_0_left": [
+          1.8,
+          0.15,
+          1.4
+        ],
+        "watercourse_1_left": [
+          2.2,
+          0.12,
+          2.3
+        ],
+        "watercourse_2_left": [
+          2.7,
+          0.1,
+          3.5
+        ],
+        "watercourse_3_left": [
+          3.2,
+          0.08,
+          4.25
+        ],
+        "waterfall_origin_left": [
+          3.2,
+          0.08,
+          4.25
+        ],
+        "waterfall_end_left": [
+          4.0,
+          -13.0,
+          5.5
+        ],
+        "sunset_glow_0": [
+          -1.7,
+          1.258,
+          2.7
+        ],
+        "sunset_glow_1": [
+          1.9,
+          1.258,
+          2.7
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058
+    }
+  ]
+}

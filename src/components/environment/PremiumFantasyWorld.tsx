@@ -8,10 +8,11 @@ import type { EnvironmentPlacement } from './GltfEnvironmentModel';
 import type { EnvironmentQuality } from './environmentLayout';
 import { SupportingKingdoms, supportingFiles } from './SupportingKingdoms';
 import { EnvironmentAssetBoundary } from './EnvironmentAssetBoundary';
+import { SunsetKingdoms, sunsetFiles } from './SunsetKingdoms';
+import { LEFT_ISLAND, RIGHT_ISLAND } from './sunsetKingdomLayout';
+export { LEFT_ISLAND, RIGHT_ISLAND } from './sunsetKingdomLayout';
 
-export const WORLD_MILESTONE = 'premium-archipelago';
-export const LEFT_ISLAND: EnvironmentPlacement = { position: [-29, -24, -20], scale: 1.3, rotation: .6 };
-export const RIGHT_ISLAND: EnvironmentPlacement = { position: [28, -22, -20], scale: 1.3, rotation: .16 };
+export const WORLD_MILESTONE = 'sunset-kingdom';
 const LEFT_PLACEMENTS = [LEFT_ISLAND];
 const RIGHT_PLACEMENTS = [RIGHT_ISLAND];
 const FAR_LEFT: EnvironmentPlacement[] = [{ position: [-46,-42,-91], scale: .5, rotation: .4 },
@@ -25,6 +26,7 @@ export function PremiumFantasyWorld({ quality, animate }: { quality: Environment
   files.push(qualityAsset('royal-island-left','distant'));
   if (quality === 'high') files.push(qualityAsset('royal-island-right','distant'));
   files.push(...supportingFiles(quality));
+  files.push(...sunsetFiles(quality));
   // Warm just this quality's URLs in parallel; never fetch every LOD on startup.
   files.forEach(file => useGLTF.preload(environmentModelUrl(file)));
   return <group name="premium-fantasy-world">
@@ -37,6 +39,7 @@ export function PremiumFantasyWorld({ quality, animate }: { quality: Environment
     {quality === 'high' && <FloatingIsland variant="right" quality="distant" placements={FAR_RIGHT} />}
     <FantasyAirship quality={quality} animate={animate} />
     <SupportingKingdoms quality={quality} animate={animate} />
+    <SunsetKingdoms quality={quality} animate={animate} />
     <EnvironmentAssetBoundary key={`ready-${quality}`} label="asset readiness" fallback={null}>
       <Suspense fallback={null}><EnvironmentReady files={files} quality={quality} /></Suspense>
     </EnvironmentAssetBoundary>
