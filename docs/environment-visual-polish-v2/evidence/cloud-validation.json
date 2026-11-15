@@ -1,0 +1,231 @@
+{
+  "valid": true,
+  "assets": [
+    {
+      "file": "cloud-volume-v2-low.png",
+      "bytes": 58433,
+      "sha256": "74886d9bcce7803ee012a5423a336e24bbed1d55619197348e78a349d25c25c8",
+      "width": 512,
+      "height": 160,
+      "rgbaMipEstimateBytes": 436907,
+      "variants": [
+        {
+          "cell": 0,
+          "alphaSha256": "0955af0180362b231fc6b951237702ef54bd09704ca31b131ac6e466ed1e5dfa",
+          "empty": 7756,
+          "soft": 1171,
+          "body": 1313,
+          "gutterAlphaMax": 0
+        },
+        {
+          "cell": 1,
+          "alphaSha256": "d08a5648820f63ec38a020e176c1450ff2ca9765a5c2a760b4869da3faba57c8",
+          "empty": 7858,
+          "soft": 1134,
+          "body": 1248,
+          "gutterAlphaMax": 0
+        },
+        {
+          "cell": 2,
+          "alphaSha256": "75588212154abf55fb6d674a307972e68a96e0f99f85793e8d8c0538ce356618",
+          "empty": 7865,
+          "soft": 1206,
+          "body": 1169,
+          "gutterAlphaMax": 0
+        },
+        {
+          "cell": 3,
+          "alphaSha256": "336342a3b7b44af29ca3bebe8fbb58fe34b0765ab7a2ea08dd4983d53cd0f857",
+          "empty": 7912,
+          "soft": 1283,
+          "body": 1045,
+          "gutterAlphaMax": 0
+        },
+        {
+          "cell": 4,
+          "alphaSha256": "ccfe4ec504eb854d2d84222d438f969b7bbbb388f46a5f58c1932c8cb72cff55",
+          "empty": 7293,
+          "soft": 1486,
+          "body": 1461,
+          "gutterAlphaMax": 0
+        },
+        {
+          "cell": 5,
+          "alphaSha256": "873ddb387683adf2c7d8d338cd158c0cc45446f90cbb444c70ca19b980061231",
+          "empty": 6826,
+          "soft": 1508,
+          "body": 1906,
+          "gutterAlphaMax": 0
+        },
+        {
+          "cell": 6,
+          "alphaSha256": "c709c62b818a877762ac04b6bc77b21fbec3764290a63ba09b126b23fedcea0b",
+          "empty": 6504,
+          "soft": 1825,
+          "body": 1911,
+          "gutterAlphaMax": 0
+        },
+        {
+          "cell": 7,
+          "alphaSha256": "0fa6627e84742983d9af71089138bc559f27b3f1ec4705d89a4b7d72c75104e1",
+          "empty": 6498,
+          "soft": 1729,
+          "body": 2013,
+          "gutterAlphaMax": 0
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "cloud-volume-v2-balanced.png",
+      "bytes": 145285,
+      "sha256": "8a8497298f520ff8694f229ab55dabd9111b446482c44163d3418dd27c75deb8",
+      "width": 896,
+      "height": 256,
+      "rgbaMipEstimateBytes": 1223339,
+      "variants": [
+        {
+          "cell": 0,
+          "alphaSha256": "1884da7d8d274dbaa8892171d6176500c8debc689e977138684c723b78757b2c",
+          "empty": 21668,
+          "soft": 3291,
+          "body": 3713,
+          "gutterAlphaMax": 0
+        },
+        {
+          "cell": 1,
+          "alphaSha256": "bdee244d98fbdc0cd0106fa6dc7fcdd1af581710cb3e6ffc284394853d6e09cf",
+          "empty": 21953,
+          "soft": 3207,
+          "body": 3512,
+          "gutterAlphaMax": 0
+        },
+        {
+          "cell": 2,
+          "alphaSha256": "9d527c74bdad6f26bb736635084b614abc942aea151734070a262df634627c70",
+          "empty": 21957,
+          "soft": 3420,
+          "body": 3295,
+          "gutterAlphaMax": 0
+        },
+        {
+          "cell": 3,
+          "alphaSha256": "3174eb4c666366e3b71581045209b538487567e19409b1ff1711b70fd55b55ba",
+          "empty": 22109,
+          "soft": 3625,
+          "body": 2938,
+          "gutterAlphaMax": 0
+        },
+        {
+          "cell": 4,
+          "alphaSha256": "63083512fb9326d7e2ad59b4a77cdc5833808d392824536af31032ef823a236f",
+          "empty": 20346,
+          "soft": 4193,
+          "body": 4133,
+          "gutterAlphaMax": 0
+        },
+        {
+          "cell": 5,
+          "alphaSha256": "091f32ad811b37db33cbbd7aaea4424a9cac3a31186bc911007cf514eacf649b",
+          "empty": 19039,
+          "soft": 4261,
+          "body": 5372,
+          "gutterAlphaMax": 0
+        },
+        {
+          "cell": 6,
+          "alphaSha256": "0229837203d1a4776448d0bbbb1e680fd6925a3f1cdaf56dadfd39efbbb72d9d",
+          "empty": 18117,
+          "soft": 5172,
+          "body": 5383,
+          "gutterAlphaMax": 0
+        },
+        {
+          "cell": 7,
+          "alphaSha256": "68b4334bb60acc5c5ad4bfc7a3babd6391db6f95a4f9befe1ef2d2121e08e95c",
+          "empty": 18124,
+          "soft": 4847,
+          "body": 5701,
+          "gutterAlphaMax": 0
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "cloud-volume-v2-high.png",
+      "bytes": 262560,
+      "sha256": "6ed362cc776e21d48b8898af3a709a91bf327216975a67e1c99894b98b16d750",
+      "width": 1280,
+      "height": 384,
+      "rgbaMipEstimateBytes": 2621440,
+      "variants": [
+        {
+          "cell": 0,
+          "alphaSha256": "27dc092925334d1af47f2d8879276e664dbc701178a172fb39ce9e2fe24e8db1",
+          "empty": 46518,
+          "soft": 6938,
+          "body": 7984,
+          "gutterAlphaMax": 0
+        },
+        {
+          "cell": 1,
+          "alphaSha256": "78dbdbe1d5083de2f91fede942ef3ab11ca5f2d8b9fb3b15722e15323d627cc0",
+          "empty": 47146,
+          "soft": 6712,
+          "body": 7582,
+          "gutterAlphaMax": 0
+        },
+        {
+          "cell": 2,
+          "alphaSha256": "3fde6d992718746e89cc5c1e721aa7a502b9b0ef5bbee999544ced6b9ff0cb65",
+          "empty": 47145,
+          "soft": 7203,
+          "body": 7092,
+          "gutterAlphaMax": 0
+        },
+        {
+          "cell": 3,
+          "alphaSha256": "e7d784a9bfeb8928ab5c9bb4018d7249a15eb51905ba36f06ba0e2a1d18f06f9",
+          "empty": 47455,
+          "soft": 7674,
+          "body": 6311,
+          "gutterAlphaMax": 0
+        },
+        {
+          "cell": 4,
+          "alphaSha256": "b91226338ff1df467064db517edcb299d1a61278e8819d868b46739e92d86fec",
+          "empty": 43673,
+          "soft": 8863,
+          "body": 8904,
+          "gutterAlphaMax": 0
+        },
+        {
+          "cell": 5,
+          "alphaSha256": "ebf35db2affffcb8575e0140335ad91aeb5d07907c6aa8ffeb4c2a1ccb743a19",
+          "empty": 40850,
+          "soft": 9034,
+          "body": 11556,
+          "gutterAlphaMax": 0
+        },
+        {
+          "cell": 6,
+          "alphaSha256": "340825028056b10a2be55baffb29568ea173f738f2c56847c7db300334e00d50",
+          "empty": 38859,
+          "soft": 10970,
+          "body": 11611,
+          "gutterAlphaMax": 0
+        },
+        {
+          "cell": 7,
+          "alphaSha256": "4c82b05532b98ae9b09c33ce2d3807ad441ea14b141a8a7f9d76a875cc1acbae",
+          "empty": 38890,
+          "soft": 10293,
+          "body": 12257,
+          "gutterAlphaMax": 0
+        }
+      ],
+      "valid": true
+    }
+  ],
+  "failures": []
+}

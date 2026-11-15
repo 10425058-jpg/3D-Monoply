@@ -8,9 +8,10 @@ const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 await mkdir(out,{recursive:true});
 const browser=await puppeteer.launch({executablePath:process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
 try {
-  const page=await browser.newPage(),errors=[],cycles=[],modelResponses=[];
+  const page=await browser.newPage(),errors=[],cycles=[],modelResponses=[],textureResponses=[];
   page.on('pageerror',error=>errors.push(error.message));
   page.on('response',response=>{if(response.url().endsWith('.glb'))modelResponses.push({url:response.url(),status:response.status()});});
+  page.on('response',response=>{if(response.url().includes('/assets/textures/environment/')&&response.url().endsWith('.png'))textureResponses.push({url:response.url(),status:response.status()});});
   await page.setCacheEnabled(false);
   await page.setViewport({width:1440,height:900,deviceScaleFactor:1});
   await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'}]);
@@ -20,7 +21,8 @@ try {
     await page.waitForFunction(()=>!!window.__graphicsAudit && window.__phase2Environment?.ready);
     await pause(500);
     const state=await page.evaluate(()=>({environment:window.__graphicsAudit.environment(),metadata:window.__graphicsAudit.metadata(),
-      canvases:document.querySelectorAll('canvas').length,assetUrls:window.__phase2Environment.assetUrls}));
+      canvases:document.querySelectorAll('canvas').length,assetUrls:window.__phase2Environment.assetUrls,
+      textureUrls:window.__phase2Environment.textureUrls||[]}));
     assert.equal(state.canvases,1);
     assert.equal(state.environment.fallbacks,0);
     assert.equal(state.environment.landmarks.length,3);
@@ -39,6 +41,10 @@ try {
   for(const url of cycles[0].assetUrls) {
     assert.equal(modelResponses.filter(response=>response.url===url).length,1,'one GLB download across all four mounts');
     assert.equal(modelResponses.find(response=>response.url===url)?.status,200);
+  }
+  for(const url of cycles[0].textureUrls){
+    assert.equal(textureResponses.filter(response=>response.url===url).length,1,'one atlas download across all mounts');
+    assert.equal(textureResponses.find(response=>response.url===url)?.status,200);
   }
   await page.close();
   // Deliberately reject a real optional GLB URL. The rest of the real world,
@@ -64,25 +70,46 @@ try {
   await broken.waitForFunction(()=>window.__graphicsAudit.game().selectedSpaceId===1);
   await broken.screenshot({path:`${out}/optional-asset-fallback.png`});
   await broken.close();
+  // A missing cloud texture must also stay within its decorative boundary.
+  const cloudless=await browser.newPage(),cloudWarnings=[],cloudErrors=[];
+  cloudless.on('pageerror',error=>cloudErrors.push(error.message));
+  cloudless.on('console',message=>{if(message.type()==='warn')cloudWarnings.push(message.text());});
+  await cloudless.setViewport({width:1440,height:900,deviceScaleFactor:1});
+  await cloudless.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'}]);
+  await cloudless.evaluateOnNewDocument(()=>localStorage.setItem('monopoly-graphics-quality','low'));
+  await cloudless.setRequestInterception(true);
+  cloudless.on('request',request=>request.url().includes('/cloud-volume-v2-low.png')?request.abort('failed'):request.continue());
+  await cloudless.goto(`${origin}/?graphicsAudit#solo`);
+  await cloudless.waitForFunction(()=>window.__graphicsAudit?.environment().landmarks.length===3);
+  await pause(1000);
+  assert.ok(cloudWarnings.some(warning=>warning.includes('soft cloud atlas')));
+  assert.deepEqual(cloudErrors,[]);
+  const cloudTiles=await cloudless.evaluate(()=>window.__graphicsAudit.tiles());
+  cloudTiles.forEach(tile=>{assert.equal(tile.pickableTileId,tile.id);assert.equal(tile.occludedByEnvironment,false);});
+  const cloudTile=cloudTiles.find(tile=>tile.id===1);
+  await cloudless.mouse.click(cloudTile.x,cloudTile.y);
+  await cloudless.waitForFunction(()=>window.__graphicsAudit.game().selectedSpaceId===1);
+  await cloudless.close();
   let productionPrefix=null;
   if(process.env.PREFIX_URL) {
     const prefix=process.env.PREFIX_URL.replace(/\/$/,''),nested=await browser.newPage(),responses=[],prefixErrors=[];
-    nested.on('response',response=>{if(response.url().endsWith('.glb'))responses.push({url:response.url(),status:response.status()});});
+    nested.on('response',response=>{if(response.url().endsWith('.glb')||response.url().includes('/assets/textures/environment/'))responses.push({url:response.url(),status:response.status()});});
     nested.on('pageerror',error=>prefixErrors.push(error.message));
     await nested.setViewport({width:1440,height:900,deviceScaleFactor:1});
     await nested.evaluateOnNewDocument(()=>localStorage.setItem('monopoly-graphics-quality','low'));
     await nested.goto(`${prefix}/?graphicsAudit#solo`);
     await nested.waitForFunction(()=>window.__phase2Environment?.ready);
-    const assetUrls=await nested.evaluate(()=>window.__phase2Environment.assetUrls);
+    const assetUrls=await nested.evaluate(()=>[...window.__phase2Environment.assetUrls,...window.__phase2Environment.textureUrls]);
     assetUrls.forEach(url=>{
-      assert.ok(url.startsWith(`${prefix}/assets/models/environment/`),'GLB respects deployment subdirectory');
+      assert.ok(url.startsWith(`${prefix}/assets/`),'environment asset respects deployment subdirectory');
       assert.equal(responses.find(response=>response.url===url)?.status,200);
     });
     assert.deepEqual(prefixErrors,[]);
     productionPrefix={url:prefix,assetUrls,responses,errors:prefixErrors};
     await nested.close();
   }
-  const report={passed:true,mountCycles:cycles,modelResponses,missingOptionalAsset:{fallbackVisible:true,boardPointerSelection:true,warnings,faultErrors},productionPrefix};
+  const report={passed:true,mountCycles:cycles,modelResponses,textureResponses,missingOptionalAsset:{fallbackVisible:true,boardPointerSelection:true,warnings,faultErrors},
+    missingCloudAtlas:{boardPointerSelection:true,warnings:cloudWarnings,errors:cloudErrors},productionPrefix};
   await writeFile(`${out}/resilience.json`,JSON.stringify(report,null,2));
-  console.log('Four mount/unmount cycles and a failed optional GLB preserve board interaction.');
+  console.log('Four mounts, failed GLB/PNG fallbacks and deployment-prefix loading preserve board interaction.');
 } finally {await browser.close();}

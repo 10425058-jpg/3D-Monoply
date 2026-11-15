@@ -63,3 +63,12 @@ docs/premium-fantasy-world/evidence/after/summary.json
 # Art checkpoints are replaced by matched final production captures.
 docs/sunset-kingdom/evidence/checkpoint/
 docs/sunset-kingdom/evidence/regression/context-*.png
+docs/environment-visual-polish-v2/evidence/checkpoint/
+docs/environment-visual-polish-v2/evidence/regression/context-*.png
+# Retain the 13 matched art pairs and all raw timings, without duplicate audit captures.
+docs/environment-visual-polish-v2/evidence/before/*-overview.png
+docs/environment-visual-polish-v2/evidence/before/*-reference.png
+docs/environment-visual-polish-v2/evidence/before/*-wide.png
+docs/environment-visual-polish-v2/evidence/after/*-overview.png
+docs/environment-visual-polish-v2/evidence/after/*-reference.png
+docs/environment-visual-polish-v2/evidence/after/*-wide.png

@@ -1,0 +1,389 @@
+[
+  {
+    "quality": "low",
+    "camera": "overview",
+    "before": {
+      "fps": 71.39153671277741,
+      "frameP50": 13.800000000745058,
+      "frameP95": 17.899999998509884,
+      "renderCpuP50": 13.5,
+      "gpuP50": 11.43927,
+      "calls": 1832,
+      "triangles": 207153,
+      "textures": 15,
+      "geometries": 1853,
+      "samples": 358
+    },
+    "after": {
+      "fps": 89.93129969750476,
+      "frameP50": 10.699999999254942,
+      "frameP95": 13.700000002980232,
+      "renderCpuP50": 9.699999999254942,
+      "gpuP50": 10.37649,
+      "calls": 1827,
+      "triangles": 212639,
+      "textures": 15,
+      "geometries": 1854,
+      "samples": 449
+    },
+    "fpsChangePercent": 25.96913281096127,
+    "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "allocationsBefore": {
+      "geometryAttributeBytes": 9753546,
+      "instanceAttributeBytes": 28128,
+      "textureRgbaBytes": 1785855.9999999998
+    },
+    "allocationsAfter": {
+      "geometryAttributeBytes": 10147562,
+      "instanceAttributeBytes": 27872,
+      "textureRgbaBytes": 2026154.6666666665
+    },
+    "loadedGlbBytesBefore": 5055792,
+    "loadedGlbBytesAfter": 5541912,
+    "loadedCloudBytesAfter": 58433
+  },
+  {
+    "quality": "low",
+    "camera": "reference",
+    "before": {
+      "fps": 73.08770524629556,
+      "frameP50": 13.600000001490116,
+      "frameP95": 16,
+      "renderCpuP50": 13.300000000745058,
+      "gpuP50": 10.43918,
+      "calls": 1861,
+      "triangles": 232075,
+      "textures": 16,
+      "geometries": 1865,
+      "samples": 365
+    },
+    "after": {
+      "fps": 95.18477043671595,
+      "frameP50": 10.199999999254942,
+      "frameP95": 12.5,
+      "renderCpuP50": 10,
+      "gpuP50": 9.44716,
+      "calls": 1860,
+      "triangles": 233513,
+      "textures": 16,
+      "geometries": 1866,
+      "samples": 476
+    },
+    "fpsChangePercent": 30.233628372865606,
+    "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "allocationsBefore": {
+      "geometryAttributeBytes": 9753546,
+      "instanceAttributeBytes": 28128,
+      "textureRgbaBytes": 1785855.9999999998
+    },
+    "allocationsAfter": {
+      "geometryAttributeBytes": 10147562,
+      "instanceAttributeBytes": 27872,
+      "textureRgbaBytes": 2026154.6666666665
+    },
+    "loadedGlbBytesBefore": 5055792,
+    "loadedGlbBytesAfter": 5541912,
+    "loadedCloudBytesAfter": 58433
+  },
+  {
+    "quality": "low",
+    "camera": "wide",
+    "before": {
+      "fps": 71.7463625796518,
+      "frameP50": 14,
+      "frameP95": 15.900000002235174,
+      "renderCpuP50": 13.699999999254942,
+      "gpuP50": 8.77818,
+      "calls": 1866,
+      "triangles": 240289,
+      "textures": 16,
+      "geometries": 1868,
+      "samples": 358
+    },
+    "after": {
+      "fps": 93.75623379214043,
+      "frameP50": 10.400000002235174,
+      "frameP95": 12.600000001490116,
+      "renderCpuP50": 10.199999999254942,
+      "gpuP50": 6.3394,
+      "calls": 1867,
+      "triangles": 241731,
+      "textures": 16,
+      "geometries": 1869,
+      "samples": 470
+    },
+    "fpsChangePercent": 30.677333903936365,
+    "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "allocationsBefore": {
+      "geometryAttributeBytes": 9753546,
+      "instanceAttributeBytes": 28128,
+      "textureRgbaBytes": 1785855.9999999998
+    },
+    "allocationsAfter": {
+      "geometryAttributeBytes": 10147562,
+      "instanceAttributeBytes": 27872,
+      "textureRgbaBytes": 2026154.6666666665
+    },
+    "loadedGlbBytesBefore": 5055792,
+    "loadedGlbBytesAfter": 5541912,
+    "loadedCloudBytesAfter": 58433
+  },
+  {
+    "quality": "balanced",
+    "camera": "overview",
+    "before": {
+      "fps": 46.05803312174026,
+      "frameP50": 20.899999998509884,
+      "frameP95": 29.199999999254942,
+      "renderCpuP50": 20,
+      "gpuP50": 19.387,
+      "calls": 2761,
+      "triangles": 335476,
+      "textures": 16,
+      "geometries": 1856,
+      "samples": 230
+    },
+    "after": {
+      "fps": 50.485901861784846,
+      "frameP50": 19.699999999254942,
+      "frameP95": 24.900000002235174,
+      "renderCpuP50": 14.300000000745058,
+      "gpuP50": 18.65553,
+      "calls": 2752,
+      "triangles": 312111,
+      "textures": 16,
+      "geometries": 1853,
+      "samples": 253
+    },
+    "fpsChangePercent": 9.613673098764064,
+    "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "allocationsBefore": {
+      "geometryAttributeBytes": 14123722,
+      "instanceAttributeBytes": 30816,
+      "textureRgbaBytes": 3708245.333333335
+    },
+    "allocationsAfter": {
+      "geometryAttributeBytes": 14246338,
+      "instanceAttributeBytes": 30048,
+      "textureRgbaBytes": 4385450.666666668
+    },
+    "loadedGlbBytesBefore": 8140764,
+    "loadedGlbBytesAfter": 8961156,
+    "loadedCloudBytesAfter": 145285
+  },
+  {
+    "quality": "balanced",
+    "camera": "reference",
+    "before": {
+      "fps": 50.08715164385284,
+      "frameP50": 19.699999999254942,
+      "frameP95": 22.800000000745058,
+      "renderCpuP50": 19.300000000745058,
+      "gpuP50": 18.08141,
+      "calls": 2789,
+      "triangles": 376338,
+      "textures": 17,
+      "geometries": 1866,
+      "samples": 250
+    },
+    "after": {
+      "fps": 54.45336429699483,
+      "frameP50": 17.899999998509884,
+      "frameP95": 21.699999999254942,
+      "renderCpuP50": 15.600000001490116,
+      "gpuP50": 16.82212,
+      "calls": 2789,
+      "triangles": 388026,
+      "textures": 17,
+      "geometries": 1868,
+      "samples": 272
+    },
+    "fpsChangePercent": 8.717230886252336,
+    "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "allocationsBefore": {
+      "geometryAttributeBytes": 14123722,
+      "instanceAttributeBytes": 30816,
+      "textureRgbaBytes": 3708245.333333335
+    },
+    "allocationsAfter": {
+      "geometryAttributeBytes": 14246338,
+      "instanceAttributeBytes": 30048,
+      "textureRgbaBytes": 4385450.666666668
+    },
+    "loadedGlbBytesBefore": 8140764,
+    "loadedGlbBytesAfter": 8961156,
+    "loadedCloudBytesAfter": 145285
+  },
+  {
+    "quality": "balanced",
+    "camera": "wide",
+    "before": {
+      "fps": 51.88924950913252,
+      "frameP50": 19.100000001490116,
+      "frameP95": 21.699999999254942,
+      "renderCpuP50": 18.800000000745058,
+      "gpuP50": 17.592,
+      "calls": 2794,
+      "triangles": 389718,
+      "textures": 17,
+      "geometries": 1870,
+      "samples": 259
+    },
+    "after": {
+      "fps": 56.72398985360463,
+      "frameP50": 17,
+      "frameP95": 21.399999998509884,
+      "renderCpuP50": 16.699999999254942,
+      "gpuP50": 14.67851,
+      "calls": 2794,
+      "triangles": 401406,
+      "textures": 17,
+      "geometries": 1870,
+      "samples": 284
+    },
+    "fpsChangePercent": 9.317421990505359,
+    "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "allocationsBefore": {
+      "geometryAttributeBytes": 14123722,
+      "instanceAttributeBytes": 30816,
+      "textureRgbaBytes": 3708245.333333335
+    },
+    "allocationsAfter": {
+      "geometryAttributeBytes": 14246338,
+      "instanceAttributeBytes": 30048,
+      "textureRgbaBytes": 4385450.666666668
+    },
+    "loadedGlbBytesBefore": 8140764,
+    "loadedGlbBytesAfter": 8961156,
+    "loadedCloudBytesAfter": 145285
+  },
+  {
+    "quality": "high",
+    "camera": "overview",
+    "before": {
+      "fps": 41.99738772229478,
+      "frameP50": 22.900000002235174,
+      "frameP95": 33.100000001490116,
+      "renderCpuP50": 18.199999999254942,
+      "gpuP50": 21.71065,
+      "calls": 2761,
+      "triangles": 422406,
+      "textures": 17,
+      "geometries": 1866,
+      "samples": 209
+    },
+    "after": {
+      "fps": 45.209041808361675,
+      "frameP50": 22.100000001490116,
+      "frameP95": 23.900000002235174,
+      "renderCpuP50": 15.899999998509884,
+      "gpuP50": 20.911,
+      "calls": 2757,
+      "triangles": 459575,
+      "textures": 17,
+      "geometries": 1868,
+      "samples": 226
+    },
+    "fpsChangePercent": 7.647271081010487,
+    "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "allocationsBefore": {
+      "geometryAttributeBytes": 19888904,
+      "instanceAttributeBytes": 32480,
+      "textureRgbaBytes": 7269034.666666662
+    },
+    "allocationsAfter": {
+      "geometryAttributeBytes": 19781538,
+      "instanceAttributeBytes": 31200,
+      "textureRgbaBytes": 8492373.333333328
+    },
+    "loadedGlbBytesBefore": 12395648,
+    "loadedGlbBytesAfter": 13599344,
+    "loadedCloudBytesAfter": 262560
+  },
+  {
+    "quality": "high",
+    "camera": "reference",
+    "before": {
+      "fps": 46.176911544227885,
+      "frameP50": 21.400000002235174,
+      "frameP95": 25,
+      "renderCpuP50": 21,
+      "gpuP50": 19.95668,
+      "calls": 2799,
+      "triangles": 481247,
+      "textures": 18,
+      "geometries": 1876,
+      "samples": 231
+    },
+    "after": {
+      "fps": 49.675506770305674,
+      "frameP50": 19.900000002235174,
+      "frameP95": 22.200000002980232,
+      "renderCpuP50": 16,
+      "gpuP50": 18.81011,
+      "calls": 2799,
+      "triangles": 510326,
+      "textures": 18,
+      "geometries": 1878,
+      "samples": 248
+    },
+    "fpsChangePercent": 7.5765032980321,
+    "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "allocationsBefore": {
+      "geometryAttributeBytes": 19888904,
+      "instanceAttributeBytes": 32480,
+      "textureRgbaBytes": 7269034.666666662
+    },
+    "allocationsAfter": {
+      "geometryAttributeBytes": 19781538,
+      "instanceAttributeBytes": 31200,
+      "textureRgbaBytes": 8492373.333333328
+    },
+    "loadedGlbBytesBefore": 12395648,
+    "loadedGlbBytesAfter": 13599344,
+    "loadedCloudBytesAfter": 262560
+  },
+  {
+    "quality": "high",
+    "camera": "wide",
+    "before": {
+      "fps": 42.25323908124867,
+      "frameP50": 23.100000001490116,
+      "frameP95": 28.899999998509884,
+      "renderCpuP50": 22.699999999254942,
+      "gpuP50": 20.79231,
+      "calls": 2794,
+      "triangles": 495644,
+      "textures": 18,
+      "geometries": 1880,
+      "samples": 211
+    },
+    "after": {
+      "fps": 52.53027508222741,
+      "frameP50": 18.399999998509884,
+      "frameP95": 24.099999997764826,
+      "renderCpuP50": 18.100000001490116,
+      "gpuP50": 16.52466,
+      "calls": 2794,
+      "triangles": 524723,
+      "textures": 18,
+      "geometries": 1880,
+      "samples": 262
+    },
+    "fpsChangePercent": 24.32248089008524,
+    "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "allocationsBefore": {
+      "geometryAttributeBytes": 19888904,
+      "instanceAttributeBytes": 32480,
+      "textureRgbaBytes": 7269034.666666662
+    },
+    "allocationsAfter": {
+      "geometryAttributeBytes": 19781538,
+      "instanceAttributeBytes": 31200,
+      "textureRgbaBytes": 8492373.333333328
+    },
+    "loadedGlbBytesBefore": 12395648,
+    "loadedGlbBytesAfter": 13599344,
+    "loadedCloudBytesAfter": 262560
+  }
+]

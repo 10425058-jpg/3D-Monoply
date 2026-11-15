@@ -9,7 +9,7 @@ export const SUNSET_KINGDOM = {
   'crown-foundation': [{ position: [0, 0, 0], scale: 1 }],
   'royal-garden-dressing': [LEFT_ISLAND,RIGHT_ISLAND],
   'royal-island-citadel': [
-    { position: [-36, -23, -65], scale: 1.65, rotation: .13 },
+    { position: [-36, -24.5, -65], scale: 1.52, rotation: .13 },
     { position: [9, -23, 98], scale: 1.25, rotation: 3.0 },
     { position: [-71, -24, -37], scale: 1.15, rotation: 1.3 },
   ],

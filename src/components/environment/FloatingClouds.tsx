@@ -1,58 +1,77 @@
-import React, { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
+import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import type { EnvironmentQuality } from './environmentLayout';
 import { atmosphereCloudLayout } from './atmosphereLayout';
 import { mayAnimateEnvironment } from './environmentMotion';
 import { SKY_SUN_DIRECTION } from './sunConfig';
-import { createCloudAtlas } from './cloudAtlas';
+import { cloudAtlasTexture, cloudAtlasUrl } from './cloudAtlas';
 import { releaseInstanceBuffers } from './instanceResources';
 
-export function FloatingClouds({ quality, animate }: { quality: EnvironmentQuality; animate: boolean }) {
-  const ref = useRef<THREE.InstancedMesh>(null);
-  const atlas=useMemo(()=>createCloudAtlas(quality),[quality]);
-  const uniforms = useMemo(() => ({ uTime: { value: 0 }, uSun: { value: new THREE.Vector3(...SKY_SUN_DIRECTION) }, uCloud: {value:atlas} }), [atlas]);
+/** Eight noise-density volumes, one instanced pass. Sort only when the camera
+ * changes, preserving the actual world positions and each bank's identity. */
+export function FloatingClouds({ quality, animate }: { quality:EnvironmentQuality;animate:boolean }){
+  const ref=useRef<THREE.InstancedMesh>(null);
+  const source=useTexture(cloudAtlasUrl(quality));
+  const atlas=useMemo(()=>cloudAtlasTexture(source,quality),[source,quality]);
   useEffect(()=>()=>atlas.dispose(),[atlas]);
-  const clouds = useMemo(() => atmosphereCloudLayout(quality), [quality]);
-  useLayoutEffect(() => {
-    if (!ref.current) return;
-    const dummy = new THREE.Object3D();
-    clouds.forEach((cloud, i) => {
-      dummy.position.set(...cloud.position); dummy.scale.set(cloud.size[0], cloud.size[1], 1);
-      dummy.updateMatrix(); ref.current!.setMatrixAt(i, dummy.matrix);
-    });
+  const clouds=useMemo(()=>atmosphereCloudLayout(quality),[quality]);
+  const uniforms=useMemo(()=>({uTime:{value:0},uSun:{value:new THREE.Vector3(...SKY_SUN_DIRECTION)},uCloud:{value:atlas}}),[atlas]);
+  const sorting=useMemo(()=>({dummy:new THREE.Object3D(),previous:new THREE.Matrix4().makeScale(0,0,0),order:clouds.map((_,i)=>i),
+    data:new THREE.InstancedBufferAttribute(new Float32Array(clouds.length*4),4)}),[clouds]);
+  useLayoutEffect(()=>{
+    if(!ref.current)return;
     const instance=ref.current;
-    instance.instanceMatrix.needsUpdate = true; instance.computeBoundingSphere();
+    instance.geometry.setAttribute('cloudData',sorting.data);
     return()=>releaseInstanceBuffers(instance);
-  }, [clouds]);
-  useFrame((_, delta) => { if (mayAnimateEnvironment(animate)) uniforms.uTime.value += Math.min(delta, .1); });
-  return <instancedMesh ref={ref} name="kingdom-cloud-layers" args={[undefined, undefined, clouds.length]} renderOrder={2} raycast={() => {}}>
-    <planeGeometry args={[1, 1]} />
+  },[sorting]);
+  useFrame(({camera},delta)=>{
+    if(mayAnimateEnvironment(animate))uniforms.uTime.value+=Math.min(delta,.1);
+    const instance=ref.current;if(!instance||sorting.previous.equals(camera.matrixWorldInverse))return;
+    sorting.previous.copy(camera.matrixWorldInverse);
+    const view=camera.matrixWorldInverse.elements;
+    const depth=(i:number)=>{const p=clouds[i].position;return view[2]*p[0]+view[6]*p[1]+view[10]*p[2]+view[14];};
+    sorting.order.sort((a,b)=>depth(a)-depth(b));
+    sorting.order.forEach((index,slot)=>{
+      const cloud=clouds[index],dummy=sorting.dummy;
+      dummy.position.fromArray(cloud.position);dummy.scale.set(cloud.size[0],cloud.size[1],1);dummy.updateMatrix();
+      instance.setMatrixAt(slot,dummy.matrix);
+      sorting.data.setXYZW(slot,cloud.variant,cloud.opacity,cloud.layer,index*.731);
+    });
+    instance.instanceMatrix.needsUpdate=true;sorting.data.needsUpdate=true;
+    instance.computeBoundingSphere();instance.boundingSphere!.radius+=1.5;
+  });
+  return <instancedMesh ref={ref} name="kingdom-cloud-layers" args={[undefined,undefined,clouds.length]} renderOrder={2} raycast={()=>{}}>
+    <planeGeometry args={[1,1]} />
     <shaderMaterial transparent depthWrite={false} uniforms={uniforms}
-      vertexShader={`uniform float uTime; uniform vec3 uSun; varying vec2 vUv; varying float vSunGlow; varying float vSeed; varying float vOpacity;
-        void main(){vUv=uv;
+      vertexShader={`attribute vec4 cloudData;uniform float uTime;uniform vec3 uSun;
+        varying vec2 vUv;varying vec4 vData;varying float vWarm;
+        void main(){vUv=uv;vData=cloudData;
           vec4 center=instanceMatrix*vec4(0.,0.,0.,1.);
-          float phase=center.x*.07+center.z*.03;
-          vSeed=fract(sin(phase*13.17)*43758.5453);
-          vOpacity=mix(.87,.66,smoothstep(55.,180.,length(center.xz)));
-          center.x+=sin(uTime*.025+phase)*1.2;
-          vec3 skyDirection=normalize((modelMatrix*center).xyz-cameraPosition);
-          vSunGlow=pow(max(0.,dot(skyDirection,uSun)),24.);
+          center.x+=sin(uTime*.018+cloudData.w)*.8;
+          center.z+=cos(uTime*.012+cloudData.w)*.45;
+          vec3 direction=normalize(center.xyz-cameraPosition);
+          vWarm=pow(max(0.,dot(direction,uSun)),9.);
           vec4 mv=modelViewMatrix*center;
-          vec2 size=vec2(length(instanceMatrix[0].xyz),length(instanceMatrix[1].xyz));
-          mv.xy+=position.xy*size;
+          mv.xy+=position.xy*vec2(length(instanceMatrix[0].xyz),length(instanceMatrix[1].xyz));
           gl_Position=projectionMatrix*mv;
         }`}
-      fragmentShader={`uniform sampler2D uCloud;varying vec2 vUv; varying float vSunGlow; varying float vSeed; varying float vOpacity;
+      fragmentShader={`uniform sampler2D uCloud;uniform float uTime;
+        varying vec2 vUv;varying vec4 vData;varying float vWarm;
         void main(){
-          float index=floor(vSeed*3.99);
-          vec2 cell=vec2(mod(index,2.),floor(index/2.));
-          vec4 cloud=texture2D(uCloud,(cell+clamp(vUv,.004,.996))*.5);
-          float alpha=cloud.a*vOpacity;
+          vec2 uv=vUv;
+          uv.x+=sin(uv.y*5.+uTime*.045+vData.w)*.004;
+          vec2 cell=vec2(mod(vData.x,4.),floor(vData.x/4.));
+          vec4 cloud=texture2D(uCloud,(cell+clamp(uv,.008,.992))/vec2(4.,2.));
+          float edge=smoothstep(0.,.035,uv.x)*smoothstep(0.,.035,1.-uv.x);
+          float alpha=cloud.a*vData.y*edge;
           if(alpha<.002)discard;
-          vec3 shade=cloud.rgb*1.22;
-          shade=mix(shade,shade*vec3(1.3,1.04,.79),vSunGlow*.6);
-          gl_FragColor=vec4(shade,alpha);
+          vec3 color=cloud.rgb;
+          color=mix(color,color*vec3(1.15,1.02,.86),vWarm*.56);
+          // Distant banks diffuse into the same lavender-blue atmospheric veil.
+          color=mix(color,vec3(.58,.62,.78),vData.z*.085);
+          gl_FragColor=vec4(color,alpha);
           #include <tonemapping_fragment>
           #include <colorspace_fragment>
         }`} />

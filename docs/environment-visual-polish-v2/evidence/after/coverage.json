@@ -1,0 +1,2861 @@
+{
+  "method": "Conservative projected exported AABBs; subtract HUD and board AABB. Proxy for framing, not a pixel visibility measurement.",
+  "viewport": [
+    1440,
+    900
+  ],
+  "safeRect": {
+    "x": 244,
+    "y": 138,
+    "w": 1092,
+    "h": 598
+  },
+  "unchangedControls": {
+    "fov": 40,
+    "minPolar": 0.04,
+    "maxPolar": 1.1855066617319974,
+    "minDistance": 16,
+    "normalMaxDistance": 85,
+    "azimuth": "unrestricted"
+  },
+  "world": [
+    {
+      "id": "royal-island-left:0",
+      "modelId": "royal-island-left-v2",
+      "site": {
+        "position": [
+          -29,
+          -24,
+          -20
+        ],
+        "scale": 1.3,
+        "rotation": 0.6
+      },
+      "bounds": {
+        "min": [
+          -9.869858741760254,
+          -6.7281880378723145,
+          -5.3680739402771
+        ],
+        "max": [
+          10.708647727966309,
+          8.16100025177002,
+          6.63761043548584
+        ]
+      }
+    },
+    {
+      "id": "royal-island-right:1",
+      "modelId": "royal-island-right-v2",
+      "site": {
+        "position": [
+          28,
+          -22,
+          -20
+        ],
+        "scale": 1.3,
+        "rotation": 0.16
+      },
+      "bounds": {
+        "min": [
+          -8.777948379516602,
+          -7.54813289642334,
+          -8.277216911315918
+        ],
+        "max": [
+          10.206801414489746,
+          9.195999145507812,
+          7.943830966949463
+        ]
+      }
+    },
+    {
+      "id": "sky-observatory:2",
+      "modelId": "sky-observatory",
+      "site": {
+        "position": [
+          -64,
+          -30,
+          -91
+        ],
+        "scale": 1.05,
+        "rotation": -0.12
+      },
+      "bounds": {
+        "min": [
+          -5.802138805389404,
+          -7.014663219451904,
+          -4.839173793792725
+        ],
+        "max": [
+          6.942608833312988,
+          6.679999828338623,
+          5.9445576667785645
+        ]
+      }
+    },
+    {
+      "id": "sky-observatory:3",
+      "modelId": "sky-observatory",
+      "site": {
+        "position": [
+          -13,
+          -31,
+          37
+        ],
+        "scale": 1.12,
+        "rotation": 2.55
+      },
+      "bounds": {
+        "min": [
+          -5.802138805389404,
+          -7.014663219451904,
+          -4.839173793792725
+        ],
+        "max": [
+          6.942608833312988,
+          6.679999828338623,
+          5.9445576667785645
+        ]
+      }
+    },
+    {
+      "id": "sky-observatory:4",
+      "modelId": "sky-observatory",
+      "site": {
+        "position": [
+          0,
+          -45,
+          -43
+        ],
+        "scale": 0.95,
+        "rotation": 0.45
+      },
+      "bounds": {
+        "min": [
+          -5.802138805389404,
+          -7.014663219451904,
+          -4.839173793792725
+        ],
+        "max": [
+          6.942608833312988,
+          6.679999828338623,
+          5.9445576667785645
+        ]
+      }
+    },
+    {
+      "id": "sky-observatory:5",
+      "modelId": "sky-observatory",
+      "site": {
+        "position": [
+          65,
+          -16,
+          25
+        ],
+        "scale": 0.95,
+        "rotation": -1.4
+      },
+      "bounds": {
+        "min": [
+          -5.802138805389404,
+          -7.014663219451904,
+          -4.839173793792725
+        ],
+        "max": [
+          6.942608833312988,
+          6.679999828338623,
+          5.9445576667785645
+        ]
+      }
+    },
+    {
+      "id": "sky-ruins:6",
+      "modelId": "sky-ruins",
+      "site": {
+        "position": [
+          55,
+          -28,
+          -108
+        ],
+        "scale": 0.95,
+        "rotation": 0.18
+      },
+      "bounds": {
+        "min": [
+          -6.689067363739014,
+          -7.015038967132568,
+          -5.093739032745361
+        ],
+        "max": [
+          6.950748443603516,
+          4.559999942779541,
+          5.731382846832275
+        ]
+      }
+    },
+    {
+      "id": "sky-ruins:7",
+      "modelId": "sky-ruins",
+      "site": {
+        "position": [
+          15,
+          -31,
+          37
+        ],
+        "scale": 1.16,
+        "rotation": -2.5
+      },
+      "bounds": {
+        "min": [
+          -6.689067363739014,
+          -7.015038967132568,
+          -5.093739032745361
+        ],
+        "max": [
+          6.950748443603516,
+          4.559999942779541,
+          5.731382846832275
+        ]
+      }
+    },
+    {
+      "id": "sky-ruins:8",
+      "modelId": "sky-ruins",
+      "site": {
+        "position": [
+          57,
+          -27,
+          95
+        ],
+        "scale": 1.25,
+        "rotation": 2.4
+      },
+      "bounds": {
+        "min": [
+          -6.689067363739014,
+          -7.015038967132568,
+          -5.093739032745361
+        ],
+        "max": [
+          6.950748443603516,
+          4.559999942779541,
+          5.731382846832275
+        ]
+      }
+    },
+    {
+      "id": "sky-hamlet:9",
+      "modelId": "sky-hamlet",
+      "site": {
+        "position": [
+          -17,
+          -31,
+          -101
+        ],
+        "scale": 1.05,
+        "rotation": 0.12
+      },
+      "bounds": {
+        "min": [
+          -8.029047966003418,
+          -7.012732028961182,
+          -3.9333808422088623
+        ],
+        "max": [
+          9.144683837890625,
+          3.4358954429626465,
+          4.715536117553711
+        ]
+      }
+    },
+    {
+      "id": "sky-hamlet:10",
+      "modelId": "sky-hamlet",
+      "site": {
+        "position": [
+          58,
+          -38,
+          -36
+        ],
+        "scale": 1.05,
+        "rotation": -0.32
+      },
+      "bounds": {
+        "min": [
+          -8.029047966003418,
+          -7.012732028961182,
+          -3.9333808422088623
+        ],
+        "max": [
+          9.144683837890625,
+          3.4358954429626465,
+          4.715536117553711
+        ]
+      }
+    },
+    {
+      "id": "sky-hamlet:11",
+      "modelId": "sky-hamlet",
+      "site": {
+        "position": [
+          -56,
+          -28,
+          -2
+        ],
+        "scale": 0.95,
+        "rotation": 1.2
+      },
+      "bounds": {
+        "min": [
+          -8.029047966003418,
+          -7.012732028961182,
+          -3.9333808422088623
+        ],
+        "max": [
+          9.144683837890625,
+          3.4358954429626465,
+          4.715536117553711
+        ]
+      }
+    },
+    {
+      "id": "royal-island-citadel:12",
+      "modelId": "royal-island-citadel-v2",
+      "site": {
+        "position": [
+          -36,
+          -24.5,
+          -65
+        ],
+        "scale": 1.52,
+        "rotation": 0.13
+      },
+      "bounds": {
+        "min": [
+          -6.74851655960083,
+          -4.812598705291748,
+          -5.148928642272949
+        ],
+        "max": [
+          12.422968864440918,
+          11.489999771118164,
+          5.7715535163879395
+        ]
+      }
+    },
+    {
+      "id": "royal-island-citadel:13",
+      "modelId": "royal-island-citadel-v2",
+      "site": {
+        "position": [
+          9,
+          -23,
+          98
+        ],
+        "scale": 1.25,
+        "rotation": 3
+      },
+      "bounds": {
+        "min": [
+          -6.74851655960083,
+          -4.812598705291748,
+          -5.148928642272949
+        ],
+        "max": [
+          12.422968864440918,
+          11.489999771118164,
+          5.7715535163879395
+        ]
+      }
+    },
+    {
+      "id": "royal-island-citadel:14",
+      "modelId": "royal-island-citadel-v2",
+      "site": {
+        "position": [
+          -71,
+          -24,
+          -37
+        ],
+        "scale": 1.15,
+        "rotation": 1.3
+      },
+      "bounds": {
+        "min": [
+          -6.74851655960083,
+          -4.812598705291748,
+          -5.148928642272949
+        ],
+        "max": [
+          12.422968864440918,
+          11.489999771118164,
+          5.7715535163879395
+        ]
+      }
+    },
+    {
+      "id": "sky-windmill:15",
+      "modelId": "sky-windmill",
+      "site": {
+        "position": [
+          28,
+          -28,
+          -110
+        ],
+        "scale": 1.65,
+        "rotation": -0.18
+      },
+      "bounds": {
+        "min": [
+          -8.029047966003418,
+          -7.012732028961182,
+          -4.040381908416748
+        ],
+        "max": [
+          9.144683837890625,
+          6.372946739196777,
+          4.715536117553711
+        ]
+      }
+    },
+    {
+      "id": "sky-windmill:16",
+      "modelId": "sky-windmill",
+      "site": {
+        "position": [
+          -74,
+          -18,
+          18
+        ],
+        "scale": 1.2,
+        "rotation": 1.65
+      },
+      "bounds": {
+        "min": [
+          -8.029047966003418,
+          -7.012732028961182,
+          -4.040381908416748
+        ],
+        "max": [
+          9.144683837890625,
+          6.372946739196777,
+          4.715536117553711
+        ]
+      }
+    },
+    {
+      "id": "sky-windmill:17",
+      "modelId": "sky-windmill",
+      "site": {
+        "position": [
+          50,
+          -24,
+          68
+        ],
+        "scale": 1.2,
+        "rotation": -2.9
+      },
+      "bounds": {
+        "min": [
+          -8.029047966003418,
+          -7.012732028961182,
+          -4.040381908416748
+        ],
+        "max": [
+          9.144683837890625,
+          6.372946739196777,
+          4.715536117553711
+        ]
+      }
+    },
+    {
+      "id": "sky-garden:18",
+      "modelId": "sky-garden",
+      "site": {
+        "position": [
+          38,
+          -23,
+          -68
+        ],
+        "scale": 1.6,
+        "rotation": -0.2
+      },
+      "bounds": {
+        "min": [
+          -6.468299388885498,
+          -7.014663219451904,
+          -4.839173793792725
+        ],
+        "max": [
+          6.942608833312988,
+          5.450204372406006,
+          5.9445576667785645
+        ]
+      }
+    },
+    {
+      "id": "sky-garden:19",
+      "modelId": "sky-garden",
+      "site": {
+        "position": [
+          33,
+          -27,
+          5
+        ],
+        "scale": 1.3,
+        "rotation": -0.8
+      },
+      "bounds": {
+        "min": [
+          -6.468299388885498,
+          -7.014663219451904,
+          -4.839173793792725
+        ],
+        "max": [
+          6.942608833312988,
+          5.450204372406006,
+          5.9445576667785645
+        ]
+      }
+    },
+    {
+      "id": "sky-garden:20",
+      "modelId": "sky-garden",
+      "site": {
+        "position": [
+          -35,
+          -31,
+          9
+        ],
+        "scale": 1.15,
+        "rotation": 1.1
+      },
+      "bounds": {
+        "min": [
+          -6.468299388885498,
+          -7.014663219451904,
+          -4.839173793792725
+        ],
+        "max": [
+          6.942608833312988,
+          5.450204372406006,
+          5.9445576667785645
+        ]
+      }
+    },
+    {
+      "id": "sky-garden:21",
+      "modelId": "sky-garden",
+      "site": {
+        "position": [
+          -48,
+          -26,
+          64
+        ],
+        "scale": 1.15,
+        "rotation": 2.5
+      },
+      "bounds": {
+        "min": [
+          -6.468299388885498,
+          -7.014663219451904,
+          -4.839173793792725
+        ],
+        "max": [
+          6.942608833312988,
+          5.450204372406006,
+          5.9445576667785645
+        ]
+      }
+    }
+  ],
+  "intersections": [],
+  "samples": [
+    {
+      "azimuthDegrees": 0,
+      "elevationDegrees": 31.512678732195283,
+      "distance": 50,
+      "camera": [
+        0,
+        26.83436144653296,
+        42.62622610297528
+      ],
+      "readableLandmarks": 10,
+      "left": 4,
+      "right": 6,
+      "hudClipped": 4,
+      "candidates": [
+        {
+          "id": "royal-island-left:0",
+          "clearArea": 24170,
+          "hudFraction": 0.6253003074192193,
+          "screen": [
+            390,
+            553
+          ]
+        },
+        {
+          "id": "royal-island-right:1",
+          "clearArea": 82972,
+          "hudFraction": 0.4577033804903323,
+          "screen": [
+            1129,
+            534
+          ]
+        },
+        {
+          "id": "sky-observatory:2",
+          "clearArea": 2603,
+          "hudFraction": 0.9128653910121596,
+          "screen": [
+            252,
+            270
+          ]
+        },
+        {
+          "id": "sky-observatory:4",
+          "clearArea": 865,
+          "hudFraction": 0.06176163289890191,
+          "screen": [
+            730,
+            633
+          ]
+        },
+        {
+          "id": "sky-ruins:6",
+          "clearArea": 17455,
+          "hudFraction": 0,
+          "screen": [
+            1156,
+            209
+          ]
+        },
+        {
+          "id": "sky-hamlet:9",
+          "clearArea": 3006,
+          "hudFraction": 0,
+          "screen": [
+            587,
+            257
+          ]
+        },
+        {
+          "id": "sky-hamlet:10",
+          "clearArea": 8087,
+          "hudFraction": 0.8770875494982933,
+          "screen": [
+            1315,
+            638
+          ]
+        },
+        {
+          "id": "royal-island-citadel:12",
+          "clearArea": 59264,
+          "hudFraction": 0.27203959467083605,
+          "screen": [
+            397,
+            289
+          ]
+        },
+        {
+          "id": "sky-windmill:15",
+          "clearArea": 31170,
+          "hudFraction": 0.21366855635756654,
+          "screen": [
+            950,
+            224
+          ]
+        },
+        {
+          "id": "sky-garden:18",
+          "clearArea": 58218,
+          "hudFraction": 0,
+          "screen": [
+            1128,
+            313
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 45,
+      "elevationDegrees": 31.512678732195283,
+      "distance": 50,
+      "camera": [
+        30.14129353380484,
+        26.83436144653296,
+        30.14129353380485
+      ],
+      "readableLandmarks": 8,
+      "left": 3,
+      "right": 5,
+      "hudClipped": 3,
+      "candidates": [
+        {
+          "id": "royal-island-right:1",
+          "clearArea": 33468,
+          "hudFraction": 0.9415060950630739,
+          "screen": [
+            1218,
+            632
+          ]
+        },
+        {
+          "id": "sky-observatory:2",
+          "clearArea": 759,
+          "hudFraction": 0.010357086980724017,
+          "screen": [
+            870,
+            215
+          ]
+        },
+        {
+          "id": "sky-observatory:4",
+          "clearArea": 2761,
+          "hudFraction": 0.542174711590381,
+          "screen": [
+            1104,
+            681
+          ]
+        },
+        {
+          "id": "sky-hamlet:9",
+          "clearArea": 26493,
+          "hudFraction": 0.12924881960574175,
+          "screen": [
+            1243,
+            322
+          ]
+        },
+        {
+          "id": "sky-hamlet:11",
+          "clearArea": 4241,
+          "hudFraction": 0.4486205611107119,
+          "screen": [
+            311,
+            509
+          ]
+        },
+        {
+          "id": "royal-island-citadel:12",
+          "clearArea": 30751,
+          "hudFraction": 0.14917979764180056,
+          "screen": [
+            979,
+            294
+          ]
+        },
+        {
+          "id": "royal-island-citadel:14",
+          "clearArea": 17095,
+          "hudFraction": 0.12387009146218875,
+          "screen": [
+            510,
+            248
+          ]
+        },
+        {
+          "id": "sky-garden:20",
+          "clearArea": 3642,
+          "hudFraction": 0.739601487303527,
+          "screen": [
+            323,
+            651
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 90,
+      "elevationDegrees": 31.512678732195283,
+      "distance": 50,
+      "camera": [
+        42.62622610297528,
+        26.83436144653296,
+        2.610103567837002e-15
+      ],
+      "readableLandmarks": 4,
+      "left": 2,
+      "right": 2,
+      "hudClipped": 1,
+      "candidates": [
+        {
+          "id": "royal-island-left:0",
+          "clearArea": 60636,
+          "hudFraction": 0.12354698196406133,
+          "screen": [
+            1031,
+            523
+          ]
+        },
+        {
+          "id": "sky-observatory:3",
+          "clearArea": 9615,
+          "hudFraction": 0.9220057965534707,
+          "screen": [
+            283,
+            660
+          ]
+        },
+        {
+          "id": "royal-island-citadel:14",
+          "clearArea": 60294,
+          "hudFraction": 0.012108885810480974,
+          "screen": [
+            1141,
+            262
+          ]
+        },
+        {
+          "id": "sky-windmill:16",
+          "clearArea": 25768,
+          "hudFraction": 0.05115281994035947,
+          "screen": [
+            539,
+            232
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 135,
+      "elevationDegrees": 31.512678732195283,
+      "distance": 50,
+      "camera": [
+        30.14129353380485,
+        26.83436144653296,
+        -30.14129353380484
+      ],
+      "readableLandmarks": 4,
+      "left": 1,
+      "right": 3,
+      "hudClipped": 2,
+      "candidates": [
+        {
+          "id": "royal-island-left:0",
+          "clearArea": 42793,
+          "hudFraction": 0.8519394077350456,
+          "screen": [
+            1235,
+            603
+          ]
+        },
+        {
+          "id": "sky-ruins:7",
+          "clearArea": 3063,
+          "hudFraction": 0.9110636858698729,
+          "screen": [
+            283,
+            664
+          ]
+        },
+        {
+          "id": "sky-hamlet:11",
+          "clearArea": 38147,
+          "hudFraction": 0.1539446694616654,
+          "screen": [
+            1226,
+            536
+          ]
+        },
+        {
+          "id": "sky-windmill:16",
+          "clearArea": 53100,
+          "hudFraction": 0,
+          "screen": [
+            1157,
+            269
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 180,
+      "elevationDegrees": 31.512678732195283,
+      "distance": 50,
+      "camera": [
+        5.220207135674004e-15,
+        26.83436144653296,
+        -42.62622610297528
+      ],
+      "readableLandmarks": 6,
+      "left": 4,
+      "right": 2,
+      "hudClipped": 4,
+      "candidates": [
+        {
+          "id": "sky-ruins:8",
+          "clearArea": 16248,
+          "hudFraction": 0.5507275197875796,
+          "screen": [
+            290,
+            246
+          ]
+        },
+        {
+          "id": "royal-island-citadel:13",
+          "clearArea": 5559,
+          "hudFraction": 0.41551104256658056,
+          "screen": [
+            667,
+            202
+          ]
+        },
+        {
+          "id": "sky-windmill:17",
+          "clearArea": 17197,
+          "hudFraction": 0.646890249659889,
+          "screen": [
+            292,
+            308
+          ]
+        },
+        {
+          "id": "sky-garden:19",
+          "clearArea": 9164,
+          "hudFraction": 0.9312402527687093,
+          "screen": [
+            299,
+            665
+          ]
+        },
+        {
+          "id": "sky-garden:20",
+          "clearArea": 20037,
+          "hudFraction": 0.8413837043412457,
+          "screen": [
+            1236,
+            686
+          ]
+        },
+        {
+          "id": "sky-garden:21",
+          "clearArea": 47661,
+          "hudFraction": 0.020320167844085524,
+          "screen": [
+            1221,
+            354
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 225,
+      "elevationDegrees": 31.512678732195283,
+      "distance": 50,
+      "camera": [
+        -30.14129353380484,
+        26.83436144653296,
+        -30.141293533804852
+      ],
+      "readableLandmarks": 6,
+      "left": 2,
+      "right": 4,
+      "hudClipped": 3,
+      "candidates": [
+        {
+          "id": "royal-island-right:1",
+          "clearArea": 6915,
+          "hudFraction": 0.9036353442923144,
+          "screen": [
+            325,
+            574
+          ]
+        },
+        {
+          "id": "sky-observatory:3",
+          "clearArea": 27274,
+          "hudFraction": 0.6772409777372206,
+          "screen": [
+            1218,
+            652
+          ]
+        },
+        {
+          "id": "sky-observatory:5",
+          "clearArea": 23387,
+          "hudFraction": 0,
+          "screen": [
+            415,
+            246
+          ]
+        },
+        {
+          "id": "sky-ruins:8",
+          "clearArea": 8836,
+          "hudFraction": 0.0698370769294615,
+          "screen": [
+            934,
+            212
+          ]
+        },
+        {
+          "id": "royal-island-citadel:13",
+          "clearArea": 32568,
+          "hudFraction": 0.7026695338653346,
+          "screen": [
+            1272,
+            265
+          ]
+        },
+        {
+          "id": "sky-windmill:17",
+          "clearArea": 2210,
+          "hudFraction": 0,
+          "screen": [
+            845,
+            251
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 270,
+      "elevationDegrees": 31.512678732195283,
+      "distance": 50,
+      "camera": [
+        -42.62622610297528,
+        26.83436144653296,
+        -7.830310703511004e-15
+      ],
+      "readableLandmarks": 5,
+      "left": 2,
+      "right": 3,
+      "hudClipped": 1,
+      "candidates": [
+        {
+          "id": "royal-island-right:1",
+          "clearArea": 40732,
+          "hudFraction": 0.15095232659708457,
+          "screen": [
+            422,
+            504
+          ]
+        },
+        {
+          "id": "sky-observatory:5",
+          "clearArea": 29726,
+          "hudFraction": 0,
+          "screen": [
+            1004,
+            241
+          ]
+        },
+        {
+          "id": "sky-ruins:7",
+          "clearArea": 29855,
+          "hudFraction": 0.7768645366879494,
+          "screen": [
+            1223,
+            663
+          ]
+        },
+        {
+          "id": "sky-hamlet:10",
+          "clearArea": 11699,
+          "hudFraction": 0,
+          "screen": [
+            351,
+            496
+          ]
+        },
+        {
+          "id": "sky-garden:19",
+          "clearArea": 733,
+          "hudFraction": 0,
+          "screen": [
+            798,
+            558
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 315,
+      "elevationDegrees": 31.512678732195283,
+      "distance": 50,
+      "camera": [
+        -30.141293533804852,
+        26.83436144653296,
+        30.141293533804834
+      ],
+      "readableLandmarks": 7,
+      "left": 5,
+      "right": 2,
+      "hudClipped": 3,
+      "candidates": [
+        {
+          "id": "royal-island-left:0",
+          "clearArea": 3047,
+          "hudFraction": 0.9857743203325254,
+          "screen": [
+            280,
+            665
+          ]
+        },
+        {
+          "id": "royal-island-right:1",
+          "clearArea": 3424,
+          "hudFraction": 0,
+          "screen": [
+            799,
+            475
+          ]
+        },
+        {
+          "id": "sky-observatory:4",
+          "clearArea": 2626,
+          "hudFraction": 0.525732039877727,
+          "screen": [
+            350,
+            675
+          ]
+        },
+        {
+          "id": "sky-ruins:6",
+          "clearArea": 14901,
+          "hudFraction": 0.08153998501315862,
+          "screen": [
+            438,
+            194
+          ]
+        },
+        {
+          "id": "sky-windmill:15",
+          "clearArea": 21804,
+          "hudFraction": 0.5745869582575931,
+          "screen": [
+            319,
+            253
+          ]
+        },
+        {
+          "id": "sky-garden:18",
+          "clearArea": 16032,
+          "hudFraction": 0,
+          "screen": [
+            516,
+            284
+          ]
+        },
+        {
+          "id": "sky-garden:19",
+          "clearArea": 36859,
+          "hudFraction": 0.3296589253662082,
+          "screen": [
+            1153,
+            622
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 0,
+      "elevationDegrees": 31.512678732195283,
+      "distance": 80,
+      "camera": [
+        0,
+        42.51497831445274,
+        68.20196176476045
+      ],
+      "readableLandmarks": 11,
+      "left": 4,
+      "right": 7,
+      "hudClipped": 1,
+      "candidates": [
+        {
+          "id": "royal-island-left:0",
+          "clearArea": 95983,
+          "hudFraction": 0.17373732719077095,
+          "screen": [
+            414,
+            563
+          ]
+        },
+        {
+          "id": "royal-island-right:1",
+          "clearArea": 126494,
+          "hudFraction": 0,
+          "screen": [
+            1072,
+            547
+          ]
+        },
+        {
+          "id": "sky-observatory:2",
+          "clearArea": 12256,
+          "hudFraction": 0.36654858008782587,
+          "screen": [
+            290,
+            301
+          ]
+        },
+        {
+          "id": "sky-observatory:4",
+          "clearArea": 10119,
+          "hudFraction": 0,
+          "screen": [
+            727,
+            599
+          ]
+        },
+        {
+          "id": "sky-ruins:6",
+          "clearArea": 11977,
+          "hudFraction": 0,
+          "screen": [
+            1086,
+            247
+          ]
+        },
+        {
+          "id": "sky-hamlet:9",
+          "clearArea": 8730,
+          "hudFraction": 0,
+          "screen": [
+            610,
+            289
+          ]
+        },
+        {
+          "id": "sky-hamlet:10",
+          "clearArea": 27487,
+          "hudFraction": 0.21689383542527896,
+          "screen": [
+            1253,
+            603
+          ]
+        },
+        {
+          "id": "royal-island-citadel:12",
+          "clearArea": 68409,
+          "hudFraction": 0,
+          "screen": [
+            440,
+            309
+          ]
+        },
+        {
+          "id": "sky-windmill:15",
+          "clearArea": 36828,
+          "hudFraction": 0,
+          "screen": [
+            911,
+            240
+          ]
+        },
+        {
+          "id": "sky-garden:18",
+          "clearArea": 46277,
+          "hudFraction": 0,
+          "screen": [
+            1041,
+            339
+          ]
+        },
+        {
+          "id": "sky-garden:19",
+          "clearArea": 31933,
+          "hudFraction": 0.7749289696899293,
+          "screen": [
+            1168,
+            689
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 45,
+      "elevationDegrees": 31.512678732195283,
+      "distance": 80,
+      "camera": [
+        48.226069654087745,
+        42.51497831445274,
+        48.22606965408775
+      ],
+      "readableLandmarks": 8,
+      "left": 3,
+      "right": 5,
+      "hudClipped": 1,
+      "candidates": [
+        {
+          "id": "royal-island-right:1",
+          "clearArea": 78975,
+          "hudFraction": 0.7118673156465403,
+          "screen": [
+            1155,
+            620
+          ]
+        },
+        {
+          "id": "sky-observatory:2",
+          "clearArea": 11797,
+          "hudFraction": 0,
+          "screen": [
+            846,
+            251
+          ]
+        },
+        {
+          "id": "sky-observatory:4",
+          "clearArea": 16336,
+          "hudFraction": 0.1768109817630792,
+          "screen": [
+            1014,
+            661
+          ]
+        },
+        {
+          "id": "sky-hamlet:9",
+          "clearArea": 22523,
+          "hudFraction": 0,
+          "screen": [
+            1161,
+            344
+          ]
+        },
+        {
+          "id": "sky-hamlet:11",
+          "clearArea": 25041,
+          "hudFraction": 0,
+          "screen": [
+            363,
+            495
+          ]
+        },
+        {
+          "id": "royal-island-citadel:12",
+          "clearArea": 54839,
+          "hudFraction": 0,
+          "screen": [
+            925,
+            302
+          ]
+        },
+        {
+          "id": "royal-island-citadel:14",
+          "clearArea": 28032,
+          "hudFraction": 0,
+          "screen": [
+            551,
+            273
+          ]
+        },
+        {
+          "id": "sky-garden:20",
+          "clearArea": 34735,
+          "hudFraction": 0.17292176981522556,
+          "screen": [
+            382,
+            636
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 90,
+      "elevationDegrees": 31.512678732195283,
+      "distance": 80,
+      "camera": [
+        68.20196176476045,
+        42.51497831445274,
+        4.1761657085392025e-15
+      ],
+      "readableLandmarks": 6,
+      "left": 3,
+      "right": 3,
+      "hudClipped": 2,
+      "candidates": [
+        {
+          "id": "royal-island-left:0",
+          "clearArea": 75123,
+          "hudFraction": 0,
+          "screen": [
+            944,
+            522
+          ]
+        },
+        {
+          "id": "sky-observatory:3",
+          "clearArea": 34133,
+          "hudFraction": 0.5179360884664463,
+          "screen": [
+            335,
+            642
+          ]
+        },
+        {
+          "id": "royal-island-citadel:12",
+          "clearArea": 45034,
+          "hudFraction": 0.7356476420165827,
+          "screen": [
+            1279,
+            468
+          ]
+        },
+        {
+          "id": "royal-island-citadel:14",
+          "clearArea": 43266,
+          "hudFraction": 0,
+          "screen": [
+            1052,
+            298
+          ]
+        },
+        {
+          "id": "sky-windmill:16",
+          "clearArea": 25847,
+          "hudFraction": 0,
+          "screen": [
+            576,
+            271
+          ]
+        },
+        {
+          "id": "sky-garden:20",
+          "clearArea": 9455,
+          "hudFraction": 0,
+          "screen": [
+            627,
+            550
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 135,
+      "elevationDegrees": 31.512678732195283,
+      "distance": 80,
+      "camera": [
+        48.22606965408775,
+        42.51497831445274,
+        -48.226069654087745
+      ],
+      "readableLandmarks": 6,
+      "left": 2,
+      "right": 4,
+      "hudClipped": 0,
+      "candidates": [
+        {
+          "id": "royal-island-left:0",
+          "clearArea": 79946,
+          "hudFraction": 0.3808465293031138,
+          "screen": [
+            1174,
+            600
+          ]
+        },
+        {
+          "id": "sky-ruins:7",
+          "clearArea": 31971,
+          "hudFraction": 0.44733049339688413,
+          "screen": [
+            333,
+            646
+          ]
+        },
+        {
+          "id": "sky-hamlet:11",
+          "clearArea": 32885,
+          "hudFraction": 0,
+          "screen": [
+            1121,
+            514
+          ]
+        },
+        {
+          "id": "sky-windmill:16",
+          "clearArea": 41087,
+          "hudFraction": 0,
+          "screen": [
+            1065,
+            305
+          ]
+        },
+        {
+          "id": "sky-garden:20",
+          "clearArea": 2006,
+          "hudFraction": 0,
+          "screen": [
+            906,
+            572
+          ]
+        },
+        {
+          "id": "sky-garden:21",
+          "clearArea": 2846,
+          "hudFraction": 0,
+          "screen": [
+            636,
+            317
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 180,
+      "elevationDegrees": 31.512678732195283,
+      "distance": 80,
+      "camera": [
+        8.352331417078405e-15,
+        42.51497831445274,
+        -68.20196176476045
+      ],
+      "readableLandmarks": 10,
+      "left": 6,
+      "right": 4,
+      "hudClipped": 4,
+      "candidates": [
+        {
+          "id": "royal-island-left:0",
+          "clearArea": 26060,
+          "hudFraction": 0.9224069115665884,
+          "screen": [
+            1126,
+            705
+          ]
+        },
+        {
+          "id": "royal-island-right:1",
+          "clearArea": 17204,
+          "hudFraction": 0.9509872408697861,
+          "screen": [
+            356,
+            698
+          ]
+        },
+        {
+          "id": "sky-observatory:3",
+          "clearArea": 6311,
+          "hudFraction": 0,
+          "screen": [
+            850,
+            534
+          ]
+        },
+        {
+          "id": "sky-ruins:7",
+          "clearArea": 9301,
+          "hudFraction": 0,
+          "screen": [
+            577,
+            541
+          ]
+        },
+        {
+          "id": "sky-ruins:8",
+          "clearArea": 24272,
+          "hudFraction": 0.06330508762830789,
+          "screen": [
+            322,
+            280
+          ]
+        },
+        {
+          "id": "royal-island-citadel:13",
+          "clearArea": 26429,
+          "hudFraction": 0.11985180748149005,
+          "screen": [
+            677,
+            218
+          ]
+        },
+        {
+          "id": "sky-windmill:17",
+          "clearArea": 29285,
+          "hudFraction": 0.173304114265325,
+          "screen": [
+            328,
+            336
+          ]
+        },
+        {
+          "id": "sky-garden:19",
+          "clearArea": 39636,
+          "hudFraction": 0.615935473879025,
+          "screen": [
+            352,
+            645
+          ]
+        },
+        {
+          "id": "sky-garden:20",
+          "clearArea": 32593,
+          "hudFraction": 0.4736475987325556,
+          "screen": [
+            1125,
+            660
+          ]
+        },
+        {
+          "id": "sky-garden:21",
+          "clearArea": 33126,
+          "hudFraction": 0,
+          "screen": [
+            1121,
+            373
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 225,
+      "elevationDegrees": 31.512678732195283,
+      "distance": 80,
+      "camera": [
+        -48.226069654087745,
+        42.51497831445274,
+        -48.226069654087766
+      ],
+      "readableLandmarks": 7,
+      "left": 3,
+      "right": 4,
+      "hudClipped": 1,
+      "candidates": [
+        {
+          "id": "royal-island-right:1",
+          "clearArea": 63645,
+          "hudFraction": 0.6601641641686926,
+          "screen": [
+            370,
+            580
+          ]
+        },
+        {
+          "id": "sky-observatory:3",
+          "clearArea": 45654,
+          "hudFraction": 0.21036645513492447,
+          "screen": [
+            1119,
+            636
+          ]
+        },
+        {
+          "id": "sky-observatory:5",
+          "clearArea": 18897,
+          "hudFraction": 0,
+          "screen": [
+            480,
+            288
+          ]
+        },
+        {
+          "id": "sky-ruins:8",
+          "clearArea": 14962,
+          "hudFraction": 0,
+          "screen": [
+            899,
+            245
+          ]
+        },
+        {
+          "id": "royal-island-citadel:13",
+          "clearArea": 53229,
+          "hudFraction": 0.20824123591436938,
+          "screen": [
+            1227,
+            282
+          ]
+        },
+        {
+          "id": "sky-windmill:17",
+          "clearArea": 14129,
+          "hudFraction": 0,
+          "screen": [
+            822,
+            287
+          ]
+        },
+        {
+          "id": "sky-garden:19",
+          "clearArea": 6475,
+          "hudFraction": 0,
+          "screen": [
+            511,
+            561
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 270,
+      "elevationDegrees": 31.512678732195283,
+      "distance": 80,
+      "camera": [
+        -68.20196176476045,
+        42.51497831445274,
+        -1.2528497125617608e-14
+      ],
+      "readableLandmarks": 6,
+      "left": 2,
+      "right": 4,
+      "hudClipped": 1,
+      "candidates": [
+        {
+          "id": "royal-island-right:1",
+          "clearArea": 60991,
+          "hudFraction": 0,
+          "screen": [
+            495,
+            495
+          ]
+        },
+        {
+          "id": "sky-observatory:5",
+          "clearArea": 20226,
+          "hudFraction": 0,
+          "screen": [
+            943,
+            284
+          ]
+        },
+        {
+          "id": "sky-ruins:7",
+          "clearArea": 48238,
+          "hudFraction": 0.3219191346721404,
+          "screen": [
+            1141,
+            645
+          ]
+        },
+        {
+          "id": "sky-hamlet:10",
+          "clearArea": 22614,
+          "hudFraction": 0,
+          "screen": [
+            425,
+            486
+          ]
+        },
+        {
+          "id": "sky-windmill:17",
+          "clearArea": 25057,
+          "hudFraction": 0.5599740933681951,
+          "screen": [
+            1282,
+            415
+          ]
+        },
+        {
+          "id": "sky-garden:19",
+          "clearArea": 11542,
+          "hudFraction": 0,
+          "screen": [
+            779,
+            530
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 315,
+      "elevationDegrees": 31.512678732195283,
+      "distance": 80,
+      "camera": [
+        -48.226069654087766,
+        42.51497831445274,
+        48.22606965408774
+      ],
+      "readableLandmarks": 8,
+      "left": 5,
+      "right": 3,
+      "hudClipped": 2,
+      "candidates": [
+        {
+          "id": "royal-island-left:0",
+          "clearArea": 35877,
+          "hudFraction": 0.8485500783189518,
+          "screen": [
+            339,
+            642
+          ]
+        },
+        {
+          "id": "royal-island-right:1",
+          "clearArea": 4313,
+          "hudFraction": 0,
+          "screen": [
+            780,
+            465
+          ]
+        },
+        {
+          "id": "sky-observatory:4",
+          "clearArea": 17830,
+          "hudFraction": 0.1544725379303299,
+          "screen": [
+            433,
+            656
+          ]
+        },
+        {
+          "id": "sky-observatory:5",
+          "clearArea": 3320,
+          "hudFraction": 0.9246448668164895,
+          "screen": [
+            1328,
+            453
+          ]
+        },
+        {
+          "id": "sky-ruins:6",
+          "clearArea": 11917,
+          "hudFraction": 0,
+          "screen": [
+            482,
+            229
+          ]
+        },
+        {
+          "id": "sky-windmill:15",
+          "clearArea": 43877,
+          "hudFraction": 0.1966430166162555,
+          "screen": [
+            345,
+            273
+          ]
+        },
+        {
+          "id": "sky-garden:18",
+          "clearArea": 22993,
+          "hudFraction": 0,
+          "screen": [
+            556,
+            315
+          ]
+        },
+        {
+          "id": "sky-garden:19",
+          "clearArea": 42862,
+          "hudFraction": 0,
+          "screen": [
+            1033,
+            613
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 0,
+      "elevationDegrees": 67.60901982543713,
+      "distance": 50,
+      "camera": [
+        0,
+        46.93030062040102,
+        19.046241218344093
+      ],
+      "readableLandmarks": 6,
+      "left": 2,
+      "right": 4,
+      "hudClipped": 5,
+      "candidates": [
+        {
+          "id": "royal-island-left:0",
+          "clearArea": 58075,
+          "hudFraction": 0.5954669636837036,
+          "screen": [
+            394,
+            350
+          ]
+        },
+        {
+          "id": "royal-island-right:1",
+          "clearArea": 106506,
+          "hudFraction": 0.5040371436591107,
+          "screen": [
+            1130,
+            331
+          ]
+        },
+        {
+          "id": "sky-observatory:4",
+          "clearArea": 7692,
+          "hudFraction": 0.24287959536837533,
+          "screen": [
+            729,
+            223
+          ]
+        },
+        {
+          "id": "sky-hamlet:10",
+          "clearArea": 10133,
+          "hudFraction": 0.8528390928920774,
+          "screen": [
+            1312,
+            243
+          ]
+        },
+        {
+          "id": "sky-garden:19",
+          "clearArea": 61310,
+          "hudFraction": 0.6676159479968383,
+          "screen": [
+            1190,
+            618
+          ]
+        },
+        {
+          "id": "sky-garden:20",
+          "clearArea": 14372,
+          "hudFraction": 0.901142187930345,
+          "screen": [
+            298,
+            669
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 45,
+      "elevationDegrees": 67.60901982543713,
+      "distance": 50,
+      "camera": [
+        13.467726321605838,
+        46.93030062040102,
+        13.467726321605838
+      ],
+      "readableLandmarks": 4,
+      "left": 2,
+      "right": 2,
+      "hudClipped": 2,
+      "candidates": [
+        {
+          "id": "royal-island-right:1",
+          "clearArea": 61581,
+          "hudFraction": 0.7719620203090414,
+          "screen": [
+            1177,
+            545
+          ]
+        },
+        {
+          "id": "sky-observatory:4",
+          "clearArea": 4958,
+          "hudFraction": 0,
+          "screen": [
+            1091,
+            327
+          ]
+        },
+        {
+          "id": "sky-hamlet:11",
+          "clearArea": 1744,
+          "hudFraction": 0.8588635116500778,
+          "screen": [
+            303,
+            179
+          ]
+        },
+        {
+          "id": "sky-garden:20",
+          "clearArea": 6430,
+          "hudFraction": 0.40414943611725984,
+          "screen": [
+            339,
+            386
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 90,
+      "elevationDegrees": 67.60901982543713,
+      "distance": 50,
+      "camera": [
+        19.046241218344093,
+        46.93030062040102,
+        1.1662459171916738e-15
+      ],
+      "readableLandmarks": 5,
+      "left": 3,
+      "right": 2,
+      "hudClipped": 3,
+      "candidates": [
+        {
+          "id": "royal-island-left:0",
+          "clearArea": 85740,
+          "hudFraction": 0.4124540205679472,
+          "screen": [
+            1049,
+            302
+          ]
+        },
+        {
+          "id": "sky-observatory:3",
+          "clearArea": 38328,
+          "hudFraction": 0.6908977706869757,
+          "screen": [
+            301,
+            442
+          ]
+        },
+        {
+          "id": "sky-observatory:4",
+          "clearArea": 29115,
+          "hudFraction": 0.5783178237605329,
+          "screen": [
+            1249,
+            652
+          ]
+        },
+        {
+          "id": "sky-ruins:7",
+          "clearArea": 2572,
+          "hudFraction": 0.9835814940852393,
+          "screen": [
+            274,
+            714
+          ]
+        },
+        {
+          "id": "sky-garden:20",
+          "clearArea": 11012,
+          "hudFraction": 0.337632699603047,
+          "screen": [
+            590,
+            241
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 135,
+      "elevationDegrees": 67.60901982543713,
+      "distance": 50,
+      "camera": [
+        13.467726321605838,
+        46.93030062040102,
+        -13.467726321605838
+      ],
+      "readableLandmarks": 3,
+      "left": 1,
+      "right": 2,
+      "hudClipped": 3,
+      "candidates": [
+        {
+          "id": "royal-island-left:0",
+          "clearArea": 84589,
+          "hudFraction": 0.4793199792780044,
+          "screen": [
+            1213,
+            474
+          ]
+        },
+        {
+          "id": "sky-ruins:7",
+          "clearArea": 6538,
+          "hudFraction": 0.6872446814803019,
+          "screen": [
+            294,
+            418
+          ]
+        },
+        {
+          "id": "sky-hamlet:11",
+          "clearArea": 23015,
+          "hudFraction": 0.6390818930369571,
+          "screen": [
+            1239,
+            209
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 180,
+      "elevationDegrees": 67.60901982543713,
+      "distance": 50,
+      "camera": [
+        2.3324918343833477e-15,
+        46.93030062040102,
+        -19.046241218344093
+      ],
+      "readableLandmarks": 6,
+      "left": 3,
+      "right": 3,
+      "hudClipped": 3,
+      "candidates": [
+        {
+          "id": "royal-island-left:0",
+          "clearArea": 18462,
+          "hudFraction": 0.943883626799215,
+          "screen": [
+            1135,
+            700
+          ]
+        },
+        {
+          "id": "royal-island-right:1",
+          "clearArea": 4359,
+          "hudFraction": 0.9844982337133016,
+          "screen": [
+            348,
+            718
+          ]
+        },
+        {
+          "id": "sky-observatory:3",
+          "clearArea": 11344,
+          "hudFraction": 0.42571214484826625,
+          "screen": [
+            905,
+            230
+          ]
+        },
+        {
+          "id": "sky-ruins:7",
+          "clearArea": 12038,
+          "hudFraction": 0.4111188339481452,
+          "screen": [
+            519,
+            232
+          ]
+        },
+        {
+          "id": "sky-garden:19",
+          "clearArea": 49196,
+          "hudFraction": 0.6298169975686616,
+          "screen": [
+            326,
+            530
+          ]
+        },
+        {
+          "id": "sky-garden:20",
+          "clearArea": 88618,
+          "hudFraction": 0.2014221453984627,
+          "screen": [
+            1204,
+            504
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 225,
+      "elevationDegrees": 67.60901982543713,
+      "distance": 50,
+      "camera": [
+        -13.467726321605838,
+        46.93030062040102,
+        -13.467726321605841
+      ],
+      "readableLandmarks": 2,
+      "left": 1,
+      "right": 1,
+      "hudClipped": 1,
+      "candidates": [
+        {
+          "id": "royal-island-right:1",
+          "clearArea": 12344,
+          "hudFraction": 0.7591290343750545,
+          "screen": [
+            343,
+            448
+          ]
+        },
+        {
+          "id": "sky-observatory:3",
+          "clearArea": 49512,
+          "hudFraction": 0.2065082431396167,
+          "screen": [
+            1207,
+            402
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 270,
+      "elevationDegrees": 67.60901982543713,
+      "distance": 50,
+      "camera": [
+        -19.046241218344093,
+        46.93030062040102,
+        -3.4987377515750213e-15
+      ],
+      "readableLandmarks": 5,
+      "left": 2,
+      "right": 3,
+      "hudClipped": 3,
+      "candidates": [
+        {
+          "id": "royal-island-right:1",
+          "clearArea": 44562,
+          "hudFraction": 0.556298837658918,
+          "screen": [
+            425,
+            283
+          ]
+        },
+        {
+          "id": "sky-observatory:3",
+          "clearArea": 12454,
+          "hudFraction": 0.9129203167804232,
+          "screen": [
+            1236,
+            705
+          ]
+        },
+        {
+          "id": "sky-observatory:4",
+          "clearArea": 4737,
+          "hudFraction": 0.9222461580282362,
+          "screen": [
+            257,
+            643
+          ]
+        },
+        {
+          "id": "sky-ruins:7",
+          "clearArea": 88323,
+          "hudFraction": 0.303443762977049,
+          "screen": [
+            1207,
+            432
+          ]
+        },
+        {
+          "id": "sky-garden:19",
+          "clearArea": 13176,
+          "hudFraction": 0.4058630294106681,
+          "screen": [
+            806,
+            254
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 315,
+      "elevationDegrees": 67.60901982543713,
+      "distance": 50,
+      "camera": [
+        -13.467726321605841,
+        46.93030062040102,
+        13.467726321605836
+      ],
+      "readableLandmarks": 3,
+      "left": 2,
+      "right": 1,
+      "hudClipped": 1,
+      "candidates": [
+        {
+          "id": "royal-island-left:0",
+          "clearArea": 7151,
+          "hudFraction": 0.885339268146675,
+          "screen": [
+            306,
+            569
+          ]
+        },
+        {
+          "id": "sky-observatory:4",
+          "clearArea": 3102,
+          "hudFraction": 0,
+          "screen": [
+            359,
+            316
+          ]
+        },
+        {
+          "id": "sky-garden:19",
+          "clearArea": 43614,
+          "hudFraction": 0,
+          "screen": [
+            1142,
+            343
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 0,
+      "elevationDegrees": 67.60901982543713,
+      "distance": 80,
+      "camera": [
+        0,
+        74.66848099264163,
+        30.47398594935055
+      ],
+      "readableLandmarks": 6,
+      "left": 2,
+      "right": 4,
+      "hudClipped": 1,
+      "candidates": [
+        {
+          "id": "royal-island-left:0",
+          "clearArea": 110603,
+          "hudFraction": 0.1520089903234566,
+          "screen": [
+            416,
+            341
+          ]
+        },
+        {
+          "id": "royal-island-right:1",
+          "clearArea": 134902,
+          "hudFraction": 0.010857548589250254,
+          "screen": [
+            1076,
+            321
+          ]
+        },
+        {
+          "id": "sky-observatory:4",
+          "clearArea": 15797,
+          "hudFraction": 0,
+          "screen": [
+            727,
+            251
+          ]
+        },
+        {
+          "id": "sky-hamlet:10",
+          "clearArea": 29605,
+          "hudFraction": 0.23215851980018476,
+          "screen": [
+            1249,
+            285
+          ]
+        },
+        {
+          "id": "sky-garden:19",
+          "clearArea": 81491,
+          "hudFraction": 0.17745504083232666,
+          "screen": [
+            1120,
+            610
+          ]
+        },
+        {
+          "id": "sky-garden:20",
+          "clearArea": 36204,
+          "hudFraction": 0.4828794976666726,
+          "screen": [
+            346,
+            647
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 45,
+      "elevationDegrees": 67.60901982543713,
+      "distance": 80,
+      "camera": [
+        21.548362114569343,
+        74.66848099264163,
+        21.548362114569343
+      ],
+      "readableLandmarks": 6,
+      "left": 4,
+      "right": 2,
+      "hudClipped": 1,
+      "candidates": [
+        {
+          "id": "royal-island-left:0",
+          "clearArea": 24186,
+          "hudFraction": 0.27909157061490064,
+          "screen": [
+            647,
+            247
+          ]
+        },
+        {
+          "id": "royal-island-right:1",
+          "clearArea": 116469,
+          "hudFraction": 0.3888886923061299,
+          "screen": [
+            1135,
+            561
+          ]
+        },
+        {
+          "id": "sky-observatory:3",
+          "clearArea": 12615,
+          "hudFraction": 0.7397806175183212,
+          "screen": [
+            324,
+            697
+          ]
+        },
+        {
+          "id": "sky-observatory:4",
+          "clearArea": 13738,
+          "hudFraction": 0,
+          "screen": [
+            1007,
+            355
+          ]
+        },
+        {
+          "id": "sky-hamlet:11",
+          "clearArea": 26893,
+          "hudFraction": 0.25346032656806583,
+          "screen": [
+            345,
+            206
+          ]
+        },
+        {
+          "id": "sky-garden:20",
+          "clearArea": 35091,
+          "hudFraction": 0,
+          "screen": [
+            391,
+            403
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 90,
+      "elevationDegrees": 67.60901982543713,
+      "distance": 80,
+      "camera": [
+        30.47398594935055,
+        74.66848099264163,
+        1.865993467506678e-15
+      ],
+      "readableLandmarks": 8,
+      "left": 3,
+      "right": 5,
+      "hudClipped": 4,
+      "candidates": [
+        {
+          "id": "royal-island-left:0",
+          "clearArea": 85213,
+          "hudFraction": 0.20123325746681175,
+          "screen": [
+            953,
+            300
+          ]
+        },
+        {
+          "id": "royal-island-right:1",
+          "clearArea": 9784,
+          "hudFraction": 0.9529678107964004,
+          "screen": [
+            1038,
+            725
+          ]
+        },
+        {
+          "id": "sky-observatory:3",
+          "clearArea": 50341,
+          "hudFraction": 0.1921924820883253,
+          "screen": [
+            345,
+            446
+          ]
+        },
+        {
+          "id": "sky-observatory:4",
+          "clearArea": 36719,
+          "hudFraction": 0,
+          "screen": [
+            1159,
+            631
+          ]
+        },
+        {
+          "id": "sky-ruins:7",
+          "clearArea": 19728,
+          "hudFraction": 0.7291608868746446,
+          "screen": [
+            330,
+            679
+          ]
+        },
+        {
+          "id": "sky-hamlet:11",
+          "clearArea": 2686,
+          "hudFraction": 0.9113137371969832,
+          "screen": [
+            743,
+            145
+          ]
+        },
+        {
+          "id": "royal-island-citadel:12",
+          "clearArea": 23303,
+          "hudFraction": 0.8862316199921838,
+          "screen": [
+            1295,
+            281
+          ]
+        },
+        {
+          "id": "sky-garden:20",
+          "clearArea": 28331,
+          "hudFraction": 0.004034240089485386,
+          "screen": [
+            623,
+            254
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 135,
+      "elevationDegrees": 67.60901982543713,
+      "distance": 80,
+      "camera": [
+        21.548362114569343,
+        74.66848099264163,
+        -21.548362114569343
+      ],
+      "readableLandmarks": 6,
+      "left": 3,
+      "right": 3,
+      "hudClipped": 1,
+      "candidates": [
+        {
+          "id": "royal-island-left:0",
+          "clearArea": 105124,
+          "hudFraction": 0,
+          "screen": [
+            1126,
+            485
+          ]
+        },
+        {
+          "id": "sky-observatory:3",
+          "clearArea": 12379,
+          "hudFraction": 0,
+          "screen": [
+            553,
+            244
+          ]
+        },
+        {
+          "id": "sky-ruins:7",
+          "clearArea": 43000,
+          "hudFraction": 0.1196619542118268,
+          "screen": [
+            339,
+            428
+          ]
+        },
+        {
+          "id": "sky-hamlet:11",
+          "clearArea": 34694,
+          "hudFraction": 0.13664782277165377,
+          "screen": [
+            1138,
+            230
+          ]
+        },
+        {
+          "id": "sky-garden:19",
+          "clearArea": 7455,
+          "hudFraction": 0.8274384849901937,
+          "screen": [
+            378,
+            717
+          ]
+        },
+        {
+          "id": "sky-garden:20",
+          "clearArea": 8474,
+          "hudFraction": 0,
+          "screen": [
+            908,
+            285
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 180,
+      "elevationDegrees": 67.60901982543713,
+      "distance": 80,
+      "camera": [
+        3.731986935013356e-15,
+        74.66848099264163,
+        -30.47398594935055
+      ],
+      "readableLandmarks": 7,
+      "left": 3,
+      "right": 4,
+      "hudClipped": 3,
+      "candidates": [
+        {
+          "id": "royal-island-left:0",
+          "clearArea": 61959,
+          "hudFraction": 0.6670942477838071,
+          "screen": [
+            1104,
+            665
+          ]
+        },
+        {
+          "id": "royal-island-right:1",
+          "clearArea": 34199,
+          "hudFraction": 0.791616882091847,
+          "screen": [
+            388,
+            675
+          ]
+        },
+        {
+          "id": "sky-observatory:3",
+          "clearArea": 29481,
+          "hudFraction": 0.10059756910677475,
+          "screen": [
+            858,
+            245
+          ]
+        },
+        {
+          "id": "sky-ruins:7",
+          "clearArea": 32966,
+          "hudFraction": 0.09179980409379251,
+          "screen": [
+            569,
+            246
+          ]
+        },
+        {
+          "id": "sky-hamlet:11",
+          "clearArea": 15510,
+          "hudFraction": 0.6391436724690065,
+          "screen": [
+            1303,
+            607
+          ]
+        },
+        {
+          "id": "sky-garden:19",
+          "clearArea": 73756,
+          "hudFraction": 0.18635812544924335,
+          "screen": [
+            367,
+            510
+          ]
+        },
+        {
+          "id": "sky-garden:20",
+          "clearArea": 58099,
+          "hudFraction": 0,
+          "screen": [
+            1099,
+            491
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 225,
+      "elevationDegrees": 67.60901982543713,
+      "distance": 80,
+      "camera": [
+        -21.548362114569343,
+        74.66848099264163,
+        -21.548362114569347
+      ],
+      "readableLandmarks": 5,
+      "left": 2,
+      "right": 3,
+      "hudClipped": 1,
+      "candidates": [
+        {
+          "id": "royal-island-right:1",
+          "clearArea": 86512,
+          "hudFraction": 0.4375337329274628,
+          "screen": [
+            380,
+            473
+          ]
+        },
+        {
+          "id": "sky-observatory:3",
+          "clearArea": 46639,
+          "hudFraction": 0,
+          "screen": [
+            1102,
+            416
+          ]
+        },
+        {
+          "id": "sky-ruins:7",
+          "clearArea": 12638,
+          "hudFraction": 0,
+          "screen": [
+            879,
+            239
+          ]
+        },
+        {
+          "id": "sky-garden:19",
+          "clearArea": 11539,
+          "hudFraction": 0,
+          "screen": [
+            510,
+            296
+          ]
+        },
+        {
+          "id": "sky-garden:20",
+          "clearArea": 13147,
+          "hudFraction": 0.7500864120887394,
+          "screen": [
+            1098,
+            708
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 270,
+      "elevationDegrees": 67.60901982543713,
+      "distance": 80,
+      "camera": [
+        -30.47398594935055,
+        74.66848099264163,
+        -5.597980402520034e-15
+      ],
+      "readableLandmarks": 8,
+      "left": 4,
+      "right": 4,
+      "hudClipped": 4,
+      "candidates": [
+        {
+          "id": "royal-island-left:0",
+          "clearArea": 19020,
+          "hudFraction": 0.9088829362367483,
+          "screen": [
+            446,
+            713
+          ]
+        },
+        {
+          "id": "royal-island-right:1",
+          "clearArea": 68559,
+          "hudFraction": 0.2532893885314861,
+          "screen": [
+            485,
+            286
+          ]
+        },
+        {
+          "id": "sky-observatory:3",
+          "clearArea": 34003,
+          "hudFraction": 0.49110306554653327,
+          "screen": [
+            1155,
+            672
+          ]
+        },
+        {
+          "id": "sky-observatory:4",
+          "clearArea": 24278,
+          "hudFraction": 0.26935058251162813,
+          "screen": [
+            310,
+            617
+          ]
+        },
+        {
+          "id": "sky-ruins:7",
+          "clearArea": 65211,
+          "hudFraction": 0,
+          "screen": [
+            1119,
+            437
+          ]
+        },
+        {
+          "id": "sky-hamlet:10",
+          "clearArea": 11848,
+          "hudFraction": 0.6455353198572675,
+          "screen": [
+            402,
+            175
+          ]
+        },
+        {
+          "id": "sky-windmill:17",
+          "clearArea": 4937,
+          "hudFraction": 0.9389385670452761,
+          "screen": [
+            1308,
+            183
+          ]
+        },
+        {
+          "id": "sky-garden:19",
+          "clearArea": 33786,
+          "hudFraction": 0.12721640904938813,
+          "screen": [
+            783,
+            264
+          ]
+        }
+      ]
+    },
+    {
+      "azimuthDegrees": 315,
+      "elevationDegrees": 67.60901982543713,
+      "distance": 80,
+      "camera": [
+        -21.548362114569347,
+        74.66848099264163,
+        21.548362114569336
+      ],
+      "readableLandmarks": 5,
+      "left": 2,
+      "right": 3,
+      "hudClipped": 2,
+      "candidates": [
+        {
+          "id": "royal-island-left:0",
+          "clearArea": 61252,
+          "hudFraction": 0.5464838620487302,
+          "screen": [
+            353,
+            576
+          ]
+        },
+        {
+          "id": "royal-island-right:1",
+          "clearArea": 26481,
+          "hudFraction": 0.40130778065882633,
+          "screen": [
+            790,
+            268
+          ]
+        },
+        {
+          "id": "sky-observatory:4",
+          "clearArea": 12911,
+          "hudFraction": 0,
+          "screen": [
+            441,
+            347
+          ]
+        },
+        {
+          "id": "sky-ruins:7",
+          "clearArea": 17823,
+          "hudFraction": 0.631830726658124,
+          "screen": [
+            1155,
+            693
+          ]
+        },
+        {
+          "id": "sky-garden:19",
+          "clearArea": 30982,
+          "hudFraction": 0,
+          "screen": [
+            1026,
+            373
+          ]
+        }
+      ]
+    }
+  ]
+}
