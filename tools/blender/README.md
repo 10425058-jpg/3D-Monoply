@@ -1,5 +1,29 @@
 # Procedural fantasy environment
 
+## Premium environment V4
+
+`refine_environment_v4.py` was executed with Blender **5.2.3 LTS** to refine
+the existing V2 hero islands, citadel and foundation. It preserves architecture
+identity, paths and effect anchors, adds lancet windows/balcony/stone and door
+details, reshapes connected blossom canopy components and organic terrain
+edges, and bakes three-tap directional grounding shadows into vertex colours.
+It exports only twelve `-v4` GLBs and `v4-manifest.json`, preserving V2 source
+bytes and their SHA256 provenance. No island placements are added.
+
+```sh
+blender --background --factory-startup --python-exit-code 1 --python tools/blender/refine_environment_v4.py
+python tools/blender/validate_assets.py --manifest public/assets/models/environment/v4-manifest.json
+```
+
+Use `-- --only royal-island-left --tiers balanced` for selective regeneration.
+The exporter retains one canonical atlas UV set: redundant UV layers accumulated
+by reimport are removed, including their unused attributes. The existing 128²
+atlas and material batching are reused; new detail correctly samples that
+same atlas. Each hero has bounded topology (40k High /25k Medium /16k Low),
+and all outputs pass the actual binary/UV/image/transform inspection. No runtime
+Blender/Python, new rendering dependency, paid provider or external texture is
+required. See [the V4 report](../../docs/premium-environment-v4/README.md).
+
 ## Environment visual polish V2
 
 The [V2 report](../../docs/environment-visual-polish-v2/README.md) preserves the

@@ -1,0 +1,48 @@
+{
+  "method": "Descriptive fixed-crop screenshot statistics; no quality pass threshold. Geometry/palette changes affect pixel membership.",
+  "rectangle": [
+    320,
+    180,
+    720,
+    440
+  ],
+  "description": "near castle island: blue roofs, ivory walls, blossoms, grass, stone and cliff edge, excluding HUD",
+  "before": {
+    "file": "docs\\premium-environment-v4\\evidence\\before\\hero-left-detail.png",
+    "dimensions": [
+      1440,
+      900
+    ],
+    "pixels": 316800,
+    "meanHsvSaturation": 0.3218153594777244,
+    "medianHsvSaturation": 0.22794117647058826,
+    "meanSrgbLuminance": 0.6503350859724698,
+    "luminanceStdDev": 0.18543665736793966,
+    "luminanceP10": 0.36924549019607844,
+    "luminanceP90": 0.8467192156862745,
+    "paleLowSaturationFraction": 0.26726641414141417,
+    "greenPixelCount": 72259,
+    "greenMeanSaturation": 0.5305240638747023,
+    "bluePixelCount": 36460,
+    "blueMeanSaturation": 0.5900811833478989
+  },
+  "after": {
+    "file": "docs\\premium-environment-v4\\evidence\\after\\hero-left-detail.png",
+    "dimensions": [
+      1440,
+      900
+    ],
+    "pixels": 316800,
+    "meanHsvSaturation": 0.4519448431041615,
+    "medianHsvSaturation": 0.35403726708074534,
+    "meanSrgbLuminance": 0.559992506184393,
+    "luminanceStdDev": 0.21406417885692475,
+    "luminanceP10": 0.24890823529411762,
+    "luminanceP90": 0.8183623529411764,
+    "paleLowSaturationFraction": 0.1416193181818182,
+    "greenPixelCount": 73878,
+    "greenMeanSaturation": 0.7326593847217496,
+    "bluePixelCount": 41003,
+    "blueMeanSaturation": 0.681046210785753
+  }
+}

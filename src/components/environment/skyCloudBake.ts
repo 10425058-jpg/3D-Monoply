@@ -22,10 +22,10 @@ void main(){
   vec3 d=vec3(-cos(phi)*sin(theta),cos(theta),sin(phi)*sin(theta));
   float elevation=asin(clamp(d.y,-1.,1.)),sunDot=max(0.,dot(d,uSun));
   float warmth=pow(sunDot,20.);
-  vec3 sky=mix(vec3(.24,.29,.54),vec3(.12,.22,.58),smoothstep(-1.3,.55,elevation));
+  vec3 sky=mix(vec3(.18,.22,.48),vec3(.075,.15,.43),smoothstep(-1.3,.55,elevation));
   float horizon=exp(-pow((elevation+.32)*2.9,2.));
-  sky=mix(sky,vec3(.98,.41,.35),horizon*.35);
-  sky=mix(sky,vec3(1.55,.87,.38),warmth*.58);
+  sky=mix(sky,vec3(1.10,.32,.32),horizon*.42);
+  sky=mix(sky,vec3(1.55,.63,.20),warmth*.62);
   vec3 p=d*vec3(9.2,16.5,9.2)+vec3(11.,3.,7.);
   p.xz+=(vec2(field(p*.31),field(p*.31+8.))-.5)*1.8;
   float density=field(p);
@@ -33,12 +33,12 @@ void main(){
   float cover=smoothstep(.55,.78,density+belt*.12);
   float towardSun=field(p+uSun*.34);
   float light=clamp(.68+(density-towardSun)*3.0,0.,1.);
-  vec3 cloud=mix(vec3(.28,.30,.54),vec3(1.35,1.21,1.11),light);
+  vec3 cloud=mix(vec3(.19,.22,.45),vec3(1.38,1.07,.85),light);
   cloud=mix(cloud,cloud*vec3(1.18,1.02,.84),warmth*.6);
-  sky=mix(sky,cloud,cover*.56);
+  sky=mix(sky,cloud,cover*.50);
   // A diffuse cloud sea gives the steep overview a continuous lower atmosphere.
   float sea=1.-smoothstep(-.98,-.67,d.y);
-  sky=mix(sky,mix(vec3(.53,.55,.73),vec3(.83,.76,.79),field(d*13.+4.)),sea*.72);
+  sky=mix(sky,mix(vec3(.22,.27,.51),vec3(.69,.52,.66),field(d*13.+4.)),sea*.54);
   float distanceSq=max(0.,2.*(1.-sunDot)),radiusSq=uSunRadius*uSunRadius;
   float halo=1.+distanceSq/(radiusSq*5.),haze=1.+distanceSq/(radiusSq*38.);
   sky+=vec3(1.,.57,.22)*(.24/(halo*halo)+.11/(haze*haze));

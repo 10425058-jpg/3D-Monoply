@@ -46,31 +46,35 @@ export function FloatingClouds({ quality, animate }: { quality:EnvironmentQualit
     <planeGeometry args={[1,1]} />
     <shaderMaterial transparent depthWrite={false} uniforms={uniforms}
       vertexShader={`attribute vec4 cloudData;uniform float uTime;uniform vec3 uSun;
-        varying vec2 vUv;varying vec4 vData;varying float vWarm;
+        varying vec2 vUv;varying vec4 vData;varying float vWarm;varying float vDistance;
         void main(){vUv=uv;vData=cloudData;
           vec4 center=instanceMatrix*vec4(0.,0.,0.,1.);
           center.x+=sin(uTime*.018+cloudData.w)*.8;
           center.z+=cos(uTime*.012+cloudData.w)*.45;
           vec3 direction=normalize(center.xyz-cameraPosition);
+          vDistance=length(center.xyz-cameraPosition);
           vWarm=pow(max(0.,dot(direction,uSun)),9.);
           vec4 mv=modelViewMatrix*center;
           mv.xy+=position.xy*vec2(length(instanceMatrix[0].xyz),length(instanceMatrix[1].xyz));
           gl_Position=projectionMatrix*mv;
         }`}
       fragmentShader={`uniform sampler2D uCloud;uniform float uTime;
-        varying vec2 vUv;varying vec4 vData;varying float vWarm;
+        varying vec2 vUv;varying vec4 vData;varying float vWarm;varying float vDistance;
         void main(){
           vec2 uv=vUv;
           uv.x+=sin(uv.y*5.+uTime*.045+vData.w)*.004;
           vec2 cell=vec2(mod(vData.x,4.),floor(vData.x/4.));
           vec4 cloud=texture2D(uCloud,(cell+clamp(uv,.008,.992))/vec2(4.,2.));
           float edge=smoothstep(0.,.035,uv.x)*smoothstep(0.,.035,1.-uv.x);
-          float alpha=cloud.a*vData.y*edge;
+          float alpha=pow(cloud.a,1.12)*vData.y*edge;
           if(alpha<.002)discard;
-          vec3 color=cloud.rgb;
-          color=mix(color,color*vec3(1.15,1.02,.86),vWarm*.56);
-          // Distant banks diffuse into the same lavender-blue atmospheric veil.
-          color=mix(color,vec3(.58,.62,.78),vData.z*.085);
+          // Preserve the offline density shading instead of lifting every bank
+          // toward white. Cool cores and a restrained sun-facing peach rim.
+          vec3 color=max(vec3(0.),(cloud.rgb-.34)*1.19+.30);
+          color*=mix(vec3(.76,.82,1.04),vec3(1.08,1.02,.95),smoothstep(.12,.86,uv.y));
+          color=mix(color,color*vec3(1.23,1.02,.79),vWarm*.60);
+          float aerial=smoothstep(90.,200.,vDistance)*.10;
+          color=mix(color,vec3(.43,.46,.65),aerial);
           gl_FragColor=vec4(color,alpha);
           #include <tonemapping_fragment>
           #include <colorspace_fragment>

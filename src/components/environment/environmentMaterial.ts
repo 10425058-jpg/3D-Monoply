@@ -9,12 +9,20 @@ const SUN_NORMAL=new THREE.Vector3(-.48,.72,.56).normalize();
 export function finishEnvironmentMaterial(source: THREE.Material, atmosphere: number, tint?: THREE.ColorRepresentation) {
   if(!(source instanceof THREE.MeshStandardMaterial)||!source.map)return source.clone();
   const color=source.color.clone();if(tint)color.set(tint);
+  // Tune surface reflectance, not the shared renderer exposure or board lights.
+  const kind=source.name;
+  const grass=kind==='Meadow and moss',rock=kind==='Lavender layered cliff';
+  const foliage=kind==='Deep evergreen foliage',blossom=kind==='Sakura blossom clusters';
+  const roof=kind==='Royal blue glazed slate';
+  color.multiply(new THREE.Color().setRGB(...(grass?[.60,.84,.49]:rock?[.72,.68,.83]:
+    foliage?[.66,.86,.67]:roof?[.54,.76,1.12]:blossom?[1.10,.72,.90]:[1.04,.96,.85]) as [number,number,number]));
   return new THREE.ShaderMaterial({
     name:source.name,
     vertexColors:source.vertexColors,
     uniforms:{uMap:{value:source.map},uColor:{value:color},
       uEmission:{value:source.emissive.clone().multiplyScalar(source.emissiveIntensity)},
-      uMetallic:{value:source.metalness},uRoughness:{value:source.roughness},uSun:{value:SUN_NORMAL},uHaze:{value:atmosphere}},
+      uMetallic:{value:source.metalness},uRoughness:{value:source.roughness},uSun:{value:SUN_NORMAL},uHaze:{value:atmosphere},
+      uSurface:{value:new THREE.Vector4(grass?1:0,rock?1:0,roof?1:0,blossom?1:0)}},
     vertexShader:`varying vec2 vUv;varying vec3 vNormal;varying vec3 vWorld;varying vec3 vTint;
       void main(){
         vUv=uv;vTint=vec3(1.);
@@ -33,21 +41,36 @@ export function finishEnvironmentMaterial(source: THREE.Material, atmosphere: nu
         gl_Position=projectionMatrix*viewMatrix*world;
       }`,
     fragmentShader:`uniform sampler2D uMap;uniform vec3 uColor;uniform vec3 uEmission;
-      uniform float uMetallic;uniform float uRoughness;uniform float uHaze;uniform vec3 uSun;
+      uniform float uMetallic;uniform float uRoughness;uniform float uHaze;uniform vec3 uSun;uniform vec4 uSurface;
       varying vec2 vUv;varying vec3 vNormal;varying vec3 vWorld;varying vec3 vTint;
       void main(){
         vec3 albedo=texture2D(uMap,vUv).rgb*uColor*vTint;
+        // Uniform branches skip unused pattern ALU for roofs, glass and metal.
+        if(uSurface.x+uSurface.w>0.){
+          float patches=sin(vWorld.x*.73+sin(vWorld.z*.41))*sin(vWorld.z*.53-vWorld.x*.17);
+          albedo*=1.+patches*(uSurface.x*.10+uSurface.w*.06);
+        }else if(uSurface.y>0.){
+          float strata=sin(vWorld.y*5.4+sin(vWorld.x*1.3+vWorld.z*.72)*.65);
+          albedo*=1.+strata*uSurface.y*.075;
+        }
         vec3 n=normalize(vNormal);float sun=max(0.,dot(n,uSun));
         float sky=clamp(n.y*.5+.5,0.,1.);
-        vec3 fill=mix(vec3(.34,.27,.53),vec3(.64,.72,.97),sky);
-        vec3 light=fill*.66+vec3(1.62,1.14,.65)*sun;
+        vec3 fill=mix(vec3(.27,.23,.44),vec3(.48,.61,.91),sky);
+        // Restrained cool fill retains shaded relief; gold key models the forms.
+        vec3 light=fill*.48+vec3(1.77,1.20,.66)*sun;
         vec3 viewDirection=normalize(cameraPosition-vWorld);
         float shine=pow(max(0.,dot(n,normalize(uSun+viewDirection))),mix(64.,14.,uRoughness));
-        vec3 lit=albedo*light+uEmission+vec3(1.,.68,.30)*shine*(.025+uMetallic*.34)*(1.-uRoughness*.6);
+        vec3 lit=albedo*light+uEmission*vec3(1.08,.78,.43)+vec3(1.,.73,.40)*shine*(.035+uMetallic*.42+uSurface.z*.10)*(1.-uRoughness*.6);
+        if(uSurface.w>0.){
+          float backlight=pow(clamp(1.-dot(n,viewDirection),0.,1.),3.);
+          lit+=albedo*backlight*.14;
+        }
         float luma=dot(lit,vec3(.2126,.7152,.0722));
-        lit=max(vec3(0.),mix(vec3(luma),lit,1.12));
-        float aerial=clamp((length(vWorld-cameraPosition)-65.)/210.,0.,1.)*.13;
-        gl_FragColor=vec4(mix(lit,vec3(.49,.54,.71),min(.38,uHaze+aerial)),1.);
+        lit=max(vec3(0.),mix(vec3(luma),lit,1.06));
+        // No constant haze floor. Responsive pullback keeps the same depth tiers.
+        float distance=length(vWorld-cameraPosition)-max(0.,length(cameraPosition)-60.);
+        float aerial=smoothstep(88.,250.,distance)*(.24+uHaze*.55);
+        gl_FragColor=vec4(mix(lit,vec3(.32,.40,.65),aerial),1.);
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
       }`,

@@ -13,7 +13,7 @@ import { LEFT_ISLAND, RIGHT_ISLAND } from './sunsetKingdomLayout';
 import { cloudAtlasUrl } from './cloudAtlas';
 export { LEFT_ISLAND, RIGHT_ISLAND } from './sunsetKingdomLayout';
 
-export const WORLD_MILESTONE = 'visual-polish-v2';
+export const WORLD_MILESTONE = 'premium-visual-polish-v4';
 const LEFT_PLACEMENTS = [LEFT_ISLAND];
 const RIGHT_PLACEMENTS = [RIGHT_ISLAND];
 const FAR_LEFT: EnvironmentPlacement[] = [{ position: [-46,-42,-91], scale: .5, rotation: .4 },
