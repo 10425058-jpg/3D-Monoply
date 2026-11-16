@@ -47,7 +47,7 @@ export const Scene3D = React.memo<{ quality?: GraphicsQuality }>(({ quality = 'b
         opacity={0.45} color="#ffe0a1" raycast={() => {}} />}
       <CinematicCamera request={request} reducedMotion={reducedMotion} />
       <Board3D />
-      <CenterCity3D />
+      <CenterCity3D quality={quality} />
       <TokensAndBuildings quality={quality} />
       <Dice3D quality={quality} />
       <GameplayEffects quality={quality} />

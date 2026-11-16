@@ -1,0 +1,1315 @@
+{
+  "schema": "monopoly.environment-glb-inspection.v1",
+  "valid": true,
+  "assets": [
+    {
+      "file": "central-royal-district.glb",
+      "bytes": 6864236,
+      "sha256": "35c637685c91135f67efaa5ed0d79b4f89ef6a5fff27ce8b87a2434fccea058e",
+      "triangles": 94194,
+      "triangleBudget": 100000,
+      "drawPrimitives": 32,
+      "meshes": [
+        {
+          "name": "Central district original footprint stone plinth.001",
+          "triangles": 82766,
+          "primitives": 15
+        },
+        {
+          "name": "Royal level two rear watchtower limestone shaft.002",
+          "triangles": 5512,
+          "primitives": 7
+        },
+        {
+          "name": "Royal level three terrace turret limestone shaft.002",
+          "triangles": 5512,
+          "primitives": 7
+        },
+        {
+          "name": "Royal clock ivory dial.002",
+          "triangles": 232,
+          "primitives": 2
+        },
+        {
+          "name": "Level five sovereign crown rim.001",
+          "triangles": 172,
+          "primitives": 1
+        }
+      ],
+      "nodes": 26,
+      "materials": 15,
+      "materialNames": [
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal district paving",
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Royal district cream",
+        "Warm carved timber",
+        "Sakura blossom clusters",
+        "Royal district petal",
+        "Deep evergreen foliage",
+        "Royal district purple",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Warm lit glass",
+        "Royal district red"
+      ],
+      "images": [
+        {
+          "name": "Central_royal_surface_atlas_256",
+          "width": 256,
+          "height": 256,
+          "bytes": 57161,
+          "pixels": {
+            "uniqueColors": 161,
+            "channelMin": [
+              13,
+              44,
+              41
+            ],
+            "channelMax": [
+              255,
+              231,
+              234
+            ]
+          },
+          "referencedTexelColors": 148
+        }
+      ],
+      "textureRgbaBytes": 262144,
+      "textureRgbaMipBytes": 349526,
+      "bounds": {
+        "min": [
+          -7.650000095367432,
+          -0.3700000047683716,
+          -7.650000095367432
+        ],
+        "max": [
+          7.650000095367432,
+          9.654500961303711,
+          7.650000095367432
+        ],
+        "extent": [
+          15.300000190734863,
+          10.024500966072083,
+          15.300000190734863
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "city_flag_level_1_0",
+          "translation": [
+            -0.21000000834465027,
+            9.23449993133545,
+            -3.933500051498413
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_flag_level_1_1",
+          "translation": [
+            -2.572499990463257,
+            6.368000030517578,
+            -4.017499923706055
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_flag_level_1_2",
+          "translation": [
+            -1.3860000371932983,
+            5.2129998207092285,
+            -1.9700000286102295
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_flag_level_1_3",
+          "translation": [
+            2.572499990463257,
+            6.368000030517578,
+            -4.017499923706055
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_flag_level_1_4",
+          "translation": [
+            1.3860000371932983,
+            5.2129998207092285,
+            -1.9700000286102295
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_flag_level_2_5",
+          "translation": [
+            -2.799999952316284,
+            6.519999980926514,
+            -5.599999904632568
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_flag_level_2_6",
+          "translation": [
+            2.799999952316284,
+            6.519999980926514,
+            -5.599999904632568
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_flag_level_3_7",
+          "translation": [
+            -3.6500000953674316,
+            3.559999942779541,
+            -0.6800000071525574
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_flag_level_3_8",
+          "translation": [
+            3.6500000953674316,
+            3.559999942779541,
+            -0.6800000071525574
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_fountain",
+          "translation": [
+            0,
+            0.30000001192092896,
+            2.8499999046325684
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_0",
+          "translation": [
+            -1.7999999523162842,
+            1.1404999494552612,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_1",
+          "translation": [
+            1.7999999523162842,
+            1.1404999494552612,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_2",
+          "translation": [
+            -2.0999999046325684,
+            1.1404999494552612,
+            2.8499999046325684
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_3",
+          "translation": [
+            2.0999999046325684,
+            1.1404999494552612,
+            2.8499999046325684
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_4",
+          "translation": [
+            -3.5,
+            1.1404999494552612,
+            5.699999809265137
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_5",
+          "translation": [
+            3.5,
+            1.1404999494552612,
+            5.699999809265137
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_6",
+          "translation": [
+            -5.5,
+            1.0951999425888062,
+            -1.399999976158142
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_7",
+          "translation": [
+            5.5,
+            1.0951999425888062,
+            -1.399999976158142
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_8",
+          "translation": [
+            -1,
+            1.0046000480651855,
+            6.599999904632568
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_9",
+          "translation": [
+            1,
+            1.0046000480651855,
+            6.599999904632568
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_level_1",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_level_2",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_level_3",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_level_4",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_level_5",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_spire",
+          "translation": [
+            -0.20999999344348907,
+            9.720000267028809,
+            -3.930000066757202
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "central-royal-district-balanced.glb",
+      "bytes": 4809904,
+      "sha256": "04666f7a4c3352e5ef0d31058e5f33f21f138afbbdcd8df28df19a5bbf7e1dd9",
+      "triangles": 67170,
+      "triangleBudget": 68000,
+      "drawPrimitives": 32,
+      "meshes": [
+        {
+          "name": "Central district original footprint stone plinth.003",
+          "triangles": 61214,
+          "primitives": 15
+        },
+        {
+          "name": "Royal level two rear watchtower limestone shaft.006",
+          "triangles": 2776,
+          "primitives": 7
+        },
+        {
+          "name": "Royal level three terrace turret limestone shaft.006",
+          "triangles": 2776,
+          "primitives": 7
+        },
+        {
+          "name": "Royal clock ivory dial.006",
+          "triangles": 232,
+          "primitives": 2
+        },
+        {
+          "name": "Level five sovereign crown rim.003",
+          "triangles": 172,
+          "primitives": 1
+        }
+      ],
+      "nodes": 26,
+      "materials": 15,
+      "materialNames": [
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal district paving.001",
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Royal district cream.001",
+        "Warm carved timber",
+        "Sakura blossom clusters",
+        "Royal district petal.001",
+        "Deep evergreen foliage",
+        "Royal district purple.001",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Warm lit glass",
+        "Royal district red.001"
+      ],
+      "images": [
+        {
+          "name": "Central_royal_surface_atlas_256",
+          "width": 256,
+          "height": 256,
+          "bytes": 57161,
+          "pixels": {
+            "uniqueColors": 161,
+            "channelMin": [
+              13,
+              44,
+              41
+            ],
+            "channelMax": [
+              255,
+              231,
+              234
+            ]
+          },
+          "referencedTexelColors": 146
+        }
+      ],
+      "textureRgbaBytes": 262144,
+      "textureRgbaMipBytes": 349526,
+      "bounds": {
+        "min": [
+          -7.650000095367432,
+          -0.3700000047683716,
+          -7.650000095367432
+        ],
+        "max": [
+          7.650000095367432,
+          9.654500961303711,
+          7.650000095367432
+        ],
+        "extent": [
+          15.300000190734863,
+          10.024500966072083,
+          15.300000190734863
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "city_flag_level_1_0",
+          "translation": [
+            -0.21000000834465027,
+            9.23449993133545,
+            -3.933500051498413
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_flag_level_1_1",
+          "translation": [
+            -2.572499990463257,
+            6.368000030517578,
+            -4.017499923706055
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_flag_level_1_2",
+          "translation": [
+            -1.3860000371932983,
+            5.2129998207092285,
+            -1.9700000286102295
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_flag_level_1_3",
+          "translation": [
+            2.572499990463257,
+            6.368000030517578,
+            -4.017499923706055
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_flag_level_1_4",
+          "translation": [
+            1.3860000371932983,
+            5.2129998207092285,
+            -1.9700000286102295
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_flag_level_2_5",
+          "translation": [
+            -2.799999952316284,
+            6.519999980926514,
+            -5.599999904632568
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_flag_level_2_6",
+          "translation": [
+            2.799999952316284,
+            6.519999980926514,
+            -5.599999904632568
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_flag_level_3_7",
+          "translation": [
+            -3.6500000953674316,
+            3.559999942779541,
+            -0.6800000071525574
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_flag_level_3_8",
+          "translation": [
+            3.6500000953674316,
+            3.559999942779541,
+            -0.6800000071525574
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_fountain",
+          "translation": [
+            0,
+            0.30000001192092896,
+            2.8499999046325684
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_0",
+          "translation": [
+            -1.7999999523162842,
+            1.1404999494552612,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_1",
+          "translation": [
+            1.7999999523162842,
+            1.1404999494552612,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_2",
+          "translation": [
+            -2.0999999046325684,
+            1.1404999494552612,
+            2.8499999046325684
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_3",
+          "translation": [
+            2.0999999046325684,
+            1.1404999494552612,
+            2.8499999046325684
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_4",
+          "translation": [
+            -3.5,
+            1.1404999494552612,
+            5.699999809265137
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_5",
+          "translation": [
+            3.5,
+            1.1404999494552612,
+            5.699999809265137
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_6",
+          "translation": [
+            -5.5,
+            1.0951999425888062,
+            -1.399999976158142
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_7",
+          "translation": [
+            5.5,
+            1.0951999425888062,
+            -1.399999976158142
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_8",
+          "translation": [
+            -1,
+            1.0046000480651855,
+            6.599999904632568
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_9",
+          "translation": [
+            1,
+            1.0046000480651855,
+            6.599999904632568
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_level_1",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_level_2",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_level_3",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_level_4",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_level_5",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_spire",
+          "translation": [
+            -0.20999999344348907,
+            9.720000267028809,
+            -3.930000066757202
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "central-royal-district-low.glb",
+      "bytes": 2383384,
+      "sha256": "f271badb527b793b0724e43b13ce729176ffbd35caffc5bb1e1577fcb013d251",
+      "triangles": 33494,
+      "triangleBudget": 38000,
+      "drawPrimitives": 30,
+      "meshes": [
+        {
+          "name": "Central district original footprint stone plinth.005",
+          "triangles": 30402,
+          "primitives": 15
+        },
+        {
+          "name": "Royal level two rear watchtower limestone shaft.010",
+          "triangles": 1344,
+          "primitives": 6
+        },
+        {
+          "name": "Royal level three terrace turret limestone shaft.010",
+          "triangles": 1344,
+          "primitives": 6
+        },
+        {
+          "name": "Royal clock ivory dial.010",
+          "triangles": 232,
+          "primitives": 2
+        },
+        {
+          "name": "Level five sovereign crown rim.005",
+          "triangles": 172,
+          "primitives": 1
+        }
+      ],
+      "nodes": 26,
+      "materials": 15,
+      "materialNames": [
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal district paving.002",
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Royal district cream.002",
+        "Warm carved timber",
+        "Sakura blossom clusters",
+        "Royal district petal.002",
+        "Deep evergreen foliage",
+        "Royal district purple.002",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Warm lit glass",
+        "Royal district red.002"
+      ],
+      "images": [
+        {
+          "name": "Central_royal_surface_atlas_256",
+          "width": 256,
+          "height": 256,
+          "bytes": 57161,
+          "pixels": {
+            "uniqueColors": 161,
+            "channelMin": [
+              13,
+              44,
+              41
+            ],
+            "channelMax": [
+              255,
+              231,
+              234
+            ]
+          },
+          "referencedTexelColors": 146
+        }
+      ],
+      "textureRgbaBytes": 262144,
+      "textureRgbaMipBytes": 349526,
+      "bounds": {
+        "min": [
+          -7.650000095367432,
+          -0.3700000047683716,
+          -7.650000095367432
+        ],
+        "max": [
+          7.650000095367432,
+          9.654500961303711,
+          7.650000095367432
+        ],
+        "extent": [
+          15.300000190734863,
+          10.024500966072083,
+          15.300000190734863
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "city_flag_level_1_0",
+          "translation": [
+            -0.21000000834465027,
+            9.23449993133545,
+            -3.933500051498413
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_flag_level_1_1",
+          "translation": [
+            -2.572499990463257,
+            6.368000030517578,
+            -4.017499923706055
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_flag_level_1_2",
+          "translation": [
+            -1.3860000371932983,
+            5.2129998207092285,
+            -1.9700000286102295
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_flag_level_1_3",
+          "translation": [
+            2.572499990463257,
+            6.368000030517578,
+            -4.017499923706055
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_flag_level_1_4",
+          "translation": [
+            1.3860000371932983,
+            5.2129998207092285,
+            -1.9700000286102295
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_flag_level_2_5",
+          "translation": [
+            -2.799999952316284,
+            6.519999980926514,
+            -5.599999904632568
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_flag_level_2_6",
+          "translation": [
+            2.799999952316284,
+            6.519999980926514,
+            -5.599999904632568
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_flag_level_3_7",
+          "translation": [
+            -3.6500000953674316,
+            3.559999942779541,
+            -0.6800000071525574
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_flag_level_3_8",
+          "translation": [
+            3.6500000953674316,
+            3.559999942779541,
+            -0.6800000071525574
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_fountain",
+          "translation": [
+            0,
+            0.30000001192092896,
+            2.8499999046325684
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_0",
+          "translation": [
+            -1.7999999523162842,
+            1.1404999494552612,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_1",
+          "translation": [
+            1.7999999523162842,
+            1.1404999494552612,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_2",
+          "translation": [
+            -2.0999999046325684,
+            1.1404999494552612,
+            2.8499999046325684
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_3",
+          "translation": [
+            2.0999999046325684,
+            1.1404999494552612,
+            2.8499999046325684
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_4",
+          "translation": [
+            -3.5,
+            1.1404999494552612,
+            5.699999809265137
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_5",
+          "translation": [
+            3.5,
+            1.1404999494552612,
+            5.699999809265137
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_6",
+          "translation": [
+            -5.5,
+            1.0951999425888062,
+            -1.399999976158142
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_7",
+          "translation": [
+            5.5,
+            1.0951999425888062,
+            -1.399999976158142
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_8",
+          "translation": [
+            -1,
+            1.0046000480651855,
+            6.599999904632568
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_lantern_9",
+          "translation": [
+            1,
+            1.0046000480651855,
+            6.599999904632568
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_level_1",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_level_2",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_level_3",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_level_4",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_level_5",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "city_spire",
+          "translation": [
+            -0.20999999344348907,
+            9.720000267028809,
+            -3.930000066757202
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    }
+  ],
+  "failures": []
+}

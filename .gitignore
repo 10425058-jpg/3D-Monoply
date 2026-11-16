@@ -82,3 +82,13 @@ docs/premium-environment-v4/evidence/before/*-wide.png
 docs/premium-environment-v4/evidence/after/*-overview.png
 docs/premium-environment-v4/evidence/after/*-reference.png
 docs/premium-environment-v4/evidence/after/*-wide.png
+
+# Retain final central-city pairs and timings, excluding art checkpoints.
+docs/premium-central-city/evidence/checkpoint/
+docs/premium-central-city/evidence/regression/context-*.png
+docs/premium-central-city/evidence/before/*-overview.png
+docs/premium-central-city/evidence/before/*-reference.png
+docs/premium-central-city/evidence/before/*-wide.png
+docs/premium-central-city/evidence/after/*-overview.png
+docs/premium-central-city/evidence/after/*-reference.png
+docs/premium-central-city/evidence/after/*-wide.png
