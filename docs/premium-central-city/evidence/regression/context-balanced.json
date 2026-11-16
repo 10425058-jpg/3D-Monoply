@@ -1,0 +1,15 @@
+{
+  "before": "docs\\premium-central-city\\evidence\\regression\\context-balanced-before.png",
+  "after": "docs\\premium-central-city\\evidence\\regression\\context-balanced-after.png",
+  "rectangle": [
+    550,
+    250,
+    430,
+    440
+  ],
+  "pixels": 189200,
+  "changedPixels": 0,
+  "maxChannelDelta": 0,
+  "meanAbsoluteChannelDelta": 0.0,
+  "pixelIdentical": true
+}

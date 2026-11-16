@@ -34,7 +34,7 @@ try {
     page.on('pageerror', error => errors.push(error.message));
     page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
     page.on('response', response => {
-      if (/\/assets\/models\/environment\/.*\.glb(?:\?|$)/.test(response.url())) {
+      if (/\/assets\/models\/(?:environment|central-city)\/.*\.glb(?:\?|$)/.test(response.url())) {
         assetLoads.push(response.buffer().then(body => ({ url: response.url(), status: response.status(),
           bytes: body.length, sha256: createHash('sha256').update(body).digest('hex') }))
           .catch(error => ({ url: response.url(), status: response.status(), error: error.message })));
@@ -55,6 +55,7 @@ try {
     await page.goto(`${origin}/?graphicsAudit#solo`, { waitUntil: 'domcontentloaded', timeout: 60000 });
     await page.waitForFunction(() => !!window.__graphicsAudit, { timeout: 60000 });
     await page.waitForFunction(() => window.__phase2Environment?.ready, { timeout: 60000 });
+    if(process.env.AUDIT_WAIT_CITY==='1')await page.waitForFunction(()=>window.__centralCityAudit?.ready,{timeout:60000});
     await pause(4000);
     const scenarios = [];
     for (const cameraName of cameraNames) {
@@ -98,15 +99,16 @@ try {
       console.log(JSON.stringify({ label, quality, camera: cameraName, ...summary }));
     }
     const environment = await page.evaluate(() => window.__phase2Environment || null);
+    const centralCity=await page.evaluate(()=>window.__centralCityAudit?.snapshot()||null);
     const assetResponses = await Promise.all(assetLoads);
     const textureResponses=await Promise.all(textureLoads);
     assert.deepEqual(errors, [], 'browser rendering errors');
     assert.deepEqual(failedRequests, [], 'failed browser network requests');
     assert.ok(environment?.ready && environment.assetUrls?.length, 'loaded asset readiness');
-    for (const assetUrl of environment.assetUrls) {
+    for (const assetUrl of [...environment.assetUrls,...(centralCity?[centralCity.url]:[])]) {
       const response = assetResponses.find(response => response.url.endsWith(assetUrl));
       assert.ok(response && response.status === 200, `GLB loaded successfully: ${assetUrl}`);
-      const artifact = await readFile(path.resolve('public/assets/models/environment', path.basename(new URL(assetUrl, origin).pathname)));
+      const artifact = await readFile(path.resolve('public',new URL(assetUrl,origin).pathname.replace(/^.*?(assets\/models\/)/,'$1')));
       assert.equal(response.sha256, createHash('sha256').update(artifact).digest('hex'), `served GLB matches exported public artifact: ${assetUrl}`);
     }
     for(const textureUrl of environment.textureUrls||[]){
@@ -123,7 +125,7 @@ try {
         assert.equal(scenario.metadata.dpr, before.scenarios[index].metadata.dpr);
       });
     }
-    await writeFile(path.join(out, `${quality}.json`), JSON.stringify({ label, quality, motion: 'reduced', sampleMs, warmupMs: 4000, environment, assetResponses, textureResponses, failedRequests, errors, scenarios }, null, 2));
+    await writeFile(path.join(out, `${quality}.json`), JSON.stringify({ label, quality, motion: 'reduced', sampleMs, warmupMs: 4000, environment, centralCity, assetResponses, textureResponses, failedRequests, errors, scenarios }, null, 2));
     await page.close();
   }
   await writeFile(path.join(out, 'summary.json'), JSON.stringify(summaries, null, 2));

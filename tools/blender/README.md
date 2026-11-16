@@ -1,5 +1,27 @@
 # Procedural fantasy environment
 
+## Premium central castle and city
+
+`generate_central_city.py` authors only the decorative district inside the
+existing Monopoly board. It reuses the construction modules below without
+changing them or regenerating any surrounding island. Installed Blender
+**5.2.3 LTS** produced the checked-in Low/Medium/High GLBs, one original 256²
+atlas per tier, baked contact colors, five visual unlock groups and effect
+anchors. The original center remains the browser loading/error fallback.
+
+```sh
+blender --background --factory-startup --python-exit-code 1 --python tools/blender/generate_central_city.py
+python tools/blender/validate_assets.py public/assets/models/central-city/central-royal-district.glb public/assets/models/central-city/central-royal-district-balanced.glb public/assets/models/central-city/central-royal-district-low.glb --profile central-city --manifest public/assets/models/central-city/manifest.json
+node --test tests/central-city.test.mjs
+```
+
+Use `-- --tiers balanced` to intentionally regenerate only that tier. The
+explicit central-city validation profile bounds the full district to X/Z
+±7.65m, height below 10.8m and 38k/68k/100k triangles. Existing environment
+budgets remain unchanged. See [the central city report](../../docs/premium-central-city/README.md)
+for actual browser captures, measurements, resource ownership and limitations.
+The game requires only the shipped GLBs, not Blender or Python.
+
 ## Premium environment V4
 
 `refine_environment_v4.py` was executed with Blender **5.2.3 LTS** to refine

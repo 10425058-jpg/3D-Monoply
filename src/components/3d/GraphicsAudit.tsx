@@ -115,7 +115,11 @@ export function GraphicsAudit({ quality }: { quality: string }) {
           const world = new THREE.Vector3(x, 0.4, z);
           const p = world.clone().project(camera);
           ray.setFromCamera(new THREE.Vector2(p.x, p.y), camera);
-          const hit = city ? ray.intersectObject(city, true)[0] : null;
+          const cityHits:THREE.Intersection[]=[];
+          city?.traverseVisible(object=>{
+            if(object instanceof THREE.InstancedMesh)THREE.InstancedMesh.prototype.raycast.call(object,ray,cityHits);
+            else if(object instanceof THREE.Mesh)THREE.Mesh.prototype.raycast.call(object,ray,cityHits);
+          });
           const environmentHits: THREE.Intersection[] = [];
           environment?.traverseVisible(object => {
             // Production intentionally disables background raycasts for input.
@@ -130,7 +134,7 @@ export function GraphicsAudit({ quality }: { quality: string }) {
           return { id, x: rect.left + (p.x + 1) * state.size.width / 2, y: rect.top + (1 - p.y) * state.size.height / 2, depth: p.z,
             pickableTileId: tileHit?.instanceId === undefined ? null : tileIds[tileHit.instanceId],
             occludedByEnvironment: environmentHits.some(h => h.distance < camera.position.distanceTo(world) - .15),
-            occludedByCity: !!hit && hit.distance < camera.position.distanceTo(world) - .15 };
+            occludedByCity: cityHits.some(hit=>hit.distance < camera.position.distanceTo(world) - .15) };
         });
       },
       metadata() {

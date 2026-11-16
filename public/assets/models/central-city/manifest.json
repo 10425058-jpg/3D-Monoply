@@ -1,0 +1,440 @@
+{
+  "schemaVersion": 1,
+  "generator": "tools/blender/generate_central_city.py",
+  "blenderVersion": "5.2.3 LTS",
+  "seed": 10425058,
+  "license": "Original project assets; repository MIT license",
+  "units": "metres; glTF Y-up; front +Z",
+  "sourceHashes": {
+    "core.py": "491c567688469aabd5722feaba0a3d83c42c26d09f8ed2b4af8e73c7b0d44270",
+    "generate_castles.py": "99524bca89ab7c0af56b9d2b55896c10647e2d93f9e22909fec14e27af5b7a23",
+    "generate_villages.py": "d67d1eb1be9698e007d755c79dc027522e1f1650e34899aea49bac0f4a59c4a1",
+    "generate_vegetation.py": "d1c72e6f9b70b8197d4d2cb63df8d1906bb3d0dbcae9be5db9010c1f855299ef",
+    "generate_gardens.py": "ca42f1f98089c5591edc871081d1369b9d06129424e0d67cacbdbc9c319cc477",
+    "generate_lanterns.py": "6e020f85ea28e6685af99c7296e23aede30953e9dfeeeb1ec12489049966ac0e",
+    "generate_central_city.py": "82ec6c7f1d3d3a1316eec2c8d65699b322e9d82708e40964a82b8a7705215633"
+  },
+  "assets": [
+    {
+      "id": "central-royal-district",
+      "file": "central-royal-district.glb",
+      "tier": "high",
+      "triangles": 94194,
+      "triangleBudget": 100000,
+      "bytes": 6864236,
+      "sha256": "35c637685c91135f67efaa5ed0d79b4f89ef6a5fff27ce8b87a2434fccea058e",
+      "levelTriangles": {
+        "1": 82766,
+        "2": 5512,
+        "3": 5512,
+        "4": 232,
+        "5": 172
+      },
+      "bounds": {
+        "min": [
+          -7.650000095367432,
+          -0.3700000047683716,
+          -7.650000095367432
+        ],
+        "max": [
+          7.650000095367432,
+          9.654500961303711,
+          7.650000095367432
+        ]
+      },
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "anchors": {
+        "city_flag_level_1_0": [
+          -0.21,
+          9.2345,
+          -3.9335
+        ],
+        "city_flag_level_1_1": [
+          -2.5725,
+          6.368,
+          -4.0175
+        ],
+        "city_flag_level_1_2": [
+          -1.386,
+          5.213,
+          -1.97
+        ],
+        "city_flag_level_1_3": [
+          2.5725,
+          6.368,
+          -4.0175
+        ],
+        "city_flag_level_1_4": [
+          1.386,
+          5.213,
+          -1.97
+        ],
+        "city_flag_level_2_5": [
+          -2.8,
+          6.52,
+          -5.6
+        ],
+        "city_flag_level_2_6": [
+          2.8,
+          6.52,
+          -5.6
+        ],
+        "city_flag_level_3_7": [
+          -3.65,
+          3.56,
+          -0.68
+        ],
+        "city_flag_level_3_8": [
+          3.65,
+          3.56,
+          -0.68
+        ],
+        "city_lantern_0": [
+          -1.8,
+          1.1405,
+          -0.0
+        ],
+        "city_lantern_1": [
+          1.8,
+          1.1405,
+          -0.0
+        ],
+        "city_lantern_2": [
+          -2.1,
+          1.1405,
+          2.85
+        ],
+        "city_lantern_3": [
+          2.1,
+          1.1405,
+          2.85
+        ],
+        "city_lantern_4": [
+          -3.5,
+          1.1405,
+          5.7
+        ],
+        "city_lantern_5": [
+          3.5,
+          1.1405,
+          5.7
+        ],
+        "city_lantern_6": [
+          -5.5,
+          1.0952,
+          -1.4
+        ],
+        "city_lantern_7": [
+          5.5,
+          1.0952,
+          -1.4
+        ],
+        "city_lantern_8": [
+          -1.0,
+          1.0046,
+          6.6
+        ],
+        "city_lantern_9": [
+          1.0,
+          1.0046,
+          6.6
+        ],
+        "city_fountain": [
+          0.0,
+          0.3,
+          2.85
+        ],
+        "city_spire": [
+          -0.21,
+          9.72,
+          -3.93
+        ]
+      }
+    },
+    {
+      "id": "central-royal-district",
+      "file": "central-royal-district-balanced.glb",
+      "tier": "balanced",
+      "triangles": 67170,
+      "triangleBudget": 68000,
+      "bytes": 4809904,
+      "sha256": "04666f7a4c3352e5ef0d31058e5f33f21f138afbbdcd8df28df19a5bbf7e1dd9",
+      "levelTriangles": {
+        "1": 61214,
+        "2": 2776,
+        "3": 2776,
+        "4": 232,
+        "5": 172
+      },
+      "bounds": {
+        "min": [
+          -7.650000095367432,
+          -0.3700000047683716,
+          -7.650000095367432
+        ],
+        "max": [
+          7.650000095367432,
+          9.654500961303711,
+          7.650000095367432
+        ]
+      },
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "anchors": {
+        "city_flag_level_1_0": [
+          -0.21,
+          9.2345,
+          -3.9335
+        ],
+        "city_flag_level_1_1": [
+          -2.5725,
+          6.368,
+          -4.0175
+        ],
+        "city_flag_level_1_2": [
+          -1.386,
+          5.213,
+          -1.97
+        ],
+        "city_flag_level_1_3": [
+          2.5725,
+          6.368,
+          -4.0175
+        ],
+        "city_flag_level_1_4": [
+          1.386,
+          5.213,
+          -1.97
+        ],
+        "city_flag_level_2_5": [
+          -2.8,
+          6.52,
+          -5.6
+        ],
+        "city_flag_level_2_6": [
+          2.8,
+          6.52,
+          -5.6
+        ],
+        "city_flag_level_3_7": [
+          -3.65,
+          3.56,
+          -0.68
+        ],
+        "city_flag_level_3_8": [
+          3.65,
+          3.56,
+          -0.68
+        ],
+        "city_lantern_0": [
+          -1.8,
+          1.1405,
+          -0.0
+        ],
+        "city_lantern_1": [
+          1.8,
+          1.1405,
+          -0.0
+        ],
+        "city_lantern_2": [
+          -2.1,
+          1.1405,
+          2.85
+        ],
+        "city_lantern_3": [
+          2.1,
+          1.1405,
+          2.85
+        ],
+        "city_lantern_4": [
+          -3.5,
+          1.1405,
+          5.7
+        ],
+        "city_lantern_5": [
+          3.5,
+          1.1405,
+          5.7
+        ],
+        "city_lantern_6": [
+          -5.5,
+          1.0952,
+          -1.4
+        ],
+        "city_lantern_7": [
+          5.5,
+          1.0952,
+          -1.4
+        ],
+        "city_lantern_8": [
+          -1.0,
+          1.0046,
+          6.6
+        ],
+        "city_lantern_9": [
+          1.0,
+          1.0046,
+          6.6
+        ],
+        "city_fountain": [
+          0.0,
+          0.3,
+          2.85
+        ],
+        "city_spire": [
+          -0.21,
+          9.72,
+          -3.93
+        ]
+      }
+    },
+    {
+      "id": "central-royal-district",
+      "file": "central-royal-district-low.glb",
+      "tier": "low",
+      "triangles": 33494,
+      "triangleBudget": 38000,
+      "bytes": 2383384,
+      "sha256": "f271badb527b793b0724e43b13ce729176ffbd35caffc5bb1e1577fcb013d251",
+      "levelTriangles": {
+        "1": 30402,
+        "2": 1344,
+        "3": 1344,
+        "4": 232,
+        "5": 172
+      },
+      "bounds": {
+        "min": [
+          -7.650000095367432,
+          -0.3700000047683716,
+          -7.650000095367432
+        ],
+        "max": [
+          7.650000095367432,
+          9.654500961303711,
+          7.650000095367432
+        ]
+      },
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "anchors": {
+        "city_flag_level_1_0": [
+          -0.21,
+          9.2345,
+          -3.9335
+        ],
+        "city_flag_level_1_1": [
+          -2.5725,
+          6.368,
+          -4.0175
+        ],
+        "city_flag_level_1_2": [
+          -1.386,
+          5.213,
+          -1.97
+        ],
+        "city_flag_level_1_3": [
+          2.5725,
+          6.368,
+          -4.0175
+        ],
+        "city_flag_level_1_4": [
+          1.386,
+          5.213,
+          -1.97
+        ],
+        "city_flag_level_2_5": [
+          -2.8,
+          6.52,
+          -5.6
+        ],
+        "city_flag_level_2_6": [
+          2.8,
+          6.52,
+          -5.6
+        ],
+        "city_flag_level_3_7": [
+          -3.65,
+          3.56,
+          -0.68
+        ],
+        "city_flag_level_3_8": [
+          3.65,
+          3.56,
+          -0.68
+        ],
+        "city_lantern_0": [
+          -1.8,
+          1.1405,
+          -0.0
+        ],
+        "city_lantern_1": [
+          1.8,
+          1.1405,
+          -0.0
+        ],
+        "city_lantern_2": [
+          -2.1,
+          1.1405,
+          2.85
+        ],
+        "city_lantern_3": [
+          2.1,
+          1.1405,
+          2.85
+        ],
+        "city_lantern_4": [
+          -3.5,
+          1.1405,
+          5.7
+        ],
+        "city_lantern_5": [
+          3.5,
+          1.1405,
+          5.7
+        ],
+        "city_lantern_6": [
+          -5.5,
+          1.0952,
+          -1.4
+        ],
+        "city_lantern_7": [
+          5.5,
+          1.0952,
+          -1.4
+        ],
+        "city_lantern_8": [
+          -1.0,
+          1.0046,
+          6.6
+        ],
+        "city_lantern_9": [
+          1.0,
+          1.0046,
+          6.6
+        ],
+        "city_fountain": [
+          0.0,
+          0.3,
+          2.85
+        ],
+        "city_spire": [
+          -0.21,
+          9.72,
+          -3.93
+        ]
+      }
+    }
+  ],
+  "sourceHashNormalization": "UTF-8 with LF line endings"
+}
