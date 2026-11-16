@@ -1,0 +1,15 @@
+{
+  "before": "docs\\premium-environment-v4\\evidence\\before\\reference-high.png",
+  "after": "docs\\premium-environment-v4\\evidence\\after\\reference-high.png",
+  "rectangle": [
+    900,
+    500,
+    180,
+    180
+  ],
+  "pixels": 32400,
+  "changedPixels": 1235,
+  "maxChannelDelta": 51,
+  "meanAbsoluteChannelDelta": 0.12080246913580248,
+  "pixelIdentical": false
+}

@@ -72,3 +72,13 @@ docs/environment-visual-polish-v2/evidence/before/*-wide.png
 docs/environment-visual-polish-v2/evidence/after/*-overview.png
 docs/environment-visual-polish-v2/evidence/after/*-reference.png
 docs/environment-visual-polish-v2/evidence/after/*-wide.png
+
+# V4 final paired captures supersede intermediate art/performance images.
+docs/premium-environment-v4/evidence/checkpoint/
+docs/premium-environment-v4/evidence/regression/context-*.png
+docs/premium-environment-v4/evidence/before/*-overview.png
+docs/premium-environment-v4/evidence/before/*-reference.png
+docs/premium-environment-v4/evidence/before/*-wide.png
+docs/premium-environment-v4/evidence/after/*-overview.png
+docs/premium-environment-v4/evidence/after/*-reference.png
+docs/premium-environment-v4/evidence/after/*-wide.png

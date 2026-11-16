@@ -1,0 +1,854 @@
+{
+  "schemaVersion": 1,
+  "generator": "tools/blender/refine_environment_v4.py",
+  "blenderVersion": "5.2.3 LTS",
+  "seed": 10425058,
+  "license": "Original project MIT asset refinements; immutable V2 source hashes retained",
+  "materials": "shared embedded 128x128 project atlas, one canonical UV set, retained cavity colours and three-tap directional contact shadow bake",
+  "sunDirectionRuntime": [
+    -0.48,
+    0.72,
+    0.56
+  ],
+  "sunDirectionBlender": [
+    -0.48,
+    -0.56,
+    0.72
+  ],
+  "assets": [
+    {
+      "id": "royal-island-left-v4",
+      "file": "royal-island-left-v4.glb",
+      "tier": "high",
+      "triangles": 37025,
+      "bytes": 2731608,
+      "sha256": "7b6b706784928eee70e7a4b908c513e6f440d51cee7700aa5eeb92cf6b9abcc8",
+      "bounds": {
+        "min": [
+          -9.377070426940918,
+          -7.040456771850586,
+          -5.461607456207275
+        ],
+        "max": [
+          10.829083442687988,
+          8.16100025177002,
+          6.620628833770752
+        ]
+      },
+      "anchors": {
+        "watercourse_0_left.002": [
+          -3.0,
+          0.085,
+          1.6
+        ],
+        "watercourse_1_left.002": [
+          -4.2,
+          0.07,
+          2.3
+        ],
+        "watercourse_2_left.002": [
+          -5.4,
+          0.06,
+          3.1
+        ],
+        "watercourse_3_left.002": [
+          -6.4,
+          0.04,
+          3.7
+        ],
+        "waterfall_end_left.002": [
+          -7.1,
+          -11.5,
+          4.55
+        ],
+        "waterfall_origin_left.002": [
+          -6.4,
+          0.04,
+          3.7
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058,
+      "sourceFile": "royal-island-left-v2.glb",
+      "sourceSha256": "c8d4466a152ac8688148e0ce2cbb81b5a4ffcbaeaf82878a70227b7be2f008b2"
+    },
+    {
+      "id": "royal-island-left-v4",
+      "file": "royal-island-left-v4-balanced.glb",
+      "tier": "balanced",
+      "triangles": 23768,
+      "bytes": 1806904,
+      "sha256": "c3bafde5fd513d7189a3fff0d379e050b97ca810ca3f9ef2f0b13cad18843dc6",
+      "bounds": {
+        "min": [
+          -9.897451400756836,
+          -6.7281880378723145,
+          -5.391089916229248
+        ],
+        "max": [
+          10.692237854003906,
+          8.16100025177002,
+          6.625580787658691
+        ]
+      },
+      "anchors": {
+        "watercourse_0_left.002": [
+          -3.0,
+          0.085,
+          1.6
+        ],
+        "watercourse_1_left.002": [
+          -4.2,
+          0.07,
+          2.3
+        ],
+        "watercourse_2_left.002": [
+          -5.4,
+          0.06,
+          3.1
+        ],
+        "watercourse_3_left.002": [
+          -6.4,
+          0.04,
+          3.7
+        ],
+        "waterfall_end_left.002": [
+          -7.1,
+          -11.5,
+          4.55
+        ],
+        "waterfall_origin_left.002": [
+          -6.4,
+          0.04,
+          3.7
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058,
+      "sourceFile": "royal-island-left-v2-balanced.glb",
+      "sourceSha256": "04047229ca8dc9aa4d584679d0ed94c1fc6a4b8ec5fd0a9e6dbdc8bb87624bdb"
+    },
+    {
+      "id": "royal-island-left-v4",
+      "file": "royal-island-left-v4-low.glb",
+      "tier": "low",
+      "triangles": 13229,
+      "bytes": 1036968,
+      "sha256": "12d1ae1b67106fe100efa211f41486ec4df1bb98283f84ca9524104333b47c0a",
+      "bounds": {
+        "min": [
+          -9.436196327209473,
+          -6.753352165222168,
+          -5.188424110412598
+        ],
+        "max": [
+          10.692237854003906,
+          8.16100025177002,
+          6.439874172210693
+        ]
+      },
+      "anchors": {
+        "watercourse_0_left.002": [
+          -3.0,
+          0.085,
+          1.6
+        ],
+        "watercourse_1_left.002": [
+          -4.2,
+          0.07,
+          2.3
+        ],
+        "watercourse_2_left.002": [
+          -5.4,
+          0.06,
+          3.1
+        ],
+        "watercourse_3_left.002": [
+          -6.4,
+          0.04,
+          3.7
+        ],
+        "waterfall_end_left.002": [
+          -7.1,
+          -11.5,
+          4.55
+        ],
+        "waterfall_origin_left.002": [
+          -6.4,
+          0.04,
+          3.7
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058,
+      "sourceFile": "royal-island-left-v2-low.glb",
+      "sourceSha256": "715428b1edbe53f4a6dedd6f74a806ea00abf1739ca2987549fd53564682d7fe"
+    },
+    {
+      "id": "royal-island-right-v4",
+      "file": "royal-island-right-v4.glb",
+      "tier": "high",
+      "triangles": 30651,
+      "bytes": 2292444,
+      "sha256": "fd7579621f37cb12af352eae69e7c018f3f4cb3f53a700893520549019a4eb70",
+      "bounds": {
+        "min": [
+          -8.832106590270996,
+          -7.678878307342529,
+          -7.418249607086182
+        ],
+        "max": [
+          10.631158828735352,
+          9.195999145507812,
+          8.121430397033691
+        ]
+      },
+      "anchors": {
+        "watercourse_0_right.002": [
+          3.3,
+          0.75,
+          1.85
+        ],
+        "watercourse_1_right.002": [
+          4.1,
+          0.12,
+          2.6
+        ],
+        "watercourse_2_right.002": [
+          5.3,
+          0.075,
+          3.3
+        ],
+        "watercourse_3_right.002": [
+          6.3,
+          0.04,
+          4.0
+        ],
+        "waterfall_end_right.002": [
+          7.0,
+          -13.0,
+          4.85
+        ],
+        "waterfall_origin_right.002": [
+          6.3,
+          0.04,
+          4.0
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058,
+      "sourceFile": "royal-island-right-v2.glb",
+      "sourceSha256": "94c3cbc2a599a791ea3085ce060a55171100edb0e93ab5d9de86e478acbc256d"
+    },
+    {
+      "id": "royal-island-right-v4",
+      "file": "royal-island-right-v4-balanced.glb",
+      "tier": "balanced",
+      "triangles": 20631,
+      "bytes": 1594340,
+      "sha256": "69f40e38aa82a805a585cb221967fe79958e45e9807273c3a4a7728ee34478e1",
+      "bounds": {
+        "min": [
+          -8.832659721374512,
+          -7.54813289642334,
+          -8.269288063049316
+        ],
+        "max": [
+          10.186410903930664,
+          9.195999145507812,
+          7.9690680503845215
+        ]
+      },
+      "anchors": {
+        "watercourse_0_right.002": [
+          3.3,
+          0.75,
+          1.85
+        ],
+        "watercourse_1_right.002": [
+          4.1,
+          0.12,
+          2.6
+        ],
+        "watercourse_2_right.002": [
+          5.3,
+          0.075,
+          3.3
+        ],
+        "watercourse_3_right.002": [
+          6.3,
+          0.04,
+          4.0
+        ],
+        "waterfall_end_right.002": [
+          7.0,
+          -13.0,
+          4.85
+        ],
+        "waterfall_origin_right.002": [
+          6.3,
+          0.04,
+          4.0
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058,
+      "sourceFile": "royal-island-right-v2-balanced.glb",
+      "sourceSha256": "2cb37d6f5729fab605a02c353a81691223127fd906af26c535f21ac9092fcf3f"
+    },
+    {
+      "id": "royal-island-right-v4",
+      "file": "royal-island-right-v4-low.glb",
+      "tier": "low",
+      "triangles": 11594,
+      "bytes": 926776,
+      "sha256": "efa8c4afcb1729c34c0a265cc71472c3b14e614ebe83702ef5b684f0f8dbaa6f",
+      "bounds": {
+        "min": [
+          -8.149786949157715,
+          -7.54446268081665,
+          -7.925443649291992
+        ],
+        "max": [
+          10.186410903930664,
+          9.195999145507812,
+          8.05052661895752
+        ]
+      },
+      "anchors": {
+        "watercourse_0_right.002": [
+          3.3,
+          0.75,
+          1.85
+        ],
+        "watercourse_1_right.002": [
+          4.1,
+          0.12,
+          2.6
+        ],
+        "watercourse_2_right.002": [
+          5.3,
+          0.075,
+          3.3
+        ],
+        "watercourse_3_right.002": [
+          6.3,
+          0.04,
+          4.0
+        ],
+        "waterfall_end_right.002": [
+          7.0,
+          -13.0,
+          4.85
+        ],
+        "waterfall_origin_right.002": [
+          6.3,
+          0.04,
+          4.0
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058,
+      "sourceFile": "royal-island-right-v2-low.glb",
+      "sourceSha256": "fd0dcde8d03bb15b1f6406b7c67435abce8608a1c1b157f4b652137a484197ab"
+    },
+    {
+      "id": "royal-island-citadel-v4",
+      "file": "royal-island-citadel-v4.glb",
+      "tier": "high",
+      "triangles": 39022,
+      "bytes": 2809952,
+      "sha256": "ed48dcb5742a156e375aa6191856d883a21b4e082e1a1863190d3cf462f1928a",
+      "bounds": {
+        "min": [
+          -6.680886268615723,
+          -4.9005937576293945,
+          -5.091193199157715
+        ],
+        "max": [
+          12.40847110748291,
+          11.489999771118164,
+          5.940072536468506
+        ]
+      },
+      "anchors": {
+        "sunset_glow_0.002": [
+          -1.95,
+          1.0815,
+          3.3
+        ],
+        "sunset_glow_1.002": [
+          1.95,
+          1.0815,
+          3.3
+        ],
+        "sunset_glow_2.002": [
+          10.1,
+          0.706,
+          1.1
+        ],
+        "sunset_glow_portal.002": [
+          -0.2,
+          1.55,
+          0.64
+        ],
+        "watercourse_0_left.002": [
+          -2.4,
+          0.13,
+          1.4
+        ],
+        "watercourse_1_left.002": [
+          -2.5,
+          0.13,
+          2.4
+        ],
+        "watercourse_2_left.002": [
+          -2.7,
+          0.1,
+          3.6
+        ],
+        "watercourse_3_left.002": [
+          -3.1,
+          0.08,
+          4.65
+        ],
+        "waterfall_end_left.002": [
+          -3.6,
+          -15.5,
+          5.7
+        ],
+        "waterfall_origin_left.002": [
+          -3.1,
+          0.08,
+          4.65
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058,
+      "sourceFile": "royal-island-citadel-v2.glb",
+      "sourceSha256": "1497df4d4bb15125f67ab5cc2b8b19a7a98dec4f22d5ee1351b72c672c4055a9"
+    },
+    {
+      "id": "royal-island-citadel-v4",
+      "file": "royal-island-citadel-v4-balanced.glb",
+      "tier": "balanced",
+      "triangles": 23984,
+      "bytes": 1767284,
+      "sha256": "54a52cfcf9c8be07623c7a47160fcaa4a9b8775d1d44123aa3fe7d7860c082ed",
+      "bounds": {
+        "min": [
+          -6.76632833480835,
+          -4.812598705291748,
+          -5.1375932693481445
+        ],
+        "max": [
+          12.40847110748291,
+          11.489999771118164,
+          5.785672187805176
+        ]
+      },
+      "anchors": {
+        "sunset_glow_0.002": [
+          -1.95,
+          1.0815,
+          3.3
+        ],
+        "sunset_glow_1.002": [
+          1.95,
+          1.0815,
+          3.3
+        ],
+        "sunset_glow_2.002": [
+          10.1,
+          0.706,
+          1.1
+        ],
+        "sunset_glow_portal.002": [
+          -0.2,
+          1.55,
+          0.64
+        ],
+        "watercourse_0_left.002": [
+          -2.4,
+          0.13,
+          1.4
+        ],
+        "watercourse_1_left.002": [
+          -2.5,
+          0.13,
+          2.4
+        ],
+        "watercourse_2_left.002": [
+          -2.7,
+          0.1,
+          3.6
+        ],
+        "watercourse_3_left.002": [
+          -3.1,
+          0.08,
+          4.65
+        ],
+        "waterfall_end_left.002": [
+          -3.6,
+          -15.5,
+          5.7
+        ],
+        "waterfall_origin_left.002": [
+          -3.1,
+          0.08,
+          4.65
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058,
+      "sourceFile": "royal-island-citadel-v2-balanced.glb",
+      "sourceSha256": "7051a9ecd9b9949f65931e31c88ac4ebd3fe2a2620f3f723035914a06ef49cef"
+    },
+    {
+      "id": "royal-island-citadel-v4",
+      "file": "royal-island-citadel-v4-low.glb",
+      "tier": "low",
+      "triangles": 13324,
+      "bytes": 964692,
+      "sha256": "2e1bc42fc8132cbd7bd0c7ef4263620d6f930654c85b0d42eb42d7624293b965",
+      "bounds": {
+        "min": [
+          -6.531991958618164,
+          -4.973160266876221,
+          -5.0149335861206055
+        ],
+        "max": [
+          12.40847110748291,
+          11.489999771118164,
+          6.4048943519592285
+        ]
+      },
+      "anchors": {
+        "sunset_glow_0.002": [
+          -1.95,
+          1.0815,
+          3.3
+        ],
+        "sunset_glow_1.002": [
+          1.95,
+          1.0815,
+          3.3
+        ],
+        "sunset_glow_2.002": [
+          10.1,
+          0.706,
+          1.1
+        ],
+        "sunset_glow_portal.002": [
+          -0.2,
+          1.55,
+          0.64
+        ],
+        "watercourse_0_left.002": [
+          -2.4,
+          0.13,
+          1.4
+        ],
+        "watercourse_1_left.002": [
+          -2.5,
+          0.13,
+          2.4
+        ],
+        "watercourse_2_left.002": [
+          -2.7,
+          0.1,
+          3.6
+        ],
+        "watercourse_3_left.002": [
+          -3.1,
+          0.08,
+          4.65
+        ],
+        "waterfall_end_left.002": [
+          -3.6,
+          -15.5,
+          5.7
+        ],
+        "waterfall_origin_left.002": [
+          -3.1,
+          0.08,
+          4.65
+        ]
+      },
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Ivory limestone",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Sakura blossom clusters",
+        "Warm carved timber",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058,
+      "sourceFile": "royal-island-citadel-v2-low.glb",
+      "sourceSha256": "c98cfbedefa7f513a110b8448f904d26cd377d861a3d912c5c244728fff2bfc9"
+    },
+    {
+      "id": "crown-foundation-v4",
+      "file": "crown-foundation-v4.glb",
+      "tier": "high",
+      "triangles": 6264,
+      "bytes": 625944,
+      "sha256": "400c7e34ae1e23df48fbcd0714047ac8d8fb57ee7fb5a225c86312602e88bbe3",
+      "bounds": {
+        "min": [
+          -13.543678283691406,
+          -9.0437593460083,
+          -13.584136009216309
+        ],
+        "max": [
+          13.951794624328613,
+          -0.6190304160118103,
+          13.352804183959961
+        ]
+      },
+      "anchors": {},
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058,
+      "sourceFile": "crown-foundation-v2.glb",
+      "sourceSha256": "6ea9d1f2047a8dd9274ee2818a6d968ea019bffe4ddeb030ddf9f9ce83cb5c69"
+    },
+    {
+      "id": "crown-foundation-v4",
+      "file": "crown-foundation-v4-balanced.glb",
+      "tier": "balanced",
+      "triangles": 4018,
+      "bytes": 410876,
+      "sha256": "b4576227581e28b9d35d0689f6663411f6e562520e03e781d5fe26c933637375",
+      "bounds": {
+        "min": [
+          -13.513400077819824,
+          -9.061348915100098,
+          -13.358526229858398
+        ],
+        "max": [
+          13.427590370178223,
+          -0.6190304160118103,
+          13.420480728149414
+        ]
+      },
+      "anchors": {},
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058,
+      "sourceFile": "crown-foundation-v2-balanced.glb",
+      "sourceSha256": "82a5a5e8da3f3b7acf4abb4382195e8eda8e576a03a7ed9d0af24906e2916dd1"
+    },
+    {
+      "id": "crown-foundation-v4",
+      "file": "crown-foundation-v4-low.glb",
+      "tier": "low",
+      "triangles": 2426,
+      "bytes": 256688,
+      "sha256": "437caedf783c3f1556d2a9ec45bd9d13360fd77e8d8226517f739384139ab335",
+      "bounds": {
+        "min": [
+          -13.216343879699707,
+          -8.97053337097168,
+          -13.538082122802734
+        ],
+        "max": [
+          13.445269584655762,
+          -0.6190304160118103,
+          13.536377906799316
+        ]
+      },
+      "anchors": {},
+      "materials": [
+        "Brushed antique gold",
+        "Carved sandstone",
+        "Deep evergreen foliage",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Royal blue glazed slate",
+        "Warm lit glass"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 10425058,
+      "sourceFile": "crown-foundation-v2-low.glb",
+      "sourceSha256": "1f290452db9b35179fffbddf7be7a8724ad97dac8535118218a06185650ddf5b"
+    }
+  ]
+}

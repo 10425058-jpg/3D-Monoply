@@ -2,10 +2,10 @@ import { variation } from './environmentLayout';
 import type { EnvironmentQuality, CloudLayout } from './environmentLayout';
 
 export const MOUNTAIN_LAYERS = [
-  { radius: 230, base: -122, amplitude: 82, color: '#b3b5dc', opacity: .32 },
-  { radius: 204, base: -120, amplitude: 76, color: '#9c9eca', opacity: .40 },
-  { radius: 178, base: -118, amplitude: 70, color: '#8489b9', opacity: .50 },
-  { radius: 152, base: -120, amplitude: 61, color: '#6d79ab', opacity: .61 },
+  { radius: 230, base: -122, amplitude: 82, color: '#a79bc6', opacity: .32 },
+  { radius: 204, base: -120, amplitude: 76, color: '#898bc0', opacity: .43 },
+  { radius: 178, base: -118, amplitude: 70, color: '#697faf', opacity: .56 },
+  { radius: 152, base: -120, amplitude: 61, color: '#526e9e', opacity: .69 },
 ] as const;
 
 export interface MountainPatch { layer:number;seed:number;angle:number;radius:number;width:number;depth:number;base:number;height:number }
@@ -29,17 +29,22 @@ export function mountainPatches():MountainPatch[]{
 /** A massif has several asymmetric summits, shoulders and eroded spurs.
  * Local coordinates span [-1,1]; all patch edges taper into distant haze. */
 export function massifHeight(u:number,v:number,patch:MountainPatch){
-  let peaks=0;
-  for(let i=0;i<6;i++){
-    const x=(variation(i,patch.seed+11)-.5)*1.36,z=(variation(i,patch.seed+12)-.5)*1.24;
-    const wx=.19+variation(i,patch.seed+13)*.31,wz=.25+variation(i,patch.seed+14)*.32;
-    const dx=(u-x+Math.sin(v*5+i)*.055)/wx,dz=(v-z)/wz;
-    peaks=Math.max(peaks,Math.exp(-Math.pow(Math.abs(dx),1.45)-Math.pow(Math.abs(dz),1.7))*(.54+variation(i,patch.seed+15)*.46));
+  let peakSum=0;
+  for(let i=0;i<7;i++){
+    // A connected, winding spine makes several differently sized summits,
+    // instead of stacking identical conical peaks at a random common centre.
+    const x=-.75+i*.25+(variation(i,patch.seed+11)-.5)*.15;
+    const z=Math.sin(i*1.7+patch.seed)*.23+(variation(i,patch.seed+12)-.5)*.20;
+    const wx=.19+variation(i,patch.seed+13)*.19,wz=.25+variation(i,patch.seed+14)*.39;
+    const dx=(u-x+Math.sin(v*4.7+i)*.04)/wx,dz=(v-z)/wz;
+    const summit=Math.exp(-Math.pow(Math.abs(dx),1.75)-Math.pow(Math.abs(dz),1.55))*(.49+variation(i,patch.seed+15)*.51);
+    peakSum+=Math.pow(summit,4.);
   }
-  const envelope=Math.pow(Math.max(0,(1-u*u)*(1-v*v)),.48);
-  const shoulders=.17*Math.exp(-u*u*2-v*v*1.4);
-  const erosion=(Math.sin(u*27+v*8+patch.seed)*Math.sin(v*19-u*4)+Math.sin(u*49-v*13)*.35)*.025;
-  return patch.base+patch.height*Math.max(0,peaks+shoulders+erosion)*envelope;
+  const envelope=Math.pow(Math.max(0,(1-u*u)*(1-v*v)),.65);
+  const shoulders=.18*Math.exp(-u*u*1.3-v*v*2.1);
+  const spine=Math.sin(u*8+patch.seed)*.16;
+  const erosion=(Math.sin((v-spine)*25+Math.sin(u*12)*1.7)+Math.sin(u*37+v*13+patch.seed)*.36)*.024;
+  return patch.base+patch.height*Math.min(1.08,Math.max(0,Math.pow(peakSum,.25)+shoulders+erosion))*envelope;
 }
 
 /** High cumulus, mid-distance banks and lower side wisps. Their fixed positions
@@ -58,7 +63,7 @@ export function atmosphereCloudLayout(quality: EnvironmentQuality): AtmosphereCl
       layer===1?[33+variation(i,93)*8,16+variation(i,94)*5]:layer===2?[23+variation(i,95)*5,12+variation(i,96)*4]:
       layer===3?[54+variation(i,97)*12,27+variation(i,98)*6]:[42+variation(i,99)*10,18+variation(i,100)*6];
     clouds.push({position:[Math.sin(angle)*radius,y,Math.cos(angle)*radius],size,
-      variant:i%8,opacity:layer===0?.52:layer===1?.61:layer===2?.53:layer===3?.42:.47,layer});
+      variant:i%8,opacity:layer===0?.47:layer===1?.50:layer===2?.38:layer===3?.35:.40,layer});
   }
   return clouds;
 }

@@ -139,6 +139,32 @@ test('V2 refined originals preserve source provenance and water anchors at every
   }
 });
 
+test('V4 production GLBs retain immutable V2 provenance, anchors, one atlas UV set and bounded topology',()=>{
+  const filename=path.join(models,'v4-manifest.json');
+  const receipt=JSON.parse(readFileSync(filename,'utf8'));
+  assert.equal(receipt.assets.length,12);
+  assert.equal(run('--manifest',filename).valid,true);
+  const sources=JSON.parse(readFileSync(path.join(models,'polish-v2-manifest.json'),'utf8')).assets;
+  for(const asset of receipt.assets){
+    const source=sources.find(record=>record.file===asset.sourceFile);assert.ok(source);
+    const bytes=readFileSync(path.join(models,asset.file));
+    const gltf=JSON.parse(bytes.subarray(20,20+bytes.readUInt32LE(12)));
+    assert.equal(createHash('sha256').update(readFileSync(path.join(models,asset.sourceFile))).digest('hex'),asset.sourceSha256);
+    const budget=asset.id==='crown-foundation-v4'?12000:{high:40000,balanced:25000,low:16000}[asset.tier];
+    assert.ok(asset.triangles<=budget&&asset.bytes<3*1024*1024);
+    if(asset.id==='crown-foundation-v4')assert.ok(asset.bounds.max[1]<-.5);
+    for(const part of gltf.meshes)for(const primitive of part.primitives){
+      assert.deepEqual(Object.keys(primitive.attributes).filter(key=>key.startsWith('TEXCOORD_')),['TEXCOORD_0'],'reimports cannot accumulate unused UV buffers');
+    }
+    for(const [name,point] of Object.entries(source.anchors)){
+      if(!name.startsWith('water'))continue;
+      const stem=name.replace(/\.\d+$/,'');
+      const refined=Object.entries(asset.anchors).find(([key])=>key.replace(/\.\d+$/,'')===stem)?.[1];
+      assert.ok(refined&&point.every((value,i)=>Math.abs(value-refined[i])<.001),`${asset.file}: preserve source water anchor ${stem}`);
+    }
+  }
+});
+
 test('offline cloud PNGs contain eight distinct soft RGBA silhouettes with mip-safe gutters',()=>{
   const validator=path.join(root,'tools/blender/validate_cloud_atlas.py');
   const report=JSON.parse(execFileSync(python,[validator],{cwd:root,encoding:'utf8'}));

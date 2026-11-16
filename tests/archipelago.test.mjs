@@ -12,7 +12,7 @@ const sunsetSource=readFileSync(new URL('../src/components/environment/sunsetKin
 const sunsetJs=ts.transpileModule(sunsetSource,{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.ESNext}}).outputText;
 const {SUNSET_KINGDOM,LEFT_ISLAND,RIGHT_ISLAND}=await import(`data:text/javascript;base64,${Buffer.from(sunsetJs).toString('base64')}`);
 const sunsetReceipt=JSON.parse(readFileSync(new URL('../public/assets/models/environment/sunset-manifest.json',import.meta.url),'utf8'));
-const refinedReceipt=JSON.parse(readFileSync(new URL('../public/assets/models/environment/polish-v2-manifest.json',import.meta.url),'utf8'));
+const refinedReceipt=JSON.parse(readFileSync(new URL('../public/assets/models/environment/v4-manifest.json',import.meta.url),'utf8'));
 const originalReceipt=JSON.parse(readFileSync(new URL('../public/assets/models/environment/manifest.json',import.meta.url),'utf8'));
 
 test('actual exported landmark bounds stay below gameplay and outside its column at every tier', () => {
@@ -34,14 +34,14 @@ test('actual exported landmark bounds stay below gameplay and outside its column
   assert.ok(Math.max(...gaps) < Math.PI, 'an orbit never exposes a completely unpopulated hemisphere');
 });
 
-test('full V2 island footprints remain separate at every exported quality tier',()=>{
+test('rendered V4 island footprints remain separate at every exported quality tier',()=>{
   const sites=[{id:'royal-island-left',site:LEFT_ISLAND},{id:'royal-island-right',site:RIGHT_ISLAND}];
   for(const [kind,entries] of Object.entries(ARCHIPELAGO))entries.forEach(site=>sites.push({id:`sky-${kind}`,site}));
   for(const [id,entries] of Object.entries(SUNSET_KINGDOM))if(!['crown-foundation','royal-garden-dressing'].includes(id))entries.forEach(site=>sites.push({id,site}));
   const models=[...originalReceipt.assets,...receipt.assets,...sunsetReceipt.assets,...refinedReceipt.assets];
   for(const tier of ['high','balanced','low']){
     const boxes=sites.map(({id,site},index)=>{
-      const modelId=['royal-island-left','royal-island-right','royal-island-citadel'].includes(id)?`${id}-v2`:id;
+      const modelId=['royal-island-left','royal-island-right','royal-island-citadel'].includes(id)?`${id}-v4`:id;
       const asset=models.find(record=>record.id===modelId&&record.tier===tier);assert.ok(asset);
       const matrix=new THREE.Matrix4().compose(new THREE.Vector3(...site.position),new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),site.rotation||0),new THREE.Vector3().setScalar(site.scale));
       const box=new THREE.Box3(new THREE.Vector3(...asset.bounds.min),new THREE.Vector3(...asset.bounds.max)).applyMatrix4(matrix);
