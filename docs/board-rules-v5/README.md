@@ -120,6 +120,12 @@ the boundary locally as well as in the browser workflow.
 The new Solo CI launchers also use the same Linux/SwiftShader flags as the
 existing online/menu scripts; an initial runner sandbox launch failure happened
 before any Solo scenario and did not indicate a gameplay failure.
+Dice observations start inside the page before the click and retain the actual
+visible settled quaternions. This avoids losing the existing brief display to
+slow browser-control responses. `V5_DICE_READ_DELAY_MS=3000` stress-tests all six
+face pairs by deliberately retrieving them after the normal fade; movement and
+HUD assertions remain separate and unchanged. Failure JSON retains state and
+recent rendered-dice samples for diagnosis.
 
 Useful commands:
 

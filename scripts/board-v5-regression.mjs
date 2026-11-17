@@ -16,15 +16,24 @@ const fixture=async(name,settle=true)=>{await page.evaluate(n=>window.__soloTest
 const capture=async name=>{await page.screenshot({path:`${out}/${name}.png`});results.scenarios.push({name,state:await state(),board:await page.evaluate(()=>window.__graphicsAudit.board()),actors:await page.evaluate(()=>window.__graphicsAudit.actors())});console.log(`Passed browser scenario: ${name}`);};
 async function roll(a=1,b=2){
   await wait(()=>{const b=document.querySelector('[aria-label="Roll dice"]');return b&&!b.disabled&&b.getBoundingClientRect().width>0;});
-  await page.evaluate(faces=>{const original=Math.random;Math.random=()=>{const value=(faces.shift()-.5)/6;if(!faces.length)Math.random=original;return value;};},[a,b]);
+  await page.evaluate(faces=>{
+    const randomFaces=[...faces],original=Math.random;Math.random=()=>{const value=(randomFaces.shift()-.5)/6;if(!randomFaces.length)Math.random=original;return value;};
+    const observation=window.__v5DiceObservation={found:null,samples:[]},until=performance.now()+60000;
+    // Start in-page sampling BEFORE the input. A slow CDP click response must
+    // not make the test miss the entire existing 2.2s presentation window.
+    const observe=()=>{
+      const state=window.__soloTest.state(),dice=window.__graphicsAudit.dice();
+      const sample={stored:state.dice,rendered:dice,phase:state.turnPhase,at:performance.now()};
+      observation.samples.push(sample);if(observation.samples.length>60)observation.samples.shift();
+      if(state.turnPhase!=='ROLLING'&&state.dice.every((v,i)=>v===faces[i])&&dice.every((d,i)=>d.visible&&d.up>.999&&d.face===faces[i]))observation.found=sample;
+      else if(performance.now()<until)requestAnimationFrame(observe);
+    };requestAnimationFrame(observe);
+  },[a,b]);
   await page.click('[aria-label="Roll dice"]');
-  // Observe the dice during their real display window. Token movement may take
-  // longer than the existing 2.2s dice fade on a software-rendered CI machine.
-  const settled=await page.waitForFunction(faces=>{
-    const state=window.__soloTest.state(),dice=window.__graphicsAudit.dice();
-    return state.turnPhase!=='ROLLING'&&dice.every((d,i)=>d.visible&&d.up>.999&&d.face===faces[i])?
-      {stored:state.dice,rendered:dice,phase:state.turnPhase}:false;
-  },{timeout:60000},[a,b]);
+  // Optional stress case: retrieve all six face observations after the normal
+  // fade. It applies only to the face matrix, not timed transaction HUD tests.
+  if(results.dice.length<6)await pause(Math.min(5000,Math.max(0,Number(process.env.V5_DICE_READ_DELAY_MS)||0)));
+  const settled=await wait(()=>window.__v5DiceObservation.found);
   const observation=await settled.jsonValue();await settled.dispose();
   assert.deepEqual(observation.stored,[a,b]);assert.deepEqual(observation.rendered.map(d=>d.face),[a,b]);
   await wait(()=>!['ROLLING','MOVING'].includes(window.__soloTest.state().turnPhase));
@@ -97,4 +106,8 @@ try{
   await page.goto(`${origin}/#solo`);await pause(3000);assert.equal(await page.evaluate(()=>!!window.__soloTest||!!window.__graphicsAudit),false);
   assert.deepEqual(errors,[]);results.errors=errors;results.passed=true;
   await writeFile(`${out}/results.json`,JSON.stringify(results,null,2));console.log('Passed live Solo opening, rendered dice, purchase, rent, buildings, Jail, cards, debt, auction, bankruptcy, victory, AI, restart and four mounts.');
-}catch(error){await page.screenshot({path:`${out}/failure.png`});throw error;}finally{await browser.close();}
+}catch(error){
+  const diagnostic=await page.evaluate(()=>({state:window.__soloTest?.state(),dice:window.__graphicsAudit?.dice(),observation:window.__v5DiceObservation})).catch(()=>null);
+  await writeFile(`${out}/failure.json`,JSON.stringify(diagnostic,null,2));console.error('Final browser diagnostics:',JSON.stringify(diagnostic));
+  await page.screenshot({path:`${out}/failure.png`});throw error;
+}finally{await browser.close();}
