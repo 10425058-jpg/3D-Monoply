@@ -36,16 +36,44 @@ try{
   assert.equal(final.state.players[0].position,8);assert.equal(final.state.players[0].money,1500);assert.deepEqual(final.dice.map(d=>d.face),[3,5]);
   results.motion={samples,final};await motion.screenshot({path:`${out}/normal-motion-dice.png`});await motion.close();console.log('Passed normal token and dice motion.');
   const fault=await browser.newPage();await fault.setViewport({width:1440,height:900,deviceScaleFactor:1});await fault.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'}]);
-  await fault.setCacheEnabled(false);await fault.setRequestInterception(true);const blocked=[];
+  await fault.setCacheEnabled(false);await fault.setRequestInterception(true);const blocked=[],workerHooks=[];
+  // Worker traffic has its own CDP session. Block and observe it explicitly,
+  // rather than depending on page interception winning worker startup races.
+  fault.on('workercreated',worker=>{
+    const requests=new Map();
+    worker.client.on('Network.requestWillBeSent',event=>{if(/unicode-font-resolver/i.test(event.request.url))requests.set(event.requestId,event.request.url);});
+    worker.client.on('Network.loadingFailed',event=>{if(requests.has(event.requestId)&&event.blockedReason==='inspector')blocked.push(requests.get(event.requestId));});
+    workerHooks.push(worker.client.send('Network.enable').then(()=>worker.client.send('Network.setBlockedURLs',{urls:['*unicode-font-resolver*']})).catch(()=>{}));
+  });
   // Troika's installed version resolves its default font through this data
   // package. Block that actual dependency, leaving the HUD's fonts alone.
   fault.on('request',r=>{if(/unicode-font-resolver/i.test(r.url())){blocked.push(r.url());r.abort('failed');}else r.continue();});
   await fault.goto(`${origin}/?graphicsAudit&soloTest#solo`);await fault.waitForFunction(()=>window.__soloTest&&window.__graphicsAudit&&window.__centralCityAudit?.ready&&window.__phase2Environment?.ready,{timeout:90000});
-  await fault.evaluate(()=>window.__soloTest.fixture('rent'));await pause(300);
-  await fault.evaluate(()=>{let faces=[1,2],original=Math.random;Math.random=()=>{const value=(faces.shift()-.5)/6;if(!faces.length)Math.random=original;return value;};});await fault.click('[aria-label="Roll dice"]');
-  await fault.waitForFunction(()=>window.__soloTest.state().turnPhase==='END_TURN',{timeout:60000});await pause(600);
-  const fallback=await fault.evaluate(()=>({money:window.__soloTest.state().players.map(p=>p.money),canvas:document.querySelectorAll('canvas').length,appVisible:document.querySelector('.monopoly-app')?.getBoundingClientRect().height>0,receipt:document.querySelector('.effect-transaction')?.textContent}));
-  assert.ok(blocked.length>0,'actually block the optional 3D font');assert.equal(fallback.appVisible,true);assert.equal(fallback.canvas,1);assert.deepEqual(fallback.money,[1496,1504,1500]);assert.ok(fallback.receipt?.includes('rent'));
-  await fault.screenshot({path:`${out}/optional-font-fallback.png`});results.fontFallback={blocked,...fallback};await fault.close();
+  const rentRoll=async()=>{
+    await fault.evaluate(()=>window.__soloTest.fixture('rent'));await pause(300);
+    await fault.evaluate(()=>{let faces=[1,2],original=Math.random;Math.random=()=>{const value=(faces.shift()-.5)/6;if(!faces.length)Math.random=original;return value;};});
+    await fault.click('[aria-label="Roll dice"]');await fault.waitForFunction(()=>window.__soloTest.state().turnPhase==='END_TURN',{timeout:60000});
+  };
+  // A brief money event can expire while Troika's first worker/preload starts
+  // on software WebGL. Warm that real path, require an OBSERVED blocked fetch,
+  // then test a fresh committed transaction with the dependency already failed.
+  let warmupTransactions=0;
+  while(!blocked.length&&warmupTransactions<3){await rentRoll();warmupTransactions++;await pause(1800);}
+  await Promise.allSettled(workerHooks);
+  assert.ok(blocked.length>0,'actually block the optional 3D font after bounded worker warm-up');
+  await fault.evaluate(()=>{
+    window.__fontFallbackReceipt=null;const until=performance.now()+60000,priorGameId=window.__soloTest.state().gameId;
+    const observe=()=>{
+      const state=window.__soloTest.state(),money=state.players.map(p=>p.money),receipt=document.querySelector('.effect-transaction')?.textContent;
+      if(state.gameId>priorGameId&&money[0]===1496&&receipt?.includes('rent'))window.__fontFallbackReceipt={money,receipt,canvas:document.querySelectorAll('canvas').length,
+        appVisible:document.querySelector('.monopoly-app')?.getBoundingClientRect().height>0,observedAt:performance.now()};
+      else if(performance.now()<until)requestAnimationFrame(observe);
+    };requestAnimationFrame(observe);
+  });
+  await rentRoll();await fault.waitForFunction(()=>window.__fontFallbackReceipt,{timeout:60000});
+  const fallback=await fault.evaluate(()=>window.__fontFallbackReceipt);
+  assert.equal(fallback.appVisible,true);assert.equal(fallback.canvas,1);assert.deepEqual(fallback.money,[1496,1504,1500]);assert.ok(fallback.receipt?.includes('rent'));
+  assert.equal(await fault.$eval('.monopoly-app',e=>e.getBoundingClientRect().height>0),true);
+  await fault.screenshot({path:`${out}/optional-font-fallback.png`});results.fontFallback={blocked,warmupTransactions,...fallback};await fault.close();
   results.passed=true;await writeFile(`${out}/resilience.json`,JSON.stringify(results,null,2));console.log('Passed board atlas context recovery at all tiers, normal token/dice animation and optional-font failure without blocking gameplay.');
 }finally{await browser.close();}

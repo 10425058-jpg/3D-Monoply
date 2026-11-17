@@ -126,6 +126,11 @@ slow browser-control responses. `V5_DICE_READ_DELAY_MS=3000` stress-tests all si
 face pairs by deliberately retrieving them after the normal fade; movement and
 HUD assertions remain separate and unchanged. Failure JSON retains state and
 recent rendered-dice samples for diagnosis.
+The font-fault check uses bounded real cash transactions to warm asynchronous
+font processing, requires an observed blocked dependency, then verifies a new
+rent transaction and HUD receipt after the failure. It does not disable workers
+or change production effect lifetimes to make the fault easier to trigger. Both
+page and worker network sessions receive the targeted font block.
 
 Useful commands:
 
