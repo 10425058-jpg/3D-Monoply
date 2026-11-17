@@ -87,10 +87,19 @@ try {
   assert.equal((await state()).pendingTrade.fromPlayerId, 1);
   await clickText('[aria-labelledby="trade-consent-title"] button', 'Accept trade');
   await wait(() => window.__soloTest.state().players[1].money === 10);
+  await page.evaluate(() => {
+    document.addEventListener('click', event => {
+      if (event.target.closest('.debt-resolution button')?.textContent.trim() === 'Settle $10') {
+        window.__birthdaySettlement = structuredClone(window.__soloTest.state());
+      }
+    }, {once: true});
+  });
   await clickText('.debt-resolution button', 'Settle $10');
-  await wait(() => window.__soloTest.state().pendingDebt === null);
-  assert.deepEqual((await state()).players.map(player => player.money), [1520, 0, 1480]);
-  assert.equal((await state()).currentPlayerIndex, 0);
+  // Capture the committed continuation before the active AI begins its next action.
+  await wait(() => window.__birthdaySettlement?.pendingDebt === null);
+  const birthdaySettlement = await page.evaluate(() => window.__birthdaySettlement);
+  assert.deepEqual(birthdaySettlement.players.map(player => player.money), [1520, 0, 1480]);
+  assert.equal(birthdaySettlement.currentPlayerIndex, 0);
   passed.push('S-02 non-active human debtor during an AI card turn');
 
   await fixture('auction-small-bid');
