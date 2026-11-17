@@ -1,4 +1,4 @@
-﻿✖ birthday bankruptcy transfers to drawer, completes remaining obligations, and never advances another turn (4.5532ms)
+✖ birthday bankruptcy transfers to drawer, completes remaining obligations, and never advances another turn (4.5532ms)
 ℹ tests 1
 ℹ suites 0
 ℹ pass 0
@@ -13,9 +13,9 @@
 test at tests\solo-rules.test.ts:1:15343
 ✖ birthday bankruptcy transfers to drawer, completes remaining obligations, and never advances another turn (4.5532ms)
   AssertionError [ERR_ASSERTION]: another payer bankruptcy preserves the drawer doubles bonus
-  
+
   0 !== 1
-  
+
       at TestContext.<anonymous> (C:\Users\admin\3D-Monoply\tests\solo-rules.test.ts:166:10)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)

@@ -35,10 +35,10 @@ test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:4164
 ✖ AI has the same legal auction entry as a human (2.9617ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
   + actual - expected
-  
+
   + 'LANDED_ACTION'
   - 'AUCTION'
-  
+
       at TestContext.<anonymous> (C:\Users\admin\3D-Monoply\.online-test\v5-rules-baseline\tests\solo-rules.test.ts:52:149)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
@@ -57,9 +57,9 @@ test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:4164
 test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:4414
 ✖ auction opening is at least 10; stale bidder cannot submit twice (0.9636ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   1 !== 0
-  
+
       at TestContext.<anonymous> (C:\Users\admin\3D-Monoply\.online-test\v5-rules-baseline\tests\solo-rules.test.ts:56:57)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
@@ -80,7 +80,7 @@ test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:5320
   AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
   + actual - expected
   ... Skipped lines
-  
+
     {
       phase: 'ROLLING',
       players: [
@@ -104,7 +104,7 @@ test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:5320
         },
         '6': {
           houses: 0,
-  
+
       at TestContext.<anonymous> (C:\Users\admin\3D-Monoply\.online-test\v5-rules-baseline\tests\solo-rules.test.ts:67:233)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
@@ -123,9 +123,9 @@ test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:5320
 test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:5696
 ✖ unmortgaging 100 principal costs exactly 110, not floating-point 111 (0.5124ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   1389 !== 1390
-  
+
       at TestContext.<anonymous> (C:\Users\admin\3D-Monoply\.online-test\v5-rules-baseline\tests\solo-rules.test.ts:70:70)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
@@ -144,9 +144,9 @@ test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:5696
 test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:6423
 ✖ held Jail card leaves the deck and returns to its original source once (4.4567ms)
   AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
-  
+
     assert.ok(!store.getState().chanceDeck.some(c=>c.id==='ch_7'))
-  
+
       at TestContext.<anonymous> (C:\Users\admin\3D-Monoply\.online-test\v5-rules-baseline\tests\solo-rules.test.ts:80:45)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
@@ -165,9 +165,9 @@ test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:6423
 test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:7033
 ✖ pay-each card keeps the actual next creditor when funds run out (0.5526ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   1500 !== 1550
-  
+
       at TestContext.<anonymous> (C:\Users\admin\3D-Monoply\.online-test\v5-rules-baseline\tests\solo-rules.test.ts:85:54)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
@@ -186,9 +186,9 @@ test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:7033
 test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:7318
 ✖ birthday obligations allow the actual payer to liquidate and settle in order (1.6447ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   undefined !== 1
-  
+
       at TestContext.<anonymous> (C:\Users\admin\3D-Monoply\.online-test\v5-rules-baseline\tests\solo-rules.test.ts:88:61)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
@@ -208,7 +208,7 @@ test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:7743
 ✖ bankruptcy is rejected outside an unresolved debt and after victory (1.4053ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
   + actual - expected
-  
+
     {
   +   phase: 'END_TURN',
   -   phase: 'PRE_ROLL',
@@ -230,7 +230,7 @@ test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:7743
           token: 'rubber_duck'
         },
         {
-  
+
       at TestContext.<anonymous> (C:\Users\admin\3D-Monoply\.online-test\v5-rules-baseline\tests\solo-rules.test.ts:93:174)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
@@ -249,9 +249,9 @@ test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:7743
 test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:8014
 ✖ bankruptcy transfers liquidation value, deeds and advances past eliminated active player (0.536ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   1505 !== 1555
-  
+
       at TestContext.<anonymous> (C:\Users\admin\3D-Monoply\.online-test\v5-rules-baseline\tests\solo-rules.test.ts:97:10)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
@@ -284,9 +284,9 @@ test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:8568
 test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:8886
 ✖ railroad decision blocks turn advancement; invalid vault indices never corrupt money (0.3653ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   1 !== 0
-  
+
       at TestContext.<anonymous> (C:\Users\admin\3D-Monoply\.online-test\v5-rules-baseline\tests\solo-rules.test.ts:103:153)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)

@@ -17,7 +17,7 @@ const filename=path.join(directory,'tests/solo-rules.test.ts');await writeFile(f
 const result=spawnSync(process.execPath,['--import','tsx','--test',filename],{encoding:'utf8',timeout:60000});
 assert.equal(result.error,undefined);assert.notEqual(result.status,0,'baseline must reproduce the repaired defects');
 assert.match(result.stdout,/\btests 19\b/);assert.match(result.stdout,/\bpass 8\b/);assert.match(result.stdout,/\bfail 11\b/);
-const receipt=`Archived source: ${ref}\nIsolated first 19 store regression cases; expected failing baseline.\n\n${result.stdout}${result.stderr}`;
+const receipt=`Archived source: ${ref}\nIsolated first 19 store regression cases; expected failing baseline.\n\n${result.stdout}${result.stderr}`.replace(/\r\n/g,'\n').replace(/[ \t]+$/gm,'');
 await mkdir('docs/board-rules-v5/evidence/validation',{recursive:true});
 await writeFile('docs/board-rules-v5/evidence/validation/baseline-first19.txt',receipt);
 console.log(receipt);
