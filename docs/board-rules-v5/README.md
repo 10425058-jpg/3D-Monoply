@@ -85,6 +85,8 @@ Executed after resuming on Windows, Node 24.21.0:
 | Total automated tests | **177 passed, 0 failed** |
 | Live Solo browser | 18 captured scenarios, 12 rendered dice, restart and four equal-workload mounts passed |
 | Existing graphics browser | All 40 spaces at four desktop/tablet/phone sizes, mouse/touch, presets/top/reset/orbit/zoom and real purchase/end-turn passed |
+| Real two-profile Chrome/PostgreSQL CI | Authentication, waiting room, committed-state sync, exact action replay, reload/multi-tab recovery, socket pause/resume, terminal standings and private invites passed |
+| Menu browser CI | Responsive menu/settings/auth and lazy Solo enter/leave passed |
 | Resilience browser | All-tier context restoration, normal token/dice animation and blocked optional font passed |
 | Matched art pairs | Seven final pairs; camera/DPR/viewports match saved main |
 | Performance | Nine matched 20-second cases per build; see raw samples/report |
@@ -115,6 +117,9 @@ authorized lazy match screen; waiting rooms load no gameplay catalog. A focused
 dependency-graph test reproduces that defect before repair in
 [waiting-room-before.txt](evidence/validation/waiting-room-before.txt), and guards
 the boundary locally as well as in the browser workflow.
+The new Solo CI launchers also use the same Linux/SwiftShader flags as the
+existing online/menu scripts; an initial runner sandbox launch failure happened
+before any Solo scenario and did not indicate a gameplay failure.
 
 Useful commands:
 
