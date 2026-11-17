@@ -49,6 +49,27 @@ try{
   await fixture('opening');await capture('opening');
   const atlas=(await page.evaluate(()=>window.__graphicsAudit.board())).textures;
   assert.equal(atlas.length,1);assert.equal(atlas[0].width,1024);assert.ok(atlas[0].mipmaps);
+  // Warm the real money-effect path before measuring the short dice window.
+  // Its first font/shader upload can stall a software renderer for that whole
+  // window. Wait for completed frames after a verified payment, not a delay.
+  await fixture('rent',false);
+  await page.evaluate(()=>{
+    const faces=[1,2],original=Math.random;Math.random=()=>{const value=(faces.shift()-.5)/6;if(!faces.length)Math.random=original;return value;};
+    const audit=window.__graphicsAudit,originalFrame=audit.frame;
+    window.__moneyWarmupFrames=0;
+    audit.frame=()=>{originalFrame();queueMicrotask(()=>{
+      const state=window.__soloTest.state();
+      if(state.turnPhase==='END_TURN'&&state.players[0].money===1496){
+        window.__moneyWarmupFrames++;
+        if(window.__moneyWarmupFrames>=3)audit.frame=originalFrame;
+      }
+    });};
+  });
+  await page.click('[aria-label="Roll dice"]');
+  await wait(()=>window.__moneyWarmupFrames>=3);
+  assert.deepEqual((await state()).players.map(player=>player.money),[1496,1504,1500]);
+  results.rendererWarmup={renderedFrames:await page.evaluate(()=>window.__moneyWarmupFrames),verifiedRent:4};
+  console.log('Passed renderer warmup with committed rent and completed frames.');
   for(const [a,b] of [[1,2],[2,3],[3,1],[4,5],[5,6],[6,4]]){await fixture('opening',false);await pause(150);await roll(a,b);}
   await capture('dice-landing');
   await fixture('opening');await roll();await footer('Buy');
