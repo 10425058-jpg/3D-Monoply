@@ -114,7 +114,10 @@ test('abandonment occurs at exactly 24 hours and commits a single terminal event
   await f.lifecycle.sweep();
   assert.equal((await snapshot(f)).status, 'PAUSED');
   t.mock.timers.tick(1);
-  await Promise.all([f.lifecycle.sweep(), f.lifecycle.sweep()]);
+  // Separate service instances must contend on the database lock, rather
+  // than only exercising one instance's in-process sweep guard.
+  const concurrentLifecycle = new LifecycleService(prisma, realtime);
+  await Promise.all([f.lifecycle.sweep(), concurrentLifecycle.sweep()]);
   await f.lifecycle.sweep();
   const saved = await snapshot(f);
   assert.equal(saved.status, 'ABANDONED');

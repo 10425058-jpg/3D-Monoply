@@ -40,6 +40,7 @@ async function roll(a=1,b=2){
   assert.deepEqual((await state()).dice,[a,b]);results.dice.push(observation);
 }
 async function footer(label){for(const b of await page.$$('footer button'))if(await b.evaluate((e,s)=>e.textContent.trim()===s,label)){await b.click();return;}throw Error(`Missing ${label}`);}
+async function debtAction(label){for(const b of await page.$$('.debt-resolution button'))if(await b.evaluate((e,s)=>e.textContent.trim()===s,label)){await b.click();return;}throw Error(`Missing ${label}`);}
 try{
   await page.goto(`${origin}/?graphicsAudit&soloTest#solo`);
   await wait(()=>window.__soloTest&&window.__graphicsAudit&&window.__centralCityAudit?.ready&&window.__phase2Environment?.ready);
@@ -77,8 +78,8 @@ try{
   await fixture('opening');await roll();await footer('Auction');await wait(()=>!!document.querySelector('#auction-title'));
   await page.click('[aria-labelledby="auction-title"] button:nth-of-type(2)');await page.click('[aria-labelledby="auction-title"] button:nth-of-type(1)');await page.click('[aria-labelledby="auction-title"] button:nth-of-type(1)');
   s=await state();assert.equal(s.properties[3].ownerId,0);assert.equal(s.players[0].money,1490);await capture('auction-won');
-  await fixture('bankruptcy');await roll();await page.click('.debt-resolution .console-button.secondary');s=await state();assert.ok(s.players[0].isBankrupt);assert.equal(s.currentPlayerIndex,1);assert.equal(s.turnPhase,'PRE_ROLL');await capture('bankruptcy');
-  await fixture('victory');await roll();await page.click('.debt-resolution .console-button.secondary');await wait(()=>window.__soloTest.state().turnPhase==='GAME_OVER');await capture('victory');
+  await fixture('bankruptcy');await roll();await debtAction('Declare bankruptcy');s=await state();assert.ok(s.players[0].isBankrupt);assert.equal(s.currentPlayerIndex,1);assert.equal(s.turnPhase,'PRE_ROLL');await capture('bankruptcy');
+  await fixture('victory');await roll();await debtAction('Declare bankruptcy');await wait(()=>window.__soloTest.state().turnPhase==='GAME_OVER');await capture('victory');
   assert.equal(await page.$eval('[aria-label="Roll dice"]',e=>e.disabled),true);
   await fixture('six-players');await pause(300);const positions=(await page.evaluate(()=>window.__graphicsAudit.actors())).tokens.map(t=>t.position);assert.equal(new Set(positions.map(p=>`${p[0]},${p[2]}`)).size,6);await capture('six-player-start');
   await fixture('ai');await roll();await footer('Buy');await footer('End Turn');await wait(()=>window.__soloTest.state().currentPlayerIndex!==0);
