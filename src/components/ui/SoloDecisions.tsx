@@ -6,7 +6,7 @@ import {unmortgageCost} from '../../game/soloRules';
 const money=(n:number)=>`$${n.toLocaleString('en-US')}`;
 
 /** Live Solo decision controls. Online keeps its server allowedActions UI. */
-export function SoloDecisions(){
+export function SoloDecisions({onOpenTrade, tradeOpen}: {onOpenTrade: () => void; tradeOpen: boolean}){
   const game=useGameStore(),active=game.players[game.currentPlayerIndex];
   if(game.winner||!active)return null;
   if(game.pendingTrade){
@@ -34,6 +34,7 @@ export function SoloDecisions(){
     </section></div>;
   }
   if(game.turnPhase==='DEBT_RESOLUTION'&&game.pendingDebt){
+    if(tradeOpen)return null;
     const debt=game.pendingDebt,payer=game.players.find(p=>p.id===(debt.debtorId??active.id))!;
     const creditor=game.players.find(p=>p.id===debt.creditorId);
     const holdings=BOARD_SPACES.filter(s=>game.properties[s.id]?.ownerId===payer.id);
@@ -41,7 +42,7 @@ export function SoloDecisions(){
     return <div className="modal-backdrop"><section className="game-modal debt-resolution" role="dialog" aria-modal="true" aria-labelledby="debt-title">
       <div className="eyebrow">RESOLVE PAYMENT</div><h2 id="debt-title">{payer.name} owes {money(debt.amount)}</h2>
       <p>{debt.reason} · Pay {creditor?.name??'the Bank'}. Cash available: <strong>{money(payer.money)}</strong>.</p>
-      <p>{payer.isAI?'The AI is raising funds using the same legal actions.':'Sell buildings evenly or mortgage eligible deeds, then settle the payment.'}</p>
+      <p>{payer.isAI?'The AI is raising funds using the same legal actions.':'Trade, sell buildings evenly or mortgage eligible deeds, then settle the payment.'}</p>
       <div className="debt-holdings">{holdings.map(s=>{
         const property=game.properties[s.id];
         return <div className="debt-holding" key={s.id}><span>{s.name}<small>{property.houses===5?'Hotel':`${property.houses} houses`}{property.isMortgaged?' · Mortgaged':''}</small></span>
@@ -50,7 +51,8 @@ export function SoloDecisions(){
             {property.isMortgaged?`Release ${money(unmortgageCost(s.mortgageValue??0))}`:`Mortgage ${money(s.mortgageValue??0)}`}</button>
         </div>;
       })}</div>
-      <div className="trade-modal-actions"><button className="console-button secondary" disabled={payer.isAI||!insolvent} title={insolvent?'Insufficient liquidation value to pay':'Raise funds from your holdings before declaring bankruptcy'} onClick={game.declareBankruptcy}>Declare bankruptcy</button>
+      <div className="trade-modal-actions"><button className="console-button secondary" disabled={payer.isAI} onClick={onOpenTrade}>Trade to raise funds</button>
+        <button className="console-button secondary" disabled={payer.isAI||!insolvent} title={insolvent?'Insufficient liquidation value to pay':'Raise funds from your holdings before declaring bankruptcy'} onClick={game.declareBankruptcy}>Declare bankruptcy</button>
         <button className="console-button primary" disabled={payer.isAI||payer.money<debt.amount} onClick={game.settlePendingDebt}>Settle {money(debt.amount)}</button></div>
     </section></div>;
   }

@@ -7,9 +7,9 @@ export function useSoloAudit(){
   useEffect(()=>{
     if(!['localhost','127.0.0.1'].includes(location.hostname)||!new URLSearchParams(location.search).has('soloTest'))return;
     const state=()=>{const s=useGameStore.getState();return {gameId:s.gameId,players:s.players,properties:s.properties,dice:s.dice,turnPhase:s.turnPhase,
-      currentPlayerIndex:s.currentPlayerIndex,pendingDebt:s.pendingDebt,activeCard:s.activeCard,heldJailCards:s.heldJailCards,auction:s.auction,railroadRaid:s.railroadRaid,winner:s.winner,logs:s.logs};};
+      currentPlayerIndex:s.currentPlayerIndex,pendingDebt:s.pendingDebt,pendingTrade:s.pendingTrade,activeCard:s.activeCard,heldJailCards:s.heldJailCards,auction:s.auction,railroadRaid:s.railroadRaid,winner:s.winner,logs:s.logs};};
     const fixture=(name:string)=>{
-      const names=['opening','rent','building','hotel','jail','go-to-jail','chance','chest','card-chain','debt','bankruptcy','victory','ai','six-players','ownership'];
+      const names=['opening','rent','building','hotel','jail','go-to-jail','chance','chest','card-chain','debt','bankruptcy','victory','ai','six-players','ownership','debt-trade','birthday-trade'];
       if(!names.includes(name))throw new Error('Unknown Solo QA fixture');
       const count=name==='victory'?2:name==='six-players'?6:3;
       useGameStore.getState().startNewGame(Array.from({length:count},(_,i)=>({name:i===0?'You':`Rival ${i}`,isAI:name==='ai'&&i>0,
@@ -31,7 +31,14 @@ export function useSoloAudit(){
       }
       if(['debt','bankruptcy','victory'].includes(name)){players[0].position=1;players[0].money=name==='debt'?120:10;if(name==='debt')own(5,0);}
       if(name==='ownership'){own(1,0);own(3,1,0,true);own(6,2,2);own(8,2,2);own(9,2,2);}
+      if(name==='debt-trade'){players[0].money=0;own(39,0);}
+      if(name==='birthday-trade'){players[0].isAI=true;players[1].money=0;own(39,1);}
       useGameStore.setState({players,properties,selectedSpaceId,gameSpeed:2,chanceDeck,chestDeck,heldJailCards});
+      if(name==='debt-trade')useGameStore.setState({turnPhase:'DEBT_RESOLUTION',pendingDebt:{amount:270,creditorId:1,reason:'Rent'}});
+      if(name==='birthday-trade'){
+        useGameStore.setState({turnPhase:'CARD_DRAWN',activeCard:COMMUNITY_CHEST_CARDS.find(card=>card.id==='cc_9')!,doublesCount:1});
+        useGameStore.getState().applyActiveCard();
+      }
       return state();
     };
     const api={fixture,state};(window as any).__soloTest=api;

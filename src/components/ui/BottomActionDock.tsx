@@ -24,7 +24,9 @@ export const BottomActionDock: React.FC<{
   const canToggleMortgage = useGameStore(s => s.canToggleMortgage);
   const raid = useGameStore(s => s.railroadRaid);
   const pendingTrade = useGameStore(s => s.pendingTrade);
+  const pendingDebt = useGameStore(s => s.pendingDebt);
   const active = players[currentIndex];
+  const tradePlayer = phase === 'DEBT_RESOLUTION' ? players.find(player => player.id === (pendingDebt?.debtorId ?? active?.id)) : active;
   const human = !!active && !active.isAI && !active.isBankrupt;
   const canRoll = human && phase === 'PRE_ROLL' && !raid && !pendingTrade;
   const rolling = phase === 'ROLLING' || phase === 'MOVING';
@@ -44,7 +46,7 @@ export const BottomActionDock: React.FC<{
     { name: 'Mortgage', Icon: Landmark, enabled: canMortgage, primary: false,
       hint: canMortgage ? 'Mortgage or unmortgage selected property' : 'Select your property; sell group buildings or raise unmortgage funds first',
       run: () => { if (canMortgage && selectedId !== null) { toggleMortgage(selectedId,properties[selectedId].isMortgaged); } } },
-    { name: 'Trade', Icon: ArrowLeftRight, enabled: human && ['PRE_ROLL','LANDED_ACTION','END_TURN'].includes(phase) && !raid && !pendingTrade, primary: false, hint: 'Trade properties and cash with a rival between actions',
+    { name: 'Trade', Icon: ArrowLeftRight, enabled: !!tradePlayer && !tradePlayer.isAI && !tradePlayer.isBankrupt && ['PRE_ROLL','LANDED_ACTION','END_TURN','DEBT_RESOLUTION'].includes(phase) && !raid && !pendingTrade, primary: false, hint: 'Trade properties and cash with a rival to raise funds',
       run: () => { sounds.playClick(); onOpenTrade(); } },
     { name: 'Auction', Icon: Gavel, enabled: canAuction, primary: false, hint: canAuction ? 'Auction this unowned property' : 'Land on an unowned property to start an auction',
       run: () => { sounds.playClick(); onOpenAuction(); } },
