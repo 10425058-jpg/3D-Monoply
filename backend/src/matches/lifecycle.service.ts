@@ -5,7 +5,7 @@ import { abandonMatch } from '../game/rules/engine';
 import { PrismaService } from '../prisma/prisma.service';
 import { MatchBroadcast, RealtimeService } from '../realtime/realtime.service';
 import { loadRoomState, lockRoom } from '../rooms/room-state';
-import { appendEvents, CONTENT, isTerminal, loadMatch, lockMatch, overduePlayerIds, saveEngineState, toEngineState } from './match-store';
+import { appendEvents, CONTENT, isTerminal, loadMatch, lockMatch, nextAllPlayersOfflineSince, overduePlayerIds, saveEngineState, toEngineState } from './match-store';
 
 const ACTIVE = ['IN_PROGRESS', 'PAUSED'];
 
@@ -113,7 +113,6 @@ export class LifecycleService implements OnModuleInit, OnModuleDestroy {
       player.disconnectedAt = disconnectedAt;
 
       // 24-hour clock: runs while no player who is still in the game is connected.
-      const someoneOnline = m.players.some((p) => !p.isBankrupt && p.connectionStatus === 'CONNECTED');
       let stateVersion = m.stateVersion;
       let broadcasts: MatchBroadcast[] = [];
       const everyoneOnline = m.players.filter((p) => !p.isBankrupt).every((p) => p.connectionStatus === 'CONNECTED');
@@ -135,7 +134,7 @@ export class LifecycleService implements OnModuleInit, OnModuleDestroy {
       } else {
         await tx.match.update({
           where: { id: matchId },
-          data: { allPlayersOfflineSince: someoneOnline ? null : m.allPlayersOfflineSince ?? now },
+          data: { allPlayersOfflineSince: nextAllPlayersOfflineSince(m, toEngineState(m), now) },
         });
       }
       return { playerId: player.id, disconnectedAt, stateVersion, broadcasts };
@@ -300,6 +299,7 @@ export class LifecycleService implements OnModuleInit, OnModuleDestroy {
       if (!(await lockMatch(tx, matchId))) return null;
       const m = await loadMatch(tx, matchId);
       if (!m || isTerminal(m.status) || !m.allPlayersOfflineSince) return null;
+      if (nextAllPlayersOfflineSince(m, toEngineState(m), new Date()) === null) return null;
       if (Date.now() - m.allPlayersOfflineSince.getTime() < config.allOfflineAbandonMs) return null;
       const now = new Date();
       const stateVersion = m.stateVersion + 1;
