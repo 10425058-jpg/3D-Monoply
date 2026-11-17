@@ -123,3 +123,53 @@ test('auction accepts a $10 opening and $11 exact-cash raise, rejects stale bids
   store.getState().placeAuctionBid(1, 1);
   assert.deepEqual({players: store.getState().players, properties: store.getState().properties}, after);
 });
+
+test('landmark upgrade charges $400 once for a captured level and raises the next GO payment to $250', t => {
+  setup(t);
+  store.getState().upgradeLandmark(0, 0);
+  store.getState().upgradeLandmark(0, 0);
+  assert.equal(store.getState().players[0].landmarkLevel, 1);
+  assert.equal(store.getState().players[0].money, 1100);
+  setPlayer(0, {position: 38});
+  t.mock.method(Math, 'random', () => 0);
+  store.getState().rollDice();
+  for (let step = 0; step < 10; step++) t.mock.timers.tick(200);
+  assert.equal(store.getState().players[0].position, 0);
+  assert.equal(store.getState().players[0].money, 1350);
+});
+
+test('landmark costs increase to level five and maximum level rejects further purchases', t => {
+  setup(t);
+  setPlayer(0, {money: 6000});
+  for (const [level, cost] of [400, 750, 1100, 1450, 1800].entries()) {
+    const before = store.getState().players[0].money;
+    assert.equal(store.getState().landmarkUpgradeCost(0), cost);
+    store.getState().upgradeLandmark(level, 0);
+    assert.equal(store.getState().players[0].landmarkLevel, level + 1);
+    assert.equal(store.getState().players[0].money, before - cost);
+  }
+  store.getState().upgradeLandmark(5, 0);
+  assert.equal(store.getState().players[0].landmarkLevel, 5);
+  assert.equal(store.getState().players[0].money, 500);
+});
+
+test('landmark action rejects insufficient cash, stale actor, pending decisions and invalid phases', t => {
+  setup(t);
+  setPlayer(0, {money: 399});
+  store.getState().upgradeLandmark(0, 0);
+  assert.equal(store.getState().players[0].money, 399);
+  setPlayer(0, {money: 1500});
+  store.getState().upgradeLandmark(0, 1);
+  assert.equal(store.getState().players[0].landmarkLevel, 0);
+  for (const turnPhase of ['SETUP', 'ROLLING', 'MOVING', 'CARD_DRAWN', 'DEBT_RESOLUTION', 'LANDED_ACTION', 'AUCTION', 'GAME_OVER'] as TurnPhase[]) {
+    store.setState({turnPhase});
+    store.getState().upgradeLandmark(0, 0);
+    assert.equal(store.getState().players[0].money, 1500);
+  }
+  store.setState({turnPhase: 'PRE_ROLL', pendingTrade: offer()});
+  store.getState().upgradeLandmark(0, 0);
+  assert.equal(store.getState().players[0].landmarkLevel, 0);
+  store.setState({pendingTrade: null, railroadRaid: {attackerId: 0, mode: 'choose', vaultRewards: [150, 300, 550]}});
+  store.getState().upgradeLandmark(0, 0);
+  assert.equal(store.getState().players[0].landmarkLevel, 0);
+});

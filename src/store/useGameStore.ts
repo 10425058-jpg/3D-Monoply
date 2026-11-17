@@ -80,7 +80,7 @@ interface GameStore {
 
   // Core Gameplay Actions
   rollDice: () => void;
-  upgradeLandmark: () => void;
+  upgradeLandmark: (expectedLevel?: number, expectedPlayerId?: number) => void;
   startBankHeist: () => void;
   resolveBankHeist: (vaultIndex: number) => void;
   shutdownLandmark: (targetPlayerId: number) => void;
@@ -750,10 +750,12 @@ export const useGameStore = create<GameStore>((set, get) => {
       return 400 + player.landmarkLevel * 350;
     },
 
-    upgradeLandmark: () => {
+    upgradeLandmark: (expectedLevel, expectedPlayerId) => {
       const state = get();
       const player = state.players[state.currentPlayerIndex];
       if (!player || player.isBankrupt || player.landmarkLevel >= 5) return;
+      if (expectedLevel !== undefined && player.landmarkLevel !== expectedLevel) return;
+      if (expectedPlayerId !== undefined && player.id !== expectedPlayerId) return;
       if (state.railroadRaid || state.pendingTrade || state.winner) return;
       if (state.turnPhase !== 'PRE_ROLL' && state.turnPhase !== 'END_TURN') return;
       const cost = get().landmarkUpgradeCost(player.id);

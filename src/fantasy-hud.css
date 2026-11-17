@@ -57,6 +57,10 @@
 .panel-seal { display: flex; gap: 8px; align-items: center; justify-content: center; color: #dcb676; margin-top: 12px; }
 .panel-seal span { width: 40px; height: 1px; background: #98704e; }
 .players-collapse { display: none; }
+.landmark-upgrade { display: grid; gap: 6px; margin-bottom: 12px; padding: 10px; border: 1px solid #8d5f8b; border-radius: 12px; background: #321b48; color: #f8dfa6; }
+.landmark-upgrade strong { font-size: 12px; }
+.landmark-upgrade p { margin: 0; font-size: 11px; line-height: 1.4; }
+.landmark-upgrade button { justify-content: center; min-height: 36px; font-size: 12px; }
 .fantasy-shortcuts { right: 20px; top: 114px; display: grid; gap: 12px; z-index: 20; }
 .royal-shortcut { position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 7px; width: 72px; min-height: 78px; border: 1px solid #d4a45b; border-radius: 20px 8px; background: linear-gradient(145deg, #502560, #211335); box-shadow: inset 0 0 0 3px #62405b, 0 4px 12px #150c2844; transition: transform .15s, background .15s; color: #f9dea3; }
 .royal-shortcut > svg { width: 29px; height: 29px; stroke-width: 1.65; }

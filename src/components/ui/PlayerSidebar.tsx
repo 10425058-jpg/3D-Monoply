@@ -8,9 +8,23 @@ export const PlayerSidebar: React.FC = () => {
   const players = useGameStore(s => s.players);
   const currentPlayerIndex = useGameStore(s => s.currentPlayerIndex);
   const properties = useGameStore(s => s.properties);
+  const phase = useGameStore(s => s.turnPhase);
+  const pendingTrade = useGameStore(s => s.pendingTrade);
+  const raid = useGameStore(s => s.railroadRaid);
+  const winner = useGameStore(s => s.winner);
+  const upgradeLandmark = useGameStore(s => s.upgradeLandmark);
+  const landmarkUpgradeCost = useGameStore(s => s.landmarkUpgradeCost);
   const [expanded, setExpanded] = useState(false);
   const active = players[currentPlayerIndex] || players[0];
   if (!active) return null;
+  const maximumLevel = active.landmarkLevel >= 5;
+  const upgradeCost = landmarkUpgradeCost(active.id);
+  let upgradeUnavailable = '';
+  if (maximumLevel) upgradeUnavailable = 'Maximum landmark level reached.';
+  else if (winner || active.isBankrupt) upgradeUnavailable = 'This player cannot upgrade after elimination or match completion.';
+  else if (active.isAI) upgradeUnavailable = 'Wait for your own turn to upgrade.';
+  else if (pendingTrade || raid || !['PRE_ROLL', 'END_TURN'].includes(phase)) upgradeUnavailable = 'Complete the current action before upgrading.';
+  else if (active.money < upgradeCost) upgradeUnavailable = `Requires $${upgradeCost.toLocaleString()} cash.`;
   return <aside className={`fantasy-players royal-panel ${expanded ? 'is-expanded' : ''}`} aria-label="Players">
     <button className="players-collapse" aria-expanded={expanded} aria-controls="kingdom-players"
       onClick={() => { sounds.playClick(); setExpanded(v => !v); }}>
@@ -18,6 +32,16 @@ export const PlayerSidebar: React.FC = () => {
     </button>
     <div className="players-content" id="kingdom-players">
       <div className="panel-heading"><Users size={18} /><h2>Players</h2><span>{players.filter(p => !p.isBankrupt).length}/{players.length}</span></div>
+      <section className="landmark-upgrade" aria-label={`${active.name}'s landmark`}>
+        <strong>Landmark · Level {active.landmarkLevel}/5</strong>
+        <p>GO income ${200 + active.landmarkLevel * 50}</p>
+        {!maximumLevel && <p>Next level earns ${250 + active.landmarkLevel * 50} on GO (+$50).</p>}
+        <button className="royal-action" disabled={!!upgradeUnavailable} aria-describedby="landmark-upgrade-status"
+          onClick={event => { if (event.detail <= 1) upgradeLandmark(active.landmarkLevel, active.id); }}>
+          {maximumLevel ? 'Maximum level' : `Upgrade for $${upgradeCost.toLocaleString()}`}
+        </button>
+        <p id="landmark-upgrade-status" role="status">{upgradeUnavailable || 'Available before rolling or at the end of your turn.'}</p>
+      </section>
       <div className="kingdom-player-list">{players.map((player, index) => {
         const activeTurn = index === currentPlayerIndex && !player.isBankrupt;
         const count = Object.values(properties).filter(p => p.ownerId === player.id).length;

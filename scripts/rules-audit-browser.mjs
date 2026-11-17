@@ -22,12 +22,12 @@ async function fixture(name) {
   await page.evaluate(name => window.__soloTest.fixture(name), name);
   await wait(() => !document.querySelector('#trade-title'));
 }
-async function clickText(selector, label) {
+async function clickText(selector, label, options) {
   const buttons = await page.$$(selector);
   for (const button of buttons) {
     if ((await button.evaluate(element => element.textContent.trim())) === label) {
       assert.equal(await button.evaluate(element => element.disabled), false, `${label} is enabled`);
-      await button.click();
+      await button.click(options);
       return;
     }
   }
@@ -103,6 +103,20 @@ try {
   assert.equal((await state()).properties[3].ownerId, 1);
   assert.equal((await state()).players[1].money, 0);
   passed.push('S-01 exact-cash $11 raise and auction settlement');
+
+  await fixture('opening');
+  await clickText('.landmark-upgrade button', 'Upgrade for $400', {clickCount: 2});
+  await wait(() => window.__soloTest.state().players[0].landmarkLevel === 1);
+  assert.equal((await state()).players[0].money, 1100);
+  assert.equal((await state()).players[0].landmarkLevel, 1, 'double-click continuation cannot buy another level');
+  assert.match(await page.$eval('.landmark-upgrade', element => element.textContent), /GO income.*250/);
+  assert.match(await page.$eval('.landmark-upgrade', element => element.textContent), /750/);
+  await page.setViewport({width: 390, height: 844});
+  await page.click('.players-collapse');
+  await wait(() => document.querySelector('.landmark-upgrade button')?.getBoundingClientRect().height > 0);
+  assert.equal(await page.$eval('.landmark-upgrade button', element => element.disabled), false);
+  await page.setViewport({width: 1440, height: 900});
+  passed.push('S-03 reachable landmark upgrade, price and GO income on desktop and mobile');
 
   assert.deepEqual(errors, []);
   await writeFile(`${output}/rules-audit-results.json`, JSON.stringify({passed, errors}, null, 2));
