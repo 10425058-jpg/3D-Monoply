@@ -94,3 +94,32 @@ test('trade attempts during unresolved actions and terminal phases cannot mutate
     assert.deepEqual({players: store.getState().players, properties: store.getState().properties}, before);
   }
 });
+
+test('auction accepts a $10 opening and $11 exact-cash raise, rejects stale bids and settles once', t => {
+  setup(t);
+  setPlayer(0, {position: 3});
+  setPlayer(1, {money: 11});
+  store.setState({turnPhase: 'LANDED_ACTION'});
+  store.getState().auctionCurrentProperty();
+  store.getState().placeAuctionBid(1, 0);
+  assert.equal(store.getState().auction?.currentBid, 0);
+  store.getState().placeAuctionBid(10, 0);
+  store.getState().placeAuctionBid(1, 0);
+  assert.equal(store.getState().auction?.currentBid, 10);
+  store.getState().placeAuctionBid(2, 1);
+  assert.equal(store.getState().auction?.currentBid, 10);
+  store.getState().placeAuctionBid(1, 1, 9);
+  assert.equal(store.getState().auction?.currentBid, 10, 'stale displayed price is rejected');
+  store.getState().placeAuctionBid(1, 1, 10);
+  assert.equal(store.getState().auction?.currentBid, 11);
+  store.getState().placeAuctionBid(1, 1);
+  assert.equal(store.getState().auction?.currentBid, 11);
+  store.getState().passAuction(2);
+  store.getState().passAuction(0);
+  const after = {players: store.getState().players, properties: store.getState().properties};
+  assert.equal(after.players[1].money, 0);
+  assert.equal(after.properties[3].ownerId, 1);
+  store.getState().passAuction(0);
+  store.getState().placeAuctionBid(1, 1);
+  assert.deepEqual({players: store.getState().players, properties: store.getState().properties}, after);
+});

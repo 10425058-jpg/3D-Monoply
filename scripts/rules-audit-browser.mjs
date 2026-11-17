@@ -93,6 +93,17 @@ try {
   assert.equal((await state()).currentPlayerIndex, 0);
   passed.push('S-02 non-active human debtor during an AI card turn');
 
+  await fixture('auction-small-bid');
+  await wait(() => !!document.querySelector('#auction-title'));
+  await clickText('[aria-labelledby="auction-title"] button', 'Bid $11');
+  await wait(() => window.__soloTest.state().auction?.currentBid === 11);
+  await clickText('[aria-labelledby="auction-title"] button', 'Pass bid');
+  await clickText('[aria-labelledby="auction-title"] button', 'Pass bid');
+  await wait(() => window.__soloTest.state().auction === null);
+  assert.equal((await state()).properties[3].ownerId, 1);
+  assert.equal((await state()).players[1].money, 0);
+  passed.push('S-01 exact-cash $11 raise and auction settlement');
+
   assert.deepEqual(errors, []);
   await writeFile(`${output}/rules-audit-results.json`, JSON.stringify({passed, errors}, null, 2));
   console.log(`Passed ${passed.length} focused rules-audit browser scenarios.`);

@@ -22,14 +22,17 @@ export function SoloDecisions({onOpenTrade, tradeOpen}: {onOpenTrade: () => void
   }
   if(game.turnPhase==='AUCTION'&&game.auction){
     const auction=game.auction,bidder=game.players.find(p=>p.id===auction.currentBidderId),highest=game.players.find(p=>p.id===auction.highestBidderId);
+    const minimumBid=auction.currentBid===0?10:auction.currentBid+1;
+    const increments=auction.currentBid===0?[10,50]:[1,10,50];
     return <div className="modal-backdrop"><section className="game-modal" role="dialog" aria-modal="true" aria-labelledby="auction-title">
       <div className="eyebrow">BANK AUCTION</div><h2 id="auction-title">{BOARD_SPACES[auction.spaceId].name}</h2>
       <p>{highest?`${highest.name} leads at ${money(auction.currentBid)}.`:'Opening bid $10. The player who declined may bid too.'}</p>
+      <p>Next minimum bid {money(minimumBid)}.</p>
       <p role="status">{bidder?.name}{bidder?.isAI?' is considering a bid…':`, your decision. Available cash ${money(bidder?.money??0)}.`}</p>
       <div className="trade-modal-actions">
         <button className="console-button secondary" disabled={!bidder||bidder.isAI} onClick={event=>{if(event.detail<=1)game.passAuction(bidder!.id);}}>Pass bid</button>
-        {[10,50].map(increment=><button key={increment} className="console-button primary" disabled={!bidder||bidder.isAI||bidder.money<auction.currentBid+increment}
-          onClick={event=>{if(event.detail<=1)game.placeAuctionBid(increment,bidder!.id);}}>Bid {money(auction.currentBid+increment)}</button>)}
+        {increments.map(increment=><button key={increment} className="console-button primary" disabled={!bidder||bidder.isAI||bidder.money<auction.currentBid+increment}
+          onClick={event=>{if(event.detail<=1)game.placeAuctionBid(increment,bidder!.id,auction.currentBid);}}>Bid {money(auction.currentBid+increment)}</button>)}
       </div>
     </section></div>;
   }

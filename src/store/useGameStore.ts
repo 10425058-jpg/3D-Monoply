@@ -95,7 +95,7 @@ interface GameStore {
   useJailCard: () => void;
   buyCurrentProperty: () => void;
   auctionCurrentProperty: () => void;
-  placeAuctionBid: (increment?: number, bidderId?: number) => void;
+  placeAuctionBid: (increment?: number, bidderId?: number, expectedCurrentBid?: number) => void;
   passAuction: (bidderId?: number) => void;
   declineProperty: () => void;
   applyActiveCard: () => void;
@@ -1053,10 +1053,11 @@ export const useGameStore = create<GameStore>((set, get) => {
       addLog(`Auction started for ${space.name}. Opening bid is $10.`, 'property');
     },
 
-    placeAuctionBid: (increment = 10, expectedBidderId) => {
+    placeAuctionBid: (increment = 10, expectedBidderId, expectedCurrentBid) => {
       const state = get();
       const auction = state.auction;
       if (!auction || state.turnPhase !== 'AUCTION') return;
+      if (expectedCurrentBid !== undefined && expectedCurrentBid !== auction.currentBid) return;
       const bidderId = auction.currentBidderId;
       const bidder = state.players.find((candidate) => candidate.id === bidderId);
       if (!bidder || bidder.isBankrupt) return;
