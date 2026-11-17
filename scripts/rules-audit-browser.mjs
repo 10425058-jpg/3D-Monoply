@@ -112,11 +112,28 @@ try {
   assert.match(await page.$eval('.landmark-upgrade', element => element.textContent), /GO income.*250/);
   assert.match(await page.$eval('.landmark-upgrade', element => element.textContent), /750/);
   await page.setViewport({width: 390, height: 844});
-  await page.click('.players-collapse');
+  await page.waitForSelector('.players-collapse', {visible: true});
+  await page.focus('.players-collapse');
+  await page.keyboard.press('Enter');
   await wait(() => document.querySelector('.landmark-upgrade button')?.getBoundingClientRect().height > 0);
   assert.equal(await page.$eval('.landmark-upgrade button', element => element.disabled), false);
   await page.setViewport({width: 1440, height: 900});
   passed.push('S-03 reachable landmark upgrade, price and GO income on desktop and mobile');
+
+  for (const ownership of ['unowned', 'self', 'opponent']) {
+    await fixture(`utility-${ownership}`);
+    await wait(() => !!document.querySelector('.card-reveal'));
+    const instructions = await page.$eval('.card-reveal', element => element.textContent);
+    assert.match(instructions, /10 times/);
+    assert.match(instructions, /same two dice.*land on Chance/);
+    assert.match(instructions, /Do not roll again/);
+    await clickText('.card-reveal button', 'Resolve this card');
+    await wait(() => window.__soloTest.state().players[0].position === 12 && !['CARD_DRAWN', 'MOVING'].includes(window.__soloTest.state().turnPhase));
+    await wait(() => !document.querySelector('.card-reveal'));
+    assert.equal((await state()).players[0].money, ownership === 'opponent' ? 1430 : 1500);
+    assert.deepEqual((await state()).dice, [3, 4]);
+    passed.push(`UI-01 Solo Nearest Utility instructions and ${ownership} utility`);
+  }
 
   assert.deepEqual(errors, []);
   await writeFile(`${output}/rules-audit-results.json`, JSON.stringify({passed, errors}, null, 2));

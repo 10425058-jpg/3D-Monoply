@@ -9,7 +9,7 @@ export function useSoloAudit(){
     const state=()=>{const s=useGameStore.getState();return {gameId:s.gameId,players:s.players,properties:s.properties,dice:s.dice,turnPhase:s.turnPhase,
       currentPlayerIndex:s.currentPlayerIndex,pendingDebt:s.pendingDebt,pendingTrade:s.pendingTrade,activeCard:s.activeCard,heldJailCards:s.heldJailCards,auction:s.auction,railroadRaid:s.railroadRaid,winner:s.winner,logs:s.logs};};
     const fixture=(name:string)=>{
-      const names=['opening','rent','building','hotel','jail','go-to-jail','chance','chest','card-chain','debt','bankruptcy','victory','ai','six-players','ownership','debt-trade','birthday-trade','auction-small-bid'];
+      const names=['opening','rent','building','hotel','jail','go-to-jail','chance','chest','card-chain','debt','bankruptcy','victory','ai','six-players','ownership','debt-trade','birthday-trade','auction-small-bid','utility-unowned','utility-self','utility-opponent'];
       if(!names.includes(name))throw new Error('Unknown Solo QA fixture');
       const count=name==='victory'?2:name==='six-players'?6:3;
       useGameStore.getState().startNewGame(Array.from({length:count},(_,i)=>({name:i===0?'You':`Rival ${i}`,isAI:name==='ai'&&i>0,
@@ -44,6 +44,11 @@ export function useSoloAudit(){
         useGameStore.setState({players,turnPhase:'LANDED_ACTION'});
         useGameStore.getState().auctionCurrentProperty();
         useGameStore.getState().placeAuctionBid(10,0);
+      }
+      if(name.startsWith('utility-')){
+        players[0].position=7;
+        if(name!=='utility-unowned')own(12,name==='utility-self'?0:1);
+        useGameStore.setState({players,properties,dice:[3,4],turnPhase:'CARD_DRAWN',activeCard:CHANCE_CARDS.find(card=>card.id==='ch_4')!});
       }
       return state();
     };

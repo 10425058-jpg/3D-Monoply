@@ -29,7 +29,7 @@ export const CHANCE_CARDS: DeckCard[] = [
     id: 'ch_4',
     deck: 'chance',
     title: 'Advance to Nearest Utility',
-    description: 'Advance token to the nearest Utility. If unowned, you may buy it from the Bank.',
+    description: 'Advance to the nearest Utility. If unowned, you may buy it from the Bank. If another player owns it and it is not mortgaged, pay 10 times the total of the same two dice used to land on Chance. Do not roll again.',
     actionType: 'nearest_utility',
   },
   {

@@ -13,6 +13,7 @@ on:
       - 'scripts/online-browser.mjs'
       - 'scripts/menu-*.mjs'
       - 'scripts/board-v5-*.mjs'
+      - 'scripts/rules-audit-*.mjs'
       - 'tools/compare_board_capture.py'
       - 'public/assets/menu/**'
       - 'public/assets/models/environment/**'
@@ -153,6 +154,12 @@ jobs:
         env:
           CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
         run: npm run test:online-browser
+
+      - name: Nearest Utility instructions in authenticated Online play
+        env:
+          CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
+          ONLINE_TEST_OUT: .online-test/priority3/rules-audit
+        run: npm run test:rules-online-browser
 
       - name: Main menu / lazy gameplay / responsive navigation
         env:

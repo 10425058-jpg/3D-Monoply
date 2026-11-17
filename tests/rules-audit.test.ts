@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {useGameStore as store} from '../src/store/useGameStore';
-import {COMMUNITY_CHEST_CARDS} from '../src/data/cardsData';
+import {CHANCE_CARDS, COMMUNITY_CHEST_CARDS} from '../src/data/cardsData';
 import type {TradeOffer, TurnPhase} from '../src/types/game';
 
 function setup(t: any) {
@@ -173,3 +173,33 @@ test('landmark action rejects insufficient cash, stale actor, pending decisions 
   store.getState().upgradeLandmark(0, 0);
   assert.equal(store.getState().players[0].landmarkLevel, 0);
 });
+
+test('Nearest Utility instructions explain the exceptional rent and which dice to use', () => {
+  const card = CHANCE_CARDS.find(card => card.id === 'ch_4')!;
+  assert.match(card.description, /10 times/i);
+  assert.match(card.description, /same two dice.*land on Chance/i);
+  assert.match(card.description, /Do not roll again/);
+  assert.match(card.description, /unowned.*buy/i);
+  assert.match(card.description, /not mortgaged/);
+});
+
+for (const [ownerId, isMortgaged] of [[null, false], [0, false], [1, false], [1, true]] as const) {
+  test(`Solo Nearest Utility uses existing dice: owner ${ownerId ?? 'Bank'}, mortgaged ${isMortgaged}`, t => {
+    setup(t);
+    if (ownerId !== null) own(12, ownerId);
+    if (isMortgaged) store.setState(state => ({properties: {...state.properties, 12: {...state.properties[12], isMortgaged}}}));
+    setPlayer(0, {position: 7});
+    store.setState({dice: [3, 4], activeCard: CHANCE_CARDS.find(card => card.id === 'ch_4')!, turnPhase: 'CARD_DRAWN'});
+    // If movement incorrectly rerolls, these faces would change both dice and rent.
+    t.mock.method(Math, 'random', () => 0.99);
+    store.getState().applyActiveCard();
+    for (let step = 0; step < 10; step++) t.mock.timers.tick(200);
+    assert.equal(store.getState().players[0].position, 12);
+    assert.deepEqual(store.getState().dice, [3, 4]);
+    assert.equal(store.getState().turnPhase, ownerId === null ? 'LANDED_ACTION' : 'END_TURN');
+    const rent = ownerId === 1 && !isMortgaged ? 70 : 0;
+    assert.deepEqual(store.getState().players.map(player => player.money), [1500 - rent, 1500 + rent, 1500]);
+    store.getState().applyActiveCard();
+    assert.equal(store.getState().players[0].money, 1500 - rent);
+  });
+}
