@@ -11,7 +11,7 @@ async function loadTS(path) {
   return import(`data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`);
 }
 const math = await loadTS('../src/presentation/animationMath.ts');
-const { collectEffectChanges: diff, isGameReset, primaryEffect } = await loadTS('../src/presentation/effectEvents.ts');
+const { collectEffectChanges: diff, isGameReset, primaryEffect, tilePulseEvents } = await loadTS('../src/presentation/effectEvents.ts');
 const snapshot = () => ({
   players: [{ id: 0, name: 'You', money: 1500, position: 0, isAI: false, inJail: false, isBankrupt: false },
     { id: 1, name: 'Rival', money: 1500, position: 0, isAI: true, inJail: false, isBankrupt: false }],
@@ -40,6 +40,44 @@ test('all six authoritative dice faces settle facing up', () => {
     const up = new Vector3(...normal).applyQuaternion(new Quaternion().setFromEuler(new Euler(...math.DIE_REST_ROTATIONS[value])));
     assert.ok(up.distanceTo(new Vector3(0, 1, 0)) < 1e-10, `face ${value}`);
   }
+});
+
+test('dice remain full size throughout tumbling and consecutive rolls, then fade only after landing', () => {
+  for (const reduced of [false, true]) {
+    assert.equal(math.diceResultScale(true, Infinity, reduced), 1, 'a fresh roll has no landing age');
+    assert.equal(math.diceResultScale(true, 10, reduced), 1, 'a consecutive roll clears the previous fade');
+    assert.equal(math.diceResultScale(false, 0, reduced), 1);
+    assert.equal(math.diceResultScale(false, 1.9, reduced), 1);
+    assert.equal(math.diceResultScale(false, Infinity, reduced), 0, 'reset hides old results');
+    assert.equal(math.diceResultScale(false, 2.2, reduced), 0);
+  }
+  assert.ok(Math.abs(math.diceResultScale(false, 2.05, false) - .5) < 1e-10);
+  assert.equal(math.diceResultScale(false, 2.05, true), 1, 'reduced motion preserves a stable result');
+});
+
+test('four to six shared-space player rings remain separate at the largest corner scale', () => {
+  for (const count of [4, 5, 6]) {
+    const offsets = Array.from({length: count}, (_, i) => math.tokenOffset(i, count));
+    for (let i = 0; i < count; i++) for (let j = i + 1; j < count; j++) {
+      const gap = Math.hypot(offsets[i].x - offsets[j].x, offsets[i].z - offsets[j].z);
+      const diameter = math.TOKEN_RING_OUTER_RADIUS * math.tokenRingScale(count) * 1.2 * (offsets[i].scale + offsets[j].scale);
+      assert.ok(gap > diameter, `${count} players: ${i}/${j} rings intersect`);
+    }
+  }
+});
+
+test('tile pulses reuse exact committed GO receipts and coalesce property changes without new rewards', () => {
+  const events = [
+    {id: 1, kind: 'money', spaceId: 0, amount: 350, playerId: 0},
+    {id: 2, kind: 'money', spaceId: 3, amount: 20, playerId: 1},
+    {id: 3, kind: 'money', spaceId: 0, amount: -60, playerId: 2},
+    {id: 4, kind: 'ownership', spaceId: 1, playerId: 0},
+    {id: 5, kind: 'build', spaceId: 1, playerId: 0},
+  ];
+  assert.deepEqual(tilePulseEvents(events), [events[0], events[4]]);
+  assert.equal(tilePulseEvents(events)[0].amount, 350);
+  assert.equal(events.length, 5);
+  assert.deepEqual(tilePulseEvents([]), []);
 });
 test('hop starts and ends on the actual tile, with eased endpoints', () => {
   assert.equal(math.hopPose(0).blend, 0); assert.equal(math.hopPose(1).blend, 1);

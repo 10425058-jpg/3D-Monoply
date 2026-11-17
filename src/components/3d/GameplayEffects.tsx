@@ -3,9 +3,11 @@ import { useFrame } from '@react-three/fiber';
 import { Billboard, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { usePresentationEvents } from '../../presentation/PresentationProvider';
-import { PresentationEvent } from '../../presentation/effectEvents';
+import { PresentationEvent, tilePulseEvents } from '../../presentation/effectEvents';
 import { useMotionPreferences } from '../../presentation/useMotionPreferences';
 import { getSpaceTransform } from '../../data/boardData';
+import { useSceneState } from '../../presentation/SceneStore';
+import { tileActorHeight } from '../../presentation/animationMath';
 
 class MoneyLabelBoundary extends React.Component<{children:React.ReactNode},{failed:boolean}>{
   state={failed:false};
@@ -20,6 +22,9 @@ function Pulse({ event, particles }: { event: PresentationEvent; particles: numb
   const stars = useRef<THREE.InstancedMesh>(null);
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const position = getSpaceTransform(event.spaceId!).position;
+  const playerColor = useSceneState(s => s.players.find(p => p.id === event.playerId)?.color);
+  const hovered = useSceneState(s => s.hoveredSpaceId), selected = useSceneState(s => s.selectedSpaceId);
+  const color = event.kind === 'money' ? '#eac879' : event.kind === 'mortgage' ? '#b8a0d0' : playerColor ?? '#eac879';
   useFrame(() => {
     if (!root.current || document.hidden) return;
     const t = Math.min(1, (performance.now() - event.createdAt) / 1100);
@@ -39,12 +44,12 @@ function Pulse({ event, particles }: { event: PresentationEvent; particles: numb
       stars.current.instanceMatrix.needsUpdate = true;
     }
   });
-  return <group ref={root} position={[position[0], 0.45, position[2]]} name={`effect-${event.kind}-${event.spaceId}`}>
+  return <group ref={root} position={[position[0], tileActorHeight(event.spaceId!, hovered, selected) + .045, position[2]]} name={`effect-${event.kind}-${event.spaceId}`}>
     <mesh ref={ring} rotation={[-Math.PI / 2, 0, 0]} raycast={() => {}}>
-      <ringGeometry args={[0.7, 0.74, 32]} /><meshBasicMaterial color="#ffd76a" transparent depthWrite={false} />
+      <ringGeometry args={[0.7, 0.74, 32]} /><meshBasicMaterial color={color} transparent opacity={0} depthWrite={false} />
     </mesh>
     {particles > 0 && <instancedMesh ref={stars} args={[undefined, undefined, particles]} raycast={() => {}}>
-      <octahedronGeometry args={[1, 0]} /><meshBasicMaterial color="#ffe7a5" />
+      <octahedronGeometry args={[1, 0]} /><meshBasicMaterial color={color} />
     </instancedMesh>}
   </group>;
 }
@@ -73,7 +78,7 @@ export function GameplayEffects({ quality }: { quality: string }) {
   const events = usePresentationEvents();
   const { reducedMotion, visible } = useMotionPreferences();
   if (!visible) return null;
-  const pulses = [...new Map(events.filter(e => ['ownership', 'build', 'mortgage'].includes(e.kind) && e.spaceId !== undefined).map(e => [e.spaceId, e])).values()].slice(-4);
+  const pulses = tilePulseEvents(events);
   return <group name="presentation-effects">
     {!reducedMotion && pulses.map(event => <Pulse key={event.id} event={event} particles={quality === 'low' ? 0 : quality === 'high' ? 12 : 8} />)}
     <MoneyLabelBoundary><Suspense fallback={null}>

@@ -1,0 +1,1591 @@
+{
+  "passed": true,
+  "quality": "balanced",
+  "reducedMotion": true,
+  "results": [
+    {
+      "viewport": [
+        1920,
+        1080
+      ],
+      "layout": {
+        "panel": {
+          "x": 20,
+          "y": 114,
+          "width": 280,
+          "height": 826,
+          "right": 300,
+          "bottom": 940
+        },
+        "tray": {
+          "x": 419.1875,
+          "y": 952,
+          "width": 900,
+          "height": 112,
+          "right": 1319.1875,
+          "bottom": 1064
+        },
+        "buttons": [
+          {
+            "label": "Cash balance: $1,500",
+            "shortcut": false,
+            "x": 1417.703125,
+            "y": 22,
+            "width": 142.359375,
+            "height": 45,
+            "right": 1560.0625,
+            "bottom": 67,
+            "visible": true
+          },
+          {
+            "label": "Sticker stars: 0",
+            "shortcut": false,
+            "x": 1569.0625,
+            "y": 22,
+            "width": 120.9375,
+            "height": 45,
+            "right": 1690,
+            "bottom": 67,
+            "visible": true
+          },
+          {
+            "label": "Toggle overhead camera",
+            "shortcut": false,
+            "x": 1699,
+            "y": 23.5,
+            "width": 42,
+            "height": 42,
+            "right": 1741,
+            "bottom": 65.5,
+            "visible": true
+          },
+          {
+            "label": "Inbox & Rewards",
+            "shortcut": false,
+            "x": 1750,
+            "y": 23.5,
+            "width": 42,
+            "height": 42,
+            "right": 1792,
+            "bottom": 65.5,
+            "visible": true
+          },
+          {
+            "label": "Mute sound effects",
+            "shortcut": false,
+            "x": 1801,
+            "y": 23.5,
+            "width": 42,
+            "height": 42,
+            "right": 1843,
+            "bottom": 65.5,
+            "visible": true
+          },
+          {
+            "label": "Game Settings & New Game",
+            "shortcut": false,
+            "x": 1852,
+            "y": 23.5,
+            "width": 42,
+            "height": 42,
+            "right": 1894,
+            "bottom": 65.5,
+            "visible": true
+          },
+          {
+            "label": "Daily",
+            "shortcut": true,
+            "x": 1828,
+            "y": 114,
+            "width": 72,
+            "height": 78,
+            "right": 1900,
+            "bottom": 192,
+            "visible": true
+          },
+          {
+            "label": "Spin",
+            "shortcut": true,
+            "x": 1828,
+            "y": 204,
+            "width": 72,
+            "height": 78,
+            "right": 1900,
+            "bottom": 282,
+            "visible": true
+          },
+          {
+            "label": "Album",
+            "shortcut": true,
+            "x": 1828,
+            "y": 294,
+            "width": 72,
+            "height": 78,
+            "right": 1900,
+            "bottom": 372,
+            "visible": true
+          },
+          {
+            "label": "Missions",
+            "shortcut": true,
+            "x": 1828,
+            "y": 384,
+            "width": 72,
+            "height": 78,
+            "right": 1900,
+            "bottom": 462,
+            "visible": true
+          },
+          {
+            "label": "Stats",
+            "shortcut": false,
+            "x": 20,
+            "y": 998,
+            "width": 52,
+            "height": 60,
+            "right": 72,
+            "bottom": 1058,
+            "visible": true
+          },
+          {
+            "label": "Rules",
+            "shortcut": false,
+            "x": 80,
+            "y": 998,
+            "width": 52,
+            "height": 60,
+            "right": 132,
+            "bottom": 1058,
+            "visible": true
+          },
+          {
+            "label": "Buy",
+            "shortcut": false,
+            "x": 436.1875,
+            "y": 969,
+            "width": 138.5,
+            "height": 78,
+            "right": 574.6875,
+            "bottom": 1047,
+            "visible": true
+          },
+          {
+            "label": "Build",
+            "shortcut": false,
+            "x": 581.6875,
+            "y": 969,
+            "width": 138.5,
+            "height": 78,
+            "right": 720.1875,
+            "bottom": 1047,
+            "visible": true
+          },
+          {
+            "label": "Mortgage",
+            "shortcut": false,
+            "x": 727.1875,
+            "y": 969,
+            "width": 138.5,
+            "height": 78,
+            "right": 865.6875,
+            "bottom": 1047,
+            "visible": true
+          },
+          {
+            "label": "Trade",
+            "shortcut": false,
+            "x": 872.6875,
+            "y": 969,
+            "width": 138.5,
+            "height": 78,
+            "right": 1011.1875,
+            "bottom": 1047,
+            "visible": true
+          },
+          {
+            "label": "Auction",
+            "shortcut": false,
+            "x": 1018.1875,
+            "y": 969,
+            "width": 138.5,
+            "height": 78,
+            "right": 1156.6875,
+            "bottom": 1047,
+            "visible": true
+          },
+          {
+            "label": "End Turn",
+            "shortcut": false,
+            "x": 1163.6875,
+            "y": 969,
+            "width": 138.5,
+            "height": 78,
+            "right": 1302.1875,
+            "bottom": 1047,
+            "visible": true
+          },
+          {
+            "label": "Roll dice",
+            "shortcut": false,
+            "x": 1746,
+            "y": 910,
+            "width": 154,
+            "height": 154,
+            "right": 1900,
+            "bottom": 1064,
+            "visible": true
+          }
+        ],
+        "horizontalOverflow": false
+      },
+      "lastPlayer": {
+        "count": 6,
+        "visible": true
+      },
+      "shortcuts": [
+        {
+          "label": "DailyReward available",
+          "fits": true,
+          "reachable": true
+        },
+        {
+          "label": "Spin",
+          "fits": true,
+          "reachable": true
+        },
+        {
+          "label": "Album",
+          "fits": true,
+          "reachable": true
+        },
+        {
+          "label": "Missions",
+          "fits": true,
+          "reachable": true
+        }
+      ],
+      "busyFits": true
+    },
+    {
+      "viewport": [
+        1440,
+        900
+      ],
+      "layout": {
+        "panel": {
+          "x": 20,
+          "y": 114,
+          "width": 220,
+          "height": 666,
+          "right": 240,
+          "bottom": 780
+        },
+        "tray": {
+          "x": 154,
+          "y": 789,
+          "width": 972.390625,
+          "height": 95,
+          "right": 1126.390625,
+          "bottom": 884
+        },
+        "buttons": [
+          {
+            "label": "Cash balance: $1,500",
+            "shortcut": false,
+            "x": 937.703125,
+            "y": 22,
+            "width": 142.359375,
+            "height": 45,
+            "right": 1080.0625,
+            "bottom": 67,
+            "visible": true
+          },
+          {
+            "label": "Sticker stars: 0",
+            "shortcut": false,
+            "x": 1089.0625,
+            "y": 22,
+            "width": 120.9375,
+            "height": 45,
+            "right": 1210,
+            "bottom": 67,
+            "visible": true
+          },
+          {
+            "label": "Toggle overhead camera",
+            "shortcut": false,
+            "x": 1219,
+            "y": 23.5,
+            "width": 42,
+            "height": 42,
+            "right": 1261,
+            "bottom": 65.5,
+            "visible": true
+          },
+          {
+            "label": "Inbox & Rewards",
+            "shortcut": false,
+            "x": 1270,
+            "y": 23.5,
+            "width": 42,
+            "height": 42,
+            "right": 1312,
+            "bottom": 65.5,
+            "visible": true
+          },
+          {
+            "label": "Mute sound effects",
+            "shortcut": false,
+            "x": 1321,
+            "y": 23.5,
+            "width": 42,
+            "height": 42,
+            "right": 1363,
+            "bottom": 65.5,
+            "visible": true
+          },
+          {
+            "label": "Game Settings & New Game",
+            "shortcut": false,
+            "x": 1372,
+            "y": 23.5,
+            "width": 42,
+            "height": 42,
+            "right": 1414,
+            "bottom": 65.5,
+            "visible": true
+          },
+          {
+            "label": "Daily",
+            "shortcut": true,
+            "x": 1348,
+            "y": 114,
+            "width": 72,
+            "height": 78,
+            "right": 1420,
+            "bottom": 192,
+            "visible": true
+          },
+          {
+            "label": "Spin",
+            "shortcut": true,
+            "x": 1348,
+            "y": 204,
+            "width": 72,
+            "height": 78,
+            "right": 1420,
+            "bottom": 282,
+            "visible": true
+          },
+          {
+            "label": "Album",
+            "shortcut": true,
+            "x": 1348,
+            "y": 294,
+            "width": 72,
+            "height": 78,
+            "right": 1420,
+            "bottom": 372,
+            "visible": true
+          },
+          {
+            "label": "Missions",
+            "shortcut": true,
+            "x": 1348,
+            "y": 384,
+            "width": 72,
+            "height": 78,
+            "right": 1420,
+            "bottom": 462,
+            "visible": true
+          },
+          {
+            "label": "Stats",
+            "shortcut": false,
+            "x": 20,
+            "y": 818,
+            "width": 52,
+            "height": 60,
+            "right": 72,
+            "bottom": 878,
+            "visible": true
+          },
+          {
+            "label": "Rules",
+            "shortcut": false,
+            "x": 80,
+            "y": 818,
+            "width": 52,
+            "height": 60,
+            "right": 132,
+            "bottom": 878,
+            "visible": true
+          },
+          {
+            "label": "Buy",
+            "shortcut": false,
+            "x": 168,
+            "y": 803,
+            "width": 151.5625,
+            "height": 67,
+            "right": 319.5625,
+            "bottom": 870,
+            "visible": true
+          },
+          {
+            "label": "Build",
+            "shortcut": false,
+            "x": 326.5625,
+            "y": 803,
+            "width": 151.5625,
+            "height": 67,
+            "right": 478.125,
+            "bottom": 870,
+            "visible": true
+          },
+          {
+            "label": "Mortgage",
+            "shortcut": false,
+            "x": 485.125,
+            "y": 803,
+            "width": 151.5625,
+            "height": 67,
+            "right": 636.6875,
+            "bottom": 870,
+            "visible": true
+          },
+          {
+            "label": "Trade",
+            "shortcut": false,
+            "x": 643.6875,
+            "y": 803,
+            "width": 151.5625,
+            "height": 67,
+            "right": 795.25,
+            "bottom": 870,
+            "visible": true
+          },
+          {
+            "label": "Auction",
+            "shortcut": false,
+            "x": 802.25,
+            "y": 803,
+            "width": 151.5625,
+            "height": 67,
+            "right": 953.8125,
+            "bottom": 870,
+            "visible": true
+          },
+          {
+            "label": "End Turn",
+            "shortcut": false,
+            "x": 960.8125,
+            "y": 803,
+            "width": 151.578125,
+            "height": 67,
+            "right": 1112.390625,
+            "bottom": 870,
+            "visible": true
+          },
+          {
+            "label": "Roll dice",
+            "shortcut": false,
+            "x": 1288,
+            "y": 752,
+            "width": 132,
+            "height": 132,
+            "right": 1420,
+            "bottom": 884,
+            "visible": true
+          }
+        ],
+        "horizontalOverflow": false
+      },
+      "lastPlayer": {
+        "count": 6,
+        "visible": true
+      },
+      "shortcuts": [
+        {
+          "label": "DailyReward available",
+          "fits": true,
+          "reachable": true
+        },
+        {
+          "label": "Spin",
+          "fits": true,
+          "reachable": true
+        },
+        {
+          "label": "Album",
+          "fits": true,
+          "reachable": true
+        },
+        {
+          "label": "Missions",
+          "fits": true,
+          "reachable": true
+        }
+      ],
+      "busyFits": true
+    },
+    {
+      "viewport": [
+        1366,
+        768
+      ],
+      "layout": {
+        "panel": {
+          "x": 20,
+          "y": 114,
+          "width": 220,
+          "height": 534,
+          "right": 240,
+          "bottom": 648
+        },
+        "tray": {
+          "x": 154,
+          "y": 657,
+          "width": 898.390625,
+          "height": 95,
+          "right": 1052.390625,
+          "bottom": 752
+        },
+        "buttons": [
+          {
+            "label": "Cash balance: $1,500",
+            "shortcut": false,
+            "x": 863.703125,
+            "y": 22,
+            "width": 142.359375,
+            "height": 45,
+            "right": 1006.0625,
+            "bottom": 67,
+            "visible": true
+          },
+          {
+            "label": "Sticker stars: 0",
+            "shortcut": false,
+            "x": 1015.0625,
+            "y": 22,
+            "width": 120.9375,
+            "height": 45,
+            "right": 1136,
+            "bottom": 67,
+            "visible": true
+          },
+          {
+            "label": "Toggle overhead camera",
+            "shortcut": false,
+            "x": 1145,
+            "y": 23.5,
+            "width": 42,
+            "height": 42,
+            "right": 1187,
+            "bottom": 65.5,
+            "visible": true
+          },
+          {
+            "label": "Inbox & Rewards",
+            "shortcut": false,
+            "x": 1196,
+            "y": 23.5,
+            "width": 42,
+            "height": 42,
+            "right": 1238,
+            "bottom": 65.5,
+            "visible": true
+          },
+          {
+            "label": "Mute sound effects",
+            "shortcut": false,
+            "x": 1247,
+            "y": 23.5,
+            "width": 42,
+            "height": 42,
+            "right": 1289,
+            "bottom": 65.5,
+            "visible": true
+          },
+          {
+            "label": "Game Settings & New Game",
+            "shortcut": false,
+            "x": 1298,
+            "y": 23.5,
+            "width": 42,
+            "height": 42,
+            "right": 1340,
+            "bottom": 65.5,
+            "visible": true
+          },
+          {
+            "label": "Daily",
+            "shortcut": true,
+            "x": 1274,
+            "y": 114,
+            "width": 72,
+            "height": 78,
+            "right": 1346,
+            "bottom": 192,
+            "visible": true
+          },
+          {
+            "label": "Spin",
+            "shortcut": true,
+            "x": 1274,
+            "y": 204,
+            "width": 72,
+            "height": 78,
+            "right": 1346,
+            "bottom": 282,
+            "visible": true
+          },
+          {
+            "label": "Album",
+            "shortcut": true,
+            "x": 1274,
+            "y": 294,
+            "width": 72,
+            "height": 78,
+            "right": 1346,
+            "bottom": 372,
+            "visible": true
+          },
+          {
+            "label": "Missions",
+            "shortcut": true,
+            "x": 1274,
+            "y": 384,
+            "width": 72,
+            "height": 78,
+            "right": 1346,
+            "bottom": 462,
+            "visible": true
+          },
+          {
+            "label": "Stats",
+            "shortcut": false,
+            "x": 20,
+            "y": 686,
+            "width": 52,
+            "height": 60,
+            "right": 72,
+            "bottom": 746,
+            "visible": true
+          },
+          {
+            "label": "Rules",
+            "shortcut": false,
+            "x": 80,
+            "y": 686,
+            "width": 52,
+            "height": 60,
+            "right": 132,
+            "bottom": 746,
+            "visible": true
+          },
+          {
+            "label": "Buy",
+            "shortcut": false,
+            "x": 168,
+            "y": 671,
+            "width": 139.21875,
+            "height": 67,
+            "right": 307.21875,
+            "bottom": 738,
+            "visible": true
+          },
+          {
+            "label": "Build",
+            "shortcut": false,
+            "x": 314.21875,
+            "y": 671,
+            "width": 139.234375,
+            "height": 67,
+            "right": 453.453125,
+            "bottom": 738,
+            "visible": true
+          },
+          {
+            "label": "Mortgage",
+            "shortcut": false,
+            "x": 460.453125,
+            "y": 671,
+            "width": 139.234375,
+            "height": 67,
+            "right": 599.6875,
+            "bottom": 738,
+            "visible": true
+          },
+          {
+            "label": "Trade",
+            "shortcut": false,
+            "x": 606.6875,
+            "y": 671,
+            "width": 139.234375,
+            "height": 67,
+            "right": 745.921875,
+            "bottom": 738,
+            "visible": true
+          },
+          {
+            "label": "Auction",
+            "shortcut": false,
+            "x": 752.921875,
+            "y": 671,
+            "width": 139.234375,
+            "height": 67,
+            "right": 892.15625,
+            "bottom": 738,
+            "visible": true
+          },
+          {
+            "label": "End Turn",
+            "shortcut": false,
+            "x": 899.15625,
+            "y": 671,
+            "width": 139.21875,
+            "height": 67,
+            "right": 1038.375,
+            "bottom": 738,
+            "visible": true
+          },
+          {
+            "label": "Roll dice",
+            "shortcut": false,
+            "x": 1214,
+            "y": 620,
+            "width": 132,
+            "height": 132,
+            "right": 1346,
+            "bottom": 752,
+            "visible": true
+          }
+        ],
+        "horizontalOverflow": false
+      },
+      "lastPlayer": {
+        "count": 6,
+        "visible": true
+      },
+      "shortcuts": [
+        {
+          "label": "DailyReward available",
+          "fits": true,
+          "reachable": true
+        },
+        {
+          "label": "Spin",
+          "fits": true,
+          "reachable": true
+        },
+        {
+          "label": "Album",
+          "fits": true,
+          "reachable": true
+        },
+        {
+          "label": "Missions",
+          "fits": true,
+          "reachable": true
+        }
+      ],
+      "busyFits": true
+    },
+    {
+      "viewport": [
+        1024,
+        768
+      ],
+      "layout": {
+        "panel": {
+          "x": 14,
+          "y": 108,
+          "width": 206,
+          "height": 528,
+          "right": 220,
+          "bottom": 636
+        },
+        "tray": {
+          "x": 118,
+          "y": 667,
+          "width": 639.390625,
+          "height": 85,
+          "right": 757.390625,
+          "bottom": 752
+        },
+        "buttons": [
+          {
+            "label": "Cash balance: $1,500",
+            "shortcut": false,
+            "x": 527.703125,
+            "y": 20,
+            "width": 142.359375,
+            "height": 45,
+            "right": 670.0625,
+            "bottom": 65,
+            "visible": true
+          },
+          {
+            "label": "Sticker stars: 0",
+            "shortcut": false,
+            "x": 679.0625,
+            "y": 20,
+            "width": 120.9375,
+            "height": 45,
+            "right": 800,
+            "bottom": 65,
+            "visible": true
+          },
+          {
+            "label": "Toggle overhead camera",
+            "shortcut": false,
+            "x": 809,
+            "y": 21.5,
+            "width": 42,
+            "height": 42,
+            "right": 851,
+            "bottom": 63.5,
+            "visible": true
+          },
+          {
+            "label": "Inbox & Rewards",
+            "shortcut": false,
+            "x": 860,
+            "y": 21.5,
+            "width": 42,
+            "height": 42,
+            "right": 902,
+            "bottom": 63.5,
+            "visible": true
+          },
+          {
+            "label": "Mute sound effects",
+            "shortcut": false,
+            "x": 911,
+            "y": 21.5,
+            "width": 42,
+            "height": 42,
+            "right": 953,
+            "bottom": 63.5,
+            "visible": true
+          },
+          {
+            "label": "Game Settings & New Game",
+            "shortcut": false,
+            "x": 962,
+            "y": 21.5,
+            "width": 42,
+            "height": 42,
+            "right": 1004,
+            "bottom": 63.5,
+            "visible": true
+          },
+          {
+            "label": "Daily",
+            "shortcut": true,
+            "x": 952,
+            "y": 108,
+            "width": 58,
+            "height": 64,
+            "right": 1010,
+            "bottom": 172,
+            "visible": true
+          },
+          {
+            "label": "Spin",
+            "shortcut": true,
+            "x": 952,
+            "y": 182,
+            "width": 58,
+            "height": 64,
+            "right": 1010,
+            "bottom": 246,
+            "visible": true
+          },
+          {
+            "label": "Album",
+            "shortcut": true,
+            "x": 952,
+            "y": 256,
+            "width": 58,
+            "height": 64,
+            "right": 1010,
+            "bottom": 320,
+            "visible": true
+          },
+          {
+            "label": "Missions",
+            "shortcut": true,
+            "x": 952,
+            "y": 330,
+            "width": 58,
+            "height": 64,
+            "right": 1010,
+            "bottom": 394,
+            "visible": true
+          },
+          {
+            "label": "Stats",
+            "shortcut": false,
+            "x": 14,
+            "y": 691,
+            "width": 42,
+            "height": 55,
+            "right": 56,
+            "bottom": 746,
+            "visible": true
+          },
+          {
+            "label": "Rules",
+            "shortcut": false,
+            "x": 64,
+            "y": 691,
+            "width": 42,
+            "height": 55,
+            "right": 106,
+            "bottom": 746,
+            "visible": true
+          },
+          {
+            "label": "Buy",
+            "shortcut": false,
+            "x": 129,
+            "y": 678,
+            "width": 99.5625,
+            "height": 63,
+            "right": 228.5625,
+            "bottom": 741,
+            "visible": true
+          },
+          {
+            "label": "Build",
+            "shortcut": false,
+            "x": 232.5625,
+            "y": 678,
+            "width": 99.5625,
+            "height": 63,
+            "right": 332.125,
+            "bottom": 741,
+            "visible": true
+          },
+          {
+            "label": "Mortgage",
+            "shortcut": false,
+            "x": 336.125,
+            "y": 678,
+            "width": 99.5625,
+            "height": 63,
+            "right": 435.6875,
+            "bottom": 741,
+            "visible": true
+          },
+          {
+            "label": "Trade",
+            "shortcut": false,
+            "x": 439.6875,
+            "y": 678,
+            "width": 99.5625,
+            "height": 63,
+            "right": 539.25,
+            "bottom": 741,
+            "visible": true
+          },
+          {
+            "label": "Auction",
+            "shortcut": false,
+            "x": 543.25,
+            "y": 678,
+            "width": 99.5625,
+            "height": 63,
+            "right": 642.8125,
+            "bottom": 741,
+            "visible": true
+          },
+          {
+            "label": "End Turn",
+            "shortcut": false,
+            "x": 646.8125,
+            "y": 678,
+            "width": 99.5625,
+            "height": 63,
+            "right": 746.375,
+            "bottom": 741,
+            "visible": true
+          },
+          {
+            "label": "Roll dice",
+            "shortcut": false,
+            "x": 898,
+            "y": 640,
+            "width": 112,
+            "height": 112,
+            "right": 1010,
+            "bottom": 752,
+            "visible": true
+          }
+        ],
+        "horizontalOverflow": false
+      },
+      "lastPlayer": {
+        "count": 6,
+        "visible": true
+      },
+      "shortcuts": [
+        {
+          "label": "DailyReward available",
+          "fits": true,
+          "reachable": true
+        },
+        {
+          "label": "Spin",
+          "fits": true,
+          "reachable": true
+        },
+        {
+          "label": "Album",
+          "fits": true,
+          "reachable": true
+        },
+        {
+          "label": "MissionsReward available",
+          "fits": true,
+          "reachable": true
+        }
+      ],
+      "busyFits": true
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "layout": {
+        "panel": {
+          "x": 10,
+          "y": 104,
+          "width": 236,
+          "height": 379.59375,
+          "right": 246,
+          "bottom": 483.59375
+        },
+        "tray": {
+          "x": 8,
+          "y": 767,
+          "width": 374,
+          "height": 69,
+          "right": 382,
+          "bottom": 836
+        },
+        "buttons": [
+          {
+            "label": "Cash balance: $1,500",
+            "shortcut": false,
+            "x": 52.15625,
+            "y": 64.5,
+            "width": 96.15625,
+            "height": 36,
+            "right": 148.3125,
+            "bottom": 100.5,
+            "visible": true
+          },
+          {
+            "label": "Sticker stars: 0",
+            "shortcut": false,
+            "x": 152.3125,
+            "y": 64.5,
+            "width": 77.515625,
+            "height": 36,
+            "right": 229.828125,
+            "bottom": 100.5,
+            "visible": true
+          },
+          {
+            "label": "Inbox & Rewards",
+            "shortcut": false,
+            "x": 233.828125,
+            "y": 65.5,
+            "width": 32,
+            "height": 34,
+            "right": 265.828125,
+            "bottom": 99.5,
+            "visible": true
+          },
+          {
+            "label": "Mute sound effects",
+            "shortcut": false,
+            "x": 269.828125,
+            "y": 65.5,
+            "width": 32,
+            "height": 34,
+            "right": 301.828125,
+            "bottom": 99.5,
+            "visible": true
+          },
+          {
+            "label": "Game Settings & New Game",
+            "shortcut": false,
+            "x": 305.828125,
+            "y": 65.5,
+            "width": 32,
+            "height": 34,
+            "right": 337.828125,
+            "bottom": 99.5,
+            "visible": true
+          },
+          {
+            "label": "Daily",
+            "shortcut": true,
+            "x": 10,
+            "y": 153,
+            "width": 40,
+            "height": 43,
+            "right": 50,
+            "bottom": 196,
+            "visible": false
+          },
+          {
+            "label": "Spin",
+            "shortcut": true,
+            "x": 56,
+            "y": 153,
+            "width": 40,
+            "height": 43,
+            "right": 96,
+            "bottom": 196,
+            "visible": false
+          },
+          {
+            "label": "Album",
+            "shortcut": true,
+            "x": 102,
+            "y": 153,
+            "width": 40,
+            "height": 43,
+            "right": 142,
+            "bottom": 196,
+            "visible": false
+          },
+          {
+            "label": "Missions",
+            "shortcut": true,
+            "x": 148,
+            "y": 153,
+            "width": 40,
+            "height": 43,
+            "right": 188,
+            "bottom": 196,
+            "visible": false
+          },
+          {
+            "label": "Stats",
+            "shortcut": false,
+            "x": 8,
+            "y": 709,
+            "width": 42,
+            "height": 48,
+            "right": 50,
+            "bottom": 757,
+            "visible": true
+          },
+          {
+            "label": "Rules",
+            "shortcut": false,
+            "x": 56,
+            "y": 709,
+            "width": 42,
+            "height": 48,
+            "right": 98,
+            "bottom": 757,
+            "visible": true
+          },
+          {
+            "label": "Buy",
+            "shortcut": false,
+            "x": 17,
+            "y": 776,
+            "width": 56,
+            "height": 51,
+            "right": 73,
+            "bottom": 827,
+            "visible": true
+          },
+          {
+            "label": "Build",
+            "shortcut": false,
+            "x": 77,
+            "y": 776,
+            "width": 56,
+            "height": 51,
+            "right": 133,
+            "bottom": 827,
+            "visible": true
+          },
+          {
+            "label": "Mortgage",
+            "shortcut": false,
+            "x": 137,
+            "y": 776,
+            "width": 56,
+            "height": 51,
+            "right": 193,
+            "bottom": 827,
+            "visible": true
+          },
+          {
+            "label": "Trade",
+            "shortcut": false,
+            "x": 197,
+            "y": 776,
+            "width": 56,
+            "height": 51,
+            "right": 253,
+            "bottom": 827,
+            "visible": true
+          },
+          {
+            "label": "Auction",
+            "shortcut": false,
+            "x": 257,
+            "y": 776,
+            "width": 56,
+            "height": 51,
+            "right": 313,
+            "bottom": 827,
+            "visible": true
+          },
+          {
+            "label": "End Turn",
+            "shortcut": false,
+            "x": 317,
+            "y": 776,
+            "width": 56,
+            "height": 51,
+            "right": 373,
+            "bottom": 827,
+            "visible": true
+          },
+          {
+            "label": "Roll dice",
+            "shortcut": false,
+            "x": 298,
+            "y": 673,
+            "width": 84,
+            "height": 84,
+            "right": 382,
+            "bottom": 757,
+            "visible": true
+          }
+        ],
+        "horizontalOverflow": false
+      },
+      "lastPlayer": {
+        "count": 6,
+        "visible": true
+      },
+      "shortcuts": [
+        {
+          "label": "DailyReward available",
+          "fits": true,
+          "reachable": true
+        },
+        {
+          "label": "Spin",
+          "fits": true,
+          "reachable": true
+        },
+        {
+          "label": "Album",
+          "fits": true,
+          "reachable": true
+        },
+        {
+          "label": "MissionsReward available",
+          "fits": true,
+          "reachable": true
+        }
+      ],
+      "busyFits": true
+    },
+    {
+      "viewport": [
+        844,
+        390
+      ],
+      "layout": {
+        "panel": {
+          "x": 14,
+          "y": 108,
+          "width": 206,
+          "height": 158,
+          "right": 220,
+          "bottom": 266
+        },
+        "tray": {
+          "x": 118,
+          "y": 289,
+          "width": 459.390625,
+          "height": 85,
+          "right": 577.390625,
+          "bottom": 374
+        },
+        "buttons": [
+          {
+            "label": "Cash balance: $1,500",
+            "shortcut": false,
+            "x": 347.703125,
+            "y": 20,
+            "width": 142.359375,
+            "height": 45,
+            "right": 490.0625,
+            "bottom": 65,
+            "visible": true
+          },
+          {
+            "label": "Sticker stars: 0",
+            "shortcut": false,
+            "x": 499.0625,
+            "y": 20,
+            "width": 120.9375,
+            "height": 45,
+            "right": 620,
+            "bottom": 65,
+            "visible": true
+          },
+          {
+            "label": "Toggle overhead camera",
+            "shortcut": false,
+            "x": 629,
+            "y": 21.5,
+            "width": 42,
+            "height": 42,
+            "right": 671,
+            "bottom": 63.5,
+            "visible": true
+          },
+          {
+            "label": "Inbox & Rewards",
+            "shortcut": false,
+            "x": 680,
+            "y": 21.5,
+            "width": 42,
+            "height": 42,
+            "right": 722,
+            "bottom": 63.5,
+            "visible": true
+          },
+          {
+            "label": "Mute sound effects",
+            "shortcut": false,
+            "x": 731,
+            "y": 21.5,
+            "width": 42,
+            "height": 42,
+            "right": 773,
+            "bottom": 63.5,
+            "visible": true
+          },
+          {
+            "label": "Game Settings & New Game",
+            "shortcut": false,
+            "x": 782,
+            "y": 21.5,
+            "width": 42,
+            "height": 42,
+            "right": 824,
+            "bottom": 63.5,
+            "visible": true
+          },
+          {
+            "label": "Daily",
+            "shortcut": true,
+            "x": 707,
+            "y": 108,
+            "width": 58,
+            "height": 64,
+            "right": 765,
+            "bottom": 172,
+            "visible": true
+          },
+          {
+            "label": "Spin",
+            "shortcut": true,
+            "x": 772,
+            "y": 108,
+            "width": 58,
+            "height": 64,
+            "right": 830,
+            "bottom": 172,
+            "visible": true
+          },
+          {
+            "label": "Album",
+            "shortcut": true,
+            "x": 707,
+            "y": 179,
+            "width": 58,
+            "height": 64,
+            "right": 765,
+            "bottom": 243,
+            "visible": true
+          },
+          {
+            "label": "Missions",
+            "shortcut": true,
+            "x": 772,
+            "y": 179,
+            "width": 58,
+            "height": 64,
+            "right": 830,
+            "bottom": 243,
+            "visible": true
+          },
+          {
+            "label": "Stats",
+            "shortcut": false,
+            "x": 14,
+            "y": 313,
+            "width": 42,
+            "height": 55,
+            "right": 56,
+            "bottom": 368,
+            "visible": true
+          },
+          {
+            "label": "Rules",
+            "shortcut": false,
+            "x": 64,
+            "y": 313,
+            "width": 42,
+            "height": 55,
+            "right": 106,
+            "bottom": 368,
+            "visible": true
+          },
+          {
+            "label": "Buy",
+            "shortcut": false,
+            "x": 129,
+            "y": 300,
+            "width": 69.5625,
+            "height": 63,
+            "right": 198.5625,
+            "bottom": 363,
+            "visible": true
+          },
+          {
+            "label": "Build",
+            "shortcut": false,
+            "x": 202.5625,
+            "y": 300,
+            "width": 69.5625,
+            "height": 63,
+            "right": 272.125,
+            "bottom": 363,
+            "visible": true
+          },
+          {
+            "label": "Mortgage",
+            "shortcut": false,
+            "x": 276.125,
+            "y": 300,
+            "width": 69.5625,
+            "height": 63,
+            "right": 345.6875,
+            "bottom": 363,
+            "visible": true
+          },
+          {
+            "label": "Trade",
+            "shortcut": false,
+            "x": 349.6875,
+            "y": 300,
+            "width": 69.5625,
+            "height": 63,
+            "right": 419.25,
+            "bottom": 363,
+            "visible": true
+          },
+          {
+            "label": "Auction",
+            "shortcut": false,
+            "x": 423.25,
+            "y": 300,
+            "width": 69.5625,
+            "height": 63,
+            "right": 492.8125,
+            "bottom": 363,
+            "visible": true
+          },
+          {
+            "label": "End Turn",
+            "shortcut": false,
+            "x": 496.8125,
+            "y": 300,
+            "width": 69.5625,
+            "height": 63,
+            "right": 566.375,
+            "bottom": 363,
+            "visible": true
+          },
+          {
+            "label": "Roll dice",
+            "shortcut": false,
+            "x": 718,
+            "y": 262,
+            "width": 112,
+            "height": 112,
+            "right": 830,
+            "bottom": 374,
+            "visible": true
+          }
+        ],
+        "horizontalOverflow": false
+      },
+      "lastPlayer": {
+        "count": 6,
+        "visible": true
+      },
+      "shortcuts": [
+        {
+          "label": "DailyReward available",
+          "fits": true,
+          "reachable": true
+        },
+        {
+          "label": "Spin",
+          "fits": true,
+          "reachable": true
+        },
+        {
+          "label": "Album",
+          "fits": true,
+          "reachable": true
+        },
+        {
+          "label": "MissionsReward available",
+          "fits": true,
+          "reachable": true
+        }
+      ],
+      "busyFits": true
+    },
+    {
+      "deck": "chance",
+      "className": "game-modal card-modal card-reveal deck-chance",
+      "text": "CHANCEBank Pays DividendBank pays you a dividend of $50.Resolve this card ",
+      "fits": true,
+      "resolveVisible": true,
+      "deckColor": "#ebc47d"
+    },
+    {
+      "deck": "chest",
+      "className": "game-modal card-modal card-reveal deck-chest",
+      "text": "COMMUNITY CHESTBank Error in Your FavorBank error in your favor. Collect $200.Resolve this card ",
+      "fits": true,
+      "resolveVisible": true,
+      "deckColor": "#a3d8dc"
+    }
+  ],
+  "errors": []
+}

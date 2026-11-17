@@ -14,6 +14,19 @@ export interface EffectChange {
 }
 export interface PresentationEvent extends EffectChange { id: number; createdAt: number; expiresAt: number }
 
+/** Localized feedback reuses receipts; it never invents or duplicates a payment. */
+export function tilePulseEvents(events: PresentationEvent[]) {
+  const bySpace = new Map<number, PresentationEvent>();
+  for (const event of events) {
+    if (event.spaceId === undefined) continue;
+    if (['ownership', 'build', 'mortgage'].includes(event.kind) ||
+      (event.kind === 'money' && event.spaceId === 0 && (event.amount ?? 0) > 0)) {
+      bySpace.set(event.spaceId, event);
+    }
+  }
+  return [...bySpace.values()].slice(-4);
+}
+
 const SOUND_PRIORITY: EffectKind[] = ['victory', 'bankrupt', 'jail', 'roll', 'dice-land', 'ownership', 'build', 'trade', 'card', 'turn', 'auction', 'raid', 'mortgage', 'money', 'move'];
 export function primaryEffect(changes: EffectChange[]) {
   for (const kind of SOUND_PRIORITY) {

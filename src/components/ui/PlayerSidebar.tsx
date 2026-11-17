@@ -33,8 +33,8 @@ export const PlayerSidebar: React.FC = () => {
     <div className="players-content" id="kingdom-players">
       <div className="panel-heading"><Users size={18} /><h2>Players</h2><span>{players.filter(p => !p.isBankrupt).length}/{players.length}</span></div>
       <section className="landmark-upgrade" aria-label={`${active.name}'s landmark`}>
-        <strong>Landmark · Level {active.landmarkLevel}/5</strong>
-        <p>GO income ${200 + active.landmarkLevel * 50}</p>
+        <div className="landmark-heading"><Castle size={16} aria-hidden="true" /><strong>Landmark · Level {active.landmarkLevel}/5</strong></div>
+        <p className="landmark-income">GO income <b>${200 + active.landmarkLevel * 50}</b></p>
         {!maximumLevel && <p>Next level earns ${250 + active.landmarkLevel * 50} on GO (+$50).</p>}
         <button className="royal-action" disabled={!!upgradeUnavailable} aria-describedby="landmark-upgrade-status"
           onClick={event => { if (event.detail <= 1) upgradeLandmark(active.landmarkLevel, active.id); }}>
@@ -45,7 +45,7 @@ export const PlayerSidebar: React.FC = () => {
       <div className="kingdom-player-list">{players.map((player, index) => {
         const activeTurn = index === currentPlayerIndex && !player.isBankrupt;
         const count = Object.values(properties).filter(p => p.ownerId === player.id).length;
-        return <article key={player.id} className={`kingdom-player ${activeTurn ? 'is-active' : ''} ${player.isBankrupt ? 'is-bankrupt' : ''}`}
+        return <article key={player.id} className={`kingdom-player ${activeTurn ? 'is-active' : ''} ${player.isBankrupt ? 'is-bankrupt' : ''} ${player.inJail ? 'is-jailed' : ''}`}
           aria-current={activeTurn ? 'true' : undefined} style={{ '--player-color': player.color } as React.CSSProperties}>
           <div className="player-portrait"><CharacterAvatar character={player.name} size={48} hasCrown={activeTurn} /></div>
           <div className="player-details"><div className="player-name">{player.name}{activeTurn && <Crown size={13} />}</div>

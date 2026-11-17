@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { CASTLE_COLORS } from './CastleMaterials';
+import { mayAnimateEnvironment } from '../../environment/environmentMotion';
 
 // ============================================================================
 // 1. PRODUCTION STYLIZED SAKURA (CHERRY BLOSSOM) TREE (Panels 01, 05, 06)
@@ -15,6 +16,7 @@ export const StylizedSakuraTree: React.FC<{
 
   // Subtle wind sway animation
   useFrame(({ clock }) => {
+    if (!mayAnimateEnvironment(true)) return;
     if (canopyRef.current) {
       const t = clock.elapsedTime;
       canopyRef.current.rotation.z = Math.sin(t * 1.4 + position[0] * 1.5) * 0.022;

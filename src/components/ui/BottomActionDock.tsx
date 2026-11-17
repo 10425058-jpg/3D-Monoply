@@ -67,12 +67,12 @@ export const BottomActionDock: React.FC<{
     </nav>
     <div className="dice-controls">
       <div className="roll-options royal-panel">
-        <label className="auto-roll-label"><span>Auto-roll</span><button type="button" role="switch" aria-checked={autoRoll} aria-label="Auto-roll" onClick={onToggleAutoRoll}><i /></button></label>
+        <label className="auto-roll-label"><span>Auto-roll</span><button type="button" role="switch" aria-checked={autoRoll} aria-label="Auto-roll" onClick={onToggleAutoRoll}><i aria-hidden="true" /></button></label>
         <div className="speed-options" role="group" aria-label="Roll speed">
           {([1, 2] as const).map(value => <button key={value} aria-pressed={speed === value} onClick={() => { sounds.playClick(); setGameSpeed(value); }}>{value}x</button>)}
         </div>
       </div>
-      <button className={`fantasy-roll ${rolling ? 'is-rolling' : ''}`} disabled={!canRoll}
+      <button className={`fantasy-roll ${rolling ? 'is-rolling' : ''}`} disabled={!canRoll} aria-busy={rolling}
         onClick={() => { if (canRoll) { rollDice(); } }}
         aria-label={rolling ? 'Dice rolling' : 'Roll dice'} title={canRoll ? 'Roll dice' : rolling ? 'Your token is moving' : 'Wait for your pre-roll phase'}>
         <Crown className="roll-crown" size={23} aria-hidden="true" />

@@ -14,10 +14,20 @@ export const isAdjacentTile = (from: number, to: number) =>
 
 export const movementDuration = (speed: number) => 0.145 / speed;
 
+/** A new roll has no landing age yet. Keep it full size until it settles. */
+export function diceResultScale(rolling: boolean, landingAge: number, reduced: boolean) {
+  if (rolling) return 1;
+  if (!Number.isFinite(landingAge) || landingAge >= 2.2) return 0;
+  return reduced || landingAge <= 1.9 ? 1 : Math.max(0, (2.2 - landingAge) / 0.3);
+}
+
 export function tokenOffset(index:number,count:number){
-  if(count<=4){const angle=index*Math.PI/2+Math.PI/4;return {x:Math.cos(angle)*.38,z:Math.sin(angle)*.38,scale:1};}
+  if(count<=4){const angle=index*Math.PI/2+Math.PI/4;return {x:Math.cos(angle)*.58,z:Math.sin(angle)*.58,scale:1};}
   return {x:(index%3-1)*.52,z:(Math.floor(index/3)-.5)*.72,scale:.78};
 }
+
+export const TOKEN_RING_OUTER_RADIUS = .34;
+export const tokenRingScale = (count: number) => count > 4 ? .8 : 1;
 
 /** Align actors above the same lifted top surface used by Board3D. */
 export const tileActorHeight=(id:number,hovered:number|null,selected:number|null)=>.34+(hovered===id ? .12 : selected===id ? .08 : 0);

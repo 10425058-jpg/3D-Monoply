@@ -70,8 +70,11 @@ export function RoyalCityEffects({anchors,level,quality,animate}:{anchors:Anchor
         fragmentShader={`uniform float uTime;varying vec2 vUv;varying vec3 vNormal;varying vec3 vWorld;varying float vJet;
           void main(){vec3 n=normalize(vNormal),view=normalize(cameraPosition-vWorld),sun=normalize(vec3(-12.,28.,16.));
             float wave=sin(vWorld.x*18.+vWorld.z*13.-uTime*2.6)*sin(vWorld.z*12.-vWorld.x*7.+uTime*1.4);
+            // Only pools receive the small changing surface slope; jets keep
+            // their authored round normals. This costs no reflection pass.
+            n=normalize(n+vec3(cos(vWorld.x*18.+vWorld.z*13.-uTime*2.6),0.,sin(vWorld.z*12.-vWorld.x*7.+uTime*1.4))*.045*(1.-vJet));
             float fresnel=pow(clamp(1.-abs(dot(n,view)),0.,1.),3.);
-            float highlight=pow(max(0.,dot(n,normalize(sun+view))),36.);
+            float highlight=pow(max(0.,dot(n,normalize(sun+view))),42.);
             vec3 color=mix(vec3(.018,.22,.29),vec3(.12,.65,.74),.35+wave*.12+fresnel*.24);
             color+=vec3(.50,.77,.80)*highlight*.55;
             float foam=smoothstep(.82,1.,length(vUv-.5)*2.)*(.28+wave*.13)*(1.-vJet);
@@ -82,7 +85,7 @@ export function RoyalCityEffects({anchors,level,quality,animate}:{anchors:Anchor
             #include <colorspace_fragment>
           }`}/>
     </mesh>
-    <points geometry={spray} position={fountain} name="royal-fountain-spray" raycast={()=>{}} frustumCulled={false}>
+    <points geometry={spray} position={fountain} name="royal-fountain-spray" visible={animate} raycast={()=>{}} frustumCulled={false}>
       <shaderMaterial uniforms={uniforms} transparent depthWrite={false}
         vertexShader={`uniform float uTime;varying float vAlpha;void main(){float t=fract(position.x+uTime*.29),a=position.y*6.283185;
           vec3 p=vec3(cos(a)*(.13+t*.98),1.63+sin(t*3.14159)*.79-t*1.15,sin(a)*(.13+t*.98));

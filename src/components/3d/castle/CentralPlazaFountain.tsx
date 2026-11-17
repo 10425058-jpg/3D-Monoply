@@ -1,7 +1,12 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { CASTLE_COLORS } from './CastleMaterials';
+import { mayAnimateEnvironment } from '../../environment/environmentMotion';
+
+// Above the solid basin caps (.35/.94), below their raised stone rims.
+const LOWER_WATER_HEIGHT = 0.375;
+const MIDDLE_WATER_HEIGHT = 0.955;
 
 // ============================================================================
 // 1. INLAID PLAZA ROYAL CROWN & COMPASS STAR MEDALLION (Panel 07)
@@ -18,11 +23,11 @@ export const PlazaCrownMedallion: React.FC<{
         <meshStandardMaterial color={CASTLE_COLORS.stonePaverDark} roughness={0.72} />
       </mesh>
       {/* Concentric Gold Trim Ring */}
-      <mesh position={[0, 0.025, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.025, 0]}>
         <torusGeometry args={[1.52, 0.035, 8, 36]} />
         <meshStandardMaterial color={CASTLE_COLORS.compassStarGold} metalness={0.72} roughness={0.3} />
       </mesh>
-      <mesh position={[0, 0.025, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.025, 0]}>
         <torusGeometry args={[0.95, 0.03, 8, 32]} />
         <meshStandardMaterial color={CASTLE_COLORS.compassStarGold} metalness={0.72} roughness={0.3} />
       </mesh>
@@ -79,7 +84,7 @@ export const StarCompassMedallion: React.FC<{
         <meshStandardMaterial color={CASTLE_COLORS.stonePaverDark} roughness={0.72} />
       </mesh>
       {/* Gold Inlaid Ring */}
-      <mesh position={[0, 0.025, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.025, 0]}>
         <torusGeometry args={[0.86, 0.028, 8, 32]} />
         <meshStandardMaterial color={CASTLE_COLORS.compassStarGold} metalness={0.72} roughness={0.3} />
       </mesh>
@@ -123,31 +128,52 @@ export const CentralPlazaFountain: React.FC = () => {
   const ripple1Ref = useRef<THREE.Mesh>(null);
   const ripple2Ref = useRef<THREE.Mesh>(null);
 
+  useEffect(() => {
+    if (!new URLSearchParams(location.search).has('graphicsAudit')) return;
+    const audit = {
+      snapshot: () => ({
+        sprayPosition: sprayGroupRef.current?.position.toArray(),
+        sprayRotation: sprayGroupRef.current?.rotation.toArray().slice(0, 3),
+        lowerWaterY: waterMeshRef.current?.position.y,
+        middleWaterY: midWaterRef.current?.position.y,
+        rippleScale: ripple1Ref.current?.scale.toArray(),
+        rippleRotation: ripple1Ref.current?.rotation.toArray().slice(0, 3),
+      }),
+    };
+    (window as any).__fallbackFountainAudit = audit;
+    return () => {
+      if ((window as any).__fallbackFountainAudit === audit) delete (window as any).__fallbackFountainAudit;
+    };
+  }, []);
+
   // Animated water flow and splashing
   useFrame(({ clock }) => {
+    if (!mayAnimateEnvironment(true)) return;
     const t = clock.elapsedTime;
     if (waterMeshRef.current) {
-      waterMeshRef.current.position.y = 0.24 + Math.sin(t * 3.0) * 0.008;
+      waterMeshRef.current.position.y = LOWER_WATER_HEIGHT + Math.sin(t * 3.0) * 0.008;
     }
     if (midWaterRef.current) {
-      midWaterRef.current.position.y = 0.86 + Math.sin(t * 3.4) * 0.006;
+      midWaterRef.current.position.y = MIDDLE_WATER_HEIGHT + Math.sin(t * 3.4) * 0.006;
     }
     if (sprayGroupRef.current) {
       sprayGroupRef.current.rotation.y = t * 0.45;
-      sprayGroupRef.current.position.y = Math.sin(t * 4.2) * 0.02;
+      sprayGroupRef.current.position.y = 1.66 + Math.sin(t * 4.2) * 0.02;
     }
     if (ripple1Ref.current) {
       const s = 1.0 + (t * 0.5) % 0.45;
-      ripple1Ref.current.scale.set(s, 1, s);
+      ripple1Ref.current.scale.set(s, s, 1);
+      (ripple1Ref.current.material as THREE.MeshStandardMaterial).opacity = 0.35 * (1 - (s - 1) / 0.45);
     }
     if (ripple2Ref.current) {
       const s = 1.0 + ((t * 0.5 + 0.25) % 0.45);
-      ripple2Ref.current.scale.set(s, 1, s);
+      ripple2Ref.current.scale.set(s, s, 1);
+      (ripple2Ref.current.material as THREE.MeshStandardMaterial).opacity = 0.3 * (1 - (s - 1) / 0.45);
     }
   });
 
   return (
-    <group position={[0, 0.32, 1.2]}>
+    <group name="fallback-plaza-fountain" position={[0, 0.32, 1.2]}>
       {/* ============================================================== */}
       {/* 1. CIRCULAR PLAZA APRON & ROYAL MEDALLION INLAYS               */}
       {/* ============================================================== */}
@@ -157,11 +183,11 @@ export const CentralPlazaFountain: React.FC = () => {
         <meshStandardMaterial color={CASTLE_COLORS.stonePavement} roughness={0.72} />
       </mesh>
       {/* Concentric Outer Paver Rings */}
-      <mesh position={[0, 0.035, 0]} receiveShadow>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.035, 0]} receiveShadow>
         <torusGeometry args={[3.25, 0.08, 8, 40]} />
         <meshStandardMaterial color={CASTLE_COLORS.stonePaverDark} roughness={0.72} />
       </mesh>
-      <mesh position={[0, 0.035, 0]} receiveShadow>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.035, 0]} receiveShadow>
         <torusGeometry args={[2.55, 0.055, 8, 40]} />
         <meshStandardMaterial color={CASTLE_COLORS.stonePaverDark} roughness={0.72} />
       </mesh>
@@ -197,7 +223,7 @@ export const CentralPlazaFountain: React.FC = () => {
         <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.72} />
       </mesh>
       {/* Lower Basin Profiled Torus Rim */}
-      <mesh position={[0, 0.35, 0]} castShadow>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.35, 0]} castShadow>
         <torusGeometry args={[1.74, 0.09, 12, 36]} />
         <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
       </mesh>
@@ -217,7 +243,7 @@ export const CentralPlazaFountain: React.FC = () => {
       ))}
 
       {/* Basin Crystal Turquoise Water Surface */}
-      <mesh ref={waterMeshRef} position={[0, 0.25, 0]}>
+      <mesh ref={waterMeshRef} position={[0, LOWER_WATER_HEIGHT, 0]}>
         <cylinderGeometry args={[1.62, 1.62, 0.04, 36]} />
         <meshPhysicalMaterial
           color={CASTLE_COLORS.waterTurquoise}
@@ -232,13 +258,13 @@ export const CentralPlazaFountain: React.FC = () => {
       </mesh>
 
       {/* Dynamic Concentric Water Ripples */}
-      <mesh ref={ripple1Ref} position={[0, 0.272, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} ref={ripple1Ref} position={[0, 0.405, 0]}>
         <torusGeometry args={[1.1, 0.02, 6, 28]} />
-        <meshStandardMaterial color={CASTLE_COLORS.waterFoam} transparent opacity={0.35} roughness={0.1} />
+        <meshStandardMaterial color={CASTLE_COLORS.waterFoam} transparent opacity={0.35} roughness={0.1} depthWrite={false} />
       </mesh>
-      <mesh ref={ripple2Ref} position={[0, 0.272, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} ref={ripple2Ref} position={[0, 0.405, 0]}>
         <torusGeometry args={[0.7, 0.018, 6, 24]} />
-        <meshStandardMaterial color={CASTLE_COLORS.waterFoam} transparent opacity={0.3} roughness={0.1} />
+        <meshStandardMaterial color={CASTLE_COLORS.waterFoam} transparent opacity={0.3} roughness={0.1} depthWrite={false} />
       </mesh>
 
       {/* ============================================================== */}
@@ -261,7 +287,7 @@ export const CentralPlazaFountain: React.FC = () => {
       })}
 
       {/* Gold Decorative Pedestal Collar Ring */}
-      <mesh position={[0, 0.7, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.7, 0]}>
         <torusGeometry args={[0.44, 0.04, 8, 20]} />
         <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
       </mesh>
@@ -272,13 +298,13 @@ export const CentralPlazaFountain: React.FC = () => {
         <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
       </mesh>
       {/* Scalloped Bowl Torus Rim */}
-      <mesh position={[0, 0.94, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.94, 0]}>
         <torusGeometry args={[0.93, 0.055, 10, 24]} />
         <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
       </mesh>
 
       {/* Middle Tier Water Pool */}
-      <mesh ref={midWaterRef} position={[0, 0.86, 0]}>
+      <mesh ref={midWaterRef} position={[0, MIDDLE_WATER_HEIGHT, 0]}>
         <cylinderGeometry args={[0.86, 0.86, 0.04, 24]} />
         <meshPhysicalMaterial
           color={CASTLE_COLORS.waterTurquoise}
@@ -308,7 +334,7 @@ export const CentralPlazaFountain: React.FC = () => {
         <cylinderGeometry args={[0.24, 0.32, 0.42, 16]} />
         <meshStandardMaterial color={CASTLE_COLORS.stoneWall} roughness={0.72} />
       </mesh>
-      <mesh position={[0, 1.25, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 1.25, 0]}>
         <torusGeometry args={[0.26, 0.03, 8, 16]} />
         <meshStandardMaterial color={CASTLE_COLORS.goldPolished} metalness={0.72} roughness={0.3} />
       </mesh>
@@ -318,7 +344,7 @@ export const CentralPlazaFountain: React.FC = () => {
         <cylinderGeometry args={[0.52, 0.34, 0.16, 20]} />
         <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
       </mesh>
-      <mesh position={[0, 1.47, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 1.47, 0]}>
         <torusGeometry args={[0.53, 0.04, 8, 20]} />
         <meshStandardMaterial color={CASTLE_COLORS.stoneTrim} roughness={0.72} />
       </mesh>
@@ -334,7 +360,7 @@ export const CentralPlazaFountain: React.FC = () => {
       </mesh>
 
       {/* Animated Vertical Water Spray Column & Arched Jets */}
-      <group ref={sprayGroupRef} position={[0, 1.66, 0]}>
+      <group ref={sprayGroupRef} name="fallback-fountain-spray" position={[0, 1.66, 0]}>
         {/* Core Vertical Water Jet */}
         <mesh position={[0, 0.32, 0]}>
           <cylinderGeometry args={[0.075, 0.15, 0.65, 12]} />

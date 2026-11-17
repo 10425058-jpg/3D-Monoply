@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { CASTLE_COLORS } from './CastleMaterials';
+import { mayAnimateEnvironment } from '../../environment/environmentMotion';
 import {
   CastleTower,
   CastleWindow,
@@ -27,6 +28,7 @@ export const CentralCastle: React.FC<CentralCastleProps> = ({ level = 5 }) => {
 
   // Subtle wind flutter animation for royal pennant flags
   useFrame(({ clock }) => {
+    if (!mayAnimateEnvironment(true)) return;
     const t = clock.elapsedTime;
     const wave = Math.sin(t * 3.5) * 0.16;
     if (flag1Ref.current) flag1Ref.current.rotation.y = wave;

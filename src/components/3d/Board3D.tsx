@@ -1,18 +1,82 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { RoundedBox } from '@react-three/drei';
 import {BoardTileDetails} from './BoardTileDetails';
 import { BOARD_SPACES, getSpaceTransform } from '../../data/boardData';
 import { useSceneState as useGameStore } from '../../presentation/SceneStore';
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three-stdlib';
 import { createWalnutGrain } from './boardMaterials';
+import { releaseInstanceBuffers } from '../environment/instanceResources';
 
 // Material colors
 const GOLD_ACCENT = '#d8b568';
 const CLIFF_STONE = '#5c4e78';
 const CLIFF_GRASS = '#63885a';
 const TILE_IVORY = '#f3ead8';
-const TILE_BORDER = '#eedfc8';
+
+type DecorationInstance = { position: [number, number, number]; radius?: number; color?: string };
+type DecorationBatch = { name: string; geometry: THREE.BufferGeometry; material: THREE.Material; items: DecorationInstance[]; castShadow?: boolean };
+
+/** The original 114 static ornaments share seven primitive/material draws.
+ * Keep exact authored tessellation and shadow participation; only the instance
+ * matrices and two foliage colors differ within a batch. */
+function StaticBoardDecorations() {
+  const batches = useMemo(() => {
+    const foliage: DecorationInstance[] = [], blossoms: DecorationInstance[] = [];
+    [-11.5, -8.5, -5.5, -2.5, 0.5, 3.5, 6.5, 9.5, 11.5].forEach((fx, index) => {
+      const radius = 0.32 + (index % 2) * 0.14;
+      const color = index % 2 === 0 ? '#4da843' : '#388e3c';
+      foliage.push(
+        { position: [fx, -0.85 - (index % 3) * 0.12, 12.7], radius, color },
+        { position: [fx, -0.85 - ((index + 1) % 3) * 0.12, -12.7], radius, color },
+        { position: [12.7, -0.85 - (index % 3) * 0.12, fx], radius, color },
+        { position: [-12.7, -0.85 - ((index + 2) % 3) * 0.12, fx], radius, color },
+      );
+      blossoms.push(
+        { position: [fx + 0.12, -0.98 - (index % 3) * 0.12, 12.8] },
+        { position: [fx - 0.12, -0.98 - ((index + 1) % 3) * 0.12, -12.8] },
+      );
+    });
+    const rail: [number, number][] = [];
+    for (let index = 0; index < 7; index++) {
+      const coord = -23.6 / 2 + index * (23.6 / 6);
+      rail.push([coord, -12.18], [coord, 12.18]);
+      if (index > 0 && index < 6) rail.push([-12.18, coord], [12.18, coord]);
+    }
+    const corners = [[-12.05, 12.05], [12.05, 12.05], [-12.05, -12.05], [12.05, -12.05]];
+    const atHeight = (positions: number[][], height: number): DecorationInstance[] => positions.map(([x, z]) => ({ position: [x, height, z] }));
+    return [
+      { name: 'board-hanging-foliage', geometry: new THREE.SphereGeometry(1, 10, 10), material: new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.7 }), items: foliage, castShadow: true },
+      { name: 'board-hanging-blossoms', geometry: new THREE.SphereGeometry(0.15, 8, 8), material: new THREE.MeshStandardMaterial({ color: '#ff9bb2', roughness: 0.5 }), items: blossoms },
+      { name: 'board-rail-sockets', geometry: new THREE.CylinderGeometry(0.07, 0.09, 0.1, 10), material: new THREE.MeshPhysicalMaterial({ color: GOLD_ACCENT, metalness: 0.95, roughness: 0.15 }), items: atHeight(rail, 0.23 + 0.04), castShadow: true },
+      { name: 'board-rail-bulbs', geometry: new THREE.SphereGeometry(0.08, 12, 10), material: new THREE.MeshStandardMaterial({ color: '#fffbeb', emissive: '#f59e0b', emissiveIntensity: 2.4, roughness: 0.1 }), items: atHeight(rail, 0.23 + 0.14) },
+      { name: 'board-corner-lantern-posts', geometry: new THREE.CylinderGeometry(0.045, 0.08, 1.3, 12), material: new THREE.MeshPhysicalMaterial({ color: GOLD_ACCENT, metalness: 0.92, roughness: 0.15, clearcoat: 1 }), items: atHeight(corners, 0.28 + 0.65), castShadow: true },
+      { name: 'board-corner-lantern-caps', geometry: new THREE.ConeGeometry(0.16, 0.22, 6), material: new THREE.MeshPhysicalMaterial({ color: GOLD_ACCENT, metalness: 0.92, roughness: 0.15 }), items: atHeight(corners, 0.28 + 1.38), castShadow: true },
+      { name: 'board-corner-lantern-cores', geometry: new THREE.SphereGeometry(0.09, 8, 8), material: new THREE.MeshStandardMaterial({ color: '#fef08a', emissive: '#f59e0b', emissiveIntensity: 1.8 }), items: atHeight(corners, 0.28 + 1.25) },
+    ] satisfies DecorationBatch[];
+  }, []);
+  useEffect(() => () => batches.forEach(batch => { batch.geometry.dispose(); batch.material.dispose(); }), [batches]);
+  return <group name="board-static-ornaments">{batches.map(batch => <BoardDecorationBatch key={batch.name} batch={batch} />)}</group>;
+}
+
+function BoardDecorationBatch({ batch }: { batch: DecorationBatch }) {
+  const ref = useRef<THREE.InstancedMesh>(null);
+  useLayoutEffect(() => {
+    const instance = ref.current;
+    if (!instance) return;
+    const dummy = new THREE.Object3D();
+    batch.items.forEach((item, index) => {
+      dummy.position.fromArray(item.position); dummy.scale.setScalar(item.radius ?? 1); dummy.updateMatrix();
+      instance.setMatrixAt(index, dummy.matrix);
+      if (item.color) instance.setColorAt(index, new THREE.Color(item.color));
+    });
+    instance.instanceMatrix.needsUpdate = true;
+    if (instance.instanceColor) instance.instanceColor.needsUpdate = true;
+    instance.computeBoundingSphere();
+    return () => releaseInstanceBuffers(instance);
+  }, [batch]);
+  return <instancedMesh ref={ref} name={batch.name} args={[batch.geometry, batch.material, batch.items.length]}
+    castShadow={batch.castShadow ?? false} dispose={null} raycast={() => {}} />;
+}
 
 export const Board3D: React.FC = () => {
   const selectSpace = useGameStore((s) => s.selectSpace);
@@ -134,37 +198,7 @@ export const Board3D: React.FC = () => {
         />
       </mesh>
 
-      {/* Hanging Lush Foliage & Pink Blossoms cascading off the cliff rim */}
-      {[-11.5, -8.5, -5.5, -2.5, 0.5, 3.5, 6.5, 9.5, 11.5].map((fx, fidx) => (
-        <React.Fragment key={`foliage-ns-${fidx}`}>
-          {/* North and South hanging vines */}
-          <mesh position={[fx, -0.85 - (fidx % 3) * 0.12, 12.7]} castShadow>
-            <sphereGeometry args={[0.32 + (fidx % 2) * 0.14, 10, 10]} />
-            <meshStandardMaterial color={fidx % 2 === 0 ? '#4da843' : '#388e3c'} roughness={0.7} />
-          </mesh>
-          <mesh position={[fx + 0.12, -0.98 - (fidx % 3) * 0.12, 12.8]}>
-            <sphereGeometry args={[0.15, 8, 8]} />
-            <meshStandardMaterial color="#ff9bb2" roughness={0.5} />
-          </mesh>
-          <mesh position={[fx, -0.85 - ((fidx + 1) % 3) * 0.12, -12.7]} castShadow>
-            <sphereGeometry args={[0.32 + (fidx % 2) * 0.14, 10, 10]} />
-            <meshStandardMaterial color={fidx % 2 === 0 ? '#4da843' : '#388e3c'} roughness={0.7} />
-          </mesh>
-          <mesh position={[fx - 0.12, -0.98 - ((fidx + 1) % 3) * 0.12, -12.8]}>
-            <sphereGeometry args={[0.15, 8, 8]} />
-            <meshStandardMaterial color="#ff9bb2" roughness={0.5} />
-          </mesh>
-          {/* East and West hanging vines */}
-          <mesh position={[12.7, -0.85 - (fidx % 3) * 0.12, fx]} castShadow>
-            <sphereGeometry args={[0.32 + (fidx % 2) * 0.14, 10, 10]} />
-            <meshStandardMaterial color={fidx % 2 === 0 ? '#4da843' : '#388e3c'} roughness={0.7} />
-          </mesh>
-          <mesh position={[-12.7, -0.85 - ((fidx + 2) % 3) * 0.12, fx]} castShadow>
-            <sphereGeometry args={[0.32 + (fidx % 2) * 0.14, 10, 10]} />
-            <meshStandardMaterial color={fidx % 2 === 0 ? '#4da843' : '#388e3c'} roughness={0.7} />
-          </mesh>
-        </React.Fragment>
-      ))}
+      <StaticBoardDecorations />
 
       {/* ============================================================== */}
       {/* 2. SATIN WALNUT CHASSIS WITH BRUSHED GOLD INLAY               */}
@@ -193,73 +227,6 @@ export const Board3D: React.FC = () => {
         <boxGeometry args={[22.6, 0.05, 22.6]} />
         <meshStandardMaterial color="#faecd9" roughness={0.6} />
       </mesh>
-
-      {/* ============================================================== */}
-      {/* 2B. PERIMETER FAIRY LIGHTS ON GOLDEN RAIL                      */}
-      {/* (Evenly spaced glowing golden bulbs around the board rail)     */}
-      {/* ============================================================== */}
-      {useMemo(() => {
-        const lights: Array<[number, number, number]> = [];
-        const count = 7;
-        const span = 23.6;
-        const step = span / (count - 1);
-        for (let i = 0; i < count; i++) {
-          const coord = -span / 2 + i * step;
-          // North edge
-          lights.push([coord, 0.23, -12.18]);
-          // South edge
-          lights.push([coord, 0.23, 12.18]);
-          // West edge (skip corners already added)
-          if (i > 0 && i < count - 1) lights.push([-12.18, 0.23, coord]);
-          // East edge (skip corners already added)
-          if (i > 0 && i < count - 1) lights.push([12.18, 0.23, coord]);
-        }
-        return lights;
-      }, []).map((lPos, lIdx) => (
-        <group key={`fairy-light-${lIdx}`} position={lPos}>
-          {/* Miniature Golden Brass Socket Post */}
-          <mesh position={[0, 0.04, 0]} castShadow>
-            <cylinderGeometry args={[0.07, 0.09, 0.1, 10]} />
-            <meshPhysicalMaterial color={GOLD_ACCENT} metalness={0.95} roughness={0.15} />
-          </mesh>
-          {/* Glowing Warm Amber/Golden Bulb */}
-          <mesh position={[0, 0.14, 0]}>
-            <sphereGeometry args={[0.08, 12, 10]} />
-            <meshStandardMaterial
-              color="#fffbeb"
-              emissive="#f59e0b"
-              emissiveIntensity={2.4}
-              roughness={0.1}
-            />
-          </mesh>
-        </group>
-      ))}
-
-      {/* Golden Corner Street Lanterns */}
-      {[
-        [-12.05, 0.28, 12.05],
-        [12.05, 0.28, 12.05],
-        [-12.05, 0.28, -12.05],
-        [12.05, 0.28, -12.05],
-      ].map((lPos, lIdx) => (
-        <group key={`corner-lantern-${lIdx}`} position={lPos as any}>
-          {/* Golden Lamp Post */}
-          <mesh position={[0, 0.65, 0]} castShadow>
-            <cylinderGeometry args={[0.045, 0.08, 1.3, 12]} />
-            <meshPhysicalMaterial color={GOLD_ACCENT} metalness={0.92} roughness={0.15} clearcoat={1} />
-          </mesh>
-          {/* Lantern Cap */}
-          <mesh position={[0, 1.38, 0]} castShadow>
-            <coneGeometry args={[0.16, 0.22, 6]} />
-            <meshPhysicalMaterial color={GOLD_ACCENT} metalness={0.92} roughness={0.15} />
-          </mesh>
-          {/* Glowing Warm Core */}
-          <mesh position={[0, 1.25, 0]}>
-            <sphereGeometry args={[0.09, 8, 8]} />
-            <meshStandardMaterial color="#fef08a" emissive="#f59e0b" emissiveIntensity={1.8} />
-          </mesh>
-        </group>
-      ))}
 
       {/* ============================================================== */}
       {/* 3. BATCHED INSTANCED TILE BASES & TOPS                         */}

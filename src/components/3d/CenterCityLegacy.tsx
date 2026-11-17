@@ -2,6 +2,7 @@ import React, { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useSceneState as useGameStore } from '../../presentation/SceneStore';
+import { mayAnimateEnvironment } from '../environment/environmentMotion';
 import { CASTLE_COLORS } from './castle/CastleMaterials';
 import { ContactOcclusion } from './ContactOcclusion';
 import { CentralCastle } from './castle/CentralCastle';
@@ -35,6 +36,7 @@ export const CenterCity3D: React.FC = () => {
 
   // Floating magic crystal bobbing and rotation above the grand spire
   useFrame(({ clock }) => {
+    if (!mayAnimateEnvironment(true)) return;
     const t = clock.elapsedTime;
     if (crystalRef.current) {
       crystalRef.current.position.y = 8.1 + Math.sin(t * 1.8) * 0.15;
