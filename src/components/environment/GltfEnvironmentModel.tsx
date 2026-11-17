@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
-import { finishEnvironmentMaterial } from './environmentMaterial';
+import { finishEnvironmentMaterial, isScenicEnvironmentAsset } from './environmentMaterial';
 import { releaseInstanceBuffers } from './instanceResources';
 
 export interface EnvironmentPlacement {
@@ -28,7 +28,9 @@ export function GltfEnvironmentModel({ file, placements, name, atmosphere = 0 }:
       if (!(object instanceof THREE.Mesh)) return;
       if (Array.isArray(object.material)) throw new Error(`Unsplit GLB material group: ${file}`);
       const fabric=file.startsWith('fantasy-airship') && object.material.name==='Ivory limestone' ? '#4979db' : undefined;
-      const material = finishEnvironmentMaterial(object.material, atmosphere, fabric);
+      // The board's decorative foundation/dressing keep their exact V6 finish.
+      const scenic=isScenicEnvironmentAsset(file);
+      const material = finishEnvironmentMaterial(object.material, atmosphere, fabric, scenic);
       result.push({ geometry: object.geometry, material, matrix: object.matrixWorld.clone() });
     });
     return result;

@@ -68,13 +68,16 @@ export function FloatingClouds({ quality, animate }: { quality:EnvironmentQualit
           float edge=smoothstep(0.,.035,uv.x)*smoothstep(0.,.035,1.-uv.x);
           float alpha=pow(cloud.a,1.12)*vData.y*edge;
           if(alpha<.002)discard;
-          // Preserve the offline density shading instead of lifting every bank
-          // toward white. Cool cores and a restrained sun-facing peach rim.
-          vec3 color=max(vec3(0.),(cloud.rgb-.34)*1.19+.30);
-          color*=mix(vec3(.76,.82,1.04),vec3(1.08,1.02,.95),smoothstep(.12,.86,uv.y));
-          color=mix(color,color*vec3(1.23,1.02,.79),vWarm*.60);
-          float aerial=smoothstep(90.,200.,vDistance)*.10;
-          color=mix(color,vec3(.43,.46,.65),aerial);
+          // Retain the offline volume shading: lavender bases and cream-lit
+          // tops connect the nearby banks to the baked, sunward cloud horizon.
+          vec3 color=max(vec3(0.),(cloud.rgb-.30)*1.13+.28);
+          float top=smoothstep(.14,.90,uv.y);
+          color*=mix(vec3(.82,.80,1.02),vec3(1.10,1.04,1.01),top);
+          float edgeLight=pow(1.-cloud.a,.65)*top;
+          color+=vec3(.11,.075,.045)*edgeLight*(.3+vWarm*.7);
+          color=mix(color,color*vec3(1.16,1.03,.91),vWarm*.55);
+          float aerial=smoothstep(70.,210.,vDistance)*.18;
+          color=mix(color,vec3(.69,.57,.78),aerial);
           gl_FragColor=vec4(color,alpha);
           #include <tonemapping_fragment>
           #include <colorspace_fragment>

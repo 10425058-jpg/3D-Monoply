@@ -81,7 +81,7 @@ export function FantasySky({ quality = 'balanced' }: { animate: boolean; quality
           float edge=max(fwidth(sd),.000001),disc=smoothstep(uCosRadius-edge,uCosRadius+edge,sd);
           if(disc<.001)discard;
           float center=1.-clamp(max(0.,2.*(1.-sd))/uRadiusSq,0.,1.);
-          gl_FragColor=vec4(mix(vec3(1.8,.74,.12),vec3(3.2,2.18,.69),center*(1.62-.62*center)),1.);
+          gl_FragColor=vec4(mix(vec3(1.8,.91,.28),vec3(3.1,2.45,1.25),center*(1.62-.62*center)),1.);
           #include <tonemapping_fragment>
           #include <colorspace_fragment>
           vec2 uv=vec2(fract(atan(d.z,-d.x)/6.28318530718+1.),asin(clamp(d.y,-1.,1.))/3.14159265359+.5);
