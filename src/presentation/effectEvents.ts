@@ -2,7 +2,7 @@ import type { SceneState } from './SceneStore';
 
 export type GameSnapshot = SceneState;
 export type EffectKind = 'roll' | 'dice-land' | 'move' | 'money' | 'ownership' | 'build' |
-  'mortgage' | 'turn' | 'card' | 'auction' | 'trade' | 'jail' | 'bankrupt' | 'victory' | 'raid';
+  'mortgage' | 'turn' | 'card' | 'auction' | 'trade' | 'jail' | 'bankrupt' | 'victory' | 'raid' | 'transaction';
 export interface EffectChange {
   kind: EffectKind;
   playerId?: number;
@@ -14,7 +14,7 @@ export interface EffectChange {
 }
 export interface PresentationEvent extends EffectChange { id: number; createdAt: number; expiresAt: number }
 
-const SOUND_PRIORITY: EffectKind[] = ['victory', 'roll', 'dice-land', 'ownership', 'build', 'trade', 'card', 'turn', 'jail', 'bankrupt', 'auction', 'raid', 'mortgage', 'money', 'move'];
+const SOUND_PRIORITY: EffectKind[] = ['victory', 'bankrupt', 'jail', 'roll', 'dice-land', 'ownership', 'build', 'trade', 'card', 'turn', 'auction', 'raid', 'mortgage', 'money', 'move'];
 export function primaryEffect(changes: EffectChange[]) {
   for (const kind of SOUND_PRIORITY) {
     const event = changes.find(change => change.kind === kind);
@@ -60,7 +60,12 @@ export function collectEffectChanges(previous: GameSnapshot, next: GameSnapshot)
   // Trades have no dedicated result field. Consume only newly confirmed log IDs.
   if (next.logs !== previous.logs) {
     const known = new Set(previous.logs.map(log => log.id));
-    for (const log of next.logs) if (!known.has(log.id) && log.message.startsWith('Trade completed between ')) events.push({ kind: 'trade', label: log.message });
+    for (const log of next.logs) if (!known.has(log.id)) {
+      if(log.message.startsWith('Trade completed between '))events.push({kind:'trade',label:log.message});
+      // Text uses the committed engine record, not an inferred balance delta.
+      // Money changes already produce audio; this context notice is silent.
+      if(log.type==='money')events.push({kind:'transaction',label:log.message});
+    }
   }
   return events;
 }

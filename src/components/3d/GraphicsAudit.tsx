@@ -72,6 +72,29 @@ export function GraphicsAudit({ quality }: { quality: string }) {
           oldKingdomPresent: !!scene.getObjectByName('distant-fantasy-kingdom'),
           airship: airship ? { position: airship.position.toArray(), rotation: airship.rotation.toArray() } : null };
       },
+      dice() {
+        const faces:[number,number[]][]=[[1,[0,1,0]],[6,[0,-1,0]],[2,[0,0,1]],[5,[0,0,-1]],[3,[1,0,0]],[4,[-1,0,0]]];
+        return [0,1].map(index=>{
+          const die=scene.getObjectByName(`die-${index}`),q=die?.getWorldQuaternion(new THREE.Quaternion());
+          const top=q?faces.map(([face,normal])=>({face,y:new THREE.Vector3().fromArray(normal).applyQuaternion(q).y})).sort((a,b)=>b.y-a.y)[0]:null;
+          return {index,visible:die?.visible,face:top?.face,up:top?.y,position:die?.getWorldPosition(new THREE.Vector3()).toArray()};
+        });
+      },
+      actors() {
+        return {tokens:store.getState().players.map(p=>({id:p.id,tile:p.position,position:scene.getObjectByName(`token-${p.id}`)?.getWorldPosition(new THREE.Vector3()).toArray()})),
+          buildings:Object.values(store.getState().properties).filter(p=>p.houses>0).map(p=>{
+            const group=scene.getObjectByName(`buildings-${p.spaceId}`);return {spaceId:p.spaceId,level:p.houses,models:group?.children.length,
+              position:group?.getWorldPosition(new THREE.Vector3()).toArray()};
+          })};
+      },
+      board() {
+        const root=scene.getObjectByName('board-tile-details-v5'),meshes:Record<string,number>={},textures=new Map<string,THREE.Texture>();
+        root?.traverse(object=>{
+          if(!(object instanceof THREE.InstancedMesh))return;meshes[object.name]=object.count;
+          const map=(object.material as THREE.MeshBasicMaterial).map;if(map)textures.set(map.uuid,map);
+        });
+        return {meshes,textures:[...textures.values()].map(t=>({uuid:t.uuid,width:t.image.width,height:t.image.height,anisotropy:t.anisotropy,mipmaps:t.generateMipmaps}))};
+      },
       game() {
         const game = store.getState();
         return { turnPhase: game.turnPhase, currentPlayerIndex: game.currentPlayerIndex,

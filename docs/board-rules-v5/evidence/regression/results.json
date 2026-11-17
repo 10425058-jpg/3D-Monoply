@@ -1,0 +1,6424 @@
+{
+  "dice": [
+    {
+      "stored": [
+        1,
+        2
+      ],
+      "rendered": [
+        {
+          "index": 0,
+          "visible": true,
+          "face": 1,
+          "up": 1,
+          "position": [
+            -0.85,
+            0.95,
+            4.2
+          ]
+        },
+        {
+          "index": 1,
+          "visible": true,
+          "face": 2,
+          "up": 1,
+          "position": [
+            0.85,
+            0.95,
+            4.2
+          ]
+        }
+      ]
+    },
+    {
+      "stored": [
+        2,
+        3
+      ],
+      "rendered": [
+        {
+          "index": 0,
+          "visible": true,
+          "face": 2,
+          "up": 1,
+          "position": [
+            -0.85,
+            0.95,
+            4.2
+          ]
+        },
+        {
+          "index": 1,
+          "visible": true,
+          "face": 3,
+          "up": 1,
+          "position": [
+            0.85,
+            0.95,
+            4.2
+          ]
+        }
+      ]
+    },
+    {
+      "stored": [
+        3,
+        1
+      ],
+      "rendered": [
+        {
+          "index": 0,
+          "visible": true,
+          "face": 3,
+          "up": 1,
+          "position": [
+            -0.85,
+            0.95,
+            4.2
+          ]
+        },
+        {
+          "index": 1,
+          "visible": true,
+          "face": 1,
+          "up": 1,
+          "position": [
+            0.85,
+            0.95,
+            4.2
+          ]
+        }
+      ]
+    },
+    {
+      "stored": [
+        4,
+        5
+      ],
+      "rendered": [
+        {
+          "index": 0,
+          "visible": true,
+          "face": 4,
+          "up": 1,
+          "position": [
+            -0.85,
+            0.95,
+            4.2
+          ]
+        },
+        {
+          "index": 1,
+          "visible": true,
+          "face": 5,
+          "up": 1,
+          "position": [
+            0.85,
+            0.95,
+            4.2
+          ]
+        }
+      ]
+    },
+    {
+      "stored": [
+        5,
+        6
+      ],
+      "rendered": [
+        {
+          "index": 0,
+          "visible": true,
+          "face": 5,
+          "up": 1,
+          "position": [
+            -0.85,
+            0.95,
+            4.2
+          ]
+        },
+        {
+          "index": 1,
+          "visible": true,
+          "face": 6,
+          "up": 1,
+          "position": [
+            0.85,
+            0.95,
+            4.2
+          ]
+        }
+      ]
+    },
+    {
+      "stored": [
+        6,
+        4
+      ],
+      "rendered": [
+        {
+          "index": 0,
+          "visible": true,
+          "face": 6,
+          "up": 1,
+          "position": [
+            -0.85,
+            0.95,
+            4.2
+          ]
+        },
+        {
+          "index": 1,
+          "visible": true,
+          "face": 4,
+          "up": 1,
+          "position": [
+            0.85,
+            0.95,
+            4.2
+          ]
+        }
+      ]
+    },
+    {
+      "stored": [
+        1,
+        2
+      ],
+      "rendered": [
+        {
+          "index": 0,
+          "visible": true,
+          "face": 1,
+          "up": 1,
+          "position": [
+            -0.85,
+            0.95,
+            4.2
+          ]
+        },
+        {
+          "index": 1,
+          "visible": true,
+          "face": 2,
+          "up": 1,
+          "position": [
+            0.85,
+            0.95,
+            4.2
+          ]
+        }
+      ]
+    },
+    {
+      "stored": [
+        1,
+        2
+      ],
+      "rendered": [
+        {
+          "index": 0,
+          "visible": true,
+          "face": 1,
+          "up": 1,
+          "position": [
+            -0.85,
+            0.95,
+            4.2
+          ]
+        },
+        {
+          "index": 1,
+          "visible": true,
+          "face": 2,
+          "up": 1,
+          "position": [
+            0.85,
+            0.95,
+            4.2
+          ]
+        }
+      ]
+    },
+    {
+      "stored": [
+        1,
+        2
+      ],
+      "rendered": [
+        {
+          "index": 0,
+          "visible": true,
+          "face": 1,
+          "up": 1,
+          "position": [
+            -0.85,
+            0.95,
+            4.2
+          ]
+        },
+        {
+          "index": 1,
+          "visible": true,
+          "face": 2,
+          "up": 1,
+          "position": [
+            0.85,
+            0.95,
+            4.2
+          ]
+        }
+      ]
+    },
+    {
+      "stored": [
+        1,
+        2
+      ],
+      "rendered": [
+        {
+          "index": 0,
+          "visible": true,
+          "face": 1,
+          "up": 1,
+          "position": [
+            -0.85,
+            0.95,
+            4.2
+          ]
+        },
+        {
+          "index": 1,
+          "visible": true,
+          "face": 2,
+          "up": 1,
+          "position": [
+            0.85,
+            0.95,
+            4.2
+          ]
+        }
+      ]
+    },
+    {
+      "stored": [
+        1,
+        2
+      ],
+      "rendered": [
+        {
+          "index": 0,
+          "visible": true,
+          "face": 1,
+          "up": 1,
+          "position": [
+            -0.85,
+            0.95,
+            4.2
+          ]
+        },
+        {
+          "index": 1,
+          "visible": true,
+          "face": 2,
+          "up": 1,
+          "position": [
+            0.85,
+            0.95,
+            4.2
+          ]
+        }
+      ]
+    },
+    {
+      "stored": [
+        1,
+        2
+      ],
+      "rendered": [
+        {
+          "index": 0,
+          "visible": true,
+          "face": 1,
+          "up": 1,
+          "position": [
+            -0.85,
+            0.95,
+            4.2
+          ]
+        },
+        {
+          "index": 1,
+          "visible": true,
+          "face": 2,
+          "up": 1,
+          "position": [
+            0.85,
+            0.95,
+            4.2
+          ]
+        }
+      ]
+    },
+    {
+      "stored": [
+        1,
+        2
+      ],
+      "rendered": [
+        {
+          "index": 0,
+          "visible": true,
+          "face": 1,
+          "up": 1,
+          "position": [
+            -0.85,
+            0.95,
+            4.2
+          ]
+        },
+        {
+          "index": 1,
+          "visible": true,
+          "face": 2,
+          "up": 1,
+          "position": [
+            0.85,
+            0.95,
+            4.2
+          ]
+        }
+      ]
+    },
+    {
+      "stored": [
+        1,
+        2
+      ],
+      "rendered": [
+        {
+          "index": 0,
+          "visible": true,
+          "face": 1,
+          "up": 1,
+          "position": [
+            -0.85,
+            0.95,
+            4.2
+          ]
+        },
+        {
+          "index": 1,
+          "visible": true,
+          "face": 2,
+          "up": 1,
+          "position": [
+            0.85,
+            0.95,
+            4.2
+          ]
+        }
+      ]
+    },
+    {
+      "stored": [
+        1,
+        2
+      ],
+      "rendered": [
+        {
+          "index": 0,
+          "visible": true,
+          "face": 1,
+          "up": 1,
+          "position": [
+            -0.85,
+            0.95,
+            4.2
+          ]
+        },
+        {
+          "index": 1,
+          "visible": true,
+          "face": 2,
+          "up": 1,
+          "position": [
+            0.85,
+            0.95,
+            4.2
+          ]
+        }
+      ]
+    },
+    {
+      "stored": [
+        1,
+        2
+      ],
+      "rendered": [
+        {
+          "index": 0,
+          "visible": true,
+          "face": 1,
+          "up": 1,
+          "position": [
+            -0.85,
+            0.95,
+            4.2
+          ]
+        },
+        {
+          "index": 1,
+          "visible": true,
+          "face": 2,
+          "up": 1,
+          "position": [
+            0.85,
+            0.95,
+            4.2
+          ]
+        }
+      ]
+    },
+    {
+      "stored": [
+        1,
+        2
+      ],
+      "rendered": [
+        {
+          "index": 0,
+          "visible": true,
+          "face": 1,
+          "up": 1,
+          "position": [
+            -0.85,
+            0.95,
+            4.2
+          ]
+        },
+        {
+          "index": 1,
+          "visible": true,
+          "face": 2,
+          "up": 1,
+          "position": [
+            0.85,
+            0.95,
+            4.2
+          ]
+        }
+      ]
+    },
+    {
+      "stored": [
+        1,
+        2
+      ],
+      "rendered": [
+        {
+          "index": 0,
+          "visible": true,
+          "face": 1,
+          "up": 1,
+          "position": [
+            -0.85,
+            0.95,
+            4.2
+          ]
+        },
+        {
+          "index": 1,
+          "visible": true,
+          "face": 2,
+          "up": 1,
+          "position": [
+            0.85,
+            0.95,
+            4.2
+          ]
+        }
+      ]
+    },
+    {
+      "stored": [
+        1,
+        2
+      ],
+      "rendered": [
+        {
+          "index": 0,
+          "visible": true,
+          "face": 1,
+          "up": 1,
+          "position": [
+            -0.85,
+            0.95,
+            4.2
+          ]
+        },
+        {
+          "index": 1,
+          "visible": true,
+          "face": 2,
+          "up": 1,
+          "position": [
+            0.85,
+            0.95,
+            4.2
+          ]
+        }
+      ]
+    },
+    {
+      "stored": [
+        1,
+        2
+      ],
+      "rendered": [
+        {
+          "index": 0,
+          "visible": true,
+          "face": 1,
+          "up": 1,
+          "position": [
+            -0.85,
+            0.95,
+            4.2
+          ]
+        },
+        {
+          "index": 1,
+          "visible": true,
+          "face": 2,
+          "up": 1,
+          "position": [
+            0.85,
+            0.95,
+            4.2
+          ]
+        }
+      ]
+    },
+    {
+      "stored": [
+        1,
+        2
+      ],
+      "rendered": [
+        {
+          "index": 0,
+          "visible": true,
+          "face": 1,
+          "up": 1,
+          "position": [
+            -0.85,
+            0.95,
+            4.2
+          ]
+        },
+        {
+          "index": 1,
+          "visible": true,
+          "face": 2,
+          "up": 1,
+          "position": [
+            0.85,
+            0.95,
+            4.2
+          ]
+        }
+      ]
+    },
+    {
+      "stored": [
+        1,
+        2
+      ],
+      "rendered": [
+        {
+          "index": 0,
+          "visible": true,
+          "face": 1,
+          "up": 1,
+          "position": [
+            -0.85,
+            0.95,
+            4.2
+          ]
+        },
+        {
+          "index": 1,
+          "visible": true,
+          "face": 2,
+          "up": 1,
+          "position": [
+            0.85,
+            0.95,
+            4.2
+          ]
+        }
+      ]
+    }
+  ],
+  "scenarios": [
+    {
+      "name": "opening",
+      "state": {
+        "gameId": 1,
+        "players": [
+          {
+            "id": 0,
+            "name": "You",
+            "isAI": false,
+            "token": "rubber_duck",
+            "color": "#f59e0b",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 1,
+            "name": "Rival 1",
+            "isAI": false,
+            "token": "cat",
+            "color": "#ec4899",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 2,
+            "name": "Rival 2",
+            "isAI": false,
+            "token": "racecar",
+            "color": "#3b82f6",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          }
+        ],
+        "properties": {
+          "1": {
+            "spaceId": 1,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "3": {
+            "spaceId": 3,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "5": {
+            "spaceId": 5,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "6": {
+            "spaceId": 6,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "8": {
+            "spaceId": 8,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "9": {
+            "spaceId": 9,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "11": {
+            "spaceId": 11,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "12": {
+            "spaceId": 12,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "13": {
+            "spaceId": 13,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "14": {
+            "spaceId": 14,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "15": {
+            "spaceId": 15,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "16": {
+            "spaceId": 16,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "18": {
+            "spaceId": 18,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "19": {
+            "spaceId": 19,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "21": {
+            "spaceId": 21,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "23": {
+            "spaceId": 23,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "24": {
+            "spaceId": 24,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "25": {
+            "spaceId": 25,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "26": {
+            "spaceId": 26,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "27": {
+            "spaceId": 27,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "28": {
+            "spaceId": 28,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "29": {
+            "spaceId": 29,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "31": {
+            "spaceId": 31,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "32": {
+            "spaceId": 32,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "34": {
+            "spaceId": 34,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "35": {
+            "spaceId": 35,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "37": {
+            "spaceId": 37,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "39": {
+            "spaceId": 39,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          }
+        },
+        "dice": [
+          1,
+          1
+        ],
+        "turnPhase": "PRE_ROLL",
+        "currentPlayerIndex": 0,
+        "pendingDebt": null,
+        "activeCard": null,
+        "heldJailCards": {},
+        "auction": null,
+        "railroadRaid": null,
+        "winner": null,
+        "logs": [
+          {
+            "id": "start-1794882609943",
+            "timestamp": "09:30:09 AM",
+            "message": "New game started with 3 players! Each player receives $1,500.",
+            "type": "info"
+          }
+        ]
+      },
+      "board": {
+        "meshes": {
+          "board-full-name-labels": 40,
+          "board-color-bands": 22,
+          "board-gold-dividers": 22,
+          "board-owner-mortgage-marks": 0,
+          "board-owner-trim": 0,
+          "board-interaction-outlines": 0
+        },
+        "textures": [
+          {
+            "uuid": "f8bcbf86-03c2-47ed-9265-45d9d5adc8d6",
+            "width": 1024,
+            "height": 1024,
+            "anisotropy": 8,
+            "mipmaps": true
+          }
+        ]
+      },
+      "actors": {
+        "tokens": [
+          {
+            "id": 0,
+            "tile": 0,
+            "position": [
+              9.818700576850889,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 1,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 2,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.281299423149113
+            ]
+          }
+        ],
+        "buildings": []
+      }
+    },
+    {
+      "name": "dice-landing",
+      "state": {
+        "gameId": 7,
+        "players": [
+          {
+            "id": 0,
+            "name": "You",
+            "isAI": false,
+            "token": "rubber_duck",
+            "color": "#f59e0b",
+            "money": 1500,
+            "position": 10,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 1,
+            "name": "Rival 1",
+            "isAI": false,
+            "token": "cat",
+            "color": "#ec4899",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 2,
+            "name": "Rival 2",
+            "isAI": false,
+            "token": "racecar",
+            "color": "#3b82f6",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          }
+        ],
+        "properties": {
+          "1": {
+            "spaceId": 1,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "3": {
+            "spaceId": 3,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "5": {
+            "spaceId": 5,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "6": {
+            "spaceId": 6,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "8": {
+            "spaceId": 8,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "9": {
+            "spaceId": 9,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "11": {
+            "spaceId": 11,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "12": {
+            "spaceId": 12,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "13": {
+            "spaceId": 13,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "14": {
+            "spaceId": 14,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "15": {
+            "spaceId": 15,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "16": {
+            "spaceId": 16,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "18": {
+            "spaceId": 18,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "19": {
+            "spaceId": 19,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "21": {
+            "spaceId": 21,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "23": {
+            "spaceId": 23,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "24": {
+            "spaceId": 24,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "25": {
+            "spaceId": 25,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "26": {
+            "spaceId": 26,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "27": {
+            "spaceId": 27,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "28": {
+            "spaceId": 28,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "29": {
+            "spaceId": 29,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "31": {
+            "spaceId": 31,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "32": {
+            "spaceId": 32,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "34": {
+            "spaceId": 34,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "35": {
+            "spaceId": 35,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "37": {
+            "spaceId": 37,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "39": {
+            "spaceId": 39,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          }
+        },
+        "dice": [
+          6,
+          4
+        ],
+        "turnPhase": "END_TURN",
+        "currentPlayerIndex": 0,
+        "pendingDebt": null,
+        "activeCard": null,
+        "heldJailCards": {},
+        "auction": null,
+        "railroadRaid": null,
+        "winner": null,
+        "logs": [
+          {
+            "id": "1794882623101-2ta2c",
+            "timestamp": "09:30:23 AM",
+            "message": "You landed on Jail / Just Visiting.",
+            "type": "info"
+          },
+          {
+            "id": "1794882622246-4zqr0",
+            "timestamp": "09:30:22 AM",
+            "message": "You rolled 6 + 4 = 10.",
+            "type": "info"
+          },
+          {
+            "id": "start-1794882621580",
+            "timestamp": "09:30:21 AM",
+            "message": "New game started with 3 players! Each player receives $1,500.",
+            "type": "info"
+          }
+        ]
+      },
+      "board": {
+        "meshes": {
+          "board-full-name-labels": 40,
+          "board-color-bands": 22,
+          "board-gold-dividers": 22,
+          "board-owner-mortgage-marks": 0,
+          "board-owner-trim": 0,
+          "board-interaction-outlines": 0
+        },
+        "textures": [
+          {
+            "uuid": "f8bcbf86-03c2-47ed-9265-45d9d5adc8d6",
+            "width": 1024,
+            "height": 1024,
+            "anisotropy": 8,
+            "mipmaps": true
+          }
+        ]
+      },
+      "actors": {
+        "tokens": [
+          {
+            "id": 0,
+            "tile": 10,
+            "position": [
+              -9.281299423149113,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 1,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 2,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.281299423149113
+            ]
+          }
+        ],
+        "buildings": []
+      }
+    },
+    {
+      "name": "purchase",
+      "state": {
+        "gameId": 8,
+        "players": [
+          {
+            "id": 0,
+            "name": "You",
+            "isAI": false,
+            "token": "rubber_duck",
+            "color": "#f59e0b",
+            "money": 1440,
+            "position": 3,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 1,
+            "name": "Rival 1",
+            "isAI": false,
+            "token": "cat",
+            "color": "#ec4899",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 2,
+            "name": "Rival 2",
+            "isAI": false,
+            "token": "racecar",
+            "color": "#3b82f6",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          }
+        ],
+        "properties": {
+          "1": {
+            "spaceId": 1,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "3": {
+            "spaceId": 3,
+            "ownerId": 0,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "5": {
+            "spaceId": 5,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "6": {
+            "spaceId": 6,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "8": {
+            "spaceId": 8,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "9": {
+            "spaceId": 9,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "11": {
+            "spaceId": 11,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "12": {
+            "spaceId": 12,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "13": {
+            "spaceId": 13,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "14": {
+            "spaceId": 14,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "15": {
+            "spaceId": 15,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "16": {
+            "spaceId": 16,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "18": {
+            "spaceId": 18,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "19": {
+            "spaceId": 19,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "21": {
+            "spaceId": 21,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "23": {
+            "spaceId": 23,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "24": {
+            "spaceId": 24,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "25": {
+            "spaceId": 25,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "26": {
+            "spaceId": 26,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "27": {
+            "spaceId": 27,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "28": {
+            "spaceId": 28,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "29": {
+            "spaceId": 29,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "31": {
+            "spaceId": 31,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "32": {
+            "spaceId": 32,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "34": {
+            "spaceId": 34,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "35": {
+            "spaceId": 35,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "37": {
+            "spaceId": 37,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "39": {
+            "spaceId": 39,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          }
+        },
+        "dice": [
+          1,
+          2
+        ],
+        "turnPhase": "END_TURN",
+        "currentPlayerIndex": 0,
+        "pendingDebt": null,
+        "activeCard": null,
+        "heldJailCards": {},
+        "auction": null,
+        "railroadRaid": null,
+        "winner": null,
+        "logs": [
+          {
+            "id": "1794882628426-rn6cm",
+            "timestamp": "09:30:28 AM",
+            "message": "You purchased Baltic Avenue for 60!",
+            "type": "property"
+          },
+          {
+            "id": "1794882627993-ey7ma",
+            "timestamp": "09:30:27 AM",
+            "message": "You landed on Baltic Avenue.",
+            "type": "info"
+          },
+          {
+            "id": "1794882627744-3psjv",
+            "timestamp": "09:30:27 AM",
+            "message": "You rolled 1 + 2 = 3.",
+            "type": "info"
+          },
+          {
+            "id": "start-1794882624659",
+            "timestamp": "09:30:24 AM",
+            "message": "New game started with 3 players! Each player receives $1,500.",
+            "type": "info"
+          }
+        ]
+      },
+      "board": {
+        "meshes": {
+          "board-full-name-labels": 40,
+          "board-color-bands": 22,
+          "board-gold-dividers": 22,
+          "board-owner-mortgage-marks": 1,
+          "board-owner-trim": 1,
+          "board-interaction-outlines": 0
+        },
+        "textures": [
+          {
+            "uuid": "f8bcbf86-03c2-47ed-9265-45d9d5adc8d6",
+            "width": 1024,
+            "height": 1024,
+            "anisotropy": 8,
+            "mipmaps": true
+          }
+        ]
+      },
+      "actors": {
+        "tokens": [
+          {
+            "id": 0,
+            "tile": 3,
+            "position": [
+              3.8687005768508884,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 1,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 2,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.281299423149113
+            ]
+          }
+        ],
+        "buildings": []
+      }
+    },
+    {
+      "name": "rent-payment",
+      "state": {
+        "gameId": 9,
+        "players": [
+          {
+            "id": 0,
+            "name": "You",
+            "isAI": false,
+            "token": "rubber_duck",
+            "color": "#f59e0b",
+            "money": 1496,
+            "position": 3,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 1,
+            "name": "Rival 1",
+            "isAI": false,
+            "token": "cat",
+            "color": "#ec4899",
+            "money": 1504,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 2,
+            "name": "Rival 2",
+            "isAI": false,
+            "token": "racecar",
+            "color": "#3b82f6",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          }
+        ],
+        "properties": {
+          "1": {
+            "spaceId": 1,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "3": {
+            "spaceId": 3,
+            "ownerId": 1,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "5": {
+            "spaceId": 5,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "6": {
+            "spaceId": 6,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "8": {
+            "spaceId": 8,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "9": {
+            "spaceId": 9,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "11": {
+            "spaceId": 11,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "12": {
+            "spaceId": 12,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "13": {
+            "spaceId": 13,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "14": {
+            "spaceId": 14,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "15": {
+            "spaceId": 15,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "16": {
+            "spaceId": 16,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "18": {
+            "spaceId": 18,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "19": {
+            "spaceId": 19,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "21": {
+            "spaceId": 21,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "23": {
+            "spaceId": 23,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "24": {
+            "spaceId": 24,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "25": {
+            "spaceId": 25,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "26": {
+            "spaceId": 26,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "27": {
+            "spaceId": 27,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "28": {
+            "spaceId": 28,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "29": {
+            "spaceId": 29,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "31": {
+            "spaceId": 31,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "32": {
+            "spaceId": 32,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "34": {
+            "spaceId": 34,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "35": {
+            "spaceId": 35,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "37": {
+            "spaceId": 37,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "39": {
+            "spaceId": 39,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          }
+        },
+        "dice": [
+          1,
+          2
+        ],
+        "turnPhase": "END_TURN",
+        "currentPlayerIndex": 0,
+        "pendingDebt": null,
+        "activeCard": null,
+        "heldJailCards": {},
+        "auction": null,
+        "railroadRaid": null,
+        "winner": null,
+        "logs": [
+          {
+            "id": "1794882633829-c3rmd",
+            "timestamp": "09:30:33 AM",
+            "message": "You paid 4 rent to Rival 1 for Baltic Avenue.",
+            "type": "money"
+          },
+          {
+            "id": "1794882633828-ak4th",
+            "timestamp": "09:30:33 AM",
+            "message": "You landed on Baltic Avenue.",
+            "type": "info"
+          },
+          {
+            "id": "1794882633567-q195y",
+            "timestamp": "09:30:33 AM",
+            "message": "You rolled 1 + 2 = 3.",
+            "type": "info"
+          },
+          {
+            "id": "start-1794882630508",
+            "timestamp": "09:30:30 AM",
+            "message": "New game started with 3 players! Each player receives $1,500.",
+            "type": "info"
+          }
+        ]
+      },
+      "board": {
+        "meshes": {
+          "board-full-name-labels": 40,
+          "board-color-bands": 22,
+          "board-gold-dividers": 22,
+          "board-owner-mortgage-marks": 1,
+          "board-owner-trim": 1,
+          "board-interaction-outlines": 0
+        },
+        "textures": [
+          {
+            "uuid": "f8bcbf86-03c2-47ed-9265-45d9d5adc8d6",
+            "width": 1024,
+            "height": 1024,
+            "anisotropy": 8,
+            "mipmaps": true
+          }
+        ]
+      },
+      "actors": {
+        "tokens": [
+          {
+            "id": 0,
+            "tile": 3,
+            "position": [
+              3.8687005768508884,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 1,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 2,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.281299423149113
+            ]
+          }
+        ],
+        "buildings": []
+      }
+    },
+    {
+      "name": "house-construction",
+      "state": {
+        "gameId": 10,
+        "players": [
+          {
+            "id": 0,
+            "name": "You",
+            "isAI": false,
+            "token": "rubber_duck",
+            "color": "#f59e0b",
+            "money": 1450,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 1,
+            "name": "Rival 1",
+            "isAI": false,
+            "token": "cat",
+            "color": "#ec4899",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 2,
+            "name": "Rival 2",
+            "isAI": false,
+            "token": "racecar",
+            "color": "#3b82f6",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          }
+        ],
+        "properties": {
+          "1": {
+            "spaceId": 1,
+            "ownerId": 0,
+            "houses": 1,
+            "isMortgaged": false
+          },
+          "3": {
+            "spaceId": 3,
+            "ownerId": 0,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "5": {
+            "spaceId": 5,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "6": {
+            "spaceId": 6,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "8": {
+            "spaceId": 8,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "9": {
+            "spaceId": 9,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "11": {
+            "spaceId": 11,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "12": {
+            "spaceId": 12,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "13": {
+            "spaceId": 13,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "14": {
+            "spaceId": 14,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "15": {
+            "spaceId": 15,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "16": {
+            "spaceId": 16,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "18": {
+            "spaceId": 18,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "19": {
+            "spaceId": 19,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "21": {
+            "spaceId": 21,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "23": {
+            "spaceId": 23,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "24": {
+            "spaceId": 24,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "25": {
+            "spaceId": 25,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "26": {
+            "spaceId": 26,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "27": {
+            "spaceId": 27,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "28": {
+            "spaceId": 28,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "29": {
+            "spaceId": 29,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "31": {
+            "spaceId": 31,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "32": {
+            "spaceId": 32,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "34": {
+            "spaceId": 34,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "35": {
+            "spaceId": 35,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "37": {
+            "spaceId": 37,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "39": {
+            "spaceId": 39,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          }
+        },
+        "dice": [
+          1,
+          1
+        ],
+        "turnPhase": "PRE_ROLL",
+        "currentPlayerIndex": 0,
+        "pendingDebt": null,
+        "activeCard": null,
+        "heldJailCards": {},
+        "auction": null,
+        "railroadRaid": null,
+        "winner": null,
+        "logs": [
+          {
+            "id": "1794882638417-udssw",
+            "timestamp": "09:30:38 AM",
+            "message": "You built a House (#1) on Mediterranean Avenue for $50.",
+            "type": "property"
+          },
+          {
+            "id": "start-1794882635754",
+            "timestamp": "09:30:35 AM",
+            "message": "New game started with 3 players! Each player receives $1,500.",
+            "type": "info"
+          }
+        ]
+      },
+      "board": {
+        "meshes": {
+          "board-full-name-labels": 40,
+          "board-color-bands": 22,
+          "board-gold-dividers": 22,
+          "board-owner-mortgage-marks": 2,
+          "board-owner-trim": 2,
+          "board-interaction-outlines": 4
+        },
+        "textures": [
+          {
+            "uuid": "f8bcbf86-03c2-47ed-9265-45d9d5adc8d6",
+            "width": 1024,
+            "height": 1024,
+            "anisotropy": 8,
+            "mipmaps": true
+          }
+        ]
+      },
+      "actors": {
+        "tokens": [
+          {
+            "id": 0,
+            "tile": 0,
+            "position": [
+              9.818700576850889,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 1,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 2,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.281299423149113
+            ]
+          }
+        ],
+        "buildings": [
+          {
+            "spaceId": 1,
+            "level": 1,
+            "models": 1,
+            "position": [
+              7.2,
+              0.44500000000000006,
+              9.55
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "hotel-upgrade",
+      "state": {
+        "gameId": 11,
+        "players": [
+          {
+            "id": 0,
+            "name": "You",
+            "isAI": false,
+            "token": "rubber_duck",
+            "color": "#f59e0b",
+            "money": 1450,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 1,
+            "name": "Rival 1",
+            "isAI": false,
+            "token": "cat",
+            "color": "#ec4899",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 2,
+            "name": "Rival 2",
+            "isAI": false,
+            "token": "racecar",
+            "color": "#3b82f6",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          }
+        ],
+        "properties": {
+          "1": {
+            "spaceId": 1,
+            "ownerId": 0,
+            "houses": 5,
+            "isMortgaged": false
+          },
+          "3": {
+            "spaceId": 3,
+            "ownerId": 0,
+            "houses": 4,
+            "isMortgaged": false
+          },
+          "5": {
+            "spaceId": 5,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "6": {
+            "spaceId": 6,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "8": {
+            "spaceId": 8,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "9": {
+            "spaceId": 9,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "11": {
+            "spaceId": 11,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "12": {
+            "spaceId": 12,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "13": {
+            "spaceId": 13,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "14": {
+            "spaceId": 14,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "15": {
+            "spaceId": 15,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "16": {
+            "spaceId": 16,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "18": {
+            "spaceId": 18,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "19": {
+            "spaceId": 19,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "21": {
+            "spaceId": 21,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "23": {
+            "spaceId": 23,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "24": {
+            "spaceId": 24,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "25": {
+            "spaceId": 25,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "26": {
+            "spaceId": 26,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "27": {
+            "spaceId": 27,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "28": {
+            "spaceId": 28,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "29": {
+            "spaceId": 29,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "31": {
+            "spaceId": 31,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "32": {
+            "spaceId": 32,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "34": {
+            "spaceId": 34,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "35": {
+            "spaceId": 35,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "37": {
+            "spaceId": 37,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "39": {
+            "spaceId": 39,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          }
+        },
+        "dice": [
+          1,
+          1
+        ],
+        "turnPhase": "PRE_ROLL",
+        "currentPlayerIndex": 0,
+        "pendingDebt": null,
+        "activeCard": null,
+        "heldJailCards": {},
+        "auction": null,
+        "railroadRaid": null,
+        "winner": null,
+        "logs": [
+          {
+            "id": "1794882643095-quhdb",
+            "timestamp": "09:30:43 AM",
+            "message": "You built a HOTEL on Mediterranean Avenue for $50.",
+            "type": "property"
+          },
+          {
+            "id": "start-1794882640285",
+            "timestamp": "09:30:40 AM",
+            "message": "New game started with 3 players! Each player receives $1,500.",
+            "type": "info"
+          }
+        ]
+      },
+      "board": {
+        "meshes": {
+          "board-full-name-labels": 40,
+          "board-color-bands": 22,
+          "board-gold-dividers": 22,
+          "board-owner-mortgage-marks": 2,
+          "board-owner-trim": 2,
+          "board-interaction-outlines": 4
+        },
+        "textures": [
+          {
+            "uuid": "f8bcbf86-03c2-47ed-9265-45d9d5adc8d6",
+            "width": 1024,
+            "height": 1024,
+            "anisotropy": 8,
+            "mipmaps": true
+          }
+        ]
+      },
+      "actors": {
+        "tokens": [
+          {
+            "id": 0,
+            "tile": 0,
+            "position": [
+              9.818700576850889,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 1,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 2,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.281299423149113
+            ]
+          }
+        ],
+        "buildings": [
+          {
+            "spaceId": 1,
+            "level": 5,
+            "models": 1,
+            "position": [
+              7.2,
+              0.44500000000000006,
+              9.55
+            ]
+          },
+          {
+            "spaceId": 3,
+            "level": 4,
+            "models": 4,
+            "position": [
+              3.6,
+              0.36500000000000005,
+              9.55
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "ownership-mortgage",
+      "state": {
+        "gameId": 12,
+        "players": [
+          {
+            "id": 0,
+            "name": "You",
+            "isAI": false,
+            "token": "rubber_duck",
+            "color": "#f59e0b",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 1,
+            "name": "Rival 1",
+            "isAI": false,
+            "token": "cat",
+            "color": "#ec4899",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 2,
+            "name": "Rival 2",
+            "isAI": false,
+            "token": "racecar",
+            "color": "#3b82f6",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          }
+        ],
+        "properties": {
+          "1": {
+            "spaceId": 1,
+            "ownerId": 0,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "3": {
+            "spaceId": 3,
+            "ownerId": 1,
+            "houses": 0,
+            "isMortgaged": true
+          },
+          "5": {
+            "spaceId": 5,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "6": {
+            "spaceId": 6,
+            "ownerId": 2,
+            "houses": 2,
+            "isMortgaged": false
+          },
+          "8": {
+            "spaceId": 8,
+            "ownerId": 2,
+            "houses": 2,
+            "isMortgaged": false
+          },
+          "9": {
+            "spaceId": 9,
+            "ownerId": 2,
+            "houses": 2,
+            "isMortgaged": false
+          },
+          "11": {
+            "spaceId": 11,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "12": {
+            "spaceId": 12,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "13": {
+            "spaceId": 13,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "14": {
+            "spaceId": 14,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "15": {
+            "spaceId": 15,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "16": {
+            "spaceId": 16,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "18": {
+            "spaceId": 18,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "19": {
+            "spaceId": 19,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "21": {
+            "spaceId": 21,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "23": {
+            "spaceId": 23,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "24": {
+            "spaceId": 24,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "25": {
+            "spaceId": 25,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "26": {
+            "spaceId": 26,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "27": {
+            "spaceId": 27,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "28": {
+            "spaceId": 28,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "29": {
+            "spaceId": 29,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "31": {
+            "spaceId": 31,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "32": {
+            "spaceId": 32,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "34": {
+            "spaceId": 34,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "35": {
+            "spaceId": 35,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "37": {
+            "spaceId": 37,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "39": {
+            "spaceId": 39,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          }
+        },
+        "dice": [
+          1,
+          1
+        ],
+        "turnPhase": "PRE_ROLL",
+        "currentPlayerIndex": 0,
+        "pendingDebt": null,
+        "activeCard": null,
+        "heldJailCards": {},
+        "auction": null,
+        "railroadRaid": null,
+        "winner": null,
+        "logs": [
+          {
+            "id": "start-1794882644982",
+            "timestamp": "09:30:44 AM",
+            "message": "New game started with 3 players! Each player receives $1,500.",
+            "type": "info"
+          }
+        ]
+      },
+      "board": {
+        "meshes": {
+          "board-full-name-labels": 40,
+          "board-color-bands": 22,
+          "board-gold-dividers": 22,
+          "board-owner-mortgage-marks": 6,
+          "board-owner-trim": 5,
+          "board-interaction-outlines": 0
+        },
+        "textures": [
+          {
+            "uuid": "f8bcbf86-03c2-47ed-9265-45d9d5adc8d6",
+            "width": 1024,
+            "height": 1024,
+            "anisotropy": 8,
+            "mipmaps": true
+          }
+        ]
+      },
+      "actors": {
+        "tokens": [
+          {
+            "id": 0,
+            "tile": 0,
+            "position": [
+              9.818700576850889,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 1,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 2,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.281299423149113
+            ]
+          }
+        ],
+        "buildings": [
+          {
+            "spaceId": 6,
+            "level": 2,
+            "models": 2,
+            "position": [
+              -1.7999999999999998,
+              0.36500000000000005,
+              9.55
+            ]
+          },
+          {
+            "spaceId": 8,
+            "level": 2,
+            "models": 2,
+            "position": [
+              -5.3999999999999995,
+              0.36500000000000005,
+              9.55
+            ]
+          },
+          {
+            "spaceId": 9,
+            "level": 2,
+            "models": 2,
+            "position": [
+              -7.2,
+              0.36500000000000005,
+              9.55
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "jail-entry",
+      "state": {
+        "gameId": 13,
+        "players": [
+          {
+            "id": 0,
+            "name": "You",
+            "isAI": false,
+            "token": "rubber_duck",
+            "color": "#f59e0b",
+            "money": 1500,
+            "position": 10,
+            "inJail": true,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 1,
+            "name": "Rival 1",
+            "isAI": false,
+            "token": "cat",
+            "color": "#ec4899",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 2,
+            "name": "Rival 2",
+            "isAI": false,
+            "token": "racecar",
+            "color": "#3b82f6",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          }
+        ],
+        "properties": {
+          "1": {
+            "spaceId": 1,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "3": {
+            "spaceId": 3,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "5": {
+            "spaceId": 5,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "6": {
+            "spaceId": 6,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "8": {
+            "spaceId": 8,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "9": {
+            "spaceId": 9,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "11": {
+            "spaceId": 11,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "12": {
+            "spaceId": 12,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "13": {
+            "spaceId": 13,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "14": {
+            "spaceId": 14,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "15": {
+            "spaceId": 15,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "16": {
+            "spaceId": 16,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "18": {
+            "spaceId": 18,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "19": {
+            "spaceId": 19,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "21": {
+            "spaceId": 21,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "23": {
+            "spaceId": 23,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "24": {
+            "spaceId": 24,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "25": {
+            "spaceId": 25,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "26": {
+            "spaceId": 26,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "27": {
+            "spaceId": 27,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "28": {
+            "spaceId": 28,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "29": {
+            "spaceId": 29,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "31": {
+            "spaceId": 31,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "32": {
+            "spaceId": 32,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "34": {
+            "spaceId": 34,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "35": {
+            "spaceId": 35,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "37": {
+            "spaceId": 37,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "39": {
+            "spaceId": 39,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          }
+        },
+        "dice": [
+          1,
+          2
+        ],
+        "turnPhase": "END_TURN",
+        "currentPlayerIndex": 0,
+        "pendingDebt": null,
+        "activeCard": null,
+        "heldJailCards": {},
+        "auction": null,
+        "railroadRaid": null,
+        "winner": null,
+        "logs": [
+          {
+            "id": "1794882652674-q38w5",
+            "timestamp": "09:30:52 AM",
+            "message": "You is sent directly to Jail!",
+            "type": "alert"
+          },
+          {
+            "id": "1794882652673-b1gim",
+            "timestamp": "09:30:52 AM",
+            "message": "You landed on Go To Jail.",
+            "type": "info"
+          },
+          {
+            "id": "1794882652423-vls0q",
+            "timestamp": "09:30:52 AM",
+            "message": "You rolled 1 + 2 = 3.",
+            "type": "info"
+          },
+          {
+            "id": "start-1794882649317",
+            "timestamp": "09:30:49 AM",
+            "message": "New game started with 3 players! Each player receives $1,500.",
+            "type": "info"
+          }
+        ]
+      },
+      "board": {
+        "meshes": {
+          "board-full-name-labels": 40,
+          "board-color-bands": 22,
+          "board-gold-dividers": 22,
+          "board-owner-mortgage-marks": 0,
+          "board-owner-trim": 0,
+          "board-interaction-outlines": 0
+        },
+        "textures": [
+          {
+            "uuid": "f8bcbf86-03c2-47ed-9265-45d9d5adc8d6",
+            "width": 1024,
+            "height": 1024,
+            "anisotropy": 8,
+            "mipmaps": true
+          }
+        ]
+      },
+      "actors": {
+        "tokens": [
+          {
+            "id": 0,
+            "tile": 10,
+            "position": [
+              -9.281299423149113,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 1,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 2,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.281299423149113
+            ]
+          }
+        ],
+        "buildings": []
+      }
+    },
+    {
+      "name": "jail-options",
+      "state": {
+        "gameId": 14,
+        "players": [
+          {
+            "id": 0,
+            "name": "You",
+            "isAI": false,
+            "token": "rubber_duck",
+            "color": "#f59e0b",
+            "money": 1500,
+            "position": 10,
+            "inJail": true,
+            "jailTurns": 0,
+            "getOutOfJailCards": 1,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 1,
+            "name": "Rival 1",
+            "isAI": false,
+            "token": "cat",
+            "color": "#ec4899",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 2,
+            "name": "Rival 2",
+            "isAI": false,
+            "token": "racecar",
+            "color": "#3b82f6",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          }
+        ],
+        "properties": {
+          "1": {
+            "spaceId": 1,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "3": {
+            "spaceId": 3,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "5": {
+            "spaceId": 5,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "6": {
+            "spaceId": 6,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "8": {
+            "spaceId": 8,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "9": {
+            "spaceId": 9,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "11": {
+            "spaceId": 11,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "12": {
+            "spaceId": 12,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "13": {
+            "spaceId": 13,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "14": {
+            "spaceId": 14,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "15": {
+            "spaceId": 15,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "16": {
+            "spaceId": 16,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "18": {
+            "spaceId": 18,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "19": {
+            "spaceId": 19,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "21": {
+            "spaceId": 21,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "23": {
+            "spaceId": 23,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "24": {
+            "spaceId": 24,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "25": {
+            "spaceId": 25,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "26": {
+            "spaceId": 26,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "27": {
+            "spaceId": 27,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "28": {
+            "spaceId": 28,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "29": {
+            "spaceId": 29,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "31": {
+            "spaceId": 31,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "32": {
+            "spaceId": 32,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "34": {
+            "spaceId": 34,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "35": {
+            "spaceId": 35,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "37": {
+            "spaceId": 37,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "39": {
+            "spaceId": 39,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          }
+        },
+        "dice": [
+          1,
+          1
+        ],
+        "turnPhase": "PRE_ROLL",
+        "currentPlayerIndex": 0,
+        "pendingDebt": null,
+        "activeCard": null,
+        "heldJailCards": {
+          "0": [
+            {
+              "id": "ch_7",
+              "deck": "chance",
+              "title": "Get Out of Jail Free",
+              "description": "This card may be kept until needed or used to exit Jail.",
+              "actionType": "get_out_of_jail"
+            }
+          ]
+        },
+        "auction": null,
+        "railroadRaid": null,
+        "winner": null,
+        "logs": [
+          {
+            "id": "start-1794882654440",
+            "timestamp": "09:30:54 AM",
+            "message": "New game started with 3 players! Each player receives $1,500.",
+            "type": "info"
+          }
+        ]
+      },
+      "board": {
+        "meshes": {
+          "board-full-name-labels": 40,
+          "board-color-bands": 22,
+          "board-gold-dividers": 22,
+          "board-owner-mortgage-marks": 0,
+          "board-owner-trim": 0,
+          "board-interaction-outlines": 0
+        },
+        "textures": [
+          {
+            "uuid": "f8bcbf86-03c2-47ed-9265-45d9d5adc8d6",
+            "width": 1024,
+            "height": 1024,
+            "anisotropy": 8,
+            "mipmaps": true
+          }
+        ]
+      },
+      "actors": {
+        "tokens": [
+          {
+            "id": 0,
+            "tile": 10,
+            "position": [
+              -9.281299423149113,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 1,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 2,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.281299423149113
+            ]
+          }
+        ],
+        "buildings": []
+      }
+    },
+    {
+      "name": "chance-reveal",
+      "state": {
+        "gameId": 16,
+        "players": [
+          {
+            "id": 0,
+            "name": "You",
+            "isAI": false,
+            "token": "rubber_duck",
+            "color": "#f59e0b",
+            "money": 1500,
+            "position": 7,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 1,
+            "name": "Rival 1",
+            "isAI": false,
+            "token": "cat",
+            "color": "#ec4899",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 2,
+            "name": "Rival 2",
+            "isAI": false,
+            "token": "racecar",
+            "color": "#3b82f6",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          }
+        ],
+        "properties": {
+          "1": {
+            "spaceId": 1,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "3": {
+            "spaceId": 3,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "5": {
+            "spaceId": 5,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "6": {
+            "spaceId": 6,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "8": {
+            "spaceId": 8,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "9": {
+            "spaceId": 9,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "11": {
+            "spaceId": 11,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "12": {
+            "spaceId": 12,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "13": {
+            "spaceId": 13,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "14": {
+            "spaceId": 14,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "15": {
+            "spaceId": 15,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "16": {
+            "spaceId": 16,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "18": {
+            "spaceId": 18,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "19": {
+            "spaceId": 19,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "21": {
+            "spaceId": 21,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "23": {
+            "spaceId": 23,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "24": {
+            "spaceId": 24,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "25": {
+            "spaceId": 25,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "26": {
+            "spaceId": 26,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "27": {
+            "spaceId": 27,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "28": {
+            "spaceId": 28,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "29": {
+            "spaceId": 29,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "31": {
+            "spaceId": 31,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "32": {
+            "spaceId": 32,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "34": {
+            "spaceId": 34,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "35": {
+            "spaceId": 35,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "37": {
+            "spaceId": 37,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "39": {
+            "spaceId": 39,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          }
+        },
+        "dice": [
+          1,
+          2
+        ],
+        "turnPhase": "CARD_DRAWN",
+        "currentPlayerIndex": 0,
+        "pendingDebt": null,
+        "activeCard": {
+          "id": "ch_6",
+          "deck": "chance",
+          "title": "Bank Pays Dividend",
+          "description": "Bank pays you a dividend of $50.",
+          "actionType": "collect",
+          "amount": 50
+        },
+        "heldJailCards": {},
+        "auction": null,
+        "railroadRaid": null,
+        "winner": null,
+        "logs": [
+          {
+            "id": "1794882664654-zbq22",
+            "timestamp": "09:31:04 AM",
+            "message": "You drew Chance: \"Bank Pays Dividend\"",
+            "type": "card"
+          },
+          {
+            "id": "1794882664653-18920",
+            "timestamp": "09:31:04 AM",
+            "message": "You landed on Chance.",
+            "type": "info"
+          },
+          {
+            "id": "1794882664388-7hjl6",
+            "timestamp": "09:31:04 AM",
+            "message": "You rolled 1 + 2 = 3.",
+            "type": "info"
+          },
+          {
+            "id": "start-1794882661308",
+            "timestamp": "09:31:01 AM",
+            "message": "New game started with 3 players! Each player receives $1,500.",
+            "type": "info"
+          }
+        ]
+      },
+      "board": {
+        "meshes": {
+          "board-full-name-labels": 40,
+          "board-color-bands": 22,
+          "board-gold-dividers": 22,
+          "board-owner-mortgage-marks": 0,
+          "board-owner-trim": 0,
+          "board-interaction-outlines": 0
+        },
+        "textures": [
+          {
+            "uuid": "f8bcbf86-03c2-47ed-9265-45d9d5adc8d6",
+            "width": 1024,
+            "height": 1024,
+            "anisotropy": 8,
+            "mipmaps": true
+          }
+        ]
+      },
+      "actors": {
+        "tokens": [
+          {
+            "id": 0,
+            "tile": 7,
+            "position": [
+              -3.3312994231491126,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 1,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 2,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.281299423149113
+            ]
+          }
+        ],
+        "buildings": []
+      }
+    },
+    {
+      "name": "chest-reveal",
+      "state": {
+        "gameId": 17,
+        "players": [
+          {
+            "id": 0,
+            "name": "You",
+            "isAI": false,
+            "token": "rubber_duck",
+            "color": "#f59e0b",
+            "money": 1700,
+            "position": 2,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 1,
+            "name": "Rival 1",
+            "isAI": false,
+            "token": "cat",
+            "color": "#ec4899",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 2,
+            "name": "Rival 2",
+            "isAI": false,
+            "token": "racecar",
+            "color": "#3b82f6",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          }
+        ],
+        "properties": {
+          "1": {
+            "spaceId": 1,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "3": {
+            "spaceId": 3,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "5": {
+            "spaceId": 5,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "6": {
+            "spaceId": 6,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "8": {
+            "spaceId": 8,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "9": {
+            "spaceId": 9,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "11": {
+            "spaceId": 11,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "12": {
+            "spaceId": 12,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "13": {
+            "spaceId": 13,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "14": {
+            "spaceId": 14,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "15": {
+            "spaceId": 15,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "16": {
+            "spaceId": 16,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "18": {
+            "spaceId": 18,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "19": {
+            "spaceId": 19,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "21": {
+            "spaceId": 21,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "23": {
+            "spaceId": 23,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "24": {
+            "spaceId": 24,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "25": {
+            "spaceId": 25,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "26": {
+            "spaceId": 26,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "27": {
+            "spaceId": 27,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "28": {
+            "spaceId": 28,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "29": {
+            "spaceId": 29,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "31": {
+            "spaceId": 31,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "32": {
+            "spaceId": 32,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "34": {
+            "spaceId": 34,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "35": {
+            "spaceId": 35,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "37": {
+            "spaceId": 37,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "39": {
+            "spaceId": 39,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          }
+        },
+        "dice": [
+          1,
+          2
+        ],
+        "turnPhase": "CARD_DRAWN",
+        "currentPlayerIndex": 0,
+        "pendingDebt": null,
+        "activeCard": {
+          "id": "cc_2",
+          "deck": "chest",
+          "title": "Bank Error in Your Favor",
+          "description": "Bank error in your favor. Collect $200.",
+          "actionType": "collect",
+          "amount": 200
+        },
+        "heldJailCards": {},
+        "auction": null,
+        "railroadRaid": null,
+        "winner": null,
+        "logs": [
+          {
+            "id": "1794882669981-6whnc",
+            "timestamp": "09:31:09 AM",
+            "message": "You drew Community Chest: \"Bank Error in Your Favor\"",
+            "type": "card"
+          },
+          {
+            "id": "1794882669980-vseps",
+            "timestamp": "09:31:09 AM",
+            "message": "You landed on Community Chest.",
+            "type": "info"
+          },
+          {
+            "id": "1794882669724-bdri5",
+            "timestamp": "09:31:09 AM",
+            "message": "You passed GO and collected 200 (including landmark income)!",
+            "type": "money"
+          },
+          {
+            "id": "1794882669724-buvdp",
+            "timestamp": "09:31:09 AM",
+            "message": "You rolled 1 + 2 = 3.",
+            "type": "info"
+          },
+          {
+            "id": "start-1794882666751",
+            "timestamp": "09:31:06 AM",
+            "message": "New game started with 3 players! Each player receives $1,500.",
+            "type": "info"
+          }
+        ]
+      },
+      "board": {
+        "meshes": {
+          "board-full-name-labels": 40,
+          "board-color-bands": 22,
+          "board-gold-dividers": 22,
+          "board-owner-mortgage-marks": 0,
+          "board-owner-trim": 0,
+          "board-interaction-outlines": 0
+        },
+        "textures": [
+          {
+            "uuid": "f8bcbf86-03c2-47ed-9265-45d9d5adc8d6",
+            "width": 1024,
+            "height": 1024,
+            "anisotropy": 8,
+            "mipmaps": true
+          }
+        ]
+      },
+      "actors": {
+        "tokens": [
+          {
+            "id": 0,
+            "tile": 2,
+            "position": [
+              5.668700576850888,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 1,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 2,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.281299423149113
+            ]
+          }
+        ],
+        "buildings": []
+      }
+    },
+    {
+      "name": "card-chain-reveal",
+      "state": {
+        "gameId": 18,
+        "players": [
+          {
+            "id": 0,
+            "name": "You",
+            "isAI": false,
+            "token": "rubber_duck",
+            "color": "#f59e0b",
+            "money": 1500,
+            "position": 36,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 1,
+            "name": "Rival 1",
+            "isAI": false,
+            "token": "cat",
+            "color": "#ec4899",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 2,
+            "name": "Rival 2",
+            "isAI": false,
+            "token": "racecar",
+            "color": "#3b82f6",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          }
+        ],
+        "properties": {
+          "1": {
+            "spaceId": 1,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "3": {
+            "spaceId": 3,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "5": {
+            "spaceId": 5,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "6": {
+            "spaceId": 6,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "8": {
+            "spaceId": 8,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "9": {
+            "spaceId": 9,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "11": {
+            "spaceId": 11,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "12": {
+            "spaceId": 12,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "13": {
+            "spaceId": 13,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "14": {
+            "spaceId": 14,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "15": {
+            "spaceId": 15,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "16": {
+            "spaceId": 16,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "18": {
+            "spaceId": 18,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "19": {
+            "spaceId": 19,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "21": {
+            "spaceId": 21,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "23": {
+            "spaceId": 23,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "24": {
+            "spaceId": 24,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "25": {
+            "spaceId": 25,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "26": {
+            "spaceId": 26,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "27": {
+            "spaceId": 27,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "28": {
+            "spaceId": 28,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "29": {
+            "spaceId": 29,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "31": {
+            "spaceId": 31,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "32": {
+            "spaceId": 32,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "34": {
+            "spaceId": 34,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "35": {
+            "spaceId": 35,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "37": {
+            "spaceId": 37,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "39": {
+            "spaceId": 39,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          }
+        },
+        "dice": [
+          1,
+          2
+        ],
+        "turnPhase": "CARD_DRAWN",
+        "currentPlayerIndex": 0,
+        "pendingDebt": null,
+        "activeCard": {
+          "id": "ch_8",
+          "deck": "chance",
+          "title": "Go Back 3 Spaces",
+          "description": "Move your token back 3 spaces.",
+          "actionType": "move_relative",
+          "steps": -3
+        },
+        "heldJailCards": {},
+        "auction": null,
+        "railroadRaid": null,
+        "winner": null,
+        "logs": [
+          {
+            "id": "1794882675070-tv1u5",
+            "timestamp": "09:31:15 AM",
+            "message": "You drew Chance: \"Go Back 3 Spaces\"",
+            "type": "card"
+          },
+          {
+            "id": "1794882675070-771av",
+            "timestamp": "09:31:15 AM",
+            "message": "You landed on Chance.",
+            "type": "info"
+          },
+          {
+            "id": "1794882674822-psv0m",
+            "timestamp": "09:31:14 AM",
+            "message": "You rolled 1 + 2 = 3.",
+            "type": "info"
+          },
+          {
+            "id": "start-1794882671822",
+            "timestamp": "09:31:11 AM",
+            "message": "New game started with 3 players! Each player receives $1,500.",
+            "type": "info"
+          }
+        ]
+      },
+      "board": {
+        "meshes": {
+          "board-full-name-labels": 40,
+          "board-color-bands": 22,
+          "board-gold-dividers": 22,
+          "board-owner-mortgage-marks": 0,
+          "board-owner-trim": 0,
+          "board-interaction-outlines": 0
+        },
+        "textures": [
+          {
+            "uuid": "f8bcbf86-03c2-47ed-9265-45d9d5adc8d6",
+            "width": 1024,
+            "height": 1024,
+            "anisotropy": 8,
+            "mipmaps": true
+          }
+        ]
+      },
+      "actors": {
+        "tokens": [
+          {
+            "id": 0,
+            "tile": 36,
+            "position": [
+              9.818700576850889,
+              0.34,
+              2.0687005768508877
+            ]
+          },
+          {
+            "id": 1,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 2,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.281299423149113
+            ]
+          }
+        ],
+        "buildings": []
+      }
+    },
+    {
+      "name": "debt-resolution",
+      "state": {
+        "gameId": 19,
+        "players": [
+          {
+            "id": 0,
+            "name": "You",
+            "isAI": false,
+            "token": "rubber_duck",
+            "color": "#f59e0b",
+            "money": 120,
+            "position": 4,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 1,
+            "name": "Rival 1",
+            "isAI": false,
+            "token": "cat",
+            "color": "#ec4899",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 2,
+            "name": "Rival 2",
+            "isAI": false,
+            "token": "racecar",
+            "color": "#3b82f6",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          }
+        ],
+        "properties": {
+          "1": {
+            "spaceId": 1,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "3": {
+            "spaceId": 3,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "5": {
+            "spaceId": 5,
+            "ownerId": 0,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "6": {
+            "spaceId": 6,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "8": {
+            "spaceId": 8,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "9": {
+            "spaceId": 9,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "11": {
+            "spaceId": 11,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "12": {
+            "spaceId": 12,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "13": {
+            "spaceId": 13,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "14": {
+            "spaceId": 14,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "15": {
+            "spaceId": 15,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "16": {
+            "spaceId": 16,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "18": {
+            "spaceId": 18,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "19": {
+            "spaceId": 19,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "21": {
+            "spaceId": 21,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "23": {
+            "spaceId": 23,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "24": {
+            "spaceId": 24,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "25": {
+            "spaceId": 25,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "26": {
+            "spaceId": 26,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "27": {
+            "spaceId": 27,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "28": {
+            "spaceId": 28,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "29": {
+            "spaceId": 29,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "31": {
+            "spaceId": 31,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "32": {
+            "spaceId": 32,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "34": {
+            "spaceId": 34,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "35": {
+            "spaceId": 35,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "37": {
+            "spaceId": 37,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "39": {
+            "spaceId": 39,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          }
+        },
+        "dice": [
+          1,
+          2
+        ],
+        "turnPhase": "DEBT_RESOLUTION",
+        "currentPlayerIndex": 0,
+        "pendingDebt": {
+          "amount": 200,
+          "creditorId": null,
+          "reason": "Income Tax"
+        },
+        "activeCard": null,
+        "heldJailCards": {},
+        "auction": null,
+        "railroadRaid": null,
+        "winner": null,
+        "logs": [
+          {
+            "id": "1794882681436-pqh02",
+            "timestamp": "09:31:21 AM",
+            "message": "You landed on Income Tax.",
+            "type": "info"
+          },
+          {
+            "id": "1794882681172-yiy3l",
+            "timestamp": "09:31:21 AM",
+            "message": "You rolled 1 + 2 = 3.",
+            "type": "info"
+          },
+          {
+            "id": "start-1794882678171",
+            "timestamp": "09:31:18 AM",
+            "message": "New game started with 3 players! Each player receives $1,500.",
+            "type": "info"
+          }
+        ]
+      },
+      "board": {
+        "meshes": {
+          "board-full-name-labels": 40,
+          "board-color-bands": 22,
+          "board-gold-dividers": 22,
+          "board-owner-mortgage-marks": 1,
+          "board-owner-trim": 1,
+          "board-interaction-outlines": 0
+        },
+        "textures": [
+          {
+            "uuid": "f8bcbf86-03c2-47ed-9265-45d9d5adc8d6",
+            "width": 1024,
+            "height": 1024,
+            "anisotropy": 8,
+            "mipmaps": true
+          }
+        ]
+      },
+      "actors": {
+        "tokens": [
+          {
+            "id": 0,
+            "tile": 4,
+            "position": [
+              2.0687005768508877,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 1,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 2,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.281299423149113
+            ]
+          }
+        ],
+        "buildings": []
+      }
+    },
+    {
+      "name": "auction-won",
+      "state": {
+        "gameId": 20,
+        "players": [
+          {
+            "id": 0,
+            "name": "You",
+            "isAI": false,
+            "token": "rubber_duck",
+            "color": "#f59e0b",
+            "money": 1490,
+            "position": 3,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 1,
+            "name": "Rival 1",
+            "isAI": false,
+            "token": "cat",
+            "color": "#ec4899",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 2,
+            "name": "Rival 2",
+            "isAI": false,
+            "token": "racecar",
+            "color": "#3b82f6",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          }
+        ],
+        "properties": {
+          "1": {
+            "spaceId": 1,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "3": {
+            "spaceId": 3,
+            "ownerId": 0,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "5": {
+            "spaceId": 5,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "6": {
+            "spaceId": 6,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "8": {
+            "spaceId": 8,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "9": {
+            "spaceId": 9,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "11": {
+            "spaceId": 11,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "12": {
+            "spaceId": 12,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "13": {
+            "spaceId": 13,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "14": {
+            "spaceId": 14,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "15": {
+            "spaceId": 15,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "16": {
+            "spaceId": 16,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "18": {
+            "spaceId": 18,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "19": {
+            "spaceId": 19,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "21": {
+            "spaceId": 21,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "23": {
+            "spaceId": 23,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "24": {
+            "spaceId": 24,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "25": {
+            "spaceId": 25,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "26": {
+            "spaceId": 26,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "27": {
+            "spaceId": 27,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "28": {
+            "spaceId": 28,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "29": {
+            "spaceId": 29,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "31": {
+            "spaceId": 31,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "32": {
+            "spaceId": 32,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "34": {
+            "spaceId": 34,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "35": {
+            "spaceId": 35,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "37": {
+            "spaceId": 37,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "39": {
+            "spaceId": 39,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          }
+        },
+        "dice": [
+          1,
+          2
+        ],
+        "turnPhase": "END_TURN",
+        "currentPlayerIndex": 0,
+        "pendingDebt": null,
+        "activeCard": null,
+        "heldJailCards": {},
+        "auction": null,
+        "railroadRaid": null,
+        "winner": null,
+        "logs": [
+          {
+            "id": "1794882687742-qq3ql",
+            "timestamp": "09:31:27 AM",
+            "message": "You won Baltic Avenue for $10.",
+            "type": "property"
+          },
+          {
+            "id": "1794882687559-2btrj",
+            "timestamp": "09:31:27 AM",
+            "message": "Rival 1 passed on Baltic Avenue.",
+            "type": "info"
+          },
+          {
+            "id": "1794882687405-q0wkz",
+            "timestamp": "09:31:27 AM",
+            "message": "You bid $10 for Baltic Avenue.",
+            "type": "money"
+          },
+          {
+            "id": "1794882687099-fer7q",
+            "timestamp": "09:31:27 AM",
+            "message": "Auction started for Baltic Avenue. Opening bid is $10.",
+            "type": "property"
+          },
+          {
+            "id": "1794882686719-yp0ak",
+            "timestamp": "09:31:26 AM",
+            "message": "You landed on Baltic Avenue.",
+            "type": "info"
+          },
+          {
+            "id": "1794882686471-l8zbe",
+            "timestamp": "09:31:26 AM",
+            "message": "You rolled 1 + 2 = 3.",
+            "type": "info"
+          },
+          {
+            "id": "start-1794882683484",
+            "timestamp": "09:31:23 AM",
+            "message": "New game started with 3 players! Each player receives $1,500.",
+            "type": "info"
+          }
+        ]
+      },
+      "board": {
+        "meshes": {
+          "board-full-name-labels": 40,
+          "board-color-bands": 22,
+          "board-gold-dividers": 22,
+          "board-owner-mortgage-marks": 1,
+          "board-owner-trim": 1,
+          "board-interaction-outlines": 0
+        },
+        "textures": [
+          {
+            "uuid": "f8bcbf86-03c2-47ed-9265-45d9d5adc8d6",
+            "width": 1024,
+            "height": 1024,
+            "anisotropy": 8,
+            "mipmaps": true
+          }
+        ]
+      },
+      "actors": {
+        "tokens": [
+          {
+            "id": 0,
+            "tile": 3,
+            "position": [
+              3.8687005768508884,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 1,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 2,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.281299423149113
+            ]
+          }
+        ],
+        "buildings": []
+      }
+    },
+    {
+      "name": "bankruptcy",
+      "state": {
+        "gameId": 21,
+        "players": [
+          {
+            "id": 0,
+            "name": "You",
+            "isAI": false,
+            "token": "rubber_duck",
+            "color": "#f59e0b",
+            "money": 0,
+            "position": 4,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": true,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 1,
+            "name": "Rival 1",
+            "isAI": false,
+            "token": "cat",
+            "color": "#ec4899",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 2,
+            "name": "Rival 2",
+            "isAI": false,
+            "token": "racecar",
+            "color": "#3b82f6",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          }
+        ],
+        "properties": {
+          "1": {
+            "spaceId": 1,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "3": {
+            "spaceId": 3,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "5": {
+            "spaceId": 5,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "6": {
+            "spaceId": 6,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "8": {
+            "spaceId": 8,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "9": {
+            "spaceId": 9,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "11": {
+            "spaceId": 11,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "12": {
+            "spaceId": 12,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "13": {
+            "spaceId": 13,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "14": {
+            "spaceId": 14,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "15": {
+            "spaceId": 15,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "16": {
+            "spaceId": 16,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "18": {
+            "spaceId": 18,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "19": {
+            "spaceId": 19,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "21": {
+            "spaceId": 21,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "23": {
+            "spaceId": 23,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "24": {
+            "spaceId": 24,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "25": {
+            "spaceId": 25,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "26": {
+            "spaceId": 26,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "27": {
+            "spaceId": 27,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "28": {
+            "spaceId": 28,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "29": {
+            "spaceId": 29,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "31": {
+            "spaceId": 31,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "32": {
+            "spaceId": 32,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "34": {
+            "spaceId": 34,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "35": {
+            "spaceId": 35,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "37": {
+            "spaceId": 37,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "39": {
+            "spaceId": 39,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          }
+        },
+        "dice": [
+          1,
+          2
+        ],
+        "turnPhase": "PRE_ROLL",
+        "currentPlayerIndex": 1,
+        "pendingDebt": null,
+        "activeCard": null,
+        "heldJailCards": {
+          "0": []
+        },
+        "auction": null,
+        "railroadRaid": null,
+        "winner": null,
+        "logs": [
+          {
+            "id": "1794882693197-l9acd",
+            "timestamp": "09:31:33 AM",
+            "message": "You has declared BANKRUPTCY and is eliminated!",
+            "type": "alert"
+          },
+          {
+            "id": "1794882692788-fcwu8",
+            "timestamp": "09:31:32 AM",
+            "message": "You landed on Income Tax.",
+            "type": "info"
+          },
+          {
+            "id": "1794882692538-usc8d",
+            "timestamp": "09:31:32 AM",
+            "message": "You rolled 1 + 2 = 3.",
+            "type": "info"
+          },
+          {
+            "id": "start-1794882689464",
+            "timestamp": "09:31:29 AM",
+            "message": "New game started with 3 players! Each player receives $1,500.",
+            "type": "info"
+          }
+        ]
+      },
+      "board": {
+        "meshes": {
+          "board-full-name-labels": 40,
+          "board-color-bands": 22,
+          "board-gold-dividers": 22,
+          "board-owner-mortgage-marks": 0,
+          "board-owner-trim": 0,
+          "board-interaction-outlines": 0
+        },
+        "textures": [
+          {
+            "uuid": "f8bcbf86-03c2-47ed-9265-45d9d5adc8d6",
+            "width": 1024,
+            "height": 1024,
+            "anisotropy": 8,
+            "mipmaps": true
+          }
+        ]
+      },
+      "actors": {
+        "tokens": [
+          {
+            "id": 0,
+            "tile": 4
+          },
+          {
+            "id": 1,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 2,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.281299423149113
+            ]
+          }
+        ],
+        "buildings": []
+      }
+    },
+    {
+      "name": "victory",
+      "state": {
+        "gameId": 22,
+        "players": [
+          {
+            "id": 0,
+            "name": "You",
+            "isAI": false,
+            "token": "rubber_duck",
+            "color": "#f59e0b",
+            "money": 0,
+            "position": 4,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": true,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 1,
+            "name": "Rival 1",
+            "isAI": false,
+            "token": "cat",
+            "color": "#ec4899",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          }
+        ],
+        "properties": {
+          "1": {
+            "spaceId": 1,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "3": {
+            "spaceId": 3,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "5": {
+            "spaceId": 5,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "6": {
+            "spaceId": 6,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "8": {
+            "spaceId": 8,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "9": {
+            "spaceId": 9,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "11": {
+            "spaceId": 11,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "12": {
+            "spaceId": 12,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "13": {
+            "spaceId": 13,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "14": {
+            "spaceId": 14,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "15": {
+            "spaceId": 15,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "16": {
+            "spaceId": 16,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "18": {
+            "spaceId": 18,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "19": {
+            "spaceId": 19,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "21": {
+            "spaceId": 21,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "23": {
+            "spaceId": 23,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "24": {
+            "spaceId": 24,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "25": {
+            "spaceId": 25,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "26": {
+            "spaceId": 26,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "27": {
+            "spaceId": 27,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "28": {
+            "spaceId": 28,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "29": {
+            "spaceId": 29,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "31": {
+            "spaceId": 31,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "32": {
+            "spaceId": 32,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "34": {
+            "spaceId": 34,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "35": {
+            "spaceId": 35,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "37": {
+            "spaceId": 37,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "39": {
+            "spaceId": 39,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          }
+        },
+        "dice": [
+          1,
+          2
+        ],
+        "turnPhase": "GAME_OVER",
+        "currentPlayerIndex": 0,
+        "pendingDebt": null,
+        "activeCard": null,
+        "heldJailCards": {
+          "0": []
+        },
+        "auction": null,
+        "railroadRaid": null,
+        "winner": {
+          "id": 1,
+          "name": "Rival 1",
+          "isAI": false,
+          "token": "cat",
+          "color": "#ec4899",
+          "money": 1500,
+          "position": 0,
+          "inJail": false,
+          "jailTurns": 0,
+          "getOutOfJailCards": 0,
+          "isBankrupt": false,
+          "landmarkLevel": 0
+        },
+        "logs": [
+          {
+            "id": "1794882698346-bh71y",
+            "timestamp": "09:31:38 AM",
+            "message": "You has declared BANKRUPTCY and is eliminated!",
+            "type": "alert"
+          },
+          {
+            "id": "1794882698132-rkin7",
+            "timestamp": "09:31:38 AM",
+            "message": "You landed on Income Tax.",
+            "type": "info"
+          },
+          {
+            "id": "1794882697887-elbb8",
+            "timestamp": "09:31:37 AM",
+            "message": "You rolled 1 + 2 = 3.",
+            "type": "info"
+          },
+          {
+            "id": "start-1794882694899",
+            "timestamp": "09:31:34 AM",
+            "message": "New game started with 2 players! Each player receives $1,500.",
+            "type": "info"
+          }
+        ]
+      },
+      "board": {
+        "meshes": {
+          "board-full-name-labels": 40,
+          "board-color-bands": 22,
+          "board-gold-dividers": 22,
+          "board-owner-mortgage-marks": 0,
+          "board-owner-trim": 0,
+          "board-interaction-outlines": 0
+        },
+        "textures": [
+          {
+            "uuid": "f8bcbf86-03c2-47ed-9265-45d9d5adc8d6",
+            "width": 1024,
+            "height": 1024,
+            "anisotropy": 8,
+            "mipmaps": true
+          }
+        ]
+      },
+      "actors": {
+        "tokens": [
+          {
+            "id": 0,
+            "tile": 4
+          },
+          {
+            "id": 1,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.818700576850889
+            ]
+          }
+        ],
+        "buildings": []
+      }
+    },
+    {
+      "name": "six-player-start",
+      "state": {
+        "gameId": 23,
+        "players": [
+          {
+            "id": 0,
+            "name": "You",
+            "isAI": false,
+            "token": "rubber_duck",
+            "color": "#f59e0b",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 1,
+            "name": "Rival 1",
+            "isAI": false,
+            "token": "cat",
+            "color": "#ec4899",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 2,
+            "name": "Rival 2",
+            "isAI": false,
+            "token": "racecar",
+            "color": "#3b82f6",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 3,
+            "name": "Rival 3",
+            "isAI": false,
+            "token": "yacht",
+            "color": "#10b981",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 4,
+            "name": "Rival 4",
+            "isAI": false,
+            "token": "top_hat",
+            "color": "#9c74df",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 5,
+            "name": "Rival 5",
+            "isAI": false,
+            "token": "scottie_dog",
+            "color": "#e56d52",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          }
+        ],
+        "properties": {
+          "1": {
+            "spaceId": 1,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "3": {
+            "spaceId": 3,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "5": {
+            "spaceId": 5,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "6": {
+            "spaceId": 6,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "8": {
+            "spaceId": 8,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "9": {
+            "spaceId": 9,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "11": {
+            "spaceId": 11,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "12": {
+            "spaceId": 12,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "13": {
+            "spaceId": 13,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "14": {
+            "spaceId": 14,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "15": {
+            "spaceId": 15,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "16": {
+            "spaceId": 16,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "18": {
+            "spaceId": 18,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "19": {
+            "spaceId": 19,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "21": {
+            "spaceId": 21,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "23": {
+            "spaceId": 23,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "24": {
+            "spaceId": 24,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "25": {
+            "spaceId": 25,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "26": {
+            "spaceId": 26,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "27": {
+            "spaceId": 27,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "28": {
+            "spaceId": 28,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "29": {
+            "spaceId": 29,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "31": {
+            "spaceId": 31,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "32": {
+            "spaceId": 32,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "34": {
+            "spaceId": 34,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "35": {
+            "spaceId": 35,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "37": {
+            "spaceId": 37,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "39": {
+            "spaceId": 39,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          }
+        },
+        "dice": [
+          1,
+          1
+        ],
+        "turnPhase": "PRE_ROLL",
+        "currentPlayerIndex": 0,
+        "pendingDebt": null,
+        "activeCard": null,
+        "heldJailCards": {},
+        "auction": null,
+        "railroadRaid": null,
+        "winner": null,
+        "logs": [
+          {
+            "id": "start-1794882700246",
+            "timestamp": "09:31:40 AM",
+            "message": "New game started with 6 players! Each player receives $1,500.",
+            "type": "info"
+          }
+        ]
+      },
+      "board": {
+        "meshes": {
+          "board-full-name-labels": 40,
+          "board-color-bands": 22,
+          "board-gold-dividers": 22,
+          "board-owner-mortgage-marks": 0,
+          "board-owner-trim": 0,
+          "board-interaction-outlines": 0
+        },
+        "textures": [
+          {
+            "uuid": "f8bcbf86-03c2-47ed-9265-45d9d5adc8d6",
+            "width": 1024,
+            "height": 1024,
+            "anisotropy": 8,
+            "mipmaps": true
+          }
+        ]
+      },
+      "actors": {
+        "tokens": [
+          {
+            "id": 0,
+            "tile": 0,
+            "position": [
+              9.030000000000001,
+              0.34,
+              9.190000000000001
+            ]
+          },
+          {
+            "id": 1,
+            "tile": 0,
+            "position": [
+              9.55,
+              0.34,
+              9.190000000000001
+            ]
+          },
+          {
+            "id": 2,
+            "tile": 0,
+            "position": [
+              10.07,
+              0.34,
+              9.190000000000001
+            ]
+          },
+          {
+            "id": 3,
+            "tile": 0,
+            "position": [
+              9.030000000000001,
+              0.34,
+              9.91
+            ]
+          },
+          {
+            "id": 4,
+            "tile": 0,
+            "position": [
+              9.55,
+              0.34,
+              9.91
+            ]
+          },
+          {
+            "id": 5,
+            "tile": 0,
+            "position": [
+              10.07,
+              0.34,
+              9.91
+            ]
+          }
+        ],
+        "buildings": []
+      }
+    },
+    {
+      "name": "ai-full-round",
+      "state": {
+        "gameId": 24,
+        "players": [
+          {
+            "id": 0,
+            "name": "You",
+            "isAI": false,
+            "token": "rubber_duck",
+            "color": "#f59e0b",
+            "money": 1440,
+            "position": 3,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 1,
+            "name": "Rival 1",
+            "isAI": true,
+            "token": "cat",
+            "color": "#ec4899",
+            "money": 1252,
+            "position": 14,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 2,
+            "name": "Rival 2",
+            "isAI": true,
+            "token": "racecar",
+            "color": "#3b82f6",
+            "money": 1488,
+            "position": 14,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          }
+        ],
+        "properties": {
+          "1": {
+            "spaceId": 1,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "3": {
+            "spaceId": 3,
+            "ownerId": 0,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "5": {
+            "spaceId": 5,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "6": {
+            "spaceId": 6,
+            "ownerId": 1,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "8": {
+            "spaceId": 8,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "9": {
+            "spaceId": 9,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "11": {
+            "spaceId": 11,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "12": {
+            "spaceId": 12,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "13": {
+            "spaceId": 13,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "14": {
+            "spaceId": 14,
+            "ownerId": 1,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "15": {
+            "spaceId": 15,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "16": {
+            "spaceId": 16,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "18": {
+            "spaceId": 18,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "19": {
+            "spaceId": 19,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "21": {
+            "spaceId": 21,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "23": {
+            "spaceId": 23,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "24": {
+            "spaceId": 24,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "25": {
+            "spaceId": 25,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "26": {
+            "spaceId": 26,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "27": {
+            "spaceId": 27,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "28": {
+            "spaceId": 28,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "29": {
+            "spaceId": 29,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "31": {
+            "spaceId": 31,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "32": {
+            "spaceId": 32,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "34": {
+            "spaceId": 34,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "35": {
+            "spaceId": 35,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "37": {
+            "spaceId": 37,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "39": {
+            "spaceId": 39,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          }
+        },
+        "dice": [
+          1,
+          3
+        ],
+        "turnPhase": "PRE_ROLL",
+        "currentPlayerIndex": 0,
+        "pendingDebt": null,
+        "activeCard": null,
+        "heldJailCards": {},
+        "auction": null,
+        "railroadRaid": null,
+        "winner": null,
+        "logs": [
+          {
+            "id": "1794882716500-8h26i",
+            "timestamp": "09:31:56 AM",
+            "message": "Rival 2 paid 12 rent to Rival 1 for Virginia Avenue.",
+            "type": "money"
+          },
+          {
+            "id": "1794882716499-mi00v",
+            "timestamp": "09:31:56 AM",
+            "message": "Rival 2 landed on Virginia Avenue.",
+            "type": "info"
+          },
+          {
+            "id": "1794882716156-37f25",
+            "timestamp": "09:31:56 AM",
+            "message": "Rival 2 rolled 1 + 3 = 4.",
+            "type": "info"
+          },
+          {
+            "id": "1794882715382-nw81n",
+            "timestamp": "09:31:55 AM",
+            "message": "Rival 2 rolled doubles and takes another turn!",
+            "type": "info"
+          },
+          {
+            "id": "1794882714941-uzj8a",
+            "timestamp": "09:31:54 AM",
+            "message": "Rival 2 landed on Jail / Just Visiting.",
+            "type": "info"
+          },
+          {
+            "id": "1794882714082-wty22",
+            "timestamp": "09:31:54 AM",
+            "message": "Rival 2 rolled 5 + 5 = 10 (DOUBLES!).",
+            "type": "info"
+          },
+          {
+            "id": "1794882712876-1ffpr",
+            "timestamp": "09:31:52 AM",
+            "message": "Rival 1 purchased Virginia Avenue for 160!",
+            "type": "property"
+          },
+          {
+            "id": "1794882712443-ag0fm",
+            "timestamp": "09:31:52 AM",
+            "message": "Rival 1 landed on Virginia Avenue.",
+            "type": "info"
+          },
+          {
+            "id": "1794882711774-wlzyl",
+            "timestamp": "09:31:51 AM",
+            "message": "Rival 1 rolled 6 + 2 = 8.",
+            "type": "info"
+          },
+          {
+            "id": "1794882711016-7l6zf",
+            "timestamp": "09:31:51 AM",
+            "message": "Rival 1 rolled doubles and takes another turn!",
+            "type": "info"
+          },
+          {
+            "id": "1794882710581-mj3hb",
+            "timestamp": "09:31:50 AM",
+            "message": "Rival 1 purchased Oriental Avenue for 100!",
+            "type": "property"
+          },
+          {
+            "id": "1794882710147-099z1",
+            "timestamp": "09:31:50 AM",
+            "message": "Rival 1 landed on Oriental Avenue.",
+            "type": "info"
+          },
+          {
+            "id": "1794882709620-az8ia",
+            "timestamp": "09:31:49 AM",
+            "message": "Rival 1 rolled 3 + 3 = 6 (DOUBLES!).",
+            "type": "info"
+          },
+          {
+            "id": "1794882708603-0byce",
+            "timestamp": "09:31:48 AM",
+            "message": "You purchased Baltic Avenue for 60!",
+            "type": "property"
+          },
+          {
+            "id": "1794882708090-m0e1f",
+            "timestamp": "09:31:48 AM",
+            "message": "You landed on Baltic Avenue.",
+            "type": "info"
+          },
+          {
+            "id": "1794882707829-ev7wn",
+            "timestamp": "09:31:47 AM",
+            "message": "You rolled 1 + 2 = 3.",
+            "type": "info"
+          },
+          {
+            "id": "start-1794882704787",
+            "timestamp": "09:31:44 AM",
+            "message": "New game started with 3 players! Each player receives $1,500.",
+            "type": "info"
+          }
+        ]
+      },
+      "board": {
+        "meshes": {
+          "board-full-name-labels": 40,
+          "board-color-bands": 22,
+          "board-gold-dividers": 22,
+          "board-owner-mortgage-marks": 3,
+          "board-owner-trim": 3,
+          "board-interaction-outlines": 0
+        },
+        "textures": [
+          {
+            "uuid": "f8bcbf86-03c2-47ed-9265-45d9d5adc8d6",
+            "width": 1024,
+            "height": 1024,
+            "anisotropy": 8,
+            "mipmaps": true
+          }
+        ]
+      },
+      "actors": {
+        "tokens": [
+          {
+            "id": 0,
+            "tile": 3,
+            "position": [
+              3.8687005768508884,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 1,
+            "tile": 14,
+            "position": [
+              -9.818700576850889,
+              0.34,
+              2.0687005768508877
+            ]
+          },
+          {
+            "id": 2,
+            "tile": 14,
+            "position": [
+              -9.818700576850889,
+              0.34,
+              1.5312994231491117
+            ]
+          }
+        ],
+        "buildings": []
+      }
+    }
+  ],
+  "mounts": [
+    {
+      "memory": {
+        "geometries": 301,
+        "textures": 17
+      },
+      "allocations": {
+        "geometryAttributeBytes": 15203726,
+        "instanceAttributeBytes": 42340,
+        "textureRgbaBytes": 10327381.333333334
+      }
+    },
+    {
+      "memory": {
+        "geometries": 301,
+        "textures": 17
+      },
+      "allocations": {
+        "geometryAttributeBytes": 15203726,
+        "instanceAttributeBytes": 42340,
+        "textureRgbaBytes": 10327381.333333334
+      }
+    },
+    {
+      "memory": {
+        "geometries": 301,
+        "textures": 17
+      },
+      "allocations": {
+        "geometryAttributeBytes": 15203726,
+        "instanceAttributeBytes": 42340,
+        "textureRgbaBytes": 10327381.333333334
+      }
+    },
+    {
+      "memory": {
+        "geometries": 301,
+        "textures": 17
+      },
+      "allocations": {
+        "geometryAttributeBytes": 15203726,
+        "instanceAttributeBytes": 42340,
+        "textureRgbaBytes": 10327381.333333334
+      }
+    }
+  ],
+  "restart": {
+    "noStaleTimers": true
+  },
+  "errors": [],
+  "passed": true
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "quality": "low",
+    "camera": "overview",
+    "fps": 16.528511682652574,
+    "frameP50": 48.19999998807907,
+    "frameP95": 92.09999999403954,
+    "renderCpuP50": 1.7999999821186066,
+    "gpuP50": 46.37089,
+    "calls": 281,
+    "triangles": 147749,
+    "textures": 16,
+    "geometries": 308,
+    "samples": 330
+  }
+]

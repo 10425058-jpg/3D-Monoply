@@ -15,6 +15,14 @@ import { releaseInstanceBuffers } from '../src/components/environment/instanceRe
 const json = (data: unknown, status = 200) => new Response(JSON.stringify(status < 400 ? { data, meta: {} } : { error: { code: data, message: 'secret database stack trace' } }), { status });
 const user = { id: 'user-a', username: 'Alice', email: 'alice@example.com', avatarUrl: null, createdAt: '' };
 const tokens = { accessToken: 'memory-only', csrfToken: 'csrf-in-memory', expiresIn: 900 };
+test('online rent feedback uses the committed server amount and UUID identities without mutating state',()=>{
+  const manager=new SessionManager('',(async()=>json({})) as typeof fetch);
+  const controller=new OnlineController(manager,'',{matchId:'match-a'},()=>{}),s=snapshot();
+  controller.setSpaceNames(new Map([[3,'Baltic Avenue']]));
+  controller.state.setState({match:s});const original=structuredClone(s);
+  const text=(controller as any).describeEvent('game:rent_paid',{payerPlayerId:'uuid-a',ownerPlayerId:'uuid-b',spaceId:3,amount:70});
+  assert.equal(text,'Alice paid $70 rent to Bob for Baltic Avenue.');assert.deepEqual(controller.state.getState().match,original);controller.stop();
+});
 function snapshot(): Match {
   return { matchId: 'match-a', roomId: 'room-a', stateVersion: 0, status: 'IN_PROGRESS', mapId: 'central-castle', rulesetId: 'mini-v1', contentVersion: 'central-castle@1',
     players: [

@@ -1,0 +1,73 @@
+﻿
+> monopoly-3d-backend@0.2.1 test
+> node --import tsx --test test/engine.test.ts test/session-cleanup.test.ts
+
+✔ content: 40 spaces, 32 cards, all 11 card action types present (1.3648ms)
+✔ initial state: 1500 cash, position 0, seat 0 starts, nothing owned (0.3196ms)
+✔ applyAction does not mutate its input (0.5591ms)
+✔ landing on an unowned affordable property: buy it (0.2581ms)
+✔ decline leaves the property unowned (no auction) (0.1778ms)
+✔ buying the wrong space is rejected (0.3995ms)
+✔ unaffordable property is declined automatically (0.2756ms)
+✔ street rent: base rent, doubled with the full colour set (0.3172ms)
+✔ no rent on your own property (0.1616ms)
+✔ railroad rent scales with railroads owned: 25/50/100/200 (0.8144ms)
+✔ utility rent: 4x dice with one utility, 10x with both (0.2104ms)
+✔ tax squares charge the printed amount (0.1498ms)
+✔ passing GO pays 200 once; landing exactly on GO pays 200 (0.1326ms)
+✔ Free Parking and Just Visiting do nothing (0.1337ms)
+✔ Go To Jail square: move to 10, in jail, no GO salary, no extra roll on doubles (0.1259ms)
+✔ doubles give an extra roll within the same turn (0.1277ms)
+✔ doubles + purchase decision: back to PRE_ROLL after buying or declining (0.1265ms)
+✔ third consecutive double sends the player to jail without moving (0.2301ms)
+✔ a non-double resets the doubles count (0.144ms)
+✔ jail: failed attempts 1 and 2 keep the player in jail (0.1645ms)
+✔ jail: third failed attempt pays 50 and moves by that roll (0.1011ms)
+✔ jail: third failed attempt with less than 50 means bankruptcy to the Bank (0.2835ms)
+✔ jail: doubles release and move, but give no extra roll (0.0903ms)
+✔ jail: paying bail releases into PRE_ROLL; cannot pay without 50 (0.1828ms)
+✔ jail: using a held card releases and returns it to the bottom of its deck (0.5607ms)
+✔ a jailed owner still collects rent (0.0872ms)
+✔ card collect / pay (0.3259ms)
+✔ card pay with too little cash: bankrupt to the Bank (0.1246ms)
+✔ card move_to GO pays 200 (0.097ms)
+✔ card move_to: forward without passing GO pays nothing; passing GO pays 200 (0.1546ms)
+✔ card move_relative -3: no GO salary, destination resolved (income tax) (0.1275ms)
+✔ card nearest_utility: unowned can be bought; owned charges 10x the same dice (0.1726ms)
+✔ card nearest_railroad: standard railroad rent; wraps past GO from 36 (0.1607ms)
+✔ card go_to_jail: no GO salary (0.0945ms)
+✔ card get_out_of_jail: held by the player and removed from the deck (0.1621ms)
+✔ card repairs: costs 0 in mini-v1 (0.1065ms)
+✔ card pay_each_player: pays everyone in seat order (0.1066ms)
+✔ card pay_each_player: bankrupt to the recipient who cannot be paid, then stop (0.1128ms)
+✔ card collect_from_each_player: a payer who cannot pay goes bankrupt to the drawer (0.1032ms)
+✔ collect_from_each_player that eliminates the last opponent ends the match (0.1123ms)
+✔ lastCardResolved records the card and is replaced by the next draw (0.2072ms)
+✔ rent the payer cannot afford: cash and deeds go to the creditor (0.1495ms)
+✔ tax the payer cannot afford: bankrupt to the Bank, deeds become unowned, winner decided (0.1208ms)
+✔ a bankrupt player returns held jail cards to the deck (0.1736ms)
+✔ bankrupt players are skipped in turn order (0.1068ms)
+✔ end-turn advances to the next player and both counters (0.1265ms)
+✔ turn limit: after 80 completed turns the highest net worth wins (0.2651ms)
+✔ turn limit tie-breaks: cash, then property count, then lowest seat (0.4022ms)
+✔ voluntary forfeit by a non-active player: deeds to the Bank, turn counters unchanged (0.1043ms)
+✔ forfeit by the active player counts the turn and moves on (0.1073ms)
+✔ forfeit leaving one player finishes the match (0.1266ms)
+✔ forfeit is allowed while paused; other actions are not (0.1711ms)
+✔ forfeit-player: only while paused, not yourself, not an eliminated player (0.411ms)
+✔ abandon: only while paused; no winner (0.4508ms)
+✔ wrong player, wrong phase, terminal match, unknown player (0.5094ms)
+✔ allowedActions per viewer (0.4695ms)
+✔ 500 random full games always finish within 80 turns and keep every invariant (1885.512ms)
+[Nest] 19692  - 11/17/2026, 9:13:39 AM     LOG [SessionCleanupService] Removed 2 expired or old revoked sessions
+[Nest] 19692  - 11/17/2026, 9:13:39 AM   ERROR [SessionCleanupService] Session cleanup failed: database disconnected
+✔ cleanup uses bounded batches and prunes only expired or long-revoked sessions (1.8332ms)
+✔ empty cleanup is a no-op and errors are contained so startup stays healthy (0.3448ms)
+ℹ tests 59
+ℹ suites 0
+ℹ pass 59
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2030.6554

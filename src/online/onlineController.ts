@@ -22,7 +22,11 @@ export class OnlineController {
   private again = false;
   private timer: ReturnType<typeof setInterval> | null = null;
   private rolls = new Set<number>();
+  private spaceNames: ReadonlyMap<number, string> | null = null;
   get isActive() { return !this.disposed; }
+  // Labels arrive from the already-authorized lazy match screen. The room
+  // controller must not pull the gameplay catalog into the waiting-room bundle.
+  setSpaceNames(names: ReadonlyMap<number, string> | null) { this.spaceNames = names; }
   constructor(private readonly session: SessionManager, private readonly socketUrl: string,
     private readonly target: { roomId?: string; matchId?: string },
     private readonly onMatch: (matchId: string) => void) {}
@@ -91,11 +95,17 @@ export class OnlineController {
     void this.reconcile();
   }
   private describeEvent(name: string, p: Record<string, unknown>) {
+    const match=this.state.getState().match;
     const player = this.state.getState().match?.players.find(v => v.playerId === p.playerId);
     const who = player?.username ?? 'Player';
     if (name === 'game:dice_rolled') return `${who} rolled ${(p.dice as number[])?.join(' + ')}.`;
     if (name === 'game:money_changed') return `${who}: ${Number(p.amount) >= 0 ? '+' : ''}$${p.amount}.`;
-    if (name === 'game:property_purchased') return `${who} bought a property for $${p.price}.`;
+    if (name === 'game:property_purchased') return `${who} bought ${this.spaceNames?.get(Number(p.spaceId))??'a property'} for $${p.price}.`;
+    if (name === 'game:rent_paid') {
+      const payer=match?.players.find(v=>v.playerId===p.payerPlayerId)?.username??'Player';
+      const owner=match?.players.find(v=>v.playerId===p.ownerPlayerId)?.username??'the owner';
+      return `${payer} paid $${p.amount} rent to ${owner} for ${this.spaceNames?.get(Number(p.spaceId))??'the property'}.`;
+    }
     if (name === 'player:connection_changed') return `${who} ${p.connectionStatus === 'CONNECTED' ? 'reconnected' : 'disconnected'}.`;
     return name.replace('game:', '').replace(/_/g, ' ');
   }
@@ -129,6 +139,7 @@ export class OnlineController {
     } finally { if (!this.disposed) this.state.setState({ pending: null }); }
   }
   stop() {
+    this.spaceNames = null;
     this.disposed = true; this.socket?.stop(); this.presenter.dispose();
     if (this.timer) clearInterval(this.timer);
     if (typeof window !== 'undefined') { window.removeEventListener('online', this.focus); window.removeEventListener('offline', this.offline); }

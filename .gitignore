@@ -92,3 +92,16 @@ docs/premium-central-city/evidence/before/*-wide.png
 docs/premium-central-city/evidence/after/*-overview.png
 docs/premium-central-city/evidence/after/*-reference.png
 docs/premium-central-city/evidence/after/*-wide.png
+
+# Keep final V5 pairs and telemetry; omit duplicate timing/context captures.
+docs/board-rules-v5/evidence/checkpoint/
+docs/board-rules-v5/evidence/before/*-overview.png
+docs/board-rules-v5/evidence/before/*-reference.png
+docs/board-rules-v5/evidence/before/*-wide.png
+docs/board-rules-v5/evidence/after/*-overview.png
+docs/board-rules-v5/evidence/after/*-reference.png
+docs/board-rules-v5/evidence/after/*-wide.png
+docs/board-rules-v5/evidence/regression/context-*.png
+docs/board-rules-v5/evidence/regression/failure.png
+docs/board-rules-v5/evidence/control/*/*.png
+docs/board-rules-v5/evidence/interaction/failure.png

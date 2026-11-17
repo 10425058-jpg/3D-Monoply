@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import { useSceneState as useGameStore } from '../../presentation/SceneStore';
 import { BOARD_SPACES, getSpaceTransform } from '../../data/boardData';
 import { TokenType } from '../../types/game';
+import {tileActorHeight} from '../../presentation/animationMath';
 
 const PopInGroup: React.FC<{ position: [number, number, number]; reduced: boolean; children: React.ReactNode }> = ({ position, reduced, children }) => {
   const groupRef = useRef<THREE.Group>(null);
@@ -243,6 +244,7 @@ export const TokensAndBuildings: React.FC<{ quality?: string }> = ({ quality = '
   const players = useGameStore((s) => s.players);
   const currentPlayerIndex = useGameStore((s) => s.currentPlayerIndex);
   const properties = useGameStore((s) => s.properties);
+  const hovered=useGameStore(s=>s.hoveredSpaceId),selected=useGameStore(s=>s.selectedSpaceId);
   const { reducedMotion, visible } = useMotionPreferences();
   return (
     <group>
@@ -271,7 +273,7 @@ export const TokensAndBuildings: React.FC<{ quality?: string }> = ({ quality = '
           <group
             key={`bld-${space.id}`}
             name={`buildings-${space.id}`}
-            position={[tf.position[0], 0.22, tf.position[2]]}
+            position={[tf.position[0], tileActorHeight(space.id,hovered,selected)+.025, tf.position[2]]}
             rotation={[0, tf.rotationY, 0]}
           >
             {prop.houses === 5 ? (

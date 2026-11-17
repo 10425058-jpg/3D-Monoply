@@ -5,6 +5,7 @@ import type { BoardSpace, PropertyState, Player } from '../../types/game';
 import { BOARD_SPACES } from '../../data/boardData';
 import { useGameStore } from '../../store/useGameStore';
 import { sounds } from '../../utils/audio';
+import {unmortgageCost} from '../../game/soloRules';
 
 const money = (value: number) => `$${value.toLocaleString('en-US')}`;
 
@@ -43,10 +44,8 @@ export const PropertyCard: React.FC<{
   const isHuman = activePlayer && !activePlayer.isAI && !activePlayer.isBankrupt;
   const canBuild = isOwner && isHuman && canBuildHouse(activePlayer.id, space.id);
   const canSell = isOwner && isHuman && canSellHouse(activePlayer.id, space.id);
-  const groupHasHouses = BOARD_SPACES.some(s => s.colorGroup === space.colorGroup && (properties[s.id]?.houses ?? 0) > 0);
-  const releaseCost = space.mortgageValue === undefined ? undefined : Math.ceil(space.mortgageValue * 1.1);
-  const canMortgage = isOwner && isHuman && space.mortgageValue !== undefined &&
-    (state?.isMortgaged ? activePlayer.money >= (releaseCost ?? 0) : !groupHasHouses);
+  const releaseCost = space.mortgageValue === undefined ? undefined : unmortgageCost(space.mortgageValue);
+  const canMortgage = isOwner && isHuman && useGameStore.getState().canToggleMortgage(activePlayer.id,space.id);
   const canBuy = isHuman && phase === 'LANDED_ACTION' && activePlayer.position === space.id &&
     state?.ownerId === null && space.price !== undefined && activePlayer.money >= space.price;
   const group = space.colorGroup === 'none' ? space.type.replace(/_/g, ' ') :
@@ -91,7 +90,7 @@ export const PropertyCard: React.FC<{
         </>}
         {isOwner && isHuman && space.mortgageValue !== undefined && <button className="royal-action deed-mortgage" disabled={!canMortgage}
           title={canMortgage ? 'Change mortgage status' : state?.isMortgaged ? 'Insufficient cash to unmortgage' : 'Sell all buildings in this group first'}
-          onClick={() => { toggleMortgage(space.id); }}><Coins size={16} />{state?.isMortgaged ? `Unmortgage ${money(releaseCost!)}` : `Mortgage ${money(space.mortgageValue)}`}</button>}
+          onClick={event => { if(event.detail<=1)toggleMortgage(space.id,state?.isMortgaged); }}><Coins size={16} />{state?.isMortgaged ? `Unmortgage ${money(releaseCost!)}` : `Mortgage ${money(space.mortgageValue)}`}</button>}
       </div>
     </div><div className="deed-footer" aria-hidden="true">◇ ✦ ◇</div>
   </motion.section>;

@@ -95,11 +95,13 @@ const Die: React.FC<{
       (halo.current.material as THREE.MeshBasicMaterial).opacity = rollingNow ? 0.12 : Math.max(0, 0.3 - age * 0.7);
     }
     if (trail.current) {
-      trail.current.visible = trails && !reduced && rollingNow && t < 1;
+      const impact=!rollingNow&&age<.32;
+      trail.current.visible = trails && !reduced && ((rollingNow&&t<1)||impact);
       for (let i = 0; i < 8; i++) {
-        const angle = t * Math.PI * 4 - i * 0.35;
-        dummy.position.set(Math.cos(angle) * 0.75, die.current.position.y - DICE_REST_HEIGHT + Math.sin(angle) * 0.3, Math.sin(angle) * 0.6);
-        dummy.scale.setScalar(0.055 * (1 - i / 9)); dummy.updateMatrix();
+        const angle = impact?i*Math.PI/4:t * Math.PI * 4 - i * 0.35;
+        const radius=impact?.35+age*1.8:.75;
+        dummy.position.set(Math.cos(angle)*radius,impact?-.5+Math.sin(age/.32*Math.PI)*.15:die.current.position.y-DICE_REST_HEIGHT+Math.sin(angle)*.3,Math.sin(angle)*radius*.8);
+        dummy.scale.setScalar(impact?.055*(1-age/.32):0.055 * (1 - i / 9)); dummy.updateMatrix();
         trail.current.setMatrixAt(i, dummy.matrix);
       }
       trail.current.instanceMatrix.needsUpdate = true;
@@ -118,7 +120,7 @@ const Die: React.FC<{
         <meshPhysicalMaterial color="#fff0dc" roughness={0.24} metalness={0.04} clearcoat={0.45} />
       </RoundedBox>
       <instancedMesh ref={pips} args={[undefined, undefined, PIP_COUNT]} castShadow raycast={() => {}}>
-        <sphereGeometry args={[1, 10, 8]} /><meshStandardMaterial color="#684329" metalness={0.45} roughness={0.38} />
+        <sphereGeometry args={[1, 10, 8]} /><meshStandardMaterial color="#382737" metalness={0.16} roughness={0.44} />
       </instancedMesh>
       {trails && <instancedMesh ref={trail} args={[undefined, undefined, 8]} raycast={() => {}}>
         <octahedronGeometry args={[1, 0]} /><meshBasicMaterial color="#ffd994" />

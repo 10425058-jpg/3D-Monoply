@@ -1,0 +1,776 @@
+{
+  "contexts": [
+    {
+      "quality": "low",
+      "pixels": {
+        "before": "docs\\board-rules-v5\\evidence\\regression\\context-low-before.png",
+        "after": "docs\\board-rules-v5\\evidence\\regression\\context-low-after.png",
+        "rectangle": [
+          480,
+          160,
+          650,
+          565
+        ],
+        "pixels": 367250,
+        "changedPixels": 0,
+        "maxChannelDelta": 0,
+        "meanAbsoluteChannelDelta": 0,
+        "pixelIdentical": true
+      },
+      "atlas": {
+        "meshes": {
+          "board-full-name-labels": 40,
+          "board-color-bands": 22,
+          "board-gold-dividers": 22,
+          "board-owner-mortgage-marks": 0,
+          "board-owner-trim": 0,
+          "board-interaction-outlines": 0
+        },
+        "textures": [
+          {
+            "uuid": "846bd1ed-9859-492b-b39d-4701a9ba140a",
+            "width": 1024,
+            "height": 1024,
+            "anisotropy": 8,
+            "mipmaps": true
+          }
+        ]
+      }
+    },
+    {
+      "quality": "balanced",
+      "pixels": {
+        "before": "docs\\board-rules-v5\\evidence\\regression\\context-balanced-before.png",
+        "after": "docs\\board-rules-v5\\evidence\\regression\\context-balanced-after.png",
+        "rectangle": [
+          480,
+          160,
+          650,
+          565
+        ],
+        "pixels": 367250,
+        "changedPixels": 0,
+        "maxChannelDelta": 0,
+        "meanAbsoluteChannelDelta": 0,
+        "pixelIdentical": true
+      },
+      "atlas": {
+        "meshes": {
+          "board-full-name-labels": 40,
+          "board-color-bands": 22,
+          "board-gold-dividers": 22,
+          "board-owner-mortgage-marks": 0,
+          "board-owner-trim": 0,
+          "board-interaction-outlines": 0
+        },
+        "textures": [
+          {
+            "uuid": "f5cccc73-d792-4f74-b0df-15847da14183",
+            "width": 1024,
+            "height": 1024,
+            "anisotropy": 8,
+            "mipmaps": true
+          }
+        ]
+      }
+    },
+    {
+      "quality": "high",
+      "pixels": {
+        "before": "docs\\board-rules-v5\\evidence\\regression\\context-high-before.png",
+        "after": "docs\\board-rules-v5\\evidence\\regression\\context-high-after.png",
+        "rectangle": [
+          480,
+          160,
+          650,
+          565
+        ],
+        "pixels": 367250,
+        "changedPixels": 0,
+        "maxChannelDelta": 0,
+        "meanAbsoluteChannelDelta": 0,
+        "pixelIdentical": true
+      },
+      "atlas": {
+        "meshes": {
+          "board-full-name-labels": 40,
+          "board-color-bands": 22,
+          "board-gold-dividers": 22,
+          "board-owner-mortgage-marks": 0,
+          "board-owner-trim": 0,
+          "board-interaction-outlines": 0
+        },
+        "textures": [
+          {
+            "uuid": "6e088d3b-83a9-489d-9ad7-23ee022aa38e",
+            "width": 1024,
+            "height": 1024,
+            "anisotropy": 8,
+            "mipmaps": true
+          }
+        ]
+      }
+    }
+  ],
+  "motion": {
+    "samples": [
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.818700576850889,
+          0.34,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.818700576850889,
+          0.34,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.818700576850889,
+          0.34,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.818700576850889,
+          0.34,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.818700576850889,
+          0.34,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.818700576850889,
+          0.34,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.818700576850889,
+          0.34,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.818700576850889,
+          0.34,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.818700576850889,
+          0.34,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.818700576850889,
+          0.34,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.818700576850889,
+          0.34,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.818700576850889,
+          0.34,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.818700576850889,
+          0.34,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          7.468700576850888,
+          0.34,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          9.30701108584556,
+          0.6808536882734042,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          9.30701108584556,
+          0.6808536882734042,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          5.668700576850888,
+          0.34,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          5.668700576850888,
+          0.34,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          5.668700576850888,
+          0.34,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          5.76198853453673,
+          0.5163534226553113,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          5.6085162689310435,
+          0.4818417524925185,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          4.971956438099811,
+          0.7481283313133764,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          4.971956438099811,
+          0.7481283313133764,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          2.0687005768508877,
+          0.34,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          3.4845837128109336,
+          0.6781753552964909,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          3.4845837128109336,
+          0.6781753552964909,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          3.4845837128109336,
+          0.6781753552964909,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          2.0176281785475725,
+          0.47065227332487547,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          2.0176281785475725,
+          0.47065227332487547,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          2.0176281785475725,
+          0.47065227332487547,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          -1.5312994231491117,
+          0.34,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          0.0955773185887289,
+          0.5779531104836579,
+          9.81870057685089
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          0.0955773185887289,
+          0.5779531104836579,
+          9.81870057685089
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          -1.4508736902367332,
+          0.503874366569433,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          -3.3312994231491126,
+          0.34,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          -3.3312994231491126,
+          0.34,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          -3.3312994231491126,
+          0.34,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          -3.325748492117876,
+          0.38269511481715657,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          -5.131299423149112,
+          0.34,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          -4.421802168421294,
+          0.749585117463385,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          -4.670140441641055,
+          0.7022045661398089,
+          9.818700576850889
+        ]
+      },
+      {
+        "phase": "LANDED_ACTION",
+        "token": [
+          -4.670140441641055,
+          0.7022045661398089,
+          9.818700576850889
+        ]
+      }
+    ],
+    "final": {
+      "state": {
+        "gameId": 1,
+        "players": [
+          {
+            "id": 0,
+            "name": "You",
+            "isAI": false,
+            "token": "rubber_duck",
+            "color": "#f59e0b",
+            "money": 1500,
+            "position": 8,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 1,
+            "name": "Rival 1",
+            "isAI": false,
+            "token": "cat",
+            "color": "#ec4899",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 2,
+            "name": "Rival 2",
+            "isAI": false,
+            "token": "racecar",
+            "color": "#3b82f6",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          }
+        ],
+        "properties": {
+          "1": {
+            "spaceId": 1,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "3": {
+            "spaceId": 3,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "5": {
+            "spaceId": 5,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "6": {
+            "spaceId": 6,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "8": {
+            "spaceId": 8,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "9": {
+            "spaceId": 9,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "11": {
+            "spaceId": 11,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "12": {
+            "spaceId": 12,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "13": {
+            "spaceId": 13,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "14": {
+            "spaceId": 14,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "15": {
+            "spaceId": 15,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "16": {
+            "spaceId": 16,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "18": {
+            "spaceId": 18,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "19": {
+            "spaceId": 19,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "21": {
+            "spaceId": 21,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "23": {
+            "spaceId": 23,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "24": {
+            "spaceId": 24,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "25": {
+            "spaceId": 25,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "26": {
+            "spaceId": 26,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "27": {
+            "spaceId": 27,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "28": {
+            "spaceId": 28,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "29": {
+            "spaceId": 29,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "31": {
+            "spaceId": 31,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "32": {
+            "spaceId": 32,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "34": {
+            "spaceId": 34,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "35": {
+            "spaceId": 35,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "37": {
+            "spaceId": 37,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "39": {
+            "spaceId": 39,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          }
+        },
+        "dice": [
+          3,
+          5
+        ],
+        "turnPhase": "LANDED_ACTION",
+        "currentPlayerIndex": 0,
+        "pendingDebt": null,
+        "activeCard": null,
+        "heldJailCards": {},
+        "auction": null,
+        "railroadRaid": null,
+        "winner": null,
+        "logs": [
+          {
+            "id": "1794882819653-klgfu",
+            "timestamp": "09:33:39 AM",
+            "message": "You landed on Vermont Avenue.",
+            "type": "info"
+          },
+          {
+            "id": "1794882818336-jmzqy",
+            "timestamp": "09:33:38 AM",
+            "message": "You rolled 3 + 5 = 8.",
+            "type": "info"
+          },
+          {
+            "id": "start-1794882817253",
+            "timestamp": "09:33:37 AM",
+            "message": "New game started with 3 players! Each player receives $1,500.",
+            "type": "info"
+          }
+        ]
+      },
+      "dice": [
+        {
+          "index": 0,
+          "visible": true,
+          "face": 3,
+          "up": 1,
+          "position": [
+            -0.85,
+            0.95,
+            4.2
+          ]
+        },
+        {
+          "index": 1,
+          "visible": true,
+          "face": 5,
+          "up": 1,
+          "position": [
+            0.85,
+            0.95,
+            4.2
+          ]
+        }
+      ],
+      "actors": {
+        "tokens": [
+          {
+            "id": 0,
+            "tile": 8,
+            "position": [
+              -4.670140441641055,
+              0.7022045661398089,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 1,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.818700576850889
+            ]
+          },
+          {
+            "id": 2,
+            "tile": 0,
+            "position": [
+              9.281299423149113,
+              0.34,
+              9.281299423149113
+            ]
+          }
+        ],
+        "buildings": []
+      }
+    }
+  },
+  "fontFallback": {
+    "blocked": [
+      "https://cdn.jsdelivr.net/gh/lojjic/unicode-font-resolver@v1.0.1/packages/data/codepoint-index/plane0/0-ff.json"
+    ],
+    "money": [
+      1496,
+      1504,
+      1500
+    ],
+    "canvas": 1,
+    "appVisible": true,
+    "receipt": "You paid 4 rent to Rival 1 for Baltic Avenue."
+  },
+  "passed": true
+}

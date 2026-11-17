@@ -32,7 +32,7 @@ export function PresentationProvider({ children }: { children: React.ReactNode }
       if (!visibleChanges.length) return;
       for (const change of visibleChanges) {
         const event = { ...change, id: ++nextEventId, createdAt: now,
-          expiresAt: now + (change.kind === 'turn' ? 1700 : change.kind === 'money' ? 1200 : 1400) };
+          expiresAt: now + (change.kind === 'turn' ? 1700 : change.kind === 'money' ? 1200 : change.kind==='transaction'?2400:1400) };
         pending = pending.filter(e => !(e.kind === event.kind && e.spaceId === event.spaceId && e.playerId === event.playerId));
         pending.push(event);
       }

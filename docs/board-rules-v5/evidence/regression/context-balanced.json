@@ -1,0 +1,15 @@
+{
+  "before": "docs\\board-rules-v5\\evidence\\regression\\context-balanced-before.png",
+  "after": "docs\\board-rules-v5\\evidence\\regression\\context-balanced-after.png",
+  "rectangle": [
+    480,
+    160,
+    650,
+    565
+  ],
+  "pixels": 367250,
+  "changedPixels": 0,
+  "maxChannelDelta": 0,
+  "meanAbsoluteChannelDelta": 0.0,
+  "pixelIdentical": true
+}
