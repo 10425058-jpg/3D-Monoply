@@ -18,10 +18,17 @@ async function roll(a=1,b=2){
   await wait(()=>{const b=document.querySelector('[aria-label="Roll dice"]');return b&&!b.disabled&&b.getBoundingClientRect().width>0;});
   await page.evaluate(faces=>{const original=Math.random;Math.random=()=>{const value=(faces.shift()-.5)/6;if(!faces.length)Math.random=original;return value;};},[a,b]);
   await page.click('[aria-label="Roll dice"]');
+  // Observe the dice during their real display window. Token movement may take
+  // longer than the existing 2.2s dice fade on a software-rendered CI machine.
+  const settled=await page.waitForFunction(faces=>{
+    const state=window.__soloTest.state(),dice=window.__graphicsAudit.dice();
+    return state.turnPhase!=='ROLLING'&&dice.every((d,i)=>d.visible&&d.up>.999&&d.face===faces[i])?
+      {stored:state.dice,rendered:dice,phase:state.turnPhase}:false;
+  },{timeout:60000},[a,b]);
+  const observation=await settled.jsonValue();await settled.dispose();
+  assert.deepEqual(observation.stored,[a,b]);assert.deepEqual(observation.rendered.map(d=>d.face),[a,b]);
   await wait(()=>!['ROLLING','MOVING'].includes(window.__soloTest.state().turnPhase));
-  const s=await state(),dice=await page.evaluate(()=>window.__graphicsAudit.dice());
-  assert.deepEqual(s.dice,[a,b]);assert.deepEqual(dice.map(d=>d.face),[a,b]);assert.ok(dice.every(d=>d.up>.999&&d.visible));
-  results.dice.push({stored:s.dice,rendered:dice});
+  assert.deepEqual((await state()).dice,[a,b]);results.dice.push(observation);
 }
 async function footer(label){for(const b of await page.$$('footer button'))if(await b.evaluate((e,s)=>e.textContent.trim()===s,label)){await b.click();return;}throw Error(`Missing ${label}`);}
 try{
