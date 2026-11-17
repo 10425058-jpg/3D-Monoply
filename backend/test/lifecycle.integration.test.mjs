@@ -15,7 +15,9 @@ const prisma = new PrismaClient();
 const realtime = new RealtimeService();
 const matches = new MatchesService(prisma, realtime);
 const lifetime = 24 * 60 * 60 * 1000;
-const instant = new Date('2026-11-17T08:00:00.000Z');
+// Keep these fixtures ahead of the running HTTP server's real-time sweep.
+// Only the isolated service under test advances their deterministic clock.
+const instant = new Date('2100-01-01T00:00:00.000Z');
 after(() => prisma.$disconnect());
 
 async function fixture(t, count = 3) {
@@ -128,6 +130,7 @@ test('abandonment occurs at exactly 24 hours and commits a single terminal event
 });
 
 test('concurrent survivor reconnect and last-online forfeit preserve the latest presence under the match lock', async t => {
+  t.mock.timers.enable({apis: ['Date'], now: instant});
   const f = await fixture(t, 4);
   await prisma.match.update({where: {id: f.matchId}, data: {status: 'PAUSED', pausedAt: new Date()}});
   await Promise.all([forfeit(f), f.lifecycle.socketJoined(f.matchId, f.users[1].id, 'racing-reconnect')]);
@@ -148,6 +151,7 @@ test('a stale offline deadline cannot abandon a match with a connected survivor'
 });
 
 test('normal last-player completion clears the active offline timer and keeps the winner', async t => {
+  t.mock.timers.enable({apis: ['Date'], now: instant});
   const f = await fixture(t, 2);
   await forfeit(f);
   const saved = await snapshot(f);
