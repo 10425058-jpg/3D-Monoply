@@ -105,7 +105,7 @@ export class SoundSystem {
     else if (kind === 'dice-land') this.notes('land', [180, 240], 0.055, 0.025, 'triangle');
     else if (kind === 'move') this.playStep();
     else if (kind === 'ownership' || kind === 'trade') this.playPurchase();
-    else if (kind === 'build') this.playUpgrade();
+    else if (kind === 'build') amount!==undefined&&amount<0?this.playCash():this.playUpgrade();
     else if (kind === 'money') amount && amount > 0 ? this.playCash() : this.notes('payment', [660, 440], 0.1);
     else if (kind === 'turn') this.notes('turn', [659, 880], 0.12);
     else if (kind === 'card' || kind === 'raid' || kind === 'auction') this.playCardDraw();

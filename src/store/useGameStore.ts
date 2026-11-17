@@ -17,7 +17,14 @@ import {
 import { BOARD_SPACES, COLOR_GROUP_TOTALS } from '../data/boardData';
 import { CHANCE_CARDS, COMMUNITY_CHEST_CARDS } from '../data/cardsData';
 import { DAILY_MISSIONS, DAILY_REWARD_CYCLE, LUCKY_WHEEL_REWARDS, STICKER_COLLECTION, type MissionId, type MissionStat, type WheelReward } from '../data/metaGameData';
-import confetti from 'canvas-confetti';
+import { unmortgageCost } from '../game/soloRules';
+
+interface SoloPayment {
+  debtorId: number;
+  creditorId: number | null;
+  amount: number;
+  reason: string;
+}
 
 interface PlayerSetupConfig {
   name: string;
@@ -27,6 +34,7 @@ interface PlayerSetupConfig {
 }
 
 interface GameStore {
+  gameId: number;
   players: Player[];
   properties: Record<number, PropertyState>;
   currentPlayerIndex: number;
@@ -45,9 +53,13 @@ interface GameStore {
     amount: number;
     creditorId: number | null;
     reason: string;
+    debtorId?: number;
+    remainingPayments?: SoloPayment[];
     distribution?: { recipientIds: number[]; amountPerPlayer: number };
   } | null;
   auction: PropertyAuction | null;
+  heldJailCards: Record<number, DeckCard[]>;
+  pendingTrade: TradeOffer | null;
   railroadRaid: RailroadRaid | null;
   metaProgress: MetaProgress;
   lastWheelReward: WheelReward | null;
@@ -83,14 +95,16 @@ interface GameStore {
   useJailCard: () => void;
   buyCurrentProperty: () => void;
   auctionCurrentProperty: () => void;
-  placeAuctionBid: (increment?: number) => void;
-  passAuction: () => void;
+  placeAuctionBid: (increment?: number, bidderId?: number) => void;
+  passAuction: (bidderId?: number) => void;
   declineProperty: () => void;
   applyActiveCard: () => void;
   buildHouse: (spaceId: number) => void;
   sellHouse: (spaceId: number) => void;
-  toggleMortgage: (spaceId: number) => void;
+  toggleMortgage: (spaceId: number, expectedIsMortgaged?: boolean) => void;
   proposeTrade: (offer: TradeOffer) => { accepted: boolean; message: string };
+  acceptTrade: (playerId: number) => { accepted: boolean; message: string };
+  rejectTrade: () => void;
   settlePendingDebt: () => void;
   declareBankruptcy: () => void;
   endTurn: () => void;
@@ -98,6 +112,8 @@ interface GameStore {
   // Helpers
   canBuildHouse: (playerId: number, spaceId: number) => boolean;
   canSellHouse: (playerId: number, spaceId: number) => boolean;
+  canToggleMortgage: (playerId: number, spaceId: number) => boolean;
+  liquidationValue: (playerId: number) => number;
   calculateRent: (spaceId: number, diceTotal: number) => number;
   landmarkUpgradeCost: (playerId: number) => number;
   ownsFullGroup: (playerId: number, group: ColorGroup) => boolean;
@@ -198,6 +214,37 @@ const DEFAULT_PLAYERS: PlayerSetupConfig[] = [
 export const useGameStore = create<GameStore>((set, get) => {
   // Invalidate in-flight movement and dice callbacks whenever a new game starts.
   let gameGeneration = 0;
+  const processedTrades = new Set<string>();
+  let approvedTrade: TradeOffer | null = null;
+  const managementPlayer = () => {
+    const state = get();
+    return state.players.find(p => p.id === (state.pendingDebt?.debtorId ?? state.players[state.currentPlayerIndex]?.id));
+  };
+  const canManage = (playerId: number, building = false) => {
+    const state = get(), player = managementPlayer();
+    return !!player && player.id === playerId && !player.isBankrupt && !state.winner &&
+      !state.railroadRaid && !state.pendingTrade &&
+      (building ? ['PRE_ROLL', 'LANDED_ACTION', 'END_TURN'] : ['PRE_ROLL', 'LANDED_ACTION', 'END_TURN', 'DEBT_RESOLUTION']).includes(state.turnPhase);
+  };
+
+  // Each card obligation keeps its real debtor/creditor. Pausing for liquidity
+  // never changes whose dice turn it is or forgives an unpaid remainder.
+  const resolvePayments = (payments: SoloPayment[]) => {
+    for (let i = 0; i < payments.length; i++) {
+      const payment = payments[i], state = get();
+      const debtor = state.players.find(p => p.id === payment.debtorId);
+      const creditor = state.players.find(p => p.id === payment.creditorId);
+      if (!debtor || debtor.isBankrupt || (payment.creditorId !== null && (!creditor || creditor.isBankrupt))) continue;
+      if (debtor.money < payment.amount) {
+        set({pendingDebt: {...payment, remainingPayments: payments.slice(i + 1)}, turnPhase: 'DEBT_RESOLUTION'});
+        return;
+      }
+      set(s => ({players: s.players.map(p => p.id === debtor.id ? {...p, money: p.money - payment.amount} :
+        p.id === creditor?.id ? {...p, money: p.money + payment.amount} : p)}));
+      addLog(`${debtor.name} paid $${payment.amount} to ${creditor?.name ?? 'the Bank'} (${payment.reason}).`, 'money');
+    }
+    set({pendingDebt: null, turnPhase: 'END_TURN'});
+  };
 
   const addLog = (message: string, type: LogEntry['type'] = 'info') => {
     const entry: LogEntry = {
@@ -339,7 +386,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       const isChance = space.type === 'chance';
       const deck = isChance ? [...state.chanceDeck] : [...state.chestDeck];
       const drawnCard = deck.shift()!;
-      deck.push(drawnCard);
+      if (drawnCard.actionType !== 'get_out_of_jail') deck.push(drawnCard);
 
       set({
         chanceDeck: isChance ? deck : state.chanceDeck,
@@ -402,6 +449,7 @@ export const useGameStore = create<GameStore>((set, get) => {
   };
 
   return {
+    gameId: 0,
     players: DEFAULT_PLAYERS.map((cfg, idx) => ({
       id: idx,
       name: cfg.name,
@@ -438,6 +486,8 @@ export const useGameStore = create<GameStore>((set, get) => {
     ],
     pendingDebt: null,
     auction: null,
+    heldJailCards: {},
+    pendingTrade: null,
     railroadRaid: null,
     metaProgress: loadMetaProgress(),
     lastWheelReward: null,
@@ -447,7 +497,9 @@ export const useGameStore = create<GameStore>((set, get) => {
     isSetupModalOpen: false,
 
     startNewGame: (configs) => {
+      if (configs.length < 2 || configs.length > 6) return;
       gameGeneration += 1;
+      processedTrades.clear();
       const newPlayers: Player[] = configs.map((cfg, idx) => ({
         id: idx,
         name: cfg.name,
@@ -463,6 +515,7 @@ export const useGameStore = create<GameStore>((set, get) => {
         landmarkLevel: 0,
       }));
       set({
+        gameId: gameGeneration,
         players: newPlayers,
         properties: createInitialProperties(),
         currentPlayerIndex: 0,
@@ -476,6 +529,8 @@ export const useGameStore = create<GameStore>((set, get) => {
         hoveredSpaceId: null,
         pendingDebt: null,
         auction: null,
+        heldJailCards: {},
+        pendingTrade: null,
         railroadRaid: null,
         winner: null,
         isSetupModalOpen: false,
@@ -542,6 +597,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     },
 
     canBuildHouse: (playerId, spaceId) => {
+      if (!canManage(playerId, true)) return false;
       const state = get();
       const space = BOARD_SPACES[spaceId];
       const prop = state.properties[spaceId];
@@ -560,6 +616,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     },
 
     canSellHouse: (playerId, spaceId) => {
+      if (!canManage(playerId)) return false;
       const state = get();
       const space = BOARD_SPACES[spaceId];
       const prop = state.properties[spaceId];
@@ -571,9 +628,27 @@ export const useGameStore = create<GameStore>((set, get) => {
       return prop.houses === maxHouses;
     },
 
+    canToggleMortgage: (playerId, spaceId) => {
+      if (!canManage(playerId)) return false;
+      const state = get(), space = BOARD_SPACES[spaceId], prop = state.properties[spaceId];
+      const player = state.players.find(p => p.id === playerId);
+      if (!space?.mortgageValue || !prop || prop.ownerId !== playerId || !player) return false;
+      return prop.isMortgaged ? player.money >= unmortgageCost(space.mortgageValue) :
+        !BOARD_SPACES.some(s => s.colorGroup === space.colorGroup && (state.properties[s.id]?.houses ?? 0) > 0);
+    },
+
+    liquidationValue: (playerId) => {
+      const state = get(), player = state.players.find(p => p.id === playerId);
+      return (player?.money ?? 0) + Object.values(state.properties).reduce((sum, prop) => {
+        if (prop.ownerId !== playerId) return sum;
+        const space = BOARD_SPACES[prop.spaceId];
+        return sum + prop.houses * Math.floor((space.houseCost ?? 0) / 2) + (prop.isMortgaged ? 0 : space.mortgageValue ?? 0);
+      }, 0);
+    },
+
     rollDice: () => {
       const state = get();
-      if (state.turnPhase !== 'PRE_ROLL') return;
+      if (state.turnPhase !== 'PRE_ROLL' || state.winner || state.railroadRaid || state.pendingTrade) return;
       const generation = gameGeneration;
 
       const d1 = Math.floor(Math.random() * 6) + 1;
@@ -679,6 +754,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       const state = get();
       const player = state.players[state.currentPlayerIndex];
       if (!player || player.isBankrupt || player.landmarkLevel >= 5) return;
+      if (state.railroadRaid || state.pendingTrade || state.winner) return;
       if (state.turnPhase !== 'PRE_ROLL' && state.turnPhase !== 'END_TURN') return;
       const cost = get().landmarkUpgradeCost(player.id);
       if (player.money < cost) return;
@@ -694,7 +770,7 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     startBankHeist: () => {
       const raid = get().railroadRaid;
-      if (!raid || raid.mode !== 'choose') return;
+      if (!raid || raid.mode !== 'choose' || get().turnPhase !== 'END_TURN') return;
       set({ railroadRaid: { ...raid, mode: 'heist' } });
       addLog('Bank Heist started! Pick one of three vaults.', 'card');
     },
@@ -702,7 +778,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     resolveBankHeist: (vaultIndex) => {
       const state = get();
       const raid = state.railroadRaid;
-      if (!raid || raid.mode !== 'heist' || vaultIndex < 0 || vaultIndex > 2) return;
+      if (!raid || raid.mode !== 'heist' || !Number.isInteger(vaultIndex) || vaultIndex < 0 || vaultIndex > 2 || state.turnPhase !== 'END_TURN') return;
       const reward = raid.vaultRewards[vaultIndex];
       const attacker = state.players.find((player) => player.id === raid.attackerId);
       if (!attacker || attacker.isBankrupt) {
@@ -723,6 +799,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       const state = get();
       const raid = state.railroadRaid;
       if (!raid || raid.mode !== 'choose' || raid.attackerId === targetPlayerId) return;
+      if (state.turnPhase !== 'END_TURN') return;
       const attacker = state.players.find((player) => player.id === raid.attackerId);
       const target = state.players.find((player) => player.id === targetPlayerId);
       if (!attacker || !target || attacker.isBankrupt || target.isBankrupt) return;
@@ -758,6 +835,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     },
     claimDailyReward: () => {
       const state = get();
+      if (state.winner || state.turnPhase === 'GAME_OVER') return false;
       const player = state.players.find((candidate) => !candidate.isAI && !candidate.isBankrupt);
       if (!player) return false;
       const today = getLocalDateKey();
@@ -787,6 +865,7 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     spinLuckyWheel: () => {
       const state = get();
+      if (state.winner || state.turnPhase === 'GAME_OVER') return;
       const player = state.players.find((candidate) => !candidate.isAI && !candidate.isBankrupt);
       if (!player) return;
       const today = getLocalDateKey();
@@ -810,6 +889,7 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     claimMissionReward: (missionId) => {
       const state = get();
+      if (state.winner || state.turnPhase === 'GAME_OVER') return;
       const mission = DAILY_MISSIONS.find((candidate) => candidate.id === missionId);
       const player = state.players.find((candidate) => !candidate.isAI && !candidate.isBankrupt);
       const today = getLocalDateKey();
@@ -860,6 +940,7 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     claimStickerAlbumReward: () => {
       const state = get();
+      if (state.winner || state.turnPhase === 'GAME_OVER') return;
       const player = state.players.find((candidate) => !candidate.isAI && !candidate.isBankrupt);
       if (!player || state.metaProgress.albumBonusClaimed) return;
       const complete = STICKER_COLLECTION.every((sticker) => (state.metaProgress.stickers[sticker.id] ?? 0) > 0);
@@ -877,6 +958,7 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     payJailBail: () => {
       const state = get();
+      if (state.pendingTrade || state.railroadRaid) return;
       const player = state.players[state.currentPlayerIndex];
       if (!player.inJail || player.money < 50 || state.turnPhase !== 'PRE_ROLL') return;
 
@@ -895,8 +977,12 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     useJailCard: () => {
       const state = get();
+      if (state.pendingTrade || state.railroadRaid) return;
       const player = state.players[state.currentPlayerIndex];
       if (!player.inJail || player.getOutOfJailCards <= 0 || state.turnPhase !== 'PRE_ROLL') return;
+      const held = state.heldJailCards[player.id] ?? [];
+      const card = held[0];
+      if (!card) return;
 
       set((s) => {
         const players = [...s.players];
@@ -906,14 +992,15 @@ export const useGameStore = create<GameStore>((set, get) => {
           inJail: false,
           jailTurns: 0,
         };
-        return { players };
+        return { players, heldJailCards: {...s.heldJailCards, [player.id]: held.slice(1)},
+          ...(card.deck === 'chance' ? {chanceDeck: [...s.chanceDeck, card]} : {chestDeck: [...s.chestDeck, card]}) };
       });
       addLog(`${player.name} used a "Get Out of Jail Free" card!`, 'card');
     },
 
     buyCurrentProperty: () => {
       const state = get();
-      if (state.turnPhase !== 'LANDED_ACTION') return;
+      if (state.turnPhase !== 'LANDED_ACTION' || state.pendingTrade) return;
 
       const player = state.players[state.currentPlayerIndex];
       const space = BOARD_SPACES[player.position];
@@ -940,11 +1027,11 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     auctionCurrentProperty: () => {
       const state = get();
-      if (state.turnPhase !== 'LANDED_ACTION') return;
+      if (state.turnPhase !== 'LANDED_ACTION' || state.pendingTrade) return;
       const player = state.players[state.currentPlayerIndex];
       const space = BOARD_SPACES[player.position];
       const property = state.properties[space.id];
-      if (!player || player.isAI || !space.price || !property || property.ownerId !== null) return;
+      if (!player || player.isBankrupt || !space.price || !property || property.ownerId !== null) return;
 
       const activePlayers = state.players.filter((candidate) => !candidate.isBankrupt);
       if (activePlayers.length < 2) {
@@ -966,16 +1053,18 @@ export const useGameStore = create<GameStore>((set, get) => {
       addLog(`Auction started for ${space.name}. Opening bid is $10.`, 'property');
     },
 
-    placeAuctionBid: (increment = 10) => {
+    placeAuctionBid: (increment = 10, expectedBidderId) => {
       const state = get();
       const auction = state.auction;
       if (!auction || state.turnPhase !== 'AUCTION') return;
       const bidderId = auction.currentBidderId;
       const bidder = state.players.find((candidate) => candidate.id === bidderId);
       if (!bidder || bidder.isBankrupt) return;
+      if (expectedBidderId !== undefined && expectedBidderId !== bidder.id) return;
 
-      const safeIncrement = Number.isSafeInteger(increment) && increment > 0 ? increment : 10;
-      const nextBid = auction.currentBid + safeIncrement;
+      if (!Number.isSafeInteger(increment) || increment < 1 || (auction.currentBid === 0 && increment < 10)) return;
+      const nextBid = auction.currentBid + increment;
+      if (!Number.isSafeInteger(nextBid)) return;
       if (bidder.money < nextBid) {
         addLog(`${bidder.name} cannot afford the next bid of $${nextBid}.`, 'alert');
         return;
@@ -1013,6 +1102,7 @@ export const useGameStore = create<GameStore>((set, get) => {
           turnPhase: 'END_TURN',
         }));
         addLog(`${bidder.name} won ${space.name} for $${nextBid}.`, 'property');
+        if (space.type === 'railroad') openRailroadRaid(state.players[state.currentPlayerIndex].id);
         return;
       }
 
@@ -1020,10 +1110,11 @@ export const useGameStore = create<GameStore>((set, get) => {
       addLog(`${bidder.name} bid $${nextBid} for ${BOARD_SPACES[auction.spaceId].name}.`, 'money');
     },
 
-    passAuction: () => {
+    passAuction: (expectedBidderId) => {
       const state = get();
       const auction = state.auction;
       if (!auction || state.turnPhase !== 'AUCTION' || auction.currentBidderId === null) return;
+      if (expectedBidderId !== undefined && expectedBidderId !== auction.currentBidderId) return;
 
       const passingId = auction.currentBidderId;
       const passedPlayerIds = [...new Set([...auction.passedPlayerIds, passingId])];
@@ -1073,10 +1164,11 @@ export const useGameStore = create<GameStore>((set, get) => {
         set({ auction: null, turnPhase: 'END_TURN' });
         addLog(`All players passed. ${space.name} remains unowned.`, 'info');
       }
+      if (space.type === 'railroad') openRailroadRaid(state.players[state.currentPlayerIndex].id);
     },
     declineProperty: () => {
       const state = get();
-      if (state.turnPhase !== 'LANDED_ACTION') return;
+      if (state.turnPhase !== 'LANDED_ACTION' || state.pendingTrade) return;
       const player = state.players[state.currentPlayerIndex];
       const space = BOARD_SPACES[player.position];
       addLog(`${player.name} passed on buying ${space.name}.`, 'info');
@@ -1128,7 +1220,7 @@ export const useGameStore = create<GameStore>((set, get) => {
               ...players[playerIndex],
               getOutOfJailCards: players[playerIndex].getOutOfJailCards + 1,
             };
-            return { players, turnPhase: 'END_TURN' };
+            return { players, heldJailCards: {...s.heldJailCards, [player.id]: [...(s.heldJailCards[player.id] ?? []), card]}, turnPhase: 'END_TURN' };
           });
           addLog(`${player.name} kept a "Get Out of Jail Free" card.`, 'card');
           break;
@@ -1178,7 +1270,9 @@ export const useGameStore = create<GameStore>((set, get) => {
           else if (pos >= 25 && pos < 35) target = 35;
           const steps = (target - pos + 40) % 40;
           set({ turnPhase: 'MOVING' });
-          stepMovePlayer(playerIndex, steps, () => evaluateLandedSpace(2));
+          // This project's card says "pay owner rental due"; it does not
+          // specify a double-rent modifier. Do not import another edition.
+          stepMovePlayer(playerIndex, steps, evaluateLandedSpace);
           break;
         }
         case 'repairs': {
@@ -1213,52 +1307,13 @@ export const useGameStore = create<GameStore>((set, get) => {
         case 'pay_each_player': {
           const perPlayer = card.amount || 50;
           const activeOthers = state.players.filter((p) => !p.isBankrupt && p.id !== player.id);
-          const totalNeeded = perPlayer * activeOthers.length;
-          if (player.money >= totalNeeded) {
-            set((s) => {
-              const players = s.players.map((p) => {
-                if (p.id === player.id) return { ...p, money: p.money - totalNeeded };
-                if (!p.isBankrupt) return { ...p, money: p.money + perPlayer };
-                return p;
-              });
-              return { players, turnPhase: 'END_TURN' };
-            });
-            addLog(`${player.name} paid $${perPlayer} to each player ($${totalNeeded} total).`, 'money');
-          } else {
-            set({
-              pendingDebt: {
-                amount: totalNeeded,
-                creditorId: null,
-                reason: card.title,
-                distribution: {
-                  recipientIds: activeOthers.map((candidate) => candidate.id),
-                  amountPerPlayer: perPlayer,
-                },
-              },
-              turnPhase: 'DEBT_RESOLUTION',
-            });
-          }
+          resolvePayments(activeOthers.map(p => ({debtorId: player.id, creditorId: p.id, amount: perPlayer, reason: card.title})));
           break;
         }
         case 'collect_from_each_player': {
           const perPlayer = card.amount || 10;
-          let collected = 0;
-          set((s) => {
-            const players = s.players.map((p) => {
-              if (!p.isBankrupt && p.id !== player.id) {
-                const gift = Math.min(p.money, perPlayer);
-                collected += gift;
-                return { ...p, money: p.money - gift };
-              }
-              return p;
-            });
-            players[playerIndex] = {
-              ...players[playerIndex],
-              money: players[playerIndex].money + collected,
-            };
-            return { players, turnPhase: 'END_TURN' };
-          });
-          addLog(`${player.name} collected $${collected} in birthday gifts!`, 'money');
+          resolvePayments(state.players.filter(p => !p.isBankrupt && p.id !== player.id)
+            .map(p => ({debtorId: p.id, creditorId: player.id, amount: perPlayer, reason: card.title})));
           break;
         }
       }
@@ -1294,7 +1349,8 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     sellHouse: (spaceId) => {
       const state = get();
-      const player = state.players[state.currentPlayerIndex];
+      const player = managementPlayer();
+      if (!player) return;
       if (!get().canSellHouse(player.id, spaceId)) return;
 
       const space = BOARD_SPACES[spaceId];
@@ -1303,8 +1359,9 @@ export const useGameStore = create<GameStore>((set, get) => {
 
       set((s) => {
         const players = [...s.players];
-        players[s.currentPlayerIndex] = {
-          ...players[s.currentPlayerIndex],
+        const index = players.findIndex(p => p.id === player.id);
+        players[index] = {
+          ...players[index],
           money: player.money + refund,
         };
         const properties = {
@@ -1317,12 +1374,15 @@ export const useGameStore = create<GameStore>((set, get) => {
       addLog(`${player.name} sold a building on ${space.name} for $${refund}.`, 'money');
     },
 
-    toggleMortgage: (spaceId) => {
+    toggleMortgage: (spaceId, expectedIsMortgaged) => {
       const state = get();
-      const player = state.players[state.currentPlayerIndex];
+      const player = managementPlayer();
+      if (!player || !get().canToggleMortgage(player.id, spaceId)) return;
+      const playerIndex = state.players.findIndex(p => p.id === player.id);
       const space = BOARD_SPACES[spaceId];
       const prop = state.properties[spaceId];
       if (!space || !prop || prop.ownerId !== player.id || !space.mortgageValue) return;
+      if (expectedIsMortgaged !== undefined && prop.isMortgaged !== expectedIsMortgaged) return;
 
       if (!prop.isMortgaged) {
         // Cannot mortgage if any property in the color group has houses
@@ -1331,8 +1391,8 @@ export const useGameStore = create<GameStore>((set, get) => {
 
         set((s) => {
           const players = [...s.players];
-          players[s.currentPlayerIndex] = {
-            ...players[s.currentPlayerIndex],
+          players[playerIndex] = {
+            ...players[playerIndex],
             money: player.money + space.mortgageValue!,
           };
           const properties = {
@@ -1343,14 +1403,14 @@ export const useGameStore = create<GameStore>((set, get) => {
         });
         addLog(`${player.name} mortgaged ${space.name} for $${space.mortgageValue}.`, 'money');
       } else {
-        const unmortgageCost = Math.ceil(space.mortgageValue * 1.1);
-        if (player.money < unmortgageCost) return;
+        const cost = unmortgageCost(space.mortgageValue);
+        if (player.money < cost) return;
 
         set((s) => {
           const players = [...s.players];
-          players[s.currentPlayerIndex] = {
-            ...players[s.currentPlayerIndex],
-            money: player.money - unmortgageCost,
+          players[playerIndex] = {
+            ...players[playerIndex],
+            money: player.money - cost,
           };
           const properties = {
             ...s.properties,
@@ -1358,21 +1418,24 @@ export const useGameStore = create<GameStore>((set, get) => {
           };
           return { players, properties };
         });
-        addLog(`${player.name} unmortgaged ${space.name} for $${unmortgageCost}.`, 'property');
+        addLog(`${player.name} unmortgaged ${space.name} for $${cost}.`, 'property');
       }
     },
 
     proposeTrade: (offer) => {
       const state = get();
+      const key = offer.proposalId ?? JSON.stringify(offer);
+      if (processedTrades.has(key)) return {accepted: false, message: 'This trade has already been completed.'};
+      if (state.pendingTrade) return {accepted: false, message: 'Respond to the pending trade first.'};
       const fromPlayer = state.players.find((p) => p.id === offer.fromPlayerId);
       const toPlayer = state.players.find((p) => p.id === offer.toPlayerId);
       if (!fromPlayer || !toPlayer || fromPlayer.id === toPlayer.id) {
         return { accepted: false, message: 'Choose two different players.' };
       }
-      if (fromPlayer.id !== state.players[state.currentPlayerIndex]?.id || fromPlayer.isAI || fromPlayer.isBankrupt || toPlayer.isBankrupt) {
+      if (fromPlayer.id !== managementPlayer()?.id || fromPlayer.isAI || fromPlayer.isBankrupt || toPlayer.isBankrupt) {
         return { accepted: false, message: 'Only the active human player can initiate a trade with an active rival.' };
       }
-      if (!['PRE_ROLL', 'LANDED_ACTION', 'END_TURN'].includes(state.turnPhase)) {
+      if (state.winner || state.railroadRaid || !['PRE_ROLL', 'LANDED_ACTION', 'END_TURN', 'DEBT_RESOLUTION'].includes(state.turnPhase)) {
         return { accepted: false, message: 'Trades are available between actions during your turn.' };
       }
 
@@ -1449,6 +1512,12 @@ export const useGameStore = create<GameStore>((set, get) => {
         };
       }
 
+      if (!toPlayer.isAI && approvedTrade !== offer) {
+        set({pendingTrade: {...offer, proposalId: key}});
+        return {accepted: false, message: `Waiting for ${toPlayer.name} to accept or reject.`};
+      }
+
+      processedTrades.add(key);
       set((s) => {
         const players = s.players.map((p) => {
           if (p.id === fromPlayer.id) {
@@ -1474,11 +1543,21 @@ export const useGameStore = create<GameStore>((set, get) => {
       addLog(`Trade completed between ${fromPlayer.name} and ${toPlayer.name}!`, 'property');
       return { accepted: true, message: `${toPlayer.name} accepted your trade offer!` };
     },
+
+    acceptTrade: (playerId) => {
+      const offer = get().pendingTrade;
+      if (!offer || offer.toPlayerId !== playerId) return {accepted: false, message: 'This offer is addressed to another player.'};
+      approvedTrade = offer;
+      set({pendingTrade: null});
+      try { return get().proposeTrade(offer); } finally { approvedTrade = null; }
+    },
+    rejectTrade: () => set({pendingTrade: null}),
+
     settlePendingDebt: () => {
       const state = get();
       const debt = state.pendingDebt;
-      const player = state.players[state.currentPlayerIndex];
-      if (!debt || player.money < debt.amount) return;
+      const player = managementPlayer();
+      if (!debt || !player || player.isBankrupt || state.turnPhase !== 'DEBT_RESOLUTION' || state.pendingTrade || player.money < debt.amount) return;
 
       const jailRelease = debt.reason === 'Jail release after third failed roll';
       const jailMoveTotal = state.dice[0] + state.dice[1];
@@ -1516,6 +1595,8 @@ export const useGameStore = create<GameStore>((set, get) => {
       if (jailRelease) {
         addLog(`${player.name} is released from Jail and moves ${jailMoveTotal} spaces.`, 'info');
         stepMovePlayer(state.currentPlayerIndex, jailMoveTotal, evaluateLandedSpace);
+      } else if (debt.remainingPayments) {
+        resolvePayments(debt.remainingPayments);
       } else if (BOARD_SPACES[player.position].type === 'railroad') {
         openRailroadRaid(player.id);
       }
@@ -1523,22 +1604,32 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     declareBankruptcy: () => {
       const state = get();
-      const playerIndex = state.currentPlayerIndex;
-      const player = state.players[playerIndex];
+      const player = managementPlayer();
+      const debt = state.pendingDebt;
+      if (!player || player.isBankrupt || !debt || state.turnPhase !== 'DEBT_RESOLUTION' || state.winner || state.pendingTrade || get().liquidationValue(player.id) >= debt.amount) return;
       const creditorId = state.pendingDebt?.creditorId ?? null;
+      const held = state.heldJailCards[player.id] ?? [];
+      const liquidation = Object.values(state.properties).reduce((sum, prop) => prop.ownerId === player.id ?
+        sum + prop.houses * Math.floor((BOARD_SPACES[prop.spaceId].houseCost ?? 0) / 2) : sum, 0);
 
       addLog(`${player.name} has declared BANKRUPTCY and is eliminated!`, 'alert');
 
       set((s) => {
         const players = s.players.map((p) => {
           if (p.id === player.id) {
-            return { ...p, money: 0, isBankrupt: true, landmarkLevel: 0 };
+            return { ...p, money: 0, isBankrupt: true, landmarkLevel: 0, getOutOfJailCards: 0 };
           }
           if (creditorId !== null && p.id === creditorId) {
-            return { ...p, money: p.money + Math.max(0, player.money) };
+            return { ...p, money: p.money + Math.max(0, player.money) + liquidation, getOutOfJailCards: p.getOutOfJailCards + held.length };
           }
           return p;
         });
+
+        const heldJailCards = {...s.heldJailCards, [player.id]: []};
+        const chanceDeck = [...s.chanceDeck], chestDeck = [...s.chestDeck];
+        if (creditorId !== null) heldJailCards[creditorId] = [...(heldJailCards[creditorId] ?? []), ...held];
+        else held.forEach(card => (card.deck === 'chance' ? chanceDeck : chestDeck).push(card));
+        const returnedCards = {heldJailCards, chanceDeck, chestDeck};
 
         const properties = { ...s.properties };
         Object.keys(properties).forEach((key) => {
@@ -1555,23 +1646,29 @@ export const useGameStore = create<GameStore>((set, get) => {
 
         const remainingPlayers = players.filter((p) => !p.isBankrupt);
         if (remainingPlayers.length === 1) {
-          confetti({ particleCount: 160, spread: 80, origin: { y: 0.6 } });
           return {
+            ...returnedCards,
             players,
             properties,
             pendingDebt: null,
             winner: remainingPlayers[0],
             turnPhase: 'GAME_OVER',
+            activeCard: null, railroadRaid: null, auction: null, pendingTrade: null, doublesCount: 0,
           };
         }
 
-        return { players, properties, pendingDebt: null, doublesCount: 0, turnPhase: 'END_TURN' };
+        return { ...returnedCards, players, properties, pendingDebt: null,
+          doublesCount: s.players[s.currentPlayerIndex]?.id === player.id ? 0 : s.doublesCount,
+          turnPhase: 'END_TURN' };
       });
+      if (get().winner) return;
+      if (debt.remainingPayments) resolvePayments(debt.remainingPayments);
+      if (get().players[get().currentPlayerIndex].isBankrupt) get().endTurn();
     },
 
     endTurn: () => {
       const state = get();
-      if (state.turnPhase !== 'END_TURN') return;
+      if (state.turnPhase !== 'END_TURN' || state.railroadRaid || state.pendingTrade || state.winner) return;
 
       const currentPlayer = state.players[state.currentPlayerIndex];
 

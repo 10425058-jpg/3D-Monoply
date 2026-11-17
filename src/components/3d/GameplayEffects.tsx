@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { Suspense,useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Billboard, Text } from '@react-three/drei';
 import * as THREE from 'three';
@@ -6,6 +6,13 @@ import { usePresentationEvents } from '../../presentation/PresentationProvider';
 import { PresentationEvent } from '../../presentation/effectEvents';
 import { useMotionPreferences } from '../../presentation/useMotionPreferences';
 import { getSpaceTransform } from '../../data/boardData';
+
+class MoneyLabelBoundary extends React.Component<{children:React.ReactNode},{failed:boolean}>{
+  state={failed:false};
+  static getDerivedStateFromError(){return {failed:true};}
+  componentDidCatch(){console.warn('[Game effects] Optional 3D money labels unavailable; HUD receipts remain active.');}
+  render(){return this.state.failed?null:this.props.children;}
+}
 
 function Pulse({ event, particles }: { event: PresentationEvent; particles: number }) {
   const root = useRef<THREE.Group>(null);
@@ -69,6 +76,8 @@ export function GameplayEffects({ quality }: { quality: string }) {
   const pulses = [...new Map(events.filter(e => ['ownership', 'build', 'mortgage'].includes(e.kind) && e.spaceId !== undefined).map(e => [e.spaceId, e])).values()].slice(-4);
   return <group name="presentation-effects">
     {!reducedMotion && pulses.map(event => <Pulse key={event.id} event={event} particles={quality === 'low' ? 0 : quality === 'high' ? 12 : 8} />)}
-    {events.filter(e => e.kind === 'money' && e.spaceId !== undefined).slice(-4).map(event => <MoneyLabel key={event.id} event={event} reduced={reducedMotion} />)}
+    <MoneyLabelBoundary><Suspense fallback={null}>
+      {events.filter(e => e.kind === 'money' && e.spaceId !== undefined).slice(-4).map(event => <MoneyLabel key={event.id} event={event} reduced={reducedMotion} />)}
+    </Suspense></MoneyLabelBoundary>
   </group>;
 }

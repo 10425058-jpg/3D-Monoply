@@ -123,6 +123,7 @@ export interface LogEntry {
 }
 
 export interface TradeOffer {
+  proposalId?: string;
   fromPlayerId: number;
   toPlayerId: number;
   offerCash: number;

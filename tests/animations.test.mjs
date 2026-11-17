@@ -20,6 +20,20 @@ const snapshot = () => ({
 });
 const copy = value => structuredClone(value);
 
+test('four to six co-located tokens have distinct stable offsets above the tile surface',()=>{
+  for(const count of [4,5,6]){
+    const offsets=Array.from({length:count},(_,i)=>math.tokenOffset(i,count));
+    assert.equal(new Set(offsets.map(p=>`${p.x},${p.z}`)).size,count);
+    assert.ok(offsets.every(p=>Math.abs(p.x)<.6&&Math.abs(p.z)<.6&&p.scale>0&&p.scale<=1));
+  }
+  assert.ok(math.tileActorHeight(3,null,null)>.32);
+  assert.ok(math.tileActorHeight(3,3,null)>.44);
+});
+test('transaction notices use the exact committed record once and add no duplicate audio',()=>{
+  const a=snapshot(),b=copy(a);b.logs=[{id:'rent-1',type:'money',message:'You paid $4 rent to Rival for Baltic Avenue.'}];
+  assert.deepEqual(diff(a,b),[{kind:'transaction',label:b.logs[0].message}]);assert.deepEqual(diff(b,b),[]);assert.equal(primaryEffect(diff(a,b)),undefined);
+});
+
 test('all six authoritative dice faces settle facing up', () => {
   const normals = { 1: [0, 1, 0], 2: [0, 0, 1], 3: [1, 0, 0], 4: [-1, 0, 0], 5: [0, 0, -1], 6: [0, -1, 0] };
   for (const [value, normal] of Object.entries(normals)) {

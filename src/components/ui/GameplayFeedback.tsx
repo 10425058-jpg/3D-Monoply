@@ -7,7 +7,7 @@ export function GameplayFeedback() {
   const events = usePresentationEvents();
   const turn = events.filter(e => e.kind === 'turn').slice(-1)[0];
   const landed = events.filter(e => e.kind === 'dice-land').slice(-1)[0];
-  const notices = events.filter(e => ['ownership', 'build', 'trade', 'mortgage', 'auction', 'jail', 'bankrupt', 'victory', 'raid'].includes(e.kind)).slice(-2);
+  const notices = events.filter(e => ['ownership', 'build', 'trade', 'mortgage', 'auction', 'jail', 'bankrupt', 'victory', 'raid','transaction'].includes(e.kind)).slice(-2);
   const money = events.filter(e => e.kind === 'money').slice(-3);
   return <div className="gameplay-feedback" aria-live="polite" aria-atomic="false">
     {turn && <div key={turn.id} className="turn-announcement" data-effect-kind="turn"><Crown /><span>{turn.label}</span></div>}

@@ -34,9 +34,14 @@ import { sounds } from './utils/audio';
 import './app-ui.css';
 import './fantasy-hud.css';
 import './game-effects.css';
+import './board-v5.css';
 import { GameplayFeedback } from './components/ui/GameplayFeedback';
 import { CardReveal } from './components/ui/CardReveal';
 import { AudioControls } from './components/ui/AudioControls';
+import {SoloDecisions} from './components/ui/SoloDecisions';
+import {runSoloAiStep} from './game/soloAi';
+import {useMotionPreferences} from './presentation/useMotionPreferences';
+import {useSoloAudit} from './game/useSoloAudit';
 
 const DEFAULT_SETUP = [
   { name: 'You', isAI: false, token: 'rubber_duck' as TokenType, color: '#f59e0b' },
@@ -70,6 +75,7 @@ const localDateKey = (date = new Date()) => {
 };
 
 export const App: React.FC = () => {
+  useSoloAudit();
   const game = useGameStore();
   const [showSetup, setShowSetup] = useState(false);
   const [showRules, setShowRules] = useState(false);
@@ -89,6 +95,17 @@ export const App: React.FC = () => {
   const [lastPackReveal, setLastPackReveal] = useState<{ stickers: string[]; duplicateCount: number } | null>(null);
 
   const activePlayer = game.players[game.currentPlayerIndex];
+  const debtPlayer = game.players.find(p=>p.id===(game.pendingDebt?.debtorId??activePlayer?.id));
+  const tradeProposal = useRef('');
+  const {reducedMotion,visible}=useMotionPreferences();
+  useEffect(()=>{
+    setShowTradeModal(false);setTradeFeedback('');setShowStats(false);setShowRules(false);setShowMetaHub(false);setLastPackReveal(null);setIsWheelSpinning(false);
+  },[game.gameId]);
+  useEffect(()=>{
+    if(!game.winner||reducedMotion||!visible)return;
+    try{void confetti({particleCount:100,spread:65,origin:{y:.6},disableForReducedMotion:true});}catch{/* Celebration never blocks the committed result. */}
+    return()=>{confetti.reset();};
+  },[game.winner?.id,reducedMotion,visible]);
   const inspectorSpaceId = game.selectedSpaceId ?? game.hoveredSpaceId;
   const selectedSpace = inspectorSpaceId === null ? null : BOARD_SPACES[inspectorSpaceId];
   const selectedState = selectedSpace ? game.properties[selectedSpace.id] : undefined;
@@ -127,58 +144,10 @@ export const App: React.FC = () => {
 
   // AI Turn handler
   useEffect(() => {
-    if (!activePlayer || !activePlayer.isAI || activePlayer.isBankrupt || game.winner) return;
-
-    const timer = window.setTimeout(() => {
-      switch (game.turnPhase) {
-        case 'PRE_ROLL':
-          game.rollDice();
-          break;
-        case 'CARD_DRAWN':
-          game.applyActiveCard();
-          break;
-        case 'LANDED_ACTION': {
-          const space = BOARD_SPACES[activePlayer.position];
-          const property = game.properties[space.id];
-          if (space.price && property?.ownerId === null && activePlayer.money >= space.price) {
-            if (activePlayer.money - space.price >= 120 || Math.random() < 0.85) {
-              game.buyCurrentProperty();
-            } else {
-              game.auctionCurrentProperty();
-            }
-          } else {
-            game.declineProperty();
-          }
-          break;
-        }
-        case 'DEBT_RESOLUTION': {
-          const debt = game.pendingDebt;
-          if (!debt) return;
-          if (activePlayer.money >= debt.amount) {
-            game.settlePendingDebt();
-          } else {
-            const mortgagable = BOARD_SPACES.filter((space) => {
-              const state = game.properties[space.id];
-              return state?.ownerId === activePlayer.id && !state.isMortgaged && (state.houses ?? 0) === 0;
-            });
-            if (mortgagable.length > 0) {
-              game.toggleMortgage(mortgagable[0].id);
-            } else {
-              game.declareBankruptcy();
-            }
-          }
-          break;
-        }
-        case 'END_TURN':
-          game.endTurn();
-          break;
-        default:
-          break;
-      }
-    }, 850 / game.gameSpeed);
-
+    if (!debtPlayer?.isAI || debtPlayer.isBankrupt || game.winner || game.pendingTrade || game.railroadRaid) return;
+    const timer = window.setTimeout(() => runSoloAiStep(game.gameId, debtPlayer.id, game.turnPhase), 850 / game.gameSpeed);
     return () => window.clearTimeout(timer);
-  }, [activePlayer, game.turnPhase, game.winner, game.pendingDebt, game.railroadRaid, game.gameSpeed]);
+  }, [game.gameId, debtPlayer, game.turnPhase, game.winner, game.pendingDebt, game.pendingTrade, game.railroadRaid, game.gameSpeed]);
 
   // AI Auction handler
   useEffect(() => {
@@ -189,6 +158,7 @@ export const App: React.FC = () => {
     if (!auction || !bidder?.isAI) return;
 
     const timer = window.setTimeout(() => {
+      if(useGameStore.getState().gameId!==game.gameId||useGameStore.getState().auction!==auction)return;
       const space = BOARD_SPACES[auction.spaceId];
       const groupSpaces = BOARD_SPACES.filter((candidate) => candidate.colorGroup === space.colorGroup);
       const ownedInGroup = groupSpaces.filter((candidate) =>
@@ -204,14 +174,14 @@ export const App: React.FC = () => {
       const nextBid = auction.currentBid + 10;
 
       if (nextBid <= maxBid && bidder.money >= nextBid) {
-        game.placeAuctionBid(10);
+        game.placeAuctionBid(10, bidder.id);
       } else {
-        game.passAuction();
+        game.passAuction(bidder.id);
       }
     }, 720 / game.gameSpeed);
 
     return () => window.clearTimeout(timer);
-  }, [game.auction, game.players, game.properties, game.gameSpeed]);
+  }, [game.gameId, game.auction, game.players, game.properties, game.gameSpeed]);
 
   // AI Railroad Raid handler
   useEffect(() => {
@@ -221,6 +191,7 @@ export const App: React.FC = () => {
     if (!attacker?.isAI) return;
 
     const timer = window.setTimeout(() => {
+      if(useGameStore.getState().gameId!==game.gameId||useGameStore.getState().railroadRaid!==raid)return;
       if (raid.mode === 'choose') {
         const target = game.players
           .filter((player) => !player.isBankrupt && player.id !== attacker.id)
@@ -238,18 +209,19 @@ export const App: React.FC = () => {
     }, 700 / game.gameSpeed);
 
     return () => window.clearTimeout(timer);
-  }, [game.railroadRaid, game.players, game.gameSpeed]);
+  }, [game.gameId, game.railroadRaid, game.players, game.gameSpeed]);
 
   // Auto-roll handler
   useEffect(() => {
     if (!autoRoll || !activePlayer || activePlayer.isAI || activePlayer.isBankrupt || game.winner) return;
-    if (game.turnPhase !== 'PRE_ROLL' || game.railroadRaid || showTradeModal || showMetaHub || showRules || showSetup) return;
-    const timer = window.setTimeout(() => game.rollDice(), 260 / game.gameSpeed);
+    if (game.turnPhase !== 'PRE_ROLL' || game.railroadRaid || game.pendingTrade || showTradeModal || showMetaHub || showRules || showSetup) return;
+    const timer = window.setTimeout(() => {if(useGameStore.getState().gameId===game.gameId)game.rollDice();}, 260 / game.gameSpeed);
     return () => window.clearTimeout(timer);
-  }, [autoRoll, activePlayer?.id, activePlayer?.isAI, game.turnPhase, game.railroadRaid, game.gameSpeed, game.winner, showTradeModal, showMetaHub, showRules, showSetup]);
+  }, [game.gameId, autoRoll, activePlayer?.id, activePlayer?.isAI, game.turnPhase, game.railroadRaid, game.pendingTrade, game.gameSpeed, game.winner, showTradeModal, showMetaHub, showRules, showSetup]);
 
   const openTrade = () => {
-    if (!activePlayer || activePlayer.isAI) return;
+    if (!activePlayer || activePlayer.isAI || game.winner || game.pendingTrade || game.railroadRaid || !['PRE_ROLL','LANDED_ACTION','END_TURN'].includes(game.turnPhase)) return;
+    tradeProposal.current=`${game.gameId}-${crypto.randomUUID()}`;
     setTradeTargetId(rivalPlayers[0]?.id ?? 1);
     setTradePropertyId(myTradableProperties[0] ? String(myTradableProperties[0].id) : '');
     setTradeRequestPropertyId('');
@@ -260,10 +232,11 @@ export const App: React.FC = () => {
   };
 
   const handleTradeSubmit = () => {
-    if (!activePlayer || !rivalPlayers.some((player) => player.id === tradeTargetId)) return;
+    if (useGameStore.getState().gameId!==game.gameId || !activePlayer || !rivalPlayers.some((player) => player.id === tradeTargetId)) return;
     const offerCash = Math.max(0, Math.floor(Number(tradeOfferCash) || 0));
     const requestCash = Math.max(0, Math.floor(Number(tradeRequestCash) || 0));
     const offer: TradeOffer = {
+      proposalId: tradeProposal.current,
       fromPlayerId: activePlayer.id,
       toPlayerId: tradeTargetId,
       offerCash,
@@ -273,9 +246,7 @@ export const App: React.FC = () => {
     };
     const result = game.proposeTrade(offer);
     setTradeFeedback(result.message);
-    if (result.accepted) {
-      window.setTimeout(() => setShowTradeModal(false), 1100);
-    }
+    if (result.accepted || useGameStore.getState().pendingTrade) setShowTradeModal(false);
   };
 
   const handleWheelSpin = () => {
@@ -295,6 +266,7 @@ export const App: React.FC = () => {
   return (
     <main className="monopoly-app">
       <GameplayFeedback />
+      <SoloDecisions />
       {/* 3D Scene Layer */}
       <div className="world-layer">
         <Scene3D quality={graphicsQuality} />
@@ -650,7 +622,7 @@ export const App: React.FC = () => {
             <button className="modal-close" onClick={() => setShowRules(false)} aria-label="Close rules"><X size={18} /></button>
             <div className="eyebrow">THE TYCOON'S HANDBOOK</div>
             <h2 id="rules-title">How to play</h2>
-            <p className="modal-intro">A few principles to keep your empire standing.</p>
+            <p className="modal-intro">Custom Solo rules · landmark income, railroad bonuses and optional auctions. Online mini-v1 has its own rules.</p>
             <div className="rule-list">
               <div><span>01</span><p><strong>Roll & move</strong>Roll two dice and travel clockwise around the board.</p></div>
               <div><span>02</span><p><strong>Acquire property</strong>Buy unowned spaces and collect rent when rivals land on your holdings.</p></div>
@@ -659,6 +631,9 @@ export const App: React.FC = () => {
               <div><span>05</span><p><strong>Watch the dice</strong>Rolling doubles grants another turn. Three consecutive doubles send you to jail.</p></div>
               <div><span>06</span><p><strong>Grow your landmark</strong>Upgrade your city landmark to increase the bonus you collect each time you pass GO.</p></div>
               <div><span>07</span><p><strong>Railroad bonus</strong>Landing on a railroad unlocks a Bank Heist or a chance to shut down a rival landmark.</p></div>
+              <div><span>08</span><p><strong>Jail options</strong>Before rolling, pay $50 bail or use a held Jail card. Jail doubles release you without an extra roll; after three failed attempts, raise the bail and move using that roll.</p></div>
+              <div><span>09</span><p><strong>Raise funds</strong>Sell buildings evenly for half cost or mortgage eligible deeds. Release a mortgage for principal plus 10% interest rounded up to whole dollars. You cannot build while a group deed is mortgaged.</p></div>
+              <div><span>10</span><p><strong>Local variations</strong>Solo has unlimited building stock, counts unmortgaged companion railroads/utilities for rent, and permits optional property auctions. It is not a strict G0009 Classic mode.</p></div>
             </div>
             <button className="modal-primary" onClick={() => setShowRules(false)}>Back to the board <ArrowRight size={16} /></button>
           </div>

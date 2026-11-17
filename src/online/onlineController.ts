@@ -3,6 +3,7 @@ import { ApiError, describeError } from './apiClient';
 import { EventTracker } from './eventTracker';
 import { MatchPresenter } from './gamePresentationAdapter';
 import { SocketClient } from './socketClient';
+import { BOARD_SPACES } from '../data/boardData';
 import type { SessionManager } from './sessionManager';
 import type { ActionBody, ActionName, ActionReceipt, Connection, Envelope, EventPayloads, Match, Room } from './types';
 
@@ -91,11 +92,17 @@ export class OnlineController {
     void this.reconcile();
   }
   private describeEvent(name: string, p: Record<string, unknown>) {
+    const match=this.state.getState().match;
     const player = this.state.getState().match?.players.find(v => v.playerId === p.playerId);
     const who = player?.username ?? 'Player';
     if (name === 'game:dice_rolled') return `${who} rolled ${(p.dice as number[])?.join(' + ')}.`;
     if (name === 'game:money_changed') return `${who}: ${Number(p.amount) >= 0 ? '+' : ''}$${p.amount}.`;
-    if (name === 'game:property_purchased') return `${who} bought a property for $${p.price}.`;
+    if (name === 'game:property_purchased') return `${who} bought ${BOARD_SPACES[Number(p.spaceId)]?.name??'a property'} for $${p.price}.`;
+    if (name === 'game:rent_paid') {
+      const payer=match?.players.find(v=>v.playerId===p.payerPlayerId)?.username??'Player';
+      const owner=match?.players.find(v=>v.playerId===p.ownerPlayerId)?.username??'the owner';
+      return `${payer} paid $${p.amount} rent to ${owner} for ${BOARD_SPACES[Number(p.spaceId)]?.name??'the property'}.`;
+    }
     if (name === 'player:connection_changed') return `${who} ${p.connectionStatus === 'CONNECTED' ? 'reconnected' : 'disconnected'}.`;
     return name.replace('game:', '').replace(/_/g, ' ');
   }

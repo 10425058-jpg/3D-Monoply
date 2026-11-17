@@ -14,6 +14,14 @@ export const isAdjacentTile = (from: number, to: number) =>
 
 export const movementDuration = (speed: number) => 0.145 / speed;
 
+export function tokenOffset(index:number,count:number){
+  if(count<=4){const angle=index*Math.PI/2+Math.PI/4;return {x:Math.cos(angle)*.38,z:Math.sin(angle)*.38,scale:1};}
+  return {x:(index%3-1)*.52,z:(Math.floor(index/3)-.5)*.72,scale:.78};
+}
+
+/** Align actors above the same lifted top surface used by Board3D. */
+export const tileActorHeight=(id:number,hovered:number|null,selected:number|null)=>.34+(hovered===id ? .12 : selected===id ? .08 : 0);
+
 export function hopPose(progress: number) {
   const t = Math.max(0, Math.min(1, progress));
   return { blend: smoothStep(t), height: Math.sin(t * Math.PI) * 0.42, tilt: Math.sin(t * Math.PI) * 0.12 };

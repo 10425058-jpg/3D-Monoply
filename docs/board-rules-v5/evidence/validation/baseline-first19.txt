@@ -1,0 +1,303 @@
+Archived source: 0ba0a2f
+Isolated first 19 store regression cases; expected failing baseline.
+
+✔ catalog has 40 unique clockwise spaces, eight street groups, 28 deeds and fixed transforms (1.6833ms)
+✔ setup, stored dice, duplicate roll, clockwise movement and duplicate purchase (2.2182ms)
+✔ GO pays once with the existing landmark bonus; backwards card pays no salary (1.3559ms)
+✔ third doubles sends directly to Jail; Jail doubles do not grant another roll (1.1411ms)
+✔ Jail third failed attempt can raise bail and then moves the original dice once (1.2648ms)
+✖ AI has the same legal auction entry as a human (2.9617ms)
+✖ auction opening is at least 10; stale bidder cannot submit twice (0.9636ms)
+✔ auction completes below catalog price and charges winner exactly once (0.8118ms)
+✖ building, sale and mortgage actions cannot mutate an ended or moving game (1.9215ms)
+✖ unmortgaging 100 principal costs exactly 110, not floating-point 111 (0.5124ms)
+✔ even construction, hotel upgrade and even sale preserve costs and rents (1.4592ms)
+✖ held Jail card leaves the deck and returns to its original source once (4.4567ms)
+✖ pay-each card keeps the actual next creditor when funds run out (0.5526ms)
+✖ birthday obligations allow the actual payer to liquidate and settle in order (1.6447ms)
+✖ bankruptcy is rejected outside an unresolved debt and after victory (1.4053ms)
+✖ bankruptcy transfers liquidation value, deeds and advances past eliminated active player (0.536ms)
+✖ last solvent player wins without requiring browser graphics (0.512ms)
+✖ railroad decision blocks turn advancement; invalid vault indices never corrupt money (0.3653ms)
+✔ restart invalidates already queued dice and movement callbacks (0.4061ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 8
+ℹ fail 11
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 216.4842
+
+✖ failing tests:
+
+test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:4164
+✖ AI has the same legal auction entry as a human (2.9617ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'LANDED_ACTION'
+  - 'AUCTION'
+  
+      at TestContext.<anonymous> (C:\Users\admin\3D-Monoply\.online-test\v5-rules-baseline\tests\solo-rules.test.ts:52:149)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'LANDED_ACTION',
+    expected: 'AUCTION',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:4414
+✖ auction opening is at least 10; stale bidder cannot submit twice (0.9636ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (C:\Users\admin\3D-Monoply\.online-test\v5-rules-baseline\tests\solo-rules.test.ts:56:57)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:5320
+✖ building, sale and mortgage actions cannot mutate an ended or moving game (1.9215ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+  
+    {
+      phase: 'ROLLING',
+      players: [
+        {
+          color: '#d39b32',
+  ...
+          landmarkLevel: 0,
+  +       money: 1575,
+  -       money: 1500,
+          name: 'Player 1',
+          position: 0,
+          token: 'rubber_duck'
+        },
+        {
+  ...
+          houses: 0,
+  +       isMortgaged: true,
+  -       isMortgaged: false,
+          ownerId: 0,
+          spaceId: 5
+        },
+        '6': {
+          houses: 0,
+  
+      at TestContext.<anonymous> (C:\Users\admin\3D-Monoply\.online-test\v5-rules-baseline\tests\solo-rules.test.ts:67:233)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { players: [ [Object], [Object], [Object] ], properties: { '1': [Object], '3': [Object], '5': [Object], '6': [Object], '8': [Object], '9': [Object], '11': [Object], '12': [Object], '13': [Object], '14': [Object], '15': [Object], '16': [Object], '18': [Object], '19': [Object], '21': [Object], '23': [Object], '24': [Object], '25': [Object], '26': [Object], '27': [Object], '28': [Object], '29': [Object], '31': [Object], '32': [Object], '34': [Object], '35': [Object], '37': [Object], '39': [Object] }, phase: 'ROLLING' },
+    expected: { players: [ [Object], [Object], [Object] ], properties: { '1': [Object], '3': [Object], '5': [Object], '6': [Object], '8': [Object], '9': [Object], '11': [Object], '12': [Object], '13': [Object], '14': [Object], '15': [Object], '16': [Object], '18': [Object], '19': [Object], '21': [Object], '23': [Object], '24': [Object], '25': [Object], '26': [Object], '27': [Object], '28': [Object], '29': [Object], '31': [Object], '32': [Object], '34': [Object], '35': [Object], '37': [Object], '39': [Object] }, phase: 'ROLLING' },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:5696
+✖ unmortgaging 100 principal costs exactly 110, not floating-point 111 (0.5124ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1389 !== 1390
+  
+      at TestContext.<anonymous> (C:\Users\admin\3D-Monoply\.online-test\v5-rules-baseline\tests\solo-rules.test.ts:70:70)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1389,
+    expected: 1390,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:6423
+✖ held Jail card leaves the deck and returns to its original source once (4.4567ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(!store.getState().chanceDeck.some(c=>c.id==='ch_7'))
+  
+      at TestContext.<anonymous> (C:\Users\admin\3D-Monoply\.online-test\v5-rules-baseline\tests\solo-rules.test.ts:80:45)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:7033
+✖ pay-each card keeps the actual next creditor when funds run out (0.5526ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1500 !== 1550
+  
+      at TestContext.<anonymous> (C:\Users\admin\3D-Monoply\.online-test\v5-rules-baseline\tests\solo-rules.test.ts:85:54)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1500,
+    expected: 1550,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:7318
+✖ birthday obligations allow the actual payer to liquidate and settle in order (1.6447ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  undefined !== 1
+  
+      at TestContext.<anonymous> (C:\Users\admin\3D-Monoply\.online-test\v5-rules-baseline\tests\solo-rules.test.ts:88:61)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:7743
+✖ bankruptcy is rejected outside an unresolved debt and after victory (1.4053ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   phase: 'END_TURN',
+  -   phase: 'PRE_ROLL',
+      players: [
+        {
+          color: '#d39b32',
+          getOutOfJailCards: 0,
+          id: 0,
+          inJail: false,
+          isAI: false,
+  +       isBankrupt: true,
+  -       isBankrupt: false,
+          jailTurns: 0,
+          landmarkLevel: 0,
+  +       money: 0,
+  -       money: 1500,
+          name: 'Player 1',
+          position: 0,
+          token: 'rubber_duck'
+        },
+        {
+  
+      at TestContext.<anonymous> (C:\Users\admin\3D-Monoply\.online-test\v5-rules-baseline\tests\solo-rules.test.ts:93:174)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { players: [ [Object], [Object], [Object] ], properties: { '1': [Object], '3': [Object], '5': [Object], '6': [Object], '8': [Object], '9': [Object], '11': [Object], '12': [Object], '13': [Object], '14': [Object], '15': [Object], '16': [Object], '18': [Object], '19': [Object], '21': [Object], '23': [Object], '24': [Object], '25': [Object], '26': [Object], '27': [Object], '28': [Object], '29': [Object], '31': [Object], '32': [Object], '34': [Object], '35': [Object], '37': [Object], '39': [Object] }, phase: 'END_TURN' },
+    expected: { players: [ [Object], [Object], [Object] ], properties: { '1': [Object], '3': [Object], '5': [Object], '6': [Object], '8': [Object], '9': [Object], '11': [Object], '12': [Object], '13': [Object], '14': [Object], '15': [Object], '16': [Object], '18': [Object], '19': [Object], '21': [Object], '23': [Object], '24': [Object], '25': [Object], '26': [Object], '27': [Object], '28': [Object], '29': [Object], '31': [Object], '32': [Object], '34': [Object], '35': [Object], '37': [Object], '39': [Object] }, phase: 'PRE_ROLL' },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:8014
+✖ bankruptcy transfers liquidation value, deeds and advances past eliminated active player (0.536ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1505 !== 1555
+  
+      at TestContext.<anonymous> (C:\Users\admin\3D-Monoply\.online-test\v5-rules-baseline\tests\solo-rules.test.ts:97:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1505,
+    expected: 1555,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:8568
+✖ last solvent player wins without requiring browser graphics (0.512ms)
+  ReferenceError: document is not defined
+      at getCanvas (C:\Users\admin\3D-Monoply\node_modules\canvas-confetti\src\confetti.js:317:18)
+      at fire (C:\Users\admin\3D-Monoply\node_modules\canvas-confetti\src\confetti.js:625:18)
+      at module.exports (C:\Users\admin\3D-Monoply\node_modules\canvas-confetti\src\confetti.js:860:29)
+      at <anonymous> (C:\Users\admin\3D-Monoply\.online-test\v5-rules-baseline\src\store\useGameStore.ts:1558:11)
+      at setState (file:///C:/Users/admin/3D-Monoply/node_modules/zustand/esm/vanilla.mjs:5:55)
+      at Object.declareBankruptcy (C:\Users\admin\3D-Monoply\.online-test\v5-rules-baseline\src\store\useGameStore.ts:1532:7)
+      at TestContext.<anonymous> (C:\Users\admin\3D-Monoply\.online-test\v5-rules-baseline\tests\solo-rules.test.ts:100:132)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+
+test at .online-test\v5-rules-baseline\tests\solo-rules.test.ts:1:8886
+✖ railroad decision blocks turn advancement; invalid vault indices never corrupt money (0.3653ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (C:\Users\admin\3D-Monoply\.online-test\v5-rules-baseline\tests\solo-rules.test.ts:103:153)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

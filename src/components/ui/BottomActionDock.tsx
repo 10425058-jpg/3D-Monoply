@@ -21,21 +21,20 @@ export const BottomActionDock: React.FC<{
   const buildHouse = useGameStore(s => s.buildHouse);
   const toggleMortgage = useGameStore(s => s.toggleMortgage);
   const canBuildHouse = useGameStore(s => s.canBuildHouse);
+  const canToggleMortgage = useGameStore(s => s.canToggleMortgage);
+  const raid = useGameStore(s => s.railroadRaid);
+  const pendingTrade = useGameStore(s => s.pendingTrade);
   const active = players[currentIndex];
   const human = !!active && !active.isAI && !active.isBankrupt;
-  const canRoll = human && phase === 'PRE_ROLL';
+  const canRoll = human && phase === 'PRE_ROLL' && !raid && !pendingTrade;
   const rolling = phase === 'ROLLING' || phase === 'MOVING';
   const landed = active ? BOARD_SPACES[active.position] : undefined;
   const canBuy = human && phase === 'LANDED_ACTION' && landed?.price !== undefined &&
     properties[landed.id]?.ownerId === null && active.money >= landed.price;
   const canAuction = human && phase === 'LANDED_ACTION' && !!landed?.price && properties[landed.id]?.ownerId === null;
   const canBuild = selectedId !== null && human && canBuildHouse(active.id, selectedId);
-  const selected = selectedId === null ? undefined : BOARD_SPACES[selectedId];
-  const selectedState = selectedId === null ? undefined : properties[selectedId];
-  const groupHasBuildings = selected && BOARD_SPACES.some(s => s.colorGroup === selected.colorGroup && (properties[s.id]?.houses ?? 0) > 0);
-  const canMortgage = human && selected?.mortgageValue !== undefined && selectedState?.ownerId === active.id &&
-    (selectedState?.isMortgaged ? active.money >= Math.ceil(selected.mortgageValue * 1.1) : !groupHasBuildings);
-  const canEnd = human && phase === 'END_TURN';
+  const canMortgage = human && selectedId !== null && canToggleMortgage(active.id, selectedId);
+  const canEnd = human && phase === 'END_TURN' && !raid && !pendingTrade;
   const actions = [
     { name: 'Buy', Icon: Home, enabled: canBuy, primary: canBuy,
       hint: canBuy ? `Buy ${landed?.name} for $${landed?.price}` : 'Land on an unowned property with enough cash to buy',
@@ -44,8 +43,8 @@ export const BottomActionDock: React.FC<{
       run: () => { if (canBuild && selectedId !== null) { buildHouse(selectedId); } } },
     { name: 'Mortgage', Icon: Landmark, enabled: canMortgage, primary: false,
       hint: canMortgage ? 'Mortgage or unmortgage selected property' : 'Select your property; sell group buildings or raise unmortgage funds first',
-      run: () => { if (canMortgage && selectedId !== null) { toggleMortgage(selectedId); } } },
-    { name: 'Trade', Icon: ArrowLeftRight, enabled: human, primary: false, hint: 'Trade properties and cash with a rival',
+      run: () => { if (canMortgage && selectedId !== null) { toggleMortgage(selectedId,properties[selectedId].isMortgaged); } } },
+    { name: 'Trade', Icon: ArrowLeftRight, enabled: human && ['PRE_ROLL','LANDED_ACTION','END_TURN'].includes(phase) && !raid && !pendingTrade, primary: false, hint: 'Trade properties and cash with a rival between actions',
       run: () => { sounds.playClick(); onOpenTrade(); } },
     { name: 'Auction', Icon: Gavel, enabled: canAuction, primary: false, hint: canAuction ? 'Auction this unowned property' : 'Land on an unowned property to start an auction',
       run: () => { sounds.playClick(); onOpenAuction(); } },
@@ -60,7 +59,7 @@ export const BottomActionDock: React.FC<{
     <nav className="action-tray" aria-label="Game actions">
       <span className="dock-crest" aria-hidden="true"><Crown size={20} /></span>
       {actions.map(({ name, Icon, enabled, primary, hint, run }) =>
-        <button key={name} className={`royal-action dock-action ${primary ? 'is-primary' : ''}`} disabled={!enabled} title={hint} onClick={run}>
+        <button key={name} className={`royal-action dock-action ${primary ? 'is-primary' : ''}`} disabled={!enabled} title={hint} onClick={event=>{if(event.detail<=1)run();}}>
           <Icon aria-hidden="true" /><span>{name}</span>
         </button>)}
     </nav>
