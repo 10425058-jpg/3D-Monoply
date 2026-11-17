@@ -13,7 +13,7 @@ type Quality='low'|'balanced'|'high';
  * and unrelated red accents. Remap only the café roof's UVs to the existing
  * royal-blue swatch; leave shared GLTF geometry and other accents untouched. */
 function blueCafeMansard(object:THREE.Mesh):THREE.BufferGeometry|null{
-  if(Array.isArray(object.material)||object.material.name!=='Royal district red')return null;
+  if(Array.isArray(object.material)||!/^Royal district red(?:\.\d{3})?$/.test(object.material.name))return null;
   const positions=object.geometry.getAttribute('position'),uv=object.geometry.getAttribute('uv');
   if(!positions||!uv)return null;
   const point=new THREE.Vector3();
