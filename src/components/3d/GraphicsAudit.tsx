@@ -77,7 +77,7 @@ export function GraphicsAudit({ quality }: { quality: string }) {
         return [0,1].map(index=>{
           const die=scene.getObjectByName(`die-${index}`),q=die?.getWorldQuaternion(new THREE.Quaternion());
           const top=q?faces.map(([face,normal])=>({face,y:new THREE.Vector3().fromArray(normal).applyQuaternion(q).y})).sort((a,b)=>b.y-a.y)[0]:null;
-          return {index,visible:die?.visible,face:top?.face,up:top?.y,position:die?.getWorldPosition(new THREE.Vector3()).toArray()};
+          return {index,visible:die?.visible,scale:die?.scale.toArray(),face:top?.face,up:top?.y,position:die?.getWorldPosition(new THREE.Vector3()).toArray()};
         });
       },
       actors() {

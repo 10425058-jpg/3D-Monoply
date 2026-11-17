@@ -1,0 +1,343 @@
+{
+  "blockedRequests": [
+    "http://127.0.0.1:4198/assets/models/central-city/central-royal-district-balanced.glb"
+  ],
+  "warnings": [
+    "[Central city] district asset unavailable; preserving the existing city. Could not load http://127.0.0.1:4198/assets/models/central-city/central-royal-district-balanced.glb: Failed to fetch",
+    "You have Reduced Motion enabled on your device. Animations may not appear as expected."
+  ],
+  "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "The above error occurred in the <RoyalDistrict> component:\n\n    at RoyalDistrict (http://127.0.0.1:4198/src/components/3d/CenterCity3D.tsx?t=1794918616818:70:26)\n    at Suspense\n    at CityAssetBoundary (http://127.0.0.1:4198/src/components/3d/CenterCity3D.tsx?t=1794918616818:27:1)\n    at CenterCity3D (http://127.0.0.1:4198/src/components/3d/CenterCity3D.tsx?t=1794918616818:43:32)\n    at Suspense\n    at ErrorBoundary (http://127.0.0.1:4198/node_modules/.vite/deps/chunk-6WZ5BWFW.js?v=37464006:16028:5)\n    at FiberProvider (http://127.0.0.1:4198/node_modules/.vite/deps/chunk-6WZ5BWFW.js?v=37464006:17708:21)\n    at Provider (http://127.0.0.1:4198/node_modules/.vite/deps/chunk-6WZ5BWFW.js?v=37464006:17317:3)\n\nReact will try to recreate this component tree from scratch using the error boundary you provided, CityAssetBoundary.",
+    "Warning: React does not recognize the `%s` prop on a DOM element. If you intentionally want it to appear in the DOM as a custom attribute, spell it as lowercase `%s` instead. If you accidentally passed it from a parent component, remove it from the DOM element.%s fetchPriority fetchpriority \n    at img\n    at main\n    at MainMenu (http://127.0.0.1:4198/src/menu/MainMenu.tsx:21:36)\n    at Suspense\n    at Application (http://127.0.0.1:4198/src/Application.tsx?t=1794918616818:43:27)"
+  ],
+  "consoleErrorDetails": [
+    {
+      "text": "Failed to load resource: net::ERR_FAILED",
+      "url": "http://127.0.0.1:4198/assets/models/central-city/central-royal-district-balanced.glb"
+    },
+    {
+      "text": "The above error occurred in the <RoyalDistrict> component:\n\n    at RoyalDistrict (http://127.0.0.1:4198/src/components/3d/CenterCity3D.tsx?t=1794918616818:70:26)\n    at Suspense\n    at CityAssetBoundary (http://127.0.0.1:4198/src/components/3d/CenterCity3D.tsx?t=1794918616818:27:1)\n    at CenterCity3D (http://127.0.0.1:4198/src/components/3d/CenterCity3D.tsx?t=1794918616818:43:32)\n    at Suspense\n    at ErrorBoundary (http://127.0.0.1:4198/node_modules/.vite/deps/chunk-6WZ5BWFW.js?v=37464006:16028:5)\n    at FiberProvider (http://127.0.0.1:4198/node_modules/.vite/deps/chunk-6WZ5BWFW.js?v=37464006:17708:21)\n    at Provider (http://127.0.0.1:4198/node_modules/.vite/deps/chunk-6WZ5BWFW.js?v=37464006:17317:3)\n\nReact will try to recreate this component tree from scratch using the error boundary you provided, CityAssetBoundary.",
+      "url": "http://127.0.0.1:4198/node_modules/.vite/deps/chunk-6WZ5BWFW.js?v=37464006"
+    },
+    {
+      "text": "Warning: React does not recognize the `%s` prop on a DOM element. If you intentionally want it to appear in the DOM as a custom attribute, spell it as lowercase `%s` instead. If you accidentally passed it from a parent component, remove it from the DOM element.%s fetchPriority fetchpriority \n    at img\n    at main\n    at MainMenu (http://127.0.0.1:4198/src/menu/MainMenu.tsx:21:36)\n    at Suspense\n    at Application (http://127.0.0.1:4198/src/Application.tsx?t=1794918616818:43:27)",
+      "url": "http://127.0.0.1:4198/node_modules/.vite/deps/chunk-6WZ5BWFW.js?v=37464006"
+    }
+  ],
+  "pageErrors": [
+    "Could not load http://127.0.0.1:4198/assets/models/central-city/central-royal-district-balanced.glb: Failed to fetch",
+    "Could not load http://127.0.0.1:4198/assets/models/central-city/central-royal-district-balanced.glb: Failed to fetch"
+  ],
+  "unexpectedNetworkFailures": [],
+  "reducedMotion": {
+    "before": {
+      "sprayPosition": [
+        0,
+        1.66,
+        0
+      ],
+      "sprayRotation": [
+        0,
+        0,
+        0
+      ],
+      "lowerWaterY": 0.375,
+      "middleWaterY": 0.955,
+      "rippleScale": [
+        1,
+        1,
+        1
+      ],
+      "rippleRotation": [
+        -1.5707963267948966,
+        0,
+        0
+      ]
+    },
+    "after": {
+      "sprayPosition": [
+        0,
+        1.66,
+        0
+      ],
+      "sprayRotation": [
+        0,
+        0,
+        0
+      ],
+      "lowerWaterY": 0.375,
+      "middleWaterY": 0.955,
+      "rippleScale": [
+        1,
+        1,
+        1
+      ],
+      "rippleRotation": [
+        -1.5707963267948966,
+        0,
+        0
+      ]
+    }
+  },
+  "clearPlayableTiles": 40,
+  "pointerSelection": true,
+  "reducedCamera": {
+    "position": [
+      14,
+      16.999999999999996,
+      24
+    ],
+    "fov": 40,
+    "view": {
+      "enabled": false,
+      "fullWidth": 1440,
+      "fullHeight": 900,
+      "offsetX": -74,
+      "offsetY": 42.816701245597784,
+      "width": 1440,
+      "height": 900
+    },
+    "target": [
+      0,
+      2.3,
+      -1.8
+    ]
+  },
+  "normalMotion": [
+    {
+      "sprayPosition": [
+        0,
+        1.6799898518199121,
+        0
+      ],
+      "sprayRotation": [
+        0,
+        2.857680000002682,
+        0
+      ],
+      "lowerWaterY": 0.37660224294349565,
+      "middleWaterY": 0.9573353415903135,
+      "rippleScale": [
+        1.02520000000298,
+        1.02520000000298,
+        1
+      ],
+      "rippleRotation": [
+        -1.5707963267948966,
+        0,
+        0
+      ]
+    },
+    {
+      "sprayPosition": [
+        0,
+        1.6793532535811235,
+        0
+      ],
+      "sprayRotation": [
+        0,
+        2.8884150000080466,
+        0
+      ],
+      "lowerWaterY": 0.37816349965092694,
+      "middleWaterY": 0.9560007128557894,
+      "rippleScale": [
+        1.0593500000089404,
+        1.0593500000089404,
+        1
+      ],
+      "rippleRotation": [
+        -1.5707963267948966,
+        0,
+        0
+      ]
+    },
+    {
+      "sprayPosition": [
+        0,
+        1.6701102161292005,
+        0
+      ],
+      "sprayRotation": [
+        0,
+        2.972610000005364,
+        0
+      ],
+      "lowerWaterY": 0.38158932044668054,
+      "middleWaterY": 0.9522903270913878,
+      "rippleScale": [
+        1.1529000000059597,
+        1.1529000000059597,
+        1
+      ],
+      "rippleRotation": [
+        -1.5707963267948966,
+        0,
+        0
+      ]
+    },
+    {
+      "sprayPosition": [
+        0,
+        1.6606117821976805,
+        0
+      ],
+      "sprayRotation": [
+        0,
+        3.0261150000080463,
+        0
+      ],
+      "lowerWaterY": 0.38275866258930347,
+      "middleWaterY": 0.9504030901074948,
+      "rippleScale": [
+        1.21235000000894,
+        1.21235000000894,
+        1
+      ],
+      "rippleRotation": [
+        -1.5707963267948966,
+        0,
+        0
+      ]
+    },
+    {
+      "sprayPosition": [
+        0,
+        1.6511216450723227,
+        0
+      ],
+      "sprayRotation": [
+        0,
+        3.0786749999999996,
+        0
+      ],
+      "lowerWaterY": 0.3829566521864735,
+      "middleWaterY": 0.9492694812245416,
+      "rippleScale": [
+        1.2707499999999994,
+        1.2707499999999994,
+        1
+      ],
+      "rippleRotation": [
+        -1.5707963267948966,
+        0,
+        0
+      ]
+    },
+    {
+      "sprayPosition": [
+        0,
+        1.643192376520855,
+        0
+      ],
+      "sprayRotation": [
+        0,
+        3.1363200000107287,
+        0
+      ],
+      "lowerWaterY": 0.38206449858843733,
+      "middleWaterY": 0.9490543460681315,
+      "rippleScale": [
+        1.3348000000119205,
+        1.3348000000119205,
+        1
+      ],
+      "rippleRotation": [
+        -1.5707963267948966,
+        0,
+        0
+      ]
+    },
+    {
+      "sprayPosition": [
+        0,
+        1.6400279249452205,
+        0
+      ],
+      "sprayRotation": [
+        0,
+        3.192030000002682,
+        0
+      ],
+      "lowerWaterY": 0.3802204227268466,
+      "middleWaterY": 0.9499025430538532,
+      "rippleScale": [
+        1.3967000000029801,
+        1.3967000000029801,
+        1
+      ],
+      "rippleRotation": [
+        -1.5707963267948966,
+        0,
+        0
+      ]
+    },
+    {
+      "sprayPosition": [
+        0,
+        1.6424229988715708,
+        0
+      ],
+      "sprayRotation": [
+        0,
+        3.250980000002682,
+        0
+      ],
+      "lowerWaterY": 0.3775009489193401,
+      "middleWaterY": 0.9517633128877037,
+      "rippleScale": [
+        1.0122000000029798,
+        1.0122000000029798,
+        1
+      ],
+      "rippleRotation": [
+        -1.5707963267948966,
+        0,
+        0
+      ]
+    }
+  ],
+  "normalCamera": {
+    "position": [
+      14,
+      16.999999999999996,
+      24
+    ],
+    "fov": 40,
+    "view": {
+      "enabled": false,
+      "fullWidth": 1440,
+      "fullHeight": 900,
+      "offsetX": -74,
+      "offsetY": 42.816701245597784,
+      "width": 1440,
+      "height": 900
+    },
+    "target": [
+      0,
+      2.3,
+      -1.8
+    ]
+  },
+  "liveMotionToggle": true,
+  "hiddenTabPause": true,
+  "gameplay": {
+    "dice": [
+      1,
+      2
+    ],
+    "position": 3,
+    "owner": 0,
+    "balance": 1440,
+    "phase": "END_TURN"
+  },
+  "expectedModelPageErrors": [
+    "Could not load http://127.0.0.1:4198/assets/models/central-city/central-royal-district-balanced.glb: Failed to fetch",
+    "Could not load http://127.0.0.1:4198/assets/models/central-city/central-royal-district-balanced.glb: Failed to fetch"
+  ],
+  "unexpectedPageErrors": [],
+  "unexpectedConsoleErrors": [],
+  "auditCleanup": true,
+  "passed": true
+}

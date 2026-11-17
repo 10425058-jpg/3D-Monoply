@@ -1,0 +1,792 @@
+{
+  "contexts": [
+    {
+      "quality": "low",
+      "pixels": {
+        "before": "docs\\final-graphics-v6\\evidence\\resilience\\context-low-before.png",
+        "after": "docs\\final-graphics-v6\\evidence\\resilience\\context-low-after.png",
+        "rectangle": [
+          480,
+          160,
+          650,
+          565
+        ],
+        "pixels": 367250,
+        "changedPixels": 0,
+        "maxChannelDelta": 0,
+        "meanAbsoluteChannelDelta": 0,
+        "pixelIdentical": true
+      },
+      "atlas": {
+        "meshes": {
+          "board-full-name-labels": 40,
+          "board-color-bands": 22,
+          "board-gold-dividers": 22,
+          "board-owner-mortgage-marks": 0,
+          "board-owner-trim": 0,
+          "board-owner-edges": 0,
+          "board-interaction-outlines": 0
+        },
+        "textures": [
+          {
+            "uuid": "be054693-f817-437b-b556-4e07f19d7590",
+            "width": 1024,
+            "height": 1024,
+            "anisotropy": 16,
+            "mipmaps": true
+          }
+        ]
+      }
+    },
+    {
+      "quality": "balanced",
+      "pixels": {
+        "before": "docs\\final-graphics-v6\\evidence\\resilience\\context-balanced-before.png",
+        "after": "docs\\final-graphics-v6\\evidence\\resilience\\context-balanced-after.png",
+        "rectangle": [
+          480,
+          160,
+          650,
+          565
+        ],
+        "pixels": 367250,
+        "changedPixels": 0,
+        "maxChannelDelta": 0,
+        "meanAbsoluteChannelDelta": 0,
+        "pixelIdentical": true
+      },
+      "atlas": {
+        "meshes": {
+          "board-full-name-labels": 40,
+          "board-color-bands": 22,
+          "board-gold-dividers": 22,
+          "board-owner-mortgage-marks": 0,
+          "board-owner-trim": 0,
+          "board-owner-edges": 0,
+          "board-interaction-outlines": 0
+        },
+        "textures": [
+          {
+            "uuid": "deca1cec-c291-4e43-80d1-77e7a962e690",
+            "width": 1024,
+            "height": 1024,
+            "anisotropy": 16,
+            "mipmaps": true
+          }
+        ]
+      }
+    },
+    {
+      "quality": "high",
+      "pixels": {
+        "before": "docs\\final-graphics-v6\\evidence\\resilience\\context-high-before.png",
+        "after": "docs\\final-graphics-v6\\evidence\\resilience\\context-high-after.png",
+        "rectangle": [
+          480,
+          160,
+          650,
+          565
+        ],
+        "pixels": 367250,
+        "changedPixels": 0,
+        "maxChannelDelta": 0,
+        "meanAbsoluteChannelDelta": 0,
+        "pixelIdentical": true
+      },
+      "atlas": {
+        "meshes": {
+          "board-full-name-labels": 40,
+          "board-color-bands": 22,
+          "board-gold-dividers": 22,
+          "board-owner-mortgage-marks": 0,
+          "board-owner-trim": 0,
+          "board-owner-edges": 0,
+          "board-interaction-outlines": 0
+        },
+        "textures": [
+          {
+            "uuid": "6022e6e6-c40f-407c-ab73-ba65feeec12a",
+            "width": 1024,
+            "height": 1024,
+            "anisotropy": 16,
+            "mipmaps": true
+          }
+        ]
+      }
+    }
+  ],
+  "motion": {
+    "samples": [
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.960121933088198,
+          0.34,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.960121933088198,
+          0.34,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.960121933088198,
+          0.34,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.960121933088198,
+          0.34,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.960121933088198,
+          0.34,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.960121933088198,
+          0.34,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.960121933088198,
+          0.34,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.960121933088198,
+          0.34,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.960121933088198,
+          0.34,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.960121933088198,
+          0.34,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.960121933088198,
+          0.34,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.960121933088198,
+          0.34,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.960121933088198,
+          0.34,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "ROLLING",
+        "token": [
+          9.960121933088198,
+          0.34,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          9.886229221007262,
+          0.47755093962775297,
+          9.960121933088196
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          9.021912296382787,
+          0.7505680182392407,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          8.69525174743998,
+          0.7586511803114884,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          5.8101219330881975,
+          0.34,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          7.261274276891033,
+          0.6653488402109822,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          6.395854817073152,
+          0.7311724266777564,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          5.867429670182789,
+          0.47841040966763093,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          5.636998674826039,
+          0.5779531104836579,
+          9.9601219330882
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          4.9771013215214985,
+          0.7587230677732879,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          4.162989012509248,
+          0.5642784059701933,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          3.99580539158743,
+          0.4088462692932453,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          3.742022264123154,
+          0.6308095785375714,
+          9.9601219330882
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          2.947064587082457,
+          0.7523891641142447,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          2.2263454575717327,
+          0.4133304913329874,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          2.0733213426580854,
+          0.5526213824324187,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          1.226436435527822,
+          0.7580053623631237,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          0.5553976138344867,
+          0.5588671943670214,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          0.4068484185145023,
+          0.3727260219783356,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          -0.17209886680720743,
+          0.730506124053099,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          -1.0809157524297393,
+          0.64926341364519,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          -3.189878066911803,
+          0.34,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          -1.5045053589767778,
+          0.5351217489422289,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          -2.0739072787077286,
+          0.746577670528228,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          -2.9617154331773614,
+          0.610512589035157,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          -3.2402780669118028,
+          0.4697871376374779,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          -3.866659687571692,
+          0.7456495672390486,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "MOVING",
+        "token": [
+          -4.338352018283322,
+          0.7421617550118103,
+          9.960121933088198
+        ]
+      },
+      {
+        "phase": "LANDED_ACTION",
+        "token": [
+          -4.9898780669118015,
+          0.343867759647209,
+          9.960121933088198
+        ]
+      }
+    ],
+    "final": {
+      "state": {
+        "gameId": 1,
+        "players": [
+          {
+            "id": 0,
+            "name": "You",
+            "isAI": false,
+            "token": "rubber_duck",
+            "color": "#f59e0b",
+            "money": 1500,
+            "position": 8,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 1,
+            "name": "Rival 1",
+            "isAI": false,
+            "token": "cat",
+            "color": "#ec4899",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          },
+          {
+            "id": 2,
+            "name": "Rival 2",
+            "isAI": false,
+            "token": "racecar",
+            "color": "#3b82f6",
+            "money": 1500,
+            "position": 0,
+            "inJail": false,
+            "jailTurns": 0,
+            "getOutOfJailCards": 0,
+            "isBankrupt": false,
+            "landmarkLevel": 0
+          }
+        ],
+        "properties": {
+          "1": {
+            "spaceId": 1,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "3": {
+            "spaceId": 3,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "5": {
+            "spaceId": 5,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "6": {
+            "spaceId": 6,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "8": {
+            "spaceId": 8,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "9": {
+            "spaceId": 9,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "11": {
+            "spaceId": 11,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "12": {
+            "spaceId": 12,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "13": {
+            "spaceId": 13,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "14": {
+            "spaceId": 14,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "15": {
+            "spaceId": 15,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "16": {
+            "spaceId": 16,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "18": {
+            "spaceId": 18,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "19": {
+            "spaceId": 19,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "21": {
+            "spaceId": 21,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "23": {
+            "spaceId": 23,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "24": {
+            "spaceId": 24,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "25": {
+            "spaceId": 25,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "26": {
+            "spaceId": 26,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "27": {
+            "spaceId": 27,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "28": {
+            "spaceId": 28,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "29": {
+            "spaceId": 29,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "31": {
+            "spaceId": 31,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "32": {
+            "spaceId": 32,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "34": {
+            "spaceId": 34,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "35": {
+            "spaceId": 35,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "37": {
+            "spaceId": 37,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          },
+          "39": {
+            "spaceId": 39,
+            "ownerId": null,
+            "houses": 0,
+            "isMortgaged": false
+          }
+        },
+        "dice": [
+          3,
+          5
+        ],
+        "turnPhase": "LANDED_ACTION",
+        "currentPlayerIndex": 0,
+        "pendingDebt": null,
+        "pendingTrade": null,
+        "activeCard": null,
+        "heldJailCards": {},
+        "auction": null,
+        "railroadRaid": null,
+        "winner": null,
+        "logs": [
+          {
+            "id": "1794918563365-ts0jl",
+            "timestamp": "07:29:23 PM",
+            "message": "You landed on Vermont Avenue.",
+            "type": "info"
+          },
+          {
+            "id": "1794918562091-ll52l",
+            "timestamp": "07:29:22 PM",
+            "message": "You rolled 3 + 5 = 8.",
+            "type": "info"
+          },
+          {
+            "id": "start-1794918560962",
+            "timestamp": "07:29:20 PM",
+            "message": "New game started with 3 players! Each player receives $1,500.",
+            "type": "info"
+          }
+        ]
+      },
+      "dice": [
+        {
+          "index": 0,
+          "visible": true,
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "face": 3,
+          "up": 1,
+          "position": [
+            -0.85,
+            0.95,
+            4.2
+          ]
+        },
+        {
+          "index": 1,
+          "visible": true,
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "face": 5,
+          "up": 1,
+          "position": [
+            0.85,
+            0.95,
+            4.2
+          ]
+        }
+      ],
+      "actors": {
+        "tokens": [
+          {
+            "id": 0,
+            "tile": 8,
+            "position": [
+              -4.9898780669118015,
+              0.343867759647209,
+              9.960121933088198
+            ]
+          },
+          {
+            "id": 1,
+            "tile": 0,
+            "position": [
+              9.139878066911804,
+              0.34,
+              9.960121933088198
+            ]
+          },
+          {
+            "id": 2,
+            "tile": 0,
+            "position": [
+              9.139878066911804,
+              0.34,
+              9.139878066911804
+            ]
+          }
+        ],
+        "buildings": []
+      }
+    }
+  },
+  "fontFallback": {
+    "blocked": [
+      "https://cdn.jsdelivr.net/gh/lojjic/unicode-font-resolver@v1.0.1/packages/data/codepoint-index/plane0/0-ff.json"
+    ],
+    "warmupTransactions": 1,
+    "money": [
+      1496,
+      1504,
+      1500
+    ],
+    "receipt": "You paid 4 rent to Rival 1 for Baltic Avenue.",
+    "canvas": 1,
+    "appVisible": true,
+    "observedAt": 10397.899999976158
+  },
+  "passed": true
+}

@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import { useSceneState as useGameStore } from '../../presentation/SceneStore';
 import { BOARD_SPACES, getSpaceTransform } from '../../data/boardData';
 import { TokenType } from '../../types/game';
-import {tileActorHeight} from '../../presentation/animationMath';
+import {tileActorHeight, TOKEN_RING_OUTER_RADIUS, tokenRingScale} from '../../presentation/animationMath';
 
 const PopInGroup: React.FC<{ position: [number, number, number]; reduced: boolean; children: React.ReactNode }> = ({ position, reduced, children }) => {
   const groupRef = useRef<THREE.Group>(null);
@@ -255,9 +255,9 @@ export const TokensAndBuildings: React.FC<{ quality?: string }> = ({ quality = '
           <AnimatedToken key={player.id} player={player} index={index} reduced={reducedMotion} visible={visible} trails={quality !== 'low' && !reducedMotion}>
             <TokenMesh token={player.token} color={player.color} />
             {/* Coloured Player Ring Indicator */}
-            <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-              <ringGeometry args={[0.42, 0.54, 32]} />
-              <meshStandardMaterial color={player.color} emissive={player.color} emissiveIntensity={index === currentPlayerIndex ? 0.9 : 0.2} metalness={0.18} roughness={0.25} side={THREE.DoubleSide} />
+            <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={tokenRingScale(players.length)} raycast={() => {}}>
+              <ringGeometry args={[0.27, TOKEN_RING_OUTER_RADIUS, 32]} />
+              <meshPhysicalMaterial color={player.color} emissive={player.color} emissiveIntensity={index === currentPlayerIndex ? 0.38 : 0.08} metalness={0.12} roughness={0.38} clearcoat={.3} side={THREE.DoubleSide} />
             </mesh>
           </AnimatedToken>
         );
@@ -278,30 +278,30 @@ export const TokensAndBuildings: React.FC<{ quality?: string }> = ({ quality = '
           >
             {prop.houses === 5 ? (
               /* Red 3D Hotel */
-              <PopInGroup reduced={reducedMotion} position={[0, 0.18, -tf.depth / 2 + 0.34]}>
+              <PopInGroup reduced={reducedMotion} position={[0, 0.19, -tf.depth / 2 + 0.34]}>
                 <mesh castShadow receiveShadow>
                   <boxGeometry args={[0.58, 0.38, 0.42]} />
                   <meshPhysicalMaterial color="#a92337" metalness={0.35} roughness={0.24} clearcoat={0.9} />
                 </mesh>
-                <mesh position={[0, 0.22, 0.214]}>
+                <mesh position={[0, -0.065, 0.214]}>
                   <boxGeometry args={[0.18, 0.23, 0.025]} />
                   <meshStandardMaterial color="#f1d89b" emissive="#c28b45" emissiveIntensity={0.22} />
                 </mesh>
-                <mesh position={[0, 0.2, 0.235]}>
+                <mesh position={[0, -0.085, 0.235]}>
                   <boxGeometry args={[0.065, 0.19, 0.012]} />
                   <meshStandardMaterial color="#5c2432" roughness={0.35} />
                 </mesh>
                 {[-1, 1].map((side) => (
-                  <mesh key={side} position={[side * 0.19, 0.2, 0.218]}>
+                  <mesh key={side} position={[side * 0.19, 0.04, 0.218]}>
                     <boxGeometry args={[0.09, 0.12, 0.018]} />
                     <meshStandardMaterial color="#bce8f5" emissive="#7fc9e8" emissiveIntensity={0.55} />
                   </mesh>
                 ))}
-                <mesh position={[0, 0.405, 0]}>
+                <mesh position={[0, 0.205, 0]}>
                   <boxGeometry args={[0.64, 0.045, 0.48]} />
                   <meshStandardMaterial color="#e9c36d" metalness={0.86} roughness={0.2} />
                 </mesh>
-                <mesh position={[0, 0.49, 0]} rotation={[0, Math.PI / 4, 0]} castShadow>
+                <mesh position={[0, 0.325, 0]} rotation={[0, Math.PI / 4, 0]} castShadow>
                   <coneGeometry args={[0.42, 0.2, 4]} />
                   <meshPhysicalMaterial color="#5b1c2a" metalness={0.32} roughness={0.28} />
                 </mesh>

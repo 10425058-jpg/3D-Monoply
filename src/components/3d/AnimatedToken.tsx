@@ -31,7 +31,11 @@ export function AnimatedToken({ player, index, reduced, visible, trails, childre
     trail.current.instanceMatrix.needsUpdate = true;
   }, [trails]);
   useEffect(() => {
-    const reset = () => { steps.current = []; landedAt.current = -Infinity; };
+    const reset = () => {
+      steps.current = []; landedAt.current = -Infinity;
+      root.current?.rotation.set(0, 0, 0);
+      if (trail.current) trail.current.visible = false;
+    };
     const unsubscribe = store.subscribe((next, previous) => {
       if (isGameReset(previous, next)) { reset(); return; }
       const before = previous.players.find(p => p.id === player.id);

@@ -1,0 +1,15 @@
+{
+  "before": "docs\\final-graphics-v6\\evidence\\resilience\\context-low-before.png",
+  "after": "docs\\final-graphics-v6\\evidence\\resilience\\context-low-after.png",
+  "rectangle": [
+    480,
+    160,
+    650,
+    565
+  ],
+  "pixels": 367250,
+  "changedPixels": 0,
+  "maxChannelDelta": 0,
+  "meanAbsoluteChannelDelta": 0.0,
+  "pixelIdentical": true
+}

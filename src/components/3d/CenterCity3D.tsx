@@ -5,6 +5,7 @@ import {useSceneState} from '../../presentation/SceneStore';
 import {useMotionPreferences} from '../../presentation/useMotionPreferences';
 import {CenterCity3D as ExistingCity} from './CenterCityLegacy';
 import {RoyalCityEffects} from './castle/RoyalCityEffects';
+import {finishCastleMaterial} from './castle/finishCastleMaterial';
 
 type Quality='low'|'balanced'|'high';
 export const centralCityUrl=(quality:Quality)=>new URL(`assets/models/central-city/central-royal-district${quality==='high'?'':`-${quality}`}.glb`,document.baseURI).href;
@@ -46,7 +47,7 @@ function RoyalDistrict({quality,level,animate}:{quality:Quality;level:number;ani
       if(!(object instanceof THREE.Mesh))return;
       if(Array.isArray(object.material))throw new Error('Central GLB primitive must contain one material');
       const source=object.material as THREE.Material;
-      const material=materials.get(source)??source.clone();
+      const material=materials.get(source)??finishCastleMaterial(source);
       if(!materials.has(source)){material.name=source.name;materials.set(source,material);}
       const shadow=['Ivory limestone','Carved sandstone','Royal blue glazed slate','Warm carved timber','Brushed antique gold'].includes(material.name);
       parts.push({geometry:object.geometry,material,matrix:object.matrixWorld.clone(),level:required,shadow,name:object.name});

@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import { RoundedBox } from '@react-three/drei';
 import * as THREE from 'three';
 import { useSceneStore, useSceneState as useGameStore } from '../../presentation/SceneStore';
-import { DIE_REST_ROTATIONS } from '../../presentation/animationMath';
+import { DIE_REST_ROTATIONS, diceResultScale } from '../../presentation/animationMath';
 import { useMotionPreferences } from '../../presentation/useMotionPreferences';
 import { isGameReset } from '../../presentation/effectEvents';
 
@@ -87,16 +87,19 @@ const Die: React.FC<{
       die.current.quaternion.copy(rest.current);
       die.current.position.y = DICE_REST_HEIGHT + (!reduced && age < 0.3 ? Math.abs(Math.sin(age * 22)) * Math.exp(-age * 12) * 0.16 : 0);
     }
-    const scale = reduced ? 1 : age > 1.9 ? Math.max(0, (2.2 - age) / 0.3) : 1;
+    const scale = diceResultScale(rollingNow, age, reduced);
     die.current.scale.setScalar(scale);
     if (halo.current) {
       halo.current.visible = !reduced && (rollingNow || age < 0.45);
-      halo.current.scale.setScalar(rollingNow ? 0.9 : 1 + age * 2);
-      (halo.current.material as THREE.MeshBasicMaterial).opacity = rollingNow ? 0.12 : Math.max(0, 0.3 - age * 0.7);
+      if (halo.current.visible) {
+        halo.current.scale.setScalar(rollingNow ? 0.9 : 1 + age * 2);
+        (halo.current.material as THREE.MeshBasicMaterial).opacity = rollingNow ? 0.12 : Math.max(0, 0.3 - age * 0.7);
+      }
     }
     if (trail.current) {
       const impact=!rollingNow&&age<.32;
       trail.current.visible = trails && !reduced && ((rollingNow&&t<1)||impact);
+      if (!trail.current.visible) return;
       for (let i = 0; i < 8; i++) {
         const angle = impact?i*Math.PI/4:t * Math.PI * 4 - i * 0.35;
         const radius=impact?.35+age*1.8:.75;
