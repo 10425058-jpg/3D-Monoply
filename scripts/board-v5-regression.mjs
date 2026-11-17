@@ -19,15 +19,17 @@ async function roll(a=1,b=2){
   await page.evaluate(faces=>{
     const randomFaces=[...faces],original=Math.random;Math.random=()=>{const value=(randomFaces.shift()-.5)/6;if(!randomFaces.length)Math.random=original;return value;};
     const observation=window.__v5DiceObservation={found:null,samples:[]},until=performance.now()+60000;
-    // Start in-page sampling BEFORE the input. A slow CDP click response must
-    // not make the test miss the entire existing 2.2s presentation window.
+    // Observe after R3F updates and renders each frame. A separate RAF can
+    // run before those updates and miss a short result on software WebGL.
+    const audit=window.__graphicsAudit,originalFrame=audit.frame;
     const observe=()=>{
       const state=window.__soloTest.state(),dice=window.__graphicsAudit.dice();
       const sample={stored:state.dice,rendered:dice,phase:state.turnPhase,at:performance.now()};
-      observation.samples.push(sample);if(observation.samples.length>60)observation.samples.shift();
+      if(observation.samples.length<120)observation.samples.push(sample);
       if(state.turnPhase!=='ROLLING'&&state.dice.every((v,i)=>v===faces[i])&&dice.every((d,i)=>d.visible&&d.up>.999&&d.face===faces[i]))observation.found=sample;
-      else if(performance.now()<until)requestAnimationFrame(observe);
-    };requestAnimationFrame(observe);
+      if(observation.found||performance.now()>=until)audit.frame=originalFrame;
+    };
+    audit.frame=()=>{originalFrame();queueMicrotask(observe);};
   },[a,b]);
   await page.click('[aria-label="Roll dice"]');
   // Optional stress case: retrieve all six face observations after the normal
