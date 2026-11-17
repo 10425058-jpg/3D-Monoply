@@ -12,6 +12,7 @@ node_modules
 dist
 dist-ssr
 .v6-baseline-dist/
+.background-baseline-dist/
 *.local
 
 # Editor directories and files

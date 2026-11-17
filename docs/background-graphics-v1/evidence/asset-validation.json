@@ -1,0 +1,1644 @@
+{
+  "schema": "monopoly.environment-glb-inspection.v1",
+  "valid": true,
+  "assets": [
+    {
+      "file": "royal-island-citadel-background-v1-balanced.glb",
+      "bytes": 1798936,
+      "sha256": "929796666a71f6d56cfe582b899774f1da1f6cb772825877aa392ccadb26d265",
+      "triangles": 24448,
+      "triangleBudget": 25000,
+      "drawPrimitives": 10,
+      "meshes": [
+        {
+          "name": "ruins_fractured_cliff.031",
+          "triangles": 24448,
+          "primitives": 10
+        }
+      ],
+      "nodes": 11,
+      "materials": 10,
+      "materialNames": [
+        "Warm lit glass",
+        "Sakura blossom clusters",
+        "Deep evergreen foliage",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Warm carved timber",
+        "Carved sandstone",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Brushed antique gold"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 191
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -6.76632833480835,
+          -4.812598705291748,
+          -5.1375932693481445
+        ],
+        "max": [
+          12.403067588806152,
+          11.489999771118164,
+          5.785672187805176
+        ],
+        "extent": [
+          19.169395923614502,
+          16.302598476409912,
+          10.92326545715332
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "royal-island-citadel-background-v1",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "sunset_glow_0.002",
+          "translation": [
+            -1.9500000476837158,
+            1.0815000534057617,
+            3.299999952316284
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "sunset_glow_1.002",
+          "translation": [
+            1.9500000476837158,
+            1.0815000534057617,
+            3.299999952316284
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "sunset_glow_2.002",
+          "translation": [
+            10.100000381469727,
+            0.7059999704360962,
+            1.100000023841858
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "sunset_glow_portal.002",
+          "translation": [
+            -0.20000000298023224,
+            1.5499999523162842,
+            0.6399999856948853
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_0_left.002",
+          "translation": [
+            -2.4000000953674316,
+            0.12999999523162842,
+            1.399999976158142
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_1_left.002",
+          "translation": [
+            -2.5,
+            0.12999999523162842,
+            2.4000000953674316
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_2_left.002",
+          "translation": [
+            -2.700000047683716,
+            0.10000000149011612,
+            3.5999999046325684
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_3_left.002",
+          "translation": [
+            -3.0999999046325684,
+            0.07999999821186066,
+            4.650000095367432
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_end_left.002",
+          "translation": [
+            -3.5999999046325684,
+            -15.5,
+            5.699999809265137
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_origin_left.002",
+          "translation": [
+            -3.0999999046325684,
+            0.07999999821186066,
+            4.650000095367432
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "royal-island-citadel-background-v1-low.glb",
+      "bytes": 983840,
+      "sha256": "0c8899bef42edc79fbd238f6aa474b5835fa282bce35c9422f179446b7967461",
+      "triangles": 13516,
+      "triangleBudget": 16000,
+      "drawPrimitives": 10,
+      "meshes": [
+        {
+          "name": "ruins_fractured_cliff.051",
+          "triangles": 13516,
+          "primitives": 10
+        }
+      ],
+      "nodes": 11,
+      "materials": 10,
+      "materialNames": [
+        "Warm lit glass",
+        "Sakura blossom clusters",
+        "Deep evergreen foliage",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Warm carved timber",
+        "Carved sandstone",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Brushed antique gold"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 189
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -6.531991958618164,
+          -4.973160266876221,
+          -5.0149335861206055
+        ],
+        "max": [
+          12.403067588806152,
+          11.489999771118164,
+          6.4048943519592285
+        ],
+        "extent": [
+          18.935059547424316,
+          16.463160037994385,
+          11.419827938079834
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "royal-island-citadel-background-v1",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "sunset_glow_0.002",
+          "translation": [
+            -1.9500000476837158,
+            1.0815000534057617,
+            3.299999952316284
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "sunset_glow_1.002",
+          "translation": [
+            1.9500000476837158,
+            1.0815000534057617,
+            3.299999952316284
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "sunset_glow_2.002",
+          "translation": [
+            10.100000381469727,
+            0.7059999704360962,
+            1.100000023841858
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "sunset_glow_portal.002",
+          "translation": [
+            -0.20000000298023224,
+            1.5499999523162842,
+            0.6399999856948853
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_0_left.002",
+          "translation": [
+            -2.4000000953674316,
+            0.12999999523162842,
+            1.399999976158142
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_1_left.002",
+          "translation": [
+            -2.5,
+            0.12999999523162842,
+            2.4000000953674316
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_2_left.002",
+          "translation": [
+            -2.700000047683716,
+            0.10000000149011612,
+            3.5999999046325684
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_3_left.002",
+          "translation": [
+            -3.0999999046325684,
+            0.07999999821186066,
+            4.650000095367432
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_end_left.002",
+          "translation": [
+            -3.5999999046325684,
+            -15.5,
+            5.699999809265137
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_origin_left.002",
+          "translation": [
+            -3.0999999046325684,
+            0.07999999821186066,
+            4.650000095367432
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "royal-island-citadel-background-v1.glb",
+      "bytes": 2836528,
+      "sha256": "36be07cc726ae460e62a43d388b536a28e826c73ed4edb39ecc179d833e05351",
+      "triangles": 39345,
+      "triangleBudget": 40000,
+      "drawPrimitives": 10,
+      "meshes": [
+        {
+          "name": "ruins_fractured_cliff.011",
+          "triangles": 39345,
+          "primitives": 10
+        }
+      ],
+      "nodes": 11,
+      "materials": 10,
+      "materialNames": [
+        "Warm lit glass",
+        "Sakura blossom clusters",
+        "Deep evergreen foliage",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Warm carved timber",
+        "Carved sandstone",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Brushed antique gold"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 191
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -6.680886268615723,
+          -4.9005937576293945,
+          -5.091193199157715
+        ],
+        "max": [
+          12.403067588806152,
+          11.489999771118164,
+          5.940072536468506
+        ],
+        "extent": [
+          19.083953857421875,
+          16.39059352874756,
+          11.03126573562622
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "royal-island-citadel-background-v1",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "sunset_glow_0.002",
+          "translation": [
+            -1.9500000476837158,
+            1.0815000534057617,
+            3.299999952316284
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "sunset_glow_1.002",
+          "translation": [
+            1.9500000476837158,
+            1.0815000534057617,
+            3.299999952316284
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "sunset_glow_2.002",
+          "translation": [
+            10.100000381469727,
+            0.7059999704360962,
+            1.100000023841858
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "sunset_glow_portal.002",
+          "translation": [
+            -0.20000000298023224,
+            1.5499999523162842,
+            0.6399999856948853
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_0_left.002",
+          "translation": [
+            -2.4000000953674316,
+            0.12999999523162842,
+            1.399999976158142
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_1_left.002",
+          "translation": [
+            -2.5,
+            0.12999999523162842,
+            2.4000000953674316
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_2_left.002",
+          "translation": [
+            -2.700000047683716,
+            0.10000000149011612,
+            3.5999999046325684
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_3_left.002",
+          "translation": [
+            -3.0999999046325684,
+            0.07999999821186066,
+            4.650000095367432
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_end_left.002",
+          "translation": [
+            -3.5999999046325684,
+            -15.5,
+            5.699999809265137
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_origin_left.002",
+          "translation": [
+            -3.0999999046325684,
+            0.07999999821186066,
+            4.650000095367432
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "royal-island-left-background-v1-balanced.glb",
+      "bytes": 1846476,
+      "sha256": "50511bf87a71903a0f26d27e040c50586345b97a37a803b203f7a2e9c8426b2c",
+      "triangles": 24199,
+      "triangleBudget": 25000,
+      "drawPrimitives": 10,
+      "meshes": [
+        {
+          "name": "left_broken_cliff_strata.031",
+          "triangles": 24199,
+          "primitives": 10
+        }
+      ],
+      "nodes": 7,
+      "materials": 10,
+      "materialNames": [
+        "Warm lit glass",
+        "Sakura blossom clusters",
+        "Deep evergreen foliage",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Carved sandstone",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Brushed antique gold",
+        "Warm carved timber"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 186
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -9.897451400756836,
+          -6.7281880378723145,
+          -5.391089916229248
+        ],
+        "max": [
+          10.684762954711914,
+          8.16100025177002,
+          6.625580787658691
+        ],
+        "extent": [
+          20.58221435546875,
+          14.889188289642334,
+          12.01667070388794
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "royal-island-left-background-v1",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_0_left.002",
+          "translation": [
+            -3,
+            0.08500000089406967,
+            1.600000023841858
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_1_left.002",
+          "translation": [
+            -4.199999809265137,
+            0.07000000029802322,
+            2.299999952316284
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_2_left.002",
+          "translation": [
+            -5.400000095367432,
+            0.05999999865889549,
+            3.0999999046325684
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_3_left.002",
+          "translation": [
+            -6.400000095367432,
+            0.03999999910593033,
+            3.700000047683716
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_end_left.002",
+          "translation": [
+            -7.099999904632568,
+            -11.5,
+            4.550000190734863
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_origin_left.002",
+          "translation": [
+            -6.400000095367432,
+            0.03999999910593033,
+            3.700000047683716
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "royal-island-left-background-v1-low.glb",
+      "bytes": 1055604,
+      "sha256": "af8a766be0556f412d6e4aab3e0560ed806b96303e8a6d50ffbc98998ca41972",
+      "triangles": 13435,
+      "triangleBudget": 16000,
+      "drawPrimitives": 10,
+      "meshes": [
+        {
+          "name": "left_broken_cliff_strata.051",
+          "triangles": 13435,
+          "primitives": 10
+        }
+      ],
+      "nodes": 7,
+      "materials": 10,
+      "materialNames": [
+        "Warm lit glass",
+        "Sakura blossom clusters",
+        "Deep evergreen foliage",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Carved sandstone",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Brushed antique gold",
+        "Warm carved timber"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 188
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -9.436196327209473,
+          -6.753352165222168,
+          -5.188424110412598
+        ],
+        "max": [
+          10.684762954711914,
+          8.16100025177002,
+          6.439874172210693
+        ],
+        "extent": [
+          20.120959281921387,
+          14.914352416992188,
+          11.628298282623291
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "royal-island-left-background-v1",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_0_left.002",
+          "translation": [
+            -3,
+            0.08500000089406967,
+            1.600000023841858
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_1_left.002",
+          "translation": [
+            -4.199999809265137,
+            0.07000000029802322,
+            2.299999952316284
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_2_left.002",
+          "translation": [
+            -5.400000095367432,
+            0.05999999865889549,
+            3.0999999046325684
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_3_left.002",
+          "translation": [
+            -6.400000095367432,
+            0.03999999910593033,
+            3.700000047683716
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_end_left.002",
+          "translation": [
+            -7.099999904632568,
+            -11.5,
+            4.550000190734863
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_origin_left.002",
+          "translation": [
+            -6.400000095367432,
+            0.03999999910593033,
+            3.700000047683716
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "royal-island-left-background-v1.glb",
+      "bytes": 2767564,
+      "sha256": "d651fba90544aa56ad7ba5ef493ee1414f4a97b958ce52e7d8dd96b2d8bec0f7",
+      "triangles": 37260,
+      "triangleBudget": 40000,
+      "drawPrimitives": 10,
+      "meshes": [
+        {
+          "name": "left_broken_cliff_strata.011",
+          "triangles": 37260,
+          "primitives": 10
+        }
+      ],
+      "nodes": 7,
+      "materials": 10,
+      "materialNames": [
+        "Warm lit glass",
+        "Sakura blossom clusters",
+        "Deep evergreen foliage",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Carved sandstone",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Brushed antique gold",
+        "Warm carved timber"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 187
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -9.377070426940918,
+          -7.040456771850586,
+          -5.461607456207275
+        ],
+        "max": [
+          10.822407722473145,
+          8.16100025177002,
+          6.620628833770752
+        ],
+        "extent": [
+          20.199478149414062,
+          15.201457023620605,
+          12.082236289978027
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "royal-island-left-background-v1",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_0_left.002",
+          "translation": [
+            -3,
+            0.08500000089406967,
+            1.600000023841858
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_1_left.002",
+          "translation": [
+            -4.199999809265137,
+            0.07000000029802322,
+            2.299999952316284
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_2_left.002",
+          "translation": [
+            -5.400000095367432,
+            0.05999999865889549,
+            3.0999999046325684
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_3_left.002",
+          "translation": [
+            -6.400000095367432,
+            0.03999999910593033,
+            3.700000047683716
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_end_left.002",
+          "translation": [
+            -7.099999904632568,
+            -11.5,
+            4.550000190734863
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_origin_left.002",
+          "translation": [
+            -6.400000095367432,
+            0.03999999910593033,
+            3.700000047683716
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "royal-island-right-background-v1-balanced.glb",
+      "bytes": 1634176,
+      "sha256": "db49443b493dfbc2942827fd0cce572e0780ff0a9ed8d3830f5ec0433018fddb",
+      "triangles": 21104,
+      "triangleBudget": 25000,
+      "drawPrimitives": 10,
+      "meshes": [
+        {
+          "name": "right_broken_cliff_strata.031",
+          "triangles": 21104,
+          "primitives": 10
+        }
+      ],
+      "nodes": 7,
+      "materials": 10,
+      "materialNames": [
+        "Warm carved timber",
+        "Sakura blossom clusters",
+        "Deep evergreen foliage",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Carved sandstone",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Brushed antique gold",
+        "Warm lit glass"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 191
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -8.832659721374512,
+          -7.54813289642334,
+          -8.269288063049316
+        ],
+        "max": [
+          10.176966667175293,
+          9.195999145507812,
+          7.9690680503845215
+        ],
+        "extent": [
+          19.009626388549805,
+          16.744132041931152,
+          16.238356113433838
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "royal-island-right-background-v1",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_0_right.002",
+          "translation": [
+            3.299999952316284,
+            0.75,
+            1.850000023841858
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_1_right.002",
+          "translation": [
+            4.099999904632568,
+            0.11999999731779099,
+            2.5999999046325684
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_2_right.002",
+          "translation": [
+            5.300000190734863,
+            0.07500000298023224,
+            3.299999952316284
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_3_right.002",
+          "translation": [
+            6.300000190734863,
+            0.03999999910593033,
+            4
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_end_right.002",
+          "translation": [
+            7,
+            -13,
+            4.849999904632568
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_origin_right.002",
+          "translation": [
+            6.300000190734863,
+            0.03999999910593033,
+            4
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "royal-island-right-background-v1-low.glb",
+      "bytes": 945024,
+      "sha256": "64e7f0a72bdfa19adafd6e3e599b17db8e98f8c0cd707f36411e1ccbd967000e",
+      "triangles": 11802,
+      "triangleBudget": 16000,
+      "drawPrimitives": 10,
+      "meshes": [
+        {
+          "name": "right_broken_cliff_strata.051",
+          "triangles": 11802,
+          "primitives": 10
+        }
+      ],
+      "nodes": 7,
+      "materials": 10,
+      "materialNames": [
+        "Warm carved timber",
+        "Sakura blossom clusters",
+        "Deep evergreen foliage",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Carved sandstone",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Brushed antique gold",
+        "Warm lit glass"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 189
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -8.144536018371582,
+          -7.54446268081665,
+          -7.925443649291992
+        ],
+        "max": [
+          10.176966667175293,
+          9.195999145507812,
+          8.05052661895752
+        ],
+        "extent": [
+          18.321502685546875,
+          16.740461826324463,
+          15.975970268249512
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "royal-island-right-background-v1",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_0_right.002",
+          "translation": [
+            3.299999952316284,
+            0.75,
+            1.850000023841858
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_1_right.002",
+          "translation": [
+            4.099999904632568,
+            0.11999999731779099,
+            2.5999999046325684
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_2_right.002",
+          "translation": [
+            5.300000190734863,
+            0.07500000298023224,
+            3.299999952316284
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_3_right.002",
+          "translation": [
+            6.300000190734863,
+            0.03999999910593033,
+            4
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_end_right.002",
+          "translation": [
+            7,
+            -13,
+            4.849999904632568
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_origin_right.002",
+          "translation": [
+            6.300000190734863,
+            0.03999999910593033,
+            4
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "royal-island-right-background-v1.glb",
+      "bytes": 2339000,
+      "sha256": "7a3bec16a6813378f79ae94edeea1c2f4645ab6b50c5240b17a0f5b51201aa52",
+      "triangles": 31072,
+      "triangleBudget": 40000,
+      "drawPrimitives": 10,
+      "meshes": [
+        {
+          "name": "right_broken_cliff_strata.011",
+          "triangles": 31072,
+          "primitives": 10
+        }
+      ],
+      "nodes": 7,
+      "materials": 10,
+      "materialNames": [
+        "Warm carved timber",
+        "Sakura blossom clusters",
+        "Deep evergreen foliage",
+        "Lavender layered cliff",
+        "Meadow and moss",
+        "Carved sandstone",
+        "Ivory limestone",
+        "Royal blue glazed slate",
+        "Brushed antique gold",
+        "Warm lit glass"
+      ],
+      "images": [
+        {
+          "name": "Kingdom_Surface_Atlas_128",
+          "width": 128,
+          "height": 128,
+          "bytes": 12149,
+          "pixels": {
+            "uniqueColors": 193,
+            "channelMin": [
+              33,
+              59,
+              37
+            ],
+            "channelMax": [
+              255,
+              230,
+              214
+            ]
+          },
+          "referencedTexelColors": 192
+        }
+      ],
+      "textureRgbaBytes": 65536,
+      "textureRgbaMipBytes": 87382,
+      "bounds": {
+        "min": [
+          -8.832106590270996,
+          -7.678878307342529,
+          -7.418249607086182
+        ],
+        "max": [
+          10.631158828735352,
+          9.195999145507812,
+          8.121430397033691
+        ],
+        "extent": [
+          19.463265419006348,
+          16.874877452850342,
+          15.539680004119873
+        ]
+      },
+      "rootTransforms": [
+        {
+          "name": "royal-island-right-background-v1",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_0_right.002",
+          "translation": [
+            3.299999952316284,
+            0.75,
+            1.850000023841858
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_1_right.002",
+          "translation": [
+            4.099999904632568,
+            0.11999999731779099,
+            2.5999999046325684
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_2_right.002",
+          "translation": [
+            5.300000190734863,
+            0.07500000298023224,
+            3.299999952316284
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "watercourse_3_right.002",
+          "translation": [
+            6.300000190734863,
+            0.03999999910593033,
+            4
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_end_right.002",
+          "translation": [
+            7,
+            -13,
+            4.849999904632568
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "waterfall_origin_right.002",
+          "translation": [
+            6.300000190734863,
+            0.03999999910593033,
+            4
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "valid": true
+    }
+  ],
+  "failures": [],
+  "wholeDirectoryAudit": {
+    "valid": true,
+    "assetCount": 79,
+    "failures": []
+  }
+}

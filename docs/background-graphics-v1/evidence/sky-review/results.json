@@ -1,0 +1,96 @@
+[
+  {
+    "label": "before",
+    "errors": [],
+    "environment": {
+      "meshes": 138,
+      "triangles": 172829,
+      "shadowCasters": 0,
+      "waterfalls": {
+        "waterfall-left": 0,
+        "waterfall-right": 0,
+        "waterfall-hamlet-0": 0,
+        "waterfall-hamlet-1": 0,
+        "waterfall-hamlet-2": 0,
+        "cascade-royal-island-citadel-0": 0,
+        "cascade-royal-island-citadel-1": 0,
+        "cascade-royal-island-citadel-2": 0,
+        "cascade-sky-windmill-0": 0,
+        "cascade-sky-windmill-1": 0,
+        "cascade-sky-windmill-2": 0,
+        "cascade-sky-garden-0": 0,
+        "cascade-sky-garden-1": 0,
+        "cascade-sky-garden-2": 0,
+        "cascade-sky-garden-3": 0
+      },
+      "fallbacks": 0,
+      "landmarks": [
+        "skyway-observatory",
+        "skyway-ruins",
+        "skyway-hamlet"
+      ],
+      "oldValleyPresent": false,
+      "oldKingdomPresent": false,
+      "airship": {
+        "position": [
+          30,
+          -10,
+          -74.4
+        ],
+        "rotation": [
+          0,
+          -0.32,
+          0,
+          "XYZ"
+        ]
+      }
+    }
+  },
+  {
+    "label": "after",
+    "errors": [],
+    "environment": {
+      "meshes": 138,
+      "triangles": 172829,
+      "shadowCasters": 0,
+      "waterfalls": {
+        "waterfall-left": 0,
+        "waterfall-right": 0,
+        "waterfall-hamlet-0": 0,
+        "waterfall-hamlet-1": 0,
+        "waterfall-hamlet-2": 0,
+        "cascade-royal-island-citadel-0": 0,
+        "cascade-royal-island-citadel-1": 0,
+        "cascade-royal-island-citadel-2": 0,
+        "cascade-sky-windmill-0": 0,
+        "cascade-sky-windmill-1": 0,
+        "cascade-sky-windmill-2": 0,
+        "cascade-sky-garden-0": 0,
+        "cascade-sky-garden-1": 0,
+        "cascade-sky-garden-2": 0,
+        "cascade-sky-garden-3": 0
+      },
+      "fallbacks": 0,
+      "landmarks": [
+        "skyway-observatory",
+        "skyway-ruins",
+        "skyway-hamlet"
+      ],
+      "oldValleyPresent": false,
+      "oldKingdomPresent": false,
+      "airship": {
+        "position": [
+          30,
+          -10,
+          -74.4
+        ],
+        "rotation": [
+          0,
+          -0.32,
+          0,
+          "XYZ"
+        ]
+      }
+    }
+  }
+]

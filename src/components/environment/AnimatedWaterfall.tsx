@@ -4,6 +4,7 @@ import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { environmentModelUrl } from './GltfEnvironmentModel';
 import { mayAnimateEnvironment } from './environmentMotion';
+import { waterfallProfile } from './waterfallProfile';
 
 function ribbon(points: THREE.Vector3[], width: number, cascade: boolean, across?: THREE.Vector3) {
   const positions: number[] = [], uv: number[] = [], indices: number[] = [];
@@ -13,15 +14,11 @@ function ribbon(points: THREE.Vector3[], width: number, cascade: boolean, across
     const tangent = points[Math.min(i+1,points.length-1)].clone().sub(points[Math.max(0,i-1)]);
     const sideways = across ?? new THREE.Vector3(-tangent.z,0,tangent.x).normalize();
     const outward = new THREE.Vector3(sideways.z,0,-sideways.x);
-    const opening=Math.min(1,fraction/.20);
-    const spread = width * (cascade ? 1+opening*opening*(3-2*opening)*.26+Math.sin(fraction*Math.PI*.88)*.43 : .85);
     for (let j=0;j<columns;j++) {
-      const u=j/(columns-1), x=(u-.5)*spread;
-      // Convex, scalloped curtain retains a silhouette at oblique angles.
-      const depth=cascade ? Math.sin(u*Math.PI)*width*.38 + Math.sin(u*13+fraction*8)*width*.045 : 0;
-      const drift=cascade?Math.sin(fraction*4.8)*width*.13+Math.pow(fraction,3)*width*.17:0;
-      const scallop=cascade?Math.sin(u*10.5+fraction*7)*width*.028*Math.sin(fraction*Math.PI):0;
-      positions.push(point.x+sideways.x*(x+drift)+outward.x*depth,point.y+scallop,point.z+sideways.z*(x+drift)+outward.z*depth);
+      const u=j/(columns-1);
+      const profile=cascade?waterfallProfile(fraction,u,width):{sideways:(u-.5)*width*.85,bulge:0,vertical:0};
+      positions.push(point.x+sideways.x*profile.sideways+outward.x*profile.bulge,point.y+profile.vertical,
+        point.z+sideways.z*profile.sideways+outward.z*profile.bulge);
       uv.push(u,fraction);
       if (i && j) {
         const n=i*columns+j;
@@ -78,20 +75,26 @@ export function AnimatedWaterfall({ file, variant, animate, low, name }: {
     }
     const offset=parts[0].getAttribute('position').count;
     geometry.setIndex([...parts[0].index!.array,...Array.from(parts[1].index!.array,index=>index+offset)]);
-    geometry.computeVertexNormals();geometry.computeBoundingSphere();parts.forEach(part=>part.dispose());
-    const positions:number[]=[],corners:number[]=[],sizes:number[]=[],indices:number[]=[];
-    // Lip foam and three dissipating spray puffs share one billboard draw.
-    (low?[source,end]:[source,curve.getPoint(.88),end,end.clone().add(new THREE.Vector3(width*.45,-.8,0))]).forEach((p,i)=>{
+    geometry.computeVertexNormals();geometry.computeBoundingSphere();
+    geometry.boundingSphere!.radius+=.015; // Include the bounded vertex ripple when culling.
+    parts.forEach(part=>part.dispose());
+    const positions:number[]=[],corners:number[]=[],sizes:number[]=[],roles:number[]=[],seeds:number[]=[],indices:number[]=[];
+    // A fixed lip and softly overlapping tail lobes retain the existing two
+    // draws. No particle system, texture fetch or full-scene water pass.
+    (low?[source,end]:[source,curve.getPoint(.86),end,end.clone().addScaledVector(fallAxis,width*.36).add(new THREE.Vector3(0,-.55,0))]).forEach((p,i)=>{
       for(const corner of [[-1,-1],[1,-1],[1,1],[-1,1]]) {
         positions.push(...p.toArray());corners.push(...corner);
-        sizes.push(width*(i===0?.78:1.7),width*(i===0?.23:.72));
+        sizes.push(width*(i===0?.65:1.55),width*(i===0?.20:.78));
+        roles.push(i===0?0:1);seeds.push(i*1.73+(variant==='left'?.8:2.1));
       }
       const n=i*4;indices.push(n,n+1,n+2,n,n+2,n+3);
     });
     const spray=new THREE.BufferGeometry();
     spray.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
     spray.setAttribute('corner',new THREE.Float32BufferAttribute(corners,2));
-    spray.setAttribute('size',new THREE.Float32BufferAttribute(sizes,2));spray.setIndex(indices);
+    spray.setAttribute('size',new THREE.Float32BufferAttribute(sizes,2));
+    spray.setAttribute('mistRole',new THREE.Float32BufferAttribute(roles,1));
+    spray.setAttribute('mistSeed',new THREE.Float32BufferAttribute(seeds,1));spray.setIndex(indices);
     spray.computeBoundingSphere();spray.boundingSphere!.radius+=width*2;
     return {geometry,spray};
   },[scene,file,variant,low]);
@@ -103,7 +106,7 @@ export function AnimatedWaterfall({ file, variant, animate, low, name }: {
       <shaderMaterial uniforms={uniforms} transparent depthWrite={false} side={THREE.DoubleSide} forceSinglePass
         vertexShader={`uniform float uTime;attribute float cascade;varying float vCascade;varying vec2 vUv;varying vec3 vNormal;varying vec3 vWorld;
           void main(){vUv=uv;vCascade=cascade;vec3 p=position;
-            p.x+=sin(uv.y*14.-uTime*1.25+position.z)*.018*cascade*sin(uv.x*3.14159);
+            p+=normal*sin(uv.y*12.-uTime*1.35+uv.x*9.)*.012*cascade*sin(uv.x*3.14159)*sin(uv.y*3.14159);
             vec4 world=modelMatrix*vec4(p,1.);vWorld=world.xyz;vNormal=normalize(mat3(modelMatrix)*normal);
             gl_Position=projectionMatrix*viewMatrix*world;}`}
         fragmentShader={`uniform float uTime;varying float vCascade;varying vec2 vUv;varying vec3 vNormal;varying vec3 vWorld;
@@ -111,39 +114,48 @@ export function AnimatedWaterfall({ file, variant, animate, low, name }: {
           float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
             return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.)),f.x),f.y);}
           void main(){
-            float flow=vUv.y-uTime*.28;
-            float x=vUv.x+sin(vUv.y*9.-uTime*1.8)*.014;
-            float sheets=noise(vec2(x*7.,flow*2.6));
-            float ripples=noise(vec2(x*16.+sheets,flow*18.));
-            // Short, connected foam patches follow the flow. Long narrow
-            // anisotropic noise made bright hairlines across the whole fall.
-            float whitewater=smoothstep(.64,.88,noise(vec2(x*14.+sheets*1.6,flow*20.)));
-            float edges=smoothstep(0.,.10,vUv.x)*smoothstep(0.,.10,1.-vUv.x);
-            float crest=exp(-vUv.y*31.)*(.7+noise(vec2(x*21.,uTime*.8))*.3);
+            float flow=vUv.y-uTime*.25;
+            float x=vUv.x+sin(vUv.y*8.-uTime*1.1)*.012;
+            float sheets=noise(vec2(x*7.,flow*2.8));
+            float ripples=noise(vec2(x*17.+sheets,flow*24.));
+            // Three noise fields replace four: softly separated flow lanes,
+            // short traveling glints and a coherent crest, all in this pass.
+            float lanes=.5+.5*sin(x*36.+sheets*3.);
+            float glints=smoothstep(.73,.94,ripples)*smoothstep(.55,.88,lanes);
+            float feather=.055+vUv.y*.05;
+            float edges=smoothstep(0.,feather,vUv.x)*smoothstep(0.,feather,1.-vUv.x);
+            float crest=exp(-vUv.y*32.)*(.72+noise(vec2(x*19.,uTime*.65))*.28);
             vec3 normal=normalize(vNormal),view=normalize(cameraPosition-vWorld);
             float rim=pow(clamp(1.-abs(dot(normal,view)),0.,1.),3.);
-            float sun=.5+.5*abs(dot(normal,normalize(vec3(-.48,.72,.56))));
-            vec3 color=mix(vec3(.006,.18,.24),vec3(.09,.62,.72),.25+sheets*.54+ripples*.14)*sun;
-            color+=vec3(.12,.35,.36)*rim;
-            float foam=clamp(crest*.94+whitewater*(.07+vCascade*.08)+smoothstep(.76,1.,vUv.y)*whitewater*.08,0.,.96);
-            color=mix(color,vec3(.91,1.12,1.08),foam);
-            float tail=1.-smoothstep(.81,1.,vUv.y)*vCascade;
-            gl_FragColor=vec4(color,edges*tail*(.84+sheets*.12));
+            float sun=.72+.28*abs(dot(normal,normalize(vec3(-.48,.72,.56))));
+            vec3 color=mix(vec3(.025,.23,.29),vec3(.12,.52,.58),.25+sheets*.45+ripples*.12)*sun;
+            color+=vec3(.065,.14,.15)*rim;
+            float foam=clamp(crest*.78+glints*(.12+vCascade*.10),0.,.88);
+            color=mix(color,vec3(.82,.94,.91),foam);
+            // Unequal lane lengths dissolve into the same cloud depth; they
+            // avoid the hard rectangular end of a translucent cyan sheet.
+            float tailStart=.76+.075*sin(x*18.+sheets*3.);
+            float tail=1.-smoothstep(tailStart,1.,vUv.y)*vCascade;
+            float body=mix(.77,.47+sheets*.16+lanes*.07,vCascade);
+            gl_FragColor=vec4(color,edges*tail*min(.88,body+crest*.15+glints*.07));
             #include <tonemapping_fragment>
             #include <colorspace_fragment>
           }`} />
     </mesh>
     <mesh geometry={spray} raycast={()=>{}}>
       <shaderMaterial uniforms={uniforms} transparent depthWrite={false}
-        vertexShader={`attribute vec2 corner;attribute vec2 size;varying vec2 vUv;
-          void main(){vUv=corner;vec4 mv=modelViewMatrix*vec4(position,1.);
-            mv.xy+=corner*size*length(modelMatrix[0].xyz);gl_Position=projectionMatrix*mv;}`}
-        fragmentShader={`uniform float uTime;varying vec2 vUv;
+        vertexShader={`uniform float uTime;attribute vec2 corner;attribute vec2 size;attribute float mistRole;attribute float mistSeed;
+          varying vec2 vUv;varying float vRole;varying float vSeed;
+          void main(){vUv=corner;vRole=mistRole;vSeed=mistSeed;vec4 mv=modelViewMatrix*vec4(position,1.);
+            vec2 drift=vec2(sin(uTime*.22+mistSeed)*.055,sin(uTime*.17+mistSeed*1.7)*.045)*mistRole;
+            mv.xy+=(corner+drift)*size*length(modelMatrix[0].xyz);gl_Position=projectionMatrix*mv;}`}
+        fragmentShader={`uniform float uTime;varying vec2 vUv;varying float vRole;varying float vSeed;
           void main(){vec2 q=vUv;
-            q.x+=sin(q.y*4.+uTime*.4)*.08;
-            float cloud=exp(-dot(q,q)*3.2)*(.19+.025*sin(q.x*9.+uTime));
+            q.x+=sin(q.y*3.+uTime*.35+vSeed)*.055*vRole;
+            vec2 a=q-vec2(-.28,.04),b=q-vec2(.30,-.12);
+            float cloud=(exp(-dot(a,a)*5.)*.55+exp(-dot(b,b)*7.)*.45);
             cloud*=1.-smoothstep(.38,1.,dot(q,q));
-            gl_FragColor=vec4(.67,.94,1.04,cloud);
+            gl_FragColor=vec4(.72,.90,.94,cloud*mix(.26,.17,vRole));
             #include <tonemapping_fragment>
             #include <colorspace_fragment>
           }`} />
