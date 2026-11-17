@@ -67,6 +67,8 @@ normal motion, all-tier WebGL context restoration and an actual blocked optional
 3D-font dependency. The mandatory HUD receipt remains visible during that fault.
 The [interaction receipt](../board-rules-v5/evidence/interaction/results.json)
 checks all 40 spaces by real mouse/touch and the unchanged camera controls.
+Online deed names are bound only by the authorized lazy match screen, keeping
+the waiting-room dependency graph free of the gameplay catalog and renderer.
 The birthday bankruptcy test also verifies that eliminating another payer
 preserves the active drawer's earned doubles turn; its focused pre-fix failure
 is retained in [validation](../board-rules-v5/evidence/validation/birthday-turn-before.txt).

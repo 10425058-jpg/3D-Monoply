@@ -57,5 +57,9 @@ export function OnlineMatch({ controller, quality, settings, onLobby }: { contro
 
 /** Loaded only after an authorized REST snapshot confirms the server match. */
 export default function OnlineMatchScreen(props: { controller: OnlineController; quality: Quality; settings: () => void; onLobby: () => void }) {
+  useEffect(() => {
+    props.controller.setSpaceNames(new Map(BOARD_SPACES.map(space => [space.id, space.name])));
+    return () => props.controller.setSpaceNames(null);
+  }, [props.controller]);
   return <SceneStoreProvider value={props.controller.presenter.store}><PresentationProvider><OnlineMatch {...props} /></PresentationProvider></SceneStoreProvider>;
 }

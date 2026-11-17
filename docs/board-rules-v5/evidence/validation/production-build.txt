@@ -7,15 +7,14 @@ transforming...
 ✓ 2566 modules transformed.
 rendering chunks...
 computing gzip size...
-dist/index.html                                0.94 kB │ gzip:   0.52 kB
-dist/.vite/manifest.json                       1.73 kB │ gzip:   0.42 kB
+dist/index.html                                0.94 kB │ gzip:   0.53 kB
+dist/.vite/manifest.json                       1.49 kB │ gzip:   0.39 kB
 dist/assets/SoloGame-CnngIkJM.css              1.05 kB │ gzip:   0.52 kB
 dist/assets/game-effects-BIp_NvX3.css         81.76 kB │ gzip:  18.76 kB
 dist/assets/index-BMgP45lG.css                89.70 kB │ gzip:  18.19 kB
-dist/assets/boardData-BBGbPel6.js              7.19 kB │ gzip:   1.79 kB
-dist/assets/OnlineMatchScreen-DwjpA2aV.js     10.26 kB │ gzip:   3.73 kB
-dist/assets/RoomScreen-DOgqeUs-.js            55.17 kB │ gzip:  17.59 kB
-dist/assets/index-BSk7yQhr.js                194.23 kB │ gzip:  61.84 kB
-dist/assets/SoloGame-C4mIhJLQ.js             197.37 kB │ gzip:  62.00 kB
-dist/assets/game-effects-C3aj7DVG.js       1,232.29 kB │ gzip: 342.15 kB
-✓ built in 10.82s
+dist/assets/OnlineMatchScreen-Ba2j8015.js     10.35 kB │ gzip:   3.76 kB
+dist/assets/RoomScreen-CAImEl-U.js            55.20 kB │ gzip:  17.58 kB
+dist/assets/index-BnDXMHkK.js                194.15 kB │ gzip:  61.81 kB
+dist/assets/SoloGame-Jq2fOzwt.js             197.33 kB │ gzip:  61.98 kB
+dist/assets/game-effects-Dzlw0oeO.js       1,239.40 kB │ gzip: 343.79 kB
+✓ built in 6.30s

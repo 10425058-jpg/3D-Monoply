@@ -80,9 +80,9 @@ Executed after resuming on Windows, Node 24.21.0:
 | Production (`npm run build`, including TypeScript) | Passed |
 | Solo store + frozen board/server catalog | 36 passed |
 | Online adapter/security/lifecycle | 17 passed |
-| Existing menu/presentation/camera/environment/asset suites | 64 passed |
+| Existing menu/presentation/camera/environment/asset suites | 65 passed |
 | Existing backend mini-v1 engine/session cleanup | 59 passed |
-| Total automated tests | **176 passed, 0 failed** |
+| Total automated tests | **177 passed, 0 failed** |
 | Live Solo browser | 18 captured scenarios, 12 rendered dice, restart and four equal-workload mounts passed |
 | Existing graphics browser | All 40 spaces at four desktop/tablet/phone sizes, mouse/touch, presets/top/reset/orbit/zoom and real purchase/end-turn passed |
 | Resilience browser | All-tier context restoration, normal token/dice animation and blocked optional font passed |
@@ -108,6 +108,13 @@ runs the first 19 regression cases against archived main source without modifyin
 the working tree: **8 pass and 11 fail**, reproducing the repaired defects. These
 red cases identify the prior behavior rather than failing V5. Reproduce with
 `node scripts/board-v5-baseline-rules.mjs`.
+
+The existing real-online CI check caught a static board-catalog import in the
+new event wording. The controller now receives read-only labels from the already
+authorized lazy match screen; waiting rooms load no gameplay catalog. A focused
+dependency-graph test reproduces that defect before repair in
+[waiting-room-before.txt](evidence/validation/waiting-room-before.txt), and guards
+the boundary locally as well as in the browser workflow.
 
 Useful commands:
 
@@ -164,10 +171,10 @@ change; clean Linux CI uses the normal build command.
 - Confirmed feedback: `src/presentation/PresentationProvider.tsx`,
   `animationMath.ts`, `effectEvents.ts`, `src/components/3d/GameplayEffects.tsx`,
   `src/components/ui/GameplayFeedback.tsx`, `src/utils/audio.ts`,
-  `src/online/onlineController.ts`.
+  `src/online/onlineController.ts`, `src/online/OnlineMatchScreen.tsx` (lazy label binding only).
 - QA: `src/game/useSoloAudit.ts`, `src/components/3d/GraphicsAudit.tsx`,
   `tests/solo-rules.test.ts`, `board-v5.test.ts`, `animations.test.mjs`,
-  `online.test.ts`, `tests/fixtures/board-catalog-main-v5.json`,
+  `online.test.ts`, `menu-loading.test.mjs`, `tests/fixtures/board-catalog-main-v5.json`,
   `scripts/board-v5-{regression,resilience,review,report,baseline-rules}.mjs`.
 - Delivery: `package.json`, `.github/workflows/ci.yml`, `.gitignore`, this report,
   its evidence and the rules audit. Pre-existing `.phase1-*` directories remain

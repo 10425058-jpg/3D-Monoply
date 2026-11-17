@@ -42,6 +42,12 @@ test('explicit Solo and verified-match modules retain the existing real 3D engin
     assert.ok(graph.packages.includes('three'));
   }
 });
+
+test('the online waiting-room graph excludes the gameplay board catalog and renderer', () => {
+  const graph = staticGraph('src/online/RoomScreen.tsx');
+  assert.deepEqual(graph.files.filter(file => /^src\/(data\/boardData\.ts|store\/useGameStore\.ts|components\/3d\/)/.test(file)), []);
+  assert.deepEqual(graph.packages.filter(name => /^(three|@react-three\/|canvas-confetti)/.test(name)), []);
+});
 test('the decorative menu image is a compact local JPEG, independent of game assets', () => {
   const bytes = readFileSync(path.join(root, 'public/assets/menu/fantasy-city-menu.jpg'));
   assert.equal(bytes.readUInt16BE(0), 0xffd8);

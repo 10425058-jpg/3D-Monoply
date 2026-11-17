@@ -18,6 +18,7 @@ const tokens = { accessToken: 'memory-only', csrfToken: 'csrf-in-memory', expire
 test('online rent feedback uses the committed server amount and UUID identities without mutating state',()=>{
   const manager=new SessionManager('',(async()=>json({})) as typeof fetch);
   const controller=new OnlineController(manager,'',{matchId:'match-a'},()=>{}),s=snapshot();
+  controller.setSpaceNames(new Map([[3,'Baltic Avenue']]));
   controller.state.setState({match:s});const original=structuredClone(s);
   const text=(controller as any).describeEvent('game:rent_paid',{payerPlayerId:'uuid-a',ownerPlayerId:'uuid-b',spaceId:3,amount:70});
   assert.equal(text,'Alice paid $70 rent to Bob for Baltic Avenue.');assert.deepEqual(controller.state.getState().match,original);controller.stop();
