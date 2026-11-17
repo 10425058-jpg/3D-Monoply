@@ -19,15 +19,17 @@ async function roll(a=1,b=2){
   await page.evaluate(faces=>{
     const randomFaces=[...faces],original=Math.random;Math.random=()=>{const value=(randomFaces.shift()-.5)/6;if(!randomFaces.length)Math.random=original;return value;};
     const observation=window.__v5DiceObservation={found:null,samples:[]},until=performance.now()+60000;
-    // Start in-page sampling BEFORE the input. A slow CDP click response must
-    // not make the test miss the entire existing 2.2s presentation window.
+    // Observe after R3F updates and renders each frame. A separate RAF can
+    // run before those updates and miss a short result on software WebGL.
+    const audit=window.__graphicsAudit,originalFrame=audit.frame;
     const observe=()=>{
       const state=window.__soloTest.state(),dice=window.__graphicsAudit.dice();
       const sample={stored:state.dice,rendered:dice,phase:state.turnPhase,at:performance.now()};
-      observation.samples.push(sample);if(observation.samples.length>60)observation.samples.shift();
+      if(observation.samples.length<120)observation.samples.push(sample);
       if(state.turnPhase!=='ROLLING'&&state.dice.every((v,i)=>v===faces[i])&&dice.every((d,i)=>d.visible&&d.up>.999&&d.face===faces[i]))observation.found=sample;
-      else if(performance.now()<until)requestAnimationFrame(observe);
-    };requestAnimationFrame(observe);
+      if(observation.found||performance.now()>=until)audit.frame=originalFrame;
+    };
+    audit.frame=()=>{originalFrame();queueMicrotask(observe);};
   },[a,b]);
   await page.click('[aria-label="Roll dice"]');
   // Optional stress case: retrieve all six face observations after the normal
@@ -40,12 +42,34 @@ async function roll(a=1,b=2){
   assert.deepEqual((await state()).dice,[a,b]);results.dice.push(observation);
 }
 async function footer(label){for(const b of await page.$$('footer button'))if(await b.evaluate((e,s)=>e.textContent.trim()===s,label)){await b.click();return;}throw Error(`Missing ${label}`);}
+async function debtAction(label){for(const b of await page.$$('.debt-resolution button'))if(await b.evaluate((e,s)=>e.textContent.trim()===s,label)){await b.click();return;}throw Error(`Missing ${label}`);}
 try{
   await page.goto(`${origin}/?graphicsAudit&soloTest#solo`);
   await wait(()=>window.__soloTest&&window.__graphicsAudit&&window.__centralCityAudit?.ready&&window.__phase2Environment?.ready);
   await fixture('opening');await capture('opening');
   const atlas=(await page.evaluate(()=>window.__graphicsAudit.board())).textures;
   assert.equal(atlas.length,1);assert.equal(atlas[0].width,1024);assert.ok(atlas[0].mipmaps);
+  // Warm the real money-effect path before measuring the short dice window.
+  // Its first font/shader upload can stall a software renderer for that whole
+  // window. Wait for completed frames after a verified payment, not a delay.
+  await fixture('rent',false);
+  await page.evaluate(()=>{
+    const faces=[1,2],original=Math.random;Math.random=()=>{const value=(faces.shift()-.5)/6;if(!faces.length)Math.random=original;return value;};
+    const audit=window.__graphicsAudit,originalFrame=audit.frame;
+    window.__moneyWarmupFrames=0;
+    audit.frame=()=>{originalFrame();queueMicrotask(()=>{
+      const state=window.__soloTest.state();
+      if(state.turnPhase==='END_TURN'&&state.players[0].money===1496){
+        window.__moneyWarmupFrames++;
+        if(window.__moneyWarmupFrames>=3)audit.frame=originalFrame;
+      }
+    });};
+  });
+  await page.click('[aria-label="Roll dice"]');
+  await wait(()=>window.__moneyWarmupFrames>=3);
+  assert.deepEqual((await state()).players.map(player=>player.money),[1496,1504,1500]);
+  results.rendererWarmup={renderedFrames:await page.evaluate(()=>window.__moneyWarmupFrames),verifiedRent:4};
+  console.log('Passed renderer warmup with committed rent and completed frames.');
   for(const [a,b] of [[1,2],[2,3],[3,1],[4,5],[5,6],[6,4]]){await fixture('opening',false);await pause(150);await roll(a,b);}
   await capture('dice-landing');
   await fixture('opening');await roll();await footer('Buy');
@@ -77,8 +101,8 @@ try{
   await fixture('opening');await roll();await footer('Auction');await wait(()=>!!document.querySelector('#auction-title'));
   await page.click('[aria-labelledby="auction-title"] button:nth-of-type(2)');await page.click('[aria-labelledby="auction-title"] button:nth-of-type(1)');await page.click('[aria-labelledby="auction-title"] button:nth-of-type(1)');
   s=await state();assert.equal(s.properties[3].ownerId,0);assert.equal(s.players[0].money,1490);await capture('auction-won');
-  await fixture('bankruptcy');await roll();await page.click('.debt-resolution .console-button.secondary');s=await state();assert.ok(s.players[0].isBankrupt);assert.equal(s.currentPlayerIndex,1);assert.equal(s.turnPhase,'PRE_ROLL');await capture('bankruptcy');
-  await fixture('victory');await roll();await page.click('.debt-resolution .console-button.secondary');await wait(()=>window.__soloTest.state().turnPhase==='GAME_OVER');await capture('victory');
+  await fixture('bankruptcy');await roll();await debtAction('Declare bankruptcy');s=await state();assert.ok(s.players[0].isBankrupt);assert.equal(s.currentPlayerIndex,1);assert.equal(s.turnPhase,'PRE_ROLL');await capture('bankruptcy');
+  await fixture('victory');await roll();await debtAction('Declare bankruptcy');await wait(()=>window.__soloTest.state().turnPhase==='GAME_OVER');await capture('victory');
   assert.equal(await page.$eval('[aria-label="Roll dice"]',e=>e.disabled),true);
   await fixture('six-players');await pause(300);const positions=(await page.evaluate(()=>window.__graphicsAudit.actors())).tokens.map(t=>t.position);assert.equal(new Set(positions.map(p=>`${p[0]},${p[2]}`)).size,6);await capture('six-player-start');
   await fixture('ai');await roll();await footer('Buy');await footer('End Turn');await wait(()=>window.__soloTest.state().currentPlayerIndex!==0);

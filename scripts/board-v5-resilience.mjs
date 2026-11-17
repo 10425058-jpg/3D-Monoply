@@ -32,6 +32,7 @@ try{
   const samples=[];for(let i=0;i<65;i++){samples.push(await motion.evaluate(()=>({phase:window.__soloTest.state().turnPhase,token:window.__graphicsAudit.actors().tokens[0].position})));if(samples.at(-1).phase==='LANDED_ACTION')break;await pause(35);}
   assert.ok(samples.some(s=>s.phase==='ROLLING'));assert.ok(samples.some(s=>s.phase==='MOVING'));assert.ok(samples.some(s=>s.token[1]>.38),'actual rendered token hops above its surface');
   await motion.waitForFunction(()=>window.__soloTest.state().turnPhase==='LANDED_ACTION',{timeout:60000});
+  await motion.waitForFunction(()=>window.__graphicsAudit.dice().every((die,index)=>die.face===[3,5][index]&&die.up>.999),{timeout:60000});
   const final=await motion.evaluate(()=>({state:window.__soloTest.state(),dice:window.__graphicsAudit.dice(),actors:window.__graphicsAudit.actors()}));
   assert.equal(final.state.players[0].position,8);assert.equal(final.state.players[0].money,1500);assert.deepEqual(final.dice.map(d=>d.face),[3,5]);
   results.motion={samples,final};await motion.screenshot({path:`${out}/normal-motion-dice.png`});await motion.close();console.log('Passed normal token and dice motion.');

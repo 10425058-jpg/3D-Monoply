@@ -433,6 +433,10 @@ test('card nearest_utility: unowned can be bought; owned charges 10x the same di
   let r = chance('ch_4'); // 7 -> 12
   assert.equal(p(r.state, 0).position, 12);
   assert.equal(r.state.pendingPurchaseSpaceId, 12);
+  assert.equal(p(r.state, 0).money, 1500);
+  r = chance('ch_4', (s) => { s.owners[12] = 'p0'; });
+  assert.equal(p(r.state, 0).money, 1500, 'no rent on your own utility');
+  assert.equal(r.state.turnPhase, 'END_TURN');
   r = chance('ch_4', (s) => {
     s.owners[12] = 'p1'; // only one utility owned, still 10x for the card
   });

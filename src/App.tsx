@@ -96,6 +96,7 @@ export const App: React.FC = () => {
 
   const activePlayer = game.players[game.currentPlayerIndex];
   const debtPlayer = game.players.find(p=>p.id===(game.pendingDebt?.debtorId??activePlayer?.id));
+  const tradePlayer = game.turnPhase === 'DEBT_RESOLUTION' ? debtPlayer : activePlayer;
   const tradeProposal = useRef('');
   const {reducedMotion,visible}=useMotionPreferences();
   useEffect(()=>{
@@ -114,25 +115,25 @@ export const App: React.FC = () => {
     : game.players.find((player) => player.id === selectedState.ownerId);
 
   const rivalPlayers = useMemo(
-    () => game.players.filter((player) => !player.isBankrupt && player.id !== activePlayer?.id),
-    [game.players, activePlayer?.id]
+    () => game.players.filter((player) => !player.isBankrupt && player.id !== tradePlayer?.id),
+    [game.players, tradePlayer?.id]
   );
 
   const myTradableProperties = useMemo(() => {
-    if (!activePlayer) return [];
+    if (!tradePlayer) return [];
     return BOARD_SPACES.filter((space) => {
       const state = game.properties[space.id];
-      return state?.ownerId === activePlayer.id && !state.isMortgaged && (state.houses ?? 0) === 0;
+      return state?.ownerId === tradePlayer.id && !state.isMortgaged && (state.houses ?? 0) === 0;
     });
-  }, [activePlayer, game.properties]);
+  }, [tradePlayer, game.properties]);
 
   const rivalTradableProperties = useMemo(() => {
-    if (!activePlayer) return [];
+    if (!tradePlayer) return [];
     return BOARD_SPACES.filter((space) => {
       const state = game.properties[space.id];
       return state?.ownerId === tradeTargetId && !state.isMortgaged && (state.houses ?? 0) === 0;
     });
-  }, [activePlayer, tradeTargetId, game.properties]);
+  }, [tradePlayer, tradeTargetId, game.properties]);
 
   const todayKey = localDateKey();
   const dailyClaimedToday = game.metaProgress.lastDailyClaimDate === todayKey;
@@ -220,7 +221,7 @@ export const App: React.FC = () => {
   }, [game.gameId, autoRoll, activePlayer?.id, activePlayer?.isAI, game.turnPhase, game.railroadRaid, game.pendingTrade, game.gameSpeed, game.winner, showTradeModal, showMetaHub, showRules, showSetup]);
 
   const openTrade = () => {
-    if (!activePlayer || activePlayer.isAI || game.winner || game.pendingTrade || game.railroadRaid || !['PRE_ROLL','LANDED_ACTION','END_TURN'].includes(game.turnPhase)) return;
+    if (!tradePlayer || tradePlayer.isAI || tradePlayer.isBankrupt || game.winner || game.pendingTrade || game.railroadRaid || !['PRE_ROLL','LANDED_ACTION','END_TURN','DEBT_RESOLUTION'].includes(game.turnPhase)) return;
     tradeProposal.current=`${game.gameId}-${crypto.randomUUID()}`;
     setTradeTargetId(rivalPlayers[0]?.id ?? 1);
     setTradePropertyId(myTradableProperties[0] ? String(myTradableProperties[0].id) : '');
@@ -232,12 +233,12 @@ export const App: React.FC = () => {
   };
 
   const handleTradeSubmit = () => {
-    if (useGameStore.getState().gameId!==game.gameId || !activePlayer || !rivalPlayers.some((player) => player.id === tradeTargetId)) return;
+    if (useGameStore.getState().gameId!==game.gameId || !tradePlayer || !rivalPlayers.some((player) => player.id === tradeTargetId)) return;
     const offerCash = Math.max(0, Math.floor(Number(tradeOfferCash) || 0));
     const requestCash = Math.max(0, Math.floor(Number(tradeRequestCash) || 0));
     const offer: TradeOffer = {
       proposalId: tradeProposal.current,
-      fromPlayerId: activePlayer.id,
+      fromPlayerId: tradePlayer.id,
       toPlayerId: tradeTargetId,
       offerCash,
       requestCash,
@@ -266,7 +267,7 @@ export const App: React.FC = () => {
   return (
     <main className="monopoly-app">
       <GameplayFeedback />
-      <SoloDecisions />
+      <SoloDecisions onOpenTrade={openTrade} tradeOpen={showTradeModal} />
       {/* 3D Scene Layer */}
       <div className="world-layer">
         <Scene3D quality={graphicsQuality} />
@@ -320,14 +321,14 @@ export const App: React.FC = () => {
       {/* 7. GAME MODALS                                                 */}
       {/* ============================================================== */}
       {/* Trade Modal */}
-      {showTradeModal && activePlayer && !activePlayer.isAI && (
+      {showTradeModal && tradePlayer && !tradePlayer.isAI && (
         <div className="modal-backdrop">
           <section className="game-modal trade-modal" role="dialog" aria-modal="true" aria-labelledby="trade-title">
             <button className="modal-close" onClick={() => setShowTradeModal(false)} aria-label="Close trade"><X size={18} /></button>
             <div className="modal-ornament"><Coins size={24} /></div>
             <div className="eyebrow">NEGOTIATION DESK</div>
             <h2 id="trade-title">Propose a trade</h2>
-            <p>Exchange cash and one property from each side. The rival evaluates the full offer, including color-set value.</p>
+            <p>{tradePlayer.name} can exchange cash and one property from each side. The recipient must accept the offer.</p>
             {rivalPlayers.length === 0 ? (
               <p>No rival is available to trade with.</p>
             ) : (
@@ -361,18 +362,18 @@ export const App: React.FC = () => {
                 <div className="trade-cash-grid">
                   <label className="trade-field">
                     <span>Your cash offer</span>
-                    <input type="number" min="0" step="10" max={activePlayer.money} value={tradeOfferCash} onChange={(event) => setTradeOfferCash(event.target.value)} />
+                    <input type="number" min="0" step="1" max={tradePlayer.money} value={tradeOfferCash} onChange={(event) => setTradeOfferCash(event.target.value)} />
                   </label>
                   <label className="trade-field">
                     <span>Ask for cash</span>
-                    <input type="number" min="0" step="10" value={tradeRequestCash} onChange={(event) => setTradeRequestCash(event.target.value)} />
+                    <input type="number" min="0" step="1" value={tradeRequestCash} onChange={(event) => setTradeRequestCash(event.target.value)} />
                   </label>
                 </div>
                 {tradeFeedback && <div className={`trade-feedback ${tradeFeedback.includes('accepted') ? 'is-success' : 'is-warning'}`}>{tradeFeedback}</div>}
                 <div className="trade-modal-actions">
                   <button className="console-button secondary" onClick={() => setShowTradeModal(false)}>Cancel</button>
                   <button className="console-button primary" disabled={
-                    Number(tradeOfferCash) > activePlayer.money ||
+                    Number(tradeOfferCash) > tradePlayer.money ||
                     (!tradePropertyId && !tradeRequestPropertyId && Number(tradeOfferCash) <= 0 && Number(tradeRequestCash) <= 0)
                   } onClick={handleTradeSubmit}>
                     Send offer <ArrowRight size={14} />

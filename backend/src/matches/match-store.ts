@@ -35,6 +35,14 @@ export async function loadMatch(db: Db, matchId: string) {
 
 export type LoadedMatch = NonNullable<Awaited<ReturnType<typeof loadMatch>>>;
 
+/** Use post-action solvency and the presence protected by the same match lock. */
+export function nextAllPlayersOfflineSince(before: LoadedMatch, next: EngineState, now: Date): Date | null {
+  if (isTerminal(next.status)) return null;
+  const survivors = new Set(next.players.filter(player => !player.isBankrupt).map(player => player.playerId));
+  const someoneConnected = before.players.some(player => survivors.has(player.id) && player.connectionStatus === 'CONNECTED');
+  return someoneConnected ? null : before.allPlayersOfflineSince ?? now;
+}
+
 const stringArray = (value: unknown): string[] => (Array.isArray(value) ? value.filter((v): v is string => typeof v === 'string') : []);
 
 /** Database rows -> rules-engine state (includes the secret deck order). */
@@ -104,6 +112,7 @@ export async function saveEngineState(tx: Db, before: LoadedMatch, next: EngineS
       pausedAt: paused ? before.pausedAt : null,
       pauseReason: paused ? before.pauseReason : null,
       endedAt: ended ? now : null,
+      allPlayersOfflineSince: nextAllPlayersOfflineSince(before, next, now),
     },
   });
 

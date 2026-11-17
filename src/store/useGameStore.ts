@@ -80,7 +80,7 @@ interface GameStore {
 
   // Core Gameplay Actions
   rollDice: () => void;
-  upgradeLandmark: () => void;
+  upgradeLandmark: (expectedLevel?: number, expectedPlayerId?: number) => void;
   startBankHeist: () => void;
   resolveBankHeist: (vaultIndex: number) => void;
   shutdownLandmark: (targetPlayerId: number) => void;
@@ -95,7 +95,7 @@ interface GameStore {
   useJailCard: () => void;
   buyCurrentProperty: () => void;
   auctionCurrentProperty: () => void;
-  placeAuctionBid: (increment?: number, bidderId?: number) => void;
+  placeAuctionBid: (increment?: number, bidderId?: number, expectedCurrentBid?: number) => void;
   passAuction: (bidderId?: number) => void;
   declineProperty: () => void;
   applyActiveCard: () => void;
@@ -750,10 +750,12 @@ export const useGameStore = create<GameStore>((set, get) => {
       return 400 + player.landmarkLevel * 350;
     },
 
-    upgradeLandmark: () => {
+    upgradeLandmark: (expectedLevel, expectedPlayerId) => {
       const state = get();
       const player = state.players[state.currentPlayerIndex];
       if (!player || player.isBankrupt || player.landmarkLevel >= 5) return;
+      if (expectedLevel !== undefined && player.landmarkLevel !== expectedLevel) return;
+      if (expectedPlayerId !== undefined && player.id !== expectedPlayerId) return;
       if (state.railroadRaid || state.pendingTrade || state.winner) return;
       if (state.turnPhase !== 'PRE_ROLL' && state.turnPhase !== 'END_TURN') return;
       const cost = get().landmarkUpgradeCost(player.id);
@@ -1053,10 +1055,11 @@ export const useGameStore = create<GameStore>((set, get) => {
       addLog(`Auction started for ${space.name}. Opening bid is $10.`, 'property');
     },
 
-    placeAuctionBid: (increment = 10, expectedBidderId) => {
+    placeAuctionBid: (increment = 10, expectedBidderId, expectedCurrentBid) => {
       const state = get();
       const auction = state.auction;
       if (!auction || state.turnPhase !== 'AUCTION') return;
+      if (expectedCurrentBid !== undefined && expectedCurrentBid !== auction.currentBid) return;
       const bidderId = auction.currentBidderId;
       const bidder = state.players.find((candidate) => candidate.id === bidderId);
       if (!bidder || bidder.isBankrupt) return;
