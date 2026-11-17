@@ -57,6 +57,7 @@
 .panel-seal { display: flex; gap: 8px; align-items: center; justify-content: center; color: #dcb676; margin-top: 12px; }
 .panel-seal span { width: 40px; height: 1px; background: #98704e; }
 .players-collapse { display: none; }
+.fantasy-players .players-content { max-height: calc(100dvh - 260px); overflow-y: auto; scrollbar-width: thin; }
 .landmark-upgrade { display: grid; gap: 6px; margin-bottom: 12px; padding: 10px; border: 1px solid #8d5f8b; border-radius: 12px; background: #321b48; color: #f8dfa6; }
 .landmark-upgrade strong { font-size: 12px; }
 .landmark-upgrade p { margin: 0; font-size: 11px; line-height: 1.4; }

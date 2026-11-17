@@ -120,6 +120,19 @@ try {
   await page.setViewport({width: 1440, height: 900});
   passed.push('S-03 reachable landmark upgrade, price and GO income on desktop and mobile');
 
+  await fixture('six-players');
+  await wait(() => document.querySelectorAll('.kingdom-player').length === 6);
+  assert.equal(await page.evaluate(() => document.querySelector('.fantasy-players').getBoundingClientRect().bottom <= document.querySelector('.action-tray').getBoundingClientRect().top), true, 'player panel clears the action tray');
+  await page.hover('.players-content');
+  await page.mouse.wheel({deltaY: 800});
+  await wait(() => {
+    const panel = document.querySelector('.players-content').getBoundingClientRect();
+    const last = document.querySelector('.kingdom-player:last-child').getBoundingClientRect();
+    return last.top >= panel.top && last.bottom <= panel.bottom;
+  });
+  await page.screenshot({path: `${output}/six-player-panel.png`});
+  passed.push('S-03 all six players remain reachable above the action tray');
+
   for (const ownership of ['unowned', 'self', 'opponent']) {
     await fixture(`utility-${ownership}`);
     await wait(() => !!document.querySelector('.card-reveal'));
