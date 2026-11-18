@@ -1,0 +1,15 @@
+{
+  "before": "docs\\final-background-overhaul\\evidence\\before\\overview.png",
+  "after": "docs\\final-background-overhaul\\evidence\\after\\overview.png",
+  "rectangle": [
+    560,
+    190,
+    460,
+    480
+  ],
+  "pixels": 220800,
+  "changedPixels": 0,
+  "maxChannelDelta": 0,
+  "meanAbsoluteChannelDelta": 0.0,
+  "pixelIdentical": true
+}

@@ -19,7 +19,7 @@ export function finishEnvironmentMaterial(source: THREE.Material, atmosphere: nu
   const foliage=kind==='Deep evergreen foliage',blossom=kind==='Sakura blossom clusters';
   const roof=kind==='Royal blue glazed slate';
   const stone=kind==='Ivory limestone'||kind==='Carved sandstone';
-  const palette=scenic?(grass?[.66,.85,.54]:rock?[.72,.71,.88]:foliage?[.66,.85,.68]:
+  const palette=scenic?(grass?[.79,.88,.55]:rock?[.76,.73,.88]:foliage?[.66,.85,.68]:
     roof?[.60,.80,1.10]:blossom?[1.06,.83,.97]:[1.05,.99,.92]):
     (grass?[.60,.84,.49]:rock?[.72,.68,.83]:foliage?[.66,.86,.67]:roof?[.54,.76,1.12]:blossom?[1.10,.72,.90]:[1.04,.96,.85]);
   color.multiply(new THREE.Color().setRGB(...palette as [number,number,number]));
@@ -58,6 +58,12 @@ export function finishEnvironmentMaterial(source: THREE.Material, atmosphere: nu
         if(uSurface.x+uSurface.w>0.){
           float patches=sin(vWorld.x*.73+sin(vWorld.z*.41))*sin(vWorld.z*.53-vWorld.x*.17);
           albedo*=1.+patches*(uSurface.x*.10+uSurface.w*.06);
+          if(uScenic>.5&&uSurface.x>0.){
+            // Broad meadow growth zones read from the real play camera. Dark
+            // clover hollows alternate with warmer sunlit grass shoulders.
+            float growth=.5+.5*sin(vWorld.x*.61+sin(vWorld.z*.47)*1.8)*sin(vWorld.z*.77-vWorld.x*.21);
+            albedo*=mix(vec3(.69,.83,.74),vec3(1.14,1.08,.83),smoothstep(.12,.88,growth));
+          }
         }else if(uSurface.y>0.){
           float strata=sin(vWorld.y*5.4+sin(vWorld.x*1.3+vWorld.z*.72)*.65);
           albedo*=1.+strata*uSurface.y*.075;
@@ -70,15 +76,24 @@ export function finishEnvironmentMaterial(source: THREE.Material, atmosphere: nu
         if(uScenic>.5){
           // Wide soft sky fill lifts small architectural recesses while the
           // original vertex-baked contact shading still anchors every prop.
-          float wrapped=clamp((dot(n,uSun)+.22)/1.22,0.,1.);
-          light=mix(vec3(.24,.23,.39),vec3(.43,.52,.73),sky)*.66+vec3(1.59,1.22,.84)*wrapped;
+          float wrapped=clamp((dot(n,uSun)+.14)/1.14,0.,1.);
+          light=mix(vec3(.24,.23,.39),vec3(.43,.52,.73),sky)*.54+vec3(1.68,1.26,.86)*wrapped;
+          // Warm reflected meadow light underneath ledges; the cool skylight
+          // above keeps limestone, mineral cliffs and foliage distinct.
+          light+=vec3(.085,.048,.035)*(1.-sky);
           if(uStone>.5){
             float grain=sin(vWorld.x*13.+vWorld.z*7.)*sin(vWorld.y*19.-vWorld.x*3.);
-            albedo*=.99+grain*.012;
+            albedo*=.99+grain*.022;
           }
         }
         vec3 viewDirection=normalize(cameraPosition-vWorld);
-        float shine=pow(max(0.,dot(n,normalize(uSun+viewDirection))),mix(64.,14.,uRoughness));
+        float surfaceRoughness=uRoughness;
+        if(uScenic>.5&&uSurface.z>0.){
+          // The real slate plates provide relief; this bounded glaze variation
+          // stops every course catching an identical plastic highlight.
+          surfaceRoughness=clamp(uRoughness+sin(vWorld.y*13.+vWorld.x*3.)*.065,.22,.9);
+        }
+        float shine=pow(max(0.,dot(n,normalize(uSun+viewDirection))),mix(64.,14.,surfaceRoughness));
         vec3 lit=albedo*light+uEmission*vec3(1.08,.78,.43)+vec3(1.,.73,.40)*shine*(.035+uMetallic*.42+uSurface.z*.10)*(1.-uRoughness*.6);
         if(uSurface.w>0.){
           float backlight=pow(clamp(1.-dot(n,viewDirection),0.,1.),3.);

@@ -15,7 +15,7 @@ export function FantasySky({ quality = 'balanced' }: { animate: boolean; quality
   const sunRef=useRef<THREE.Mesh>(null);
   const sunDirection=useMemo(()=>new THREE.Vector3(...SKY_SUN_DIRECTION),[]);
   const target=useMemo(()=>{
-    const width=quality==='low'?512:quality==='high'?1536:1024;
+    const width=quality==='low'?1024:quality==='high'?3072:2048;
     const result=new THREE.WebGLRenderTarget(width,width/2,{depthBuffer:false,stencilBuffer:false,
       format:THREE.RGBAFormat,type:THREE.UnsignedByteType,minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter});
     result.texture.colorSpace=THREE.NoColorSpace;
@@ -81,7 +81,11 @@ export function FantasySky({ quality = 'balanced' }: { animate: boolean; quality
           float edge=max(fwidth(sd),.000001),disc=smoothstep(uCosRadius-edge,uCosRadius+edge,sd);
           if(disc<.001)discard;
           float center=1.-clamp(max(0.,2.*(1.-sd))/uRadiusSq,0.,1.);
-          gl_FragColor=vec4(mix(vec3(1.8,.91,.28),vec3(3.1,2.45,1.25),center*(1.62-.62*center)),1.);
+          float altitude=clamp((d.y-uSun.y)/sqrt(uRadiusSq)*.5+.5,0.,1.);
+          // Solar limb darkening and the warmer lower atmosphere retain a
+          // round luminous body inside the baked three-scale aureole.
+          float limb=sqrt(center)*(.76+.24*altitude);
+          gl_FragColor=vec4(mix(vec3(1.72,.77,.24),vec3(2.8,2.12,1.12),limb),1.);
           #include <tonemapping_fragment>
           #include <colorspace_fragment>
           vec2 uv=vec2(fract(atan(d.z,-d.x)/6.28318530718+1.),asin(clamp(d.y,-1.,1.))/3.14159265359+.5);

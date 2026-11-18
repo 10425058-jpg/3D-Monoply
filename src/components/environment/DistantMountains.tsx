@@ -13,15 +13,16 @@ export function DistantMountains({quality}:{quality:EnvironmentQuality}){
     const patches=mountainPatches();
     patches.forEach(patch=>{
       const offset=positions.length/3,layer=MOUNTAIN_LAYERS[patch.layer];
-      const baseColor=new THREE.Color(layer.color),summit=new THREE.Color('#c5c8e3');
+      const baseColor=new THREE.Color(layer.color).lerp(new THREE.Color('#b0a0d2'),.23),summit=new THREE.Color('#f0ccda');
       for(let row=0;row<=rows;row++)for(let col=0;col<=columns;col++){
         const u=col/columns*2-1,v=row/rows*2-1;
         const height=massifHeight(u,v,patch),radius=patch.radius+v*patch.depth/2;
         positions.push(Math.sin(patch.angle)*radius+Math.cos(patch.angle)*u*patch.width/2,height,
           Math.cos(patch.angle)*radius-Math.sin(patch.angle)*u*patch.width/2);
         const relief=Math.max(0,(height-patch.base)/patch.height);
-        const sediment=.98+Math.sin(u*22+v*7+patch.seed)*.018;
-        const tint=baseColor.clone().lerp(summit,Math.pow(relief,2)*.31).multiplyScalar(sediment);
+        const ravine=Math.pow(.5+.5*Math.sin(u*23+v*8+Math.sin(v*11+patch.seed)*1.3),5);
+        const sediment=1.01-ravine*.065*(1-relief*.55);
+        const tint=baseColor.clone().lerp(summit,Math.pow(relief,2)*.42).multiplyScalar(sediment);
         colors.push(tint.r,tint.g,tint.b);
         const feather=Math.min(1,(1-Math.abs(u))*5,(1-Math.abs(v))*5);
         opacity.push(layer.opacity*Math.max(0,feather));
@@ -35,7 +36,7 @@ export function DistantMountains({quality}:{quality:EnvironmentQuality}){
     result.computeVertexNormals();result.computeBoundingSphere();
     const normals=result.getAttribute('normal'),tint=result.getAttribute('color');
     const sun=new THREE.Vector3(-.48,.72,.56).normalize(),warm=new THREE.Color('#e8b8a1');
-    const snow=new THREE.Color('#e0ddea'),haze=new THREE.Color('#b1a7d1');
+    const snow=new THREE.Color('#f0dbe5'),haze=new THREE.Color('#c6abd8');
     const verticesPerPatch=(columns+1)*(rows+1);
     for(let i=0;i<tint.count;i++){
       const normal=new THREE.Vector3().fromBufferAttribute(normals,i);
@@ -45,9 +46,12 @@ export function DistantMountains({quality}:{quality:EnvironmentQuality}){
       const relief=Math.max(0,(positions[i*3+1]-patch.base)/patch.height);
       // Cool broad shadow faces, peach shoulders and a restrained pale summit
       // separate the existing ridges without adding terrain or texture passes.
-      color.multiplyScalar(.55+facing*.53).lerp(warm,Math.pow(facing,4)*.11);
-      color.lerp(snow,THREE.MathUtils.smoothstep(relief,.62,.94)*Math.max(0,normal.y)*.21);
-      color.lerp(haze,(3-patch.layer)*.045);
+      color.multiplyScalar(.72+facing*.43).lerp(warm,Math.pow(facing,3)*.16);
+      // Broken snow/limestone shoulders follow the summit's fold, avoiding a
+      // uniform white cap on each repeated patch of distant terrain.
+      const snowline=.66+Math.sin(positions[i*3]*.17+positions[i*3+2]*.11)*.055;
+      color.lerp(snow,THREE.MathUtils.smoothstep(relief,snowline,.98)*Math.max(0,normal.y)*.29);
+      color.lerp(haze,(3-patch.layer)*.065);
       tint.setXYZ(i,color.r,color.g,color.b);
     }
     return result;

@@ -220,6 +220,10 @@ class GLB:
 
     def inspect(self, profile="environment"):
         central = profile == "central-city"
+        final_background = profile == "final-background" or '-final-v1' in self.path.stem
+        require(not final_background or self.path.stem.split('-final-v1')[0] in
+                {'royal-island-left','royal-island-right','royal-island-citadel','sky-garden','sky-windmill'},
+                "final background profile is restricted to the five authored scenic families")
         require(not central or self.path.name.startswith("central-royal-district"), "central profile is restricted to the authored district family")
         doc = self.doc
         require(doc.get("asset", {}).get("version") == "2.0", "glTF version must be 2.0")
@@ -228,7 +232,7 @@ class GLB:
         require(not doc.get("cameras") and not doc.get("animations") and not doc.get("skins"), "static environment asset contains camera, animation or skin")
         require("KHR_lights_punctual" not in doc.get("extensionsUsed", []), "static asset exports lights")
         require(not doc.get("extensionsRequired"), "unexpected required decoder or extension")
-        require(len(self.raw) <= (8 if central else 3) * 1024 * 1024, "asset exceeds selected profile byte budget")
+        require(len(self.raw) <= (8 if central else 4 if final_background else 3) * 1024 * 1024, "asset exceeds selected profile byte budget")
         for index in range(len(doc.get("bufferViews", []))):
             self.view(index)
         for index in range(len(doc.get("accessors", []))):
@@ -372,7 +376,7 @@ class GLB:
             require(-.5 <= bounds_min[1] < .3 and bounds_max[1] < 10.8, "central district exceeds camera-safe vertical bounds")
             require(len(images) == 1, "central district requires one shared embedded atlas")
         elif name.startswith("royal-island"):
-            budget = 8000 if "distant" in name else 16000 if "low" in name else 25000 if "balanced" in name else 40000
+            budget = (24000 if "low" in name else 38000 if "balanced" in name else 55000) if final_background else (8000 if "distant" in name else 16000 if "low" in name else 25000 if "balanced" in name else 40000)
             require(8 <= extent[0] <= 40 and 5 <= extent[2] <= 40 and 3 <= extent[1] <= 32,
                     "island export bounds do not match metre-scale authored footprint")
             require(bounds_min[1] < 0 < bounds_max[1], "island origin must sit between cliff underside and architecture")
@@ -385,7 +389,7 @@ class GLB:
             budget = 8000 if "low" in name else 20000
             require(3 <= max(extent) <= 20, "castle has incorrect metre scale")
         else:
-            budget = 12000
+            budget = (12000 if "low" in name else 15000 if "balanced" in name else 18000) if final_background else 12000
             require(.1 <= max(extent) <= 30, "prop has incorrect metre scale")
         require(instance_triangles <= budget, f"triangle budget exceeded: {instance_triangles} > {budget}")
         require(drawn_primitives <= (64 if central else 24), "asset exceeds selected primitive draw budget")
@@ -408,7 +412,7 @@ def main():
     parser.add_argument("files", type=Path, nargs="*", help="GLB files, defaults to generated environment directory")
     parser.add_argument("--output", type=Path, help="write the complete inspection JSON")
     parser.add_argument("--manifest", type=Path, help="verify generation receipt names, byte counts, triangles, hashes and bounds")
-    parser.add_argument("--profile", choices=["environment", "central-city"], default="environment", help="explicit bounded asset policy")
+    parser.add_argument("--profile", choices=["environment", "central-city", "final-background"], default="environment", help="explicit bounded asset policy")
     args = parser.parse_args()
     files = args.files or sorted(DEFAULT_DIRECTORY.glob("*.glb"))
     require(files, f"no generated GLB artifacts found in {DEFAULT_DIRECTORY}")
