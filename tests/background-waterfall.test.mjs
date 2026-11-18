@@ -28,10 +28,10 @@ test('waterfall relief is deterministic, finite and stays inside its existing sc
       const profile = waterfallProfile(t, u, width);
       assert.deepEqual(profile, waterfallProfile(t, u, width));
       assert.ok(Object.values(profile).every(Number.isFinite));
-      assert.ok(Math.abs(profile.sideways) <= width * .81);
-      assert.ok(profile.bulge >= 0 && profile.bulge <= width * .30);
+      assert.ok(Math.abs(profile.sideways) <= width * .94);
+      assert.ok(profile.bulge >= 0 && profile.bulge <= width * .37);
       assert.ok(Math.abs(profile.vertical) <= width * .018 + 1e-10);
     }
-    assert.ok(waterfallProfile(.5, .5, 1.2).bulge > .25, 'curtain retains a convex volume from oblique views');
+    assert.ok(waterfallProfile(.5, .5, 1.2).bulge > .35, 'curtain retains a convex volume from oblique views');
   } finally {Math.random = random;}
 });

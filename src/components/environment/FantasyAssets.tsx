@@ -3,9 +3,9 @@ import type { EnvironmentPlacement } from './GltfEnvironmentModel';
 import type { EnvironmentQuality } from './environmentLayout';
 
 const REFINED_MODELS=new Set(['royal-island-left','royal-island-right','royal-island-citadel','crown-foundation']);
-const SCENIC_MODELS=new Set(['royal-island-left','royal-island-right','royal-island-citadel']);
+const SCENIC_MODELS=new Set(['royal-island-left','royal-island-right','royal-island-citadel','sky-garden','sky-windmill']);
 export const qualityAsset = (id: string, quality: EnvironmentQuality | 'distant') =>
-  `${quality!=='distant'&&SCENIC_MODELS.has(id)?`${id}-background-v1`:quality!=='distant'&&REFINED_MODELS.has(id)?`${id}-v4`:id}${quality === 'high' ? '' : `-${quality}`}.glb`;
+  `${quality!=='distant'&&SCENIC_MODELS.has(id)?`${id}-final-v1`:quality!=='distant'&&REFINED_MODELS.has(id)?`${id}-v4`:id}${quality === 'high' ? '' : `-${quality}`}.glb`;
 
 export function FloatingIsland({ variant, quality, placements }: {
   variant: 'left' | 'right'; quality: EnvironmentQuality | 'distant'; placements: readonly EnvironmentPlacement[];

@@ -66,18 +66,22 @@ export function FloatingClouds({ quality, animate }: { quality:EnvironmentQualit
           vec2 cell=vec2(mod(vData.x,4.),floor(vData.x/4.));
           vec4 cloud=texture2D(uCloud,(cell+clamp(uv,.008,.992))/vec2(4.,2.));
           float edge=smoothstep(0.,.035,uv.x)*smoothstep(0.,.035,1.-uv.x);
-          float alpha=pow(cloud.a,1.12)*vData.y*edge;
+          // Tighter density leaves clear windows between lit cloud crowns;
+          // the soft outer envelope still conceals the billboard boundary.
+          float alpha=pow(cloud.a,1.27)*vData.y*edge;
           if(alpha<.002)discard;
           // Retain the offline volume shading: lavender bases and cream-lit
           // tops connect the nearby banks to the baked, sunward cloud horizon.
-          vec3 color=max(vec3(0.),(cloud.rgb-.30)*1.13+.28);
+          vec3 color=max(vec3(0.),(cloud.rgb-.30)*1.18+.30);
           float top=smoothstep(.14,.90,uv.y);
-          color*=mix(vec3(.82,.80,1.02),vec3(1.10,1.04,1.01),top);
+          color*=mix(vec3(.87,.75,1.09),vec3(1.23,1.05,.99),top);
           float edgeLight=pow(1.-cloud.a,.65)*top;
-          color+=vec3(.11,.075,.045)*edgeLight*(.3+vWarm*.7);
-          color=mix(color,color*vec3(1.16,1.03,.91),vWarm*.55);
-          float aerial=smoothstep(70.,210.,vDistance)*.18;
-          color=mix(color,vec3(.69,.57,.78),aerial);
+          color+=vec3(.22,.115,.065)*edgeLight*(.4+vWarm*.6);
+          color=mix(color,color*vec3(1.18,1.04,.91),vWarm*.55);
+          // Far banks approach the rose horizon; the nearer cream crowns keep
+          // their density and lavender shaded bases rather than a gray veil.
+          float aerial=smoothstep(80.,230.,vDistance)*.23;
+          color=mix(color,vec3(.83,.60,.82),aerial);
           gl_FragColor=vec4(color,alpha);
           #include <tonemapping_fragment>
           #include <colorspace_fragment>

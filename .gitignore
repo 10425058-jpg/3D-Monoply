@@ -38,6 +38,9 @@ dist-ssr
 
 # Blender/Python local caches
 __pycache__/
+.final-*
+docs/final-background-overhaul/evidence/checkpoint/
+docs/final-background-overhaul/evidence/regression/context-*.png
 *.pyc
 *.blend1
 .audit-master-baseline/

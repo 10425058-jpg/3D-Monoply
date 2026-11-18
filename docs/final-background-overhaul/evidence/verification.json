@@ -1,0 +1,43 @@
+{
+  "baseCommit": "b30bb88b231f95715b7433febc64f118bda80d67",
+  "build": "npm.cmd run build passed",
+  "unitTests": {
+    "passed": 78,
+    "failed": 0,
+    "suites": [
+      "13 original environment asset tests",
+      "51 gameplay and scenic material tests",
+      "14 atmosphere, waterfall, previous-source and final-asset tests"
+    ]
+  },
+  "finalAssets": 15,
+  "matchedBrowserViews": 9,
+  "pairedPerformanceRuns": 12,
+  "boardIdenticalPixels": 220800,
+  "browserChecks": {
+    "motion": true,
+    "fourMountsAndAssetFallbacks": true,
+    "allQualityContextRestore": true,
+    "pointerTouchAndGameplaySmoke": true
+  },
+  "screenshotsSha256": {
+    "evidence/before/fantasy-world.png": "127572b4646d47179ccaf388cf7634172ae6c91557aec74744d176d8d82df41b",
+    "evidence/before/island-left.png": "c993df295c4d48a8916be8d1c75bd85f344b35560c2b2bc12f16efb449494bd1",
+    "evidence/before/island-right.png": "1628a66e2b27256318f8e3eef0235bd455e5db8e6ce2aeb91d5ce9f11b8aeb9e",
+    "evidence/before/landscape.png": "cb5bbf280c1e3b9911e6b1f878717757b47436e2bd84f853997e03ff54c28d2c",
+    "evidence/before/overview.png": "981739fa1a7254165e6b7d1a6a0dea301e19e4b9634fd70217ff8afc29821a93",
+    "evidence/before/phone.png": "c6eaa34164f18d2030002bd84fa4924b4b075d79d5f6c814038c532cb51136fe",
+    "evidence/before/sky-depth.png": "83878c652f4a336d2a4f67616945b056d3a57437386d4b0a56bf4d6d73f2908e",
+    "evidence/before/waterfall.png": "982c48ced6e78bf9846218014019cfa2e5f256f0b87d5cb79958c50b9316a881",
+    "evidence/before/world-wide.png": "8e7a5bfbb01b4d58762b02453c102ac22809c8bd365a025a63a62849bed068a8",
+    "evidence/after/fantasy-world.png": "2a69f21635608012a170960097daeb5f225476b7b141ad213397f91daf1d6a30",
+    "evidence/after/island-left.png": "3a03ecb65ff13c1508acfe7af8030607db7e1ed4eeb87429af531aa8f8d8d8b1",
+    "evidence/after/island-right.png": "1cee0e9344a34b8941d9bfeb3dbf219ab7e5132d518ffcffdc2a5070267999b3",
+    "evidence/after/landscape.png": "9b92a6d644b7474befbd51af1bde01dcd17b6a31d3fed0590885eae2bd779484",
+    "evidence/after/overview.png": "717c678b300b54786e485b3f85db8633a4a7421a3be44acb20843b7445ee8744",
+    "evidence/after/phone.png": "4f2a54e59c728a141d6ffa34f71a9aa8028a60bddbccd97ac0dc9dfec848c4dd",
+    "evidence/after/sky-depth.png": "2aa5addde66709d584d0527d2a31df5d7ba2fba3a08b70e4b509dc19faea8b2a",
+    "evidence/after/waterfall.png": "779e1f19dd5e448f7444c892cd63be2cd0a5c81071d3b95be4f75e7d80f4806a",
+    "evidence/after/world-wide.png": "27603368741152d624de7ab5fcaec51cbe647d91248245afb287629b6bc70402"
+  }
+}
