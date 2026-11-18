@@ -42,7 +42,7 @@ test('actual terrain height function has asymmetric relief and tapers every patc
   }
 });
 
-test('cloud presets retain the same lower/middle/horizon composition with bounded translucent banks',()=>{
+test('cloud presets retain cradles, lower beds and distant layers without stretching the authored masses',()=>{
   const original=Math.random;Math.random=()=>{throw new Error('clouds consumed gameplay RNG');};
   try{
     const low=atmosphere.atmosphereCloudLayout('low');
@@ -50,10 +50,15 @@ test('cloud presets retain the same lower/middle/horizon composition with bounde
       const clouds=atmosphere.atmosphereCloudLayout(quality);
       assert.equal(clouds.length,count);assert.deepEqual(clouds.slice(0,24),low);
       assert.deepEqual(clouds,atmosphere.atmosphereCloudLayout(quality));
+      assert.ok(clouds.some(c=>c.role==='cradle')&&clouds.some(c=>c.role==='bed')&&clouds.some(c=>c.role==='mid'));
+      assert.equal(clouds.filter(c=>c.role==='cradle').length,8);
+      assert.ok(clouds.filter(c=>c.role==='bed').every(c=>c.position[1]<-65));
+      assert.equal(new Set(clouds.filter(c=>c.role==='cradle').map(c=>c.island)).size,8);
       clouds.forEach(({position:[x,y,z],size:[width,height],variant,opacity,layer})=>{
-        assert.ok(Math.hypot(x,z)-Math.hypot(width,height)/2>15,'impostor footprint clears the board column');
-        assert.ok(y+height/2<(layer===3?12:-15),'near banks stay below the playable board');
-        assert.ok(width<73&&height<34&&opacity>0&&opacity<.7);
+        assert.ok(Math.hypot(x,z)-Math.hypot(width*atmosphere.CLOUD_CARD_EXTENT[0],height*atmosphere.CLOUD_CARD_EXTENT[1])/2>15,'impostor footprint clears the board column');
+        assert.ok(y+height*atmosphere.CLOUD_CARD_EXTENT[1]/2<(layer===3?12:-15),'near banks stay below the playable board');
+        assert.equal(width,height,'square cards preserve the baked rounded silhouette in all views');
+        assert.ok(width<=50&&height<=50&&opacity>0&&opacity<.9);
         assert.ok(Number.isInteger(variant)&&variant>=0&&variant<8);
       });
     }

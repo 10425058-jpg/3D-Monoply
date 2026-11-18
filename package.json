@@ -21,7 +21,8 @@
     "test:graphics-v6": "node --import tsx --test tests/graphics-v6-board.test.ts tests/graphics-v6-materials.test.ts tests/board-v5.test.ts && node --test tests/animations.test.mjs",
     "audit:graphics": "node scripts/graphics-audit.mjs",
     "test:graphics-browser": "node scripts/graphics-regression.mjs",
-    "test:environment-assets": "node --test tests/environment-assets.test.mjs tests/final-background-assets.test.mjs",
+    "test:environment-assets": "node --test tests/environment-assets.test.mjs tests/final-background-assets.test.mjs tests/cloud-assets-v3.test.mjs",
+    "test:clouds": "node --test tests/atmosphere.test.mjs tests/cloud-assets-v3.test.mjs tests/cloud-projection.test.mjs",
     "audit:environment": "node scripts/phase2-audit.mjs",
     "test:environment-browser": "node scripts/environment-regression.mjs",
     "audit:fantasy-polish": "node scripts/atmosphere-audit.mjs"
