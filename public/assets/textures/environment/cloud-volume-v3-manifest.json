@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "generator": "tools/blender/bake_clouds_v3.py",
+  "seed": 10425058,
+  "blenderVersion": "5.2.3 LTS",
+  "variants": 8,
+  "method": "Connected asymmetric 3D cumulus density, offline Beer-Lambert integration, six optical-depth sunlight probes",
+  "license": "Original procedural project textures; repository MIT license applies",
+  "colorSpace": "linear RGB, straight alpha; light RGB retained in transparent gutters",
+  "sourceHashes": {
+    "bake_clouds_v3.py": "ee6b571bfdccb4e81ad8b7a66a63a49f7d6b1bee0bd96dfbf2077f842d9d4fbe",
+    "bake_clouds_v2.py": "4917a4ec009702d098c228a3bfa0b23fe71d5841edb373ea1cb4a31c954804f8"
+  },
+  "assets": [
+    {
+      "tier": "low",
+      "columns": 4,
+      "rows": 2,
+      "cellSize": 128,
+      "file": "cloud-volume-v3-low.png",
+      "width": 512,
+      "height": 256,
+      "bytes": 66828,
+      "sha256": "12292ec75cd27f584a6e09ed559d24edbff8da75e10d7029284c4735ec9512cc"
+    },
+    {
+      "tier": "balanced",
+      "columns": 4,
+      "rows": 2,
+      "cellSize": 192,
+      "file": "cloud-volume-v3-balanced.png",
+      "width": 768,
+      "height": 384,
+      "bytes": 139764,
+      "sha256": "67fa2024b48c84bda0fdef04843d7f51aaf636b50cbb22846fc1bbdab8a9090e"
+    },
+    {
+      "tier": "high",
+      "columns": 4,
+      "rows": 2,
+      "cellSize": 256,
+      "file": "cloud-volume-v3-high.png",
+      "width": 1024,
+      "height": 512,
+      "bytes": 221482,
+      "sha256": "2787c925cc5452fa60b40bbef70fc44d97070ff8a01759788c5bd370b2478e24"
+    }
+  ]
+}

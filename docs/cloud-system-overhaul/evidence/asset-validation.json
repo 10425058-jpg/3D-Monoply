@@ -1,0 +1,519 @@
+{
+  "valid": true,
+  "assets": [
+    {
+      "file": "cloud-volume-v3-low.png",
+      "bytes": 66828,
+      "sha256": "12292ec75cd27f584a6e09ed559d24edbff8da75e10d7029284c4735ec9512cc",
+      "width": 512,
+      "height": 256,
+      "rgbaMipEstimateBytes": 699051,
+      "variants": [
+        {
+          "cell": 0,
+          "alphaSha256": "1b1e07f71b46bedc6722f80f8d18ee0a821ec0623facd35f0149dc83cdf824b5",
+          "emptyPixels": 12918,
+          "softPixels": 1036,
+          "bodyPixels": 2430,
+          "gutterAlphaMax": 0,
+          "bodyAspect": 1.7,
+          "connectedBodyFraction": 1.0,
+          "cardCrop": [
+            0.05,
+            0.12,
+            0.95,
+            0.88
+          ],
+          "cropOutsideAlphaMax": 0,
+          "cropBoundaryAlphaMax": 0,
+          "bodyBrightnessRange": 0.3765,
+          "minimumFringeRgb": 121
+        },
+        {
+          "cell": 1,
+          "alphaSha256": "b9e569f13aba72e1c23fe8cc7d083dde482ae0711e60670b52c8c61a6a47f2b7",
+          "emptyPixels": 12938,
+          "softPixels": 1024,
+          "bodyPixels": 2422,
+          "gutterAlphaMax": 0,
+          "bodyAspect": 1.5962,
+          "connectedBodyFraction": 1.0,
+          "cardCrop": [
+            0.05,
+            0.12,
+            0.95,
+            0.88
+          ],
+          "cropOutsideAlphaMax": 0,
+          "cropBoundaryAlphaMax": 0,
+          "bodyBrightnessRange": 0.2837,
+          "minimumFringeRgb": 146
+        },
+        {
+          "cell": 2,
+          "alphaSha256": "0edc1af8fdad08779a22722b5d3191beed3eeb49133ab577d48cf586abf82156",
+          "emptyPixels": 13319,
+          "softPixels": 931,
+          "bodyPixels": 2134,
+          "gutterAlphaMax": 0,
+          "bodyAspect": 1.9318,
+          "connectedBodyFraction": 1.0,
+          "cardCrop": [
+            0.05,
+            0.12,
+            0.95,
+            0.88
+          ],
+          "cropOutsideAlphaMax": 0,
+          "cropBoundaryAlphaMax": 0,
+          "bodyBrightnessRange": 0.3399,
+          "minimumFringeRgb": 120
+        },
+        {
+          "cell": 3,
+          "alphaSha256": "99ce094eefb8598c021a689429e185ad6f12858649cedd2d7c6887b8db6fbf02",
+          "emptyPixels": 12940,
+          "softPixels": 1101,
+          "bodyPixels": 2343,
+          "gutterAlphaMax": 0,
+          "bodyAspect": 1.6038,
+          "connectedBodyFraction": 1.0,
+          "cardCrop": [
+            0.05,
+            0.12,
+            0.95,
+            0.88
+          ],
+          "cropOutsideAlphaMax": 0,
+          "cropBoundaryAlphaMax": 0,
+          "bodyBrightnessRange": 0.2954,
+          "minimumFringeRgb": 130
+        },
+        {
+          "cell": 4,
+          "alphaSha256": "e42657ee672e4dbd33879fefbe048ba2a2c1643de91e5128abbe5ac03c7612cb",
+          "emptyPixels": 13017,
+          "softPixels": 1003,
+          "bodyPixels": 2364,
+          "gutterAlphaMax": 0,
+          "bodyAspect": 1.8478,
+          "connectedBodyFraction": 1.0,
+          "cardCrop": [
+            0.05,
+            0.12,
+            0.95,
+            0.88
+          ],
+          "cropOutsideAlphaMax": 0,
+          "cropBoundaryAlphaMax": 0,
+          "bodyBrightnessRange": 0.3739,
+          "minimumFringeRgb": 122
+        },
+        {
+          "cell": 5,
+          "alphaSha256": "ff378cc3c7b0754e1299402bd3817da1abf30e7c6890c124e89897dabaab3096",
+          "emptyPixels": 12790,
+          "softPixels": 1107,
+          "bodyPixels": 2487,
+          "gutterAlphaMax": 0,
+          "bodyAspect": 1.6154,
+          "connectedBodyFraction": 1.0,
+          "cardCrop": [
+            0.05,
+            0.12,
+            0.95,
+            0.88
+          ],
+          "cropOutsideAlphaMax": 0,
+          "cropBoundaryAlphaMax": 0,
+          "bodyBrightnessRange": 0.2993,
+          "minimumFringeRgb": 122
+        },
+        {
+          "cell": 6,
+          "alphaSha256": "a011a72c7eca9babef96b68cc49eb3de39fbfaf4309532b943aa372c9d5bf17a",
+          "emptyPixels": 13022,
+          "softPixels": 1030,
+          "bodyPixels": 2332,
+          "gutterAlphaMax": 0,
+          "bodyAspect": 1.5556,
+          "connectedBodyFraction": 1.0,
+          "cardCrop": [
+            0.05,
+            0.12,
+            0.95,
+            0.88
+          ],
+          "cropOutsideAlphaMax": 0,
+          "cropBoundaryAlphaMax": 0,
+          "bodyBrightnessRange": 0.3752,
+          "minimumFringeRgb": 120
+        },
+        {
+          "cell": 7,
+          "alphaSha256": "db3b93276c4f04c562c49ee8059a3588929be1f285311f940a9165b0cf26ab76",
+          "emptyPixels": 13516,
+          "softPixels": 875,
+          "bodyPixels": 1993,
+          "gutterAlphaMax": 0,
+          "bodyAspect": 1.9091,
+          "connectedBodyFraction": 1.0,
+          "cardCrop": [
+            0.05,
+            0.12,
+            0.95,
+            0.88
+          ],
+          "cropOutsideAlphaMax": 0,
+          "cropBoundaryAlphaMax": 0,
+          "bodyBrightnessRange": 0.3137,
+          "minimumFringeRgb": 123
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "cloud-volume-v3-balanced.png",
+      "bytes": 139764,
+      "sha256": "67fa2024b48c84bda0fdef04843d7f51aaf636b50cbb22846fc1bbdab8a9090e",
+      "width": 768,
+      "height": 384,
+      "rgbaMipEstimateBytes": 1572864,
+      "variants": [
+        {
+          "cell": 0,
+          "alphaSha256": "f3ce391db7aaa3a5886c4c54ca8a5e9de2bb0614ac548126f92709c73b8a9d48",
+          "emptyPixels": 29067,
+          "softPixels": 2308,
+          "bodyPixels": 5489,
+          "gutterAlphaMax": 0,
+          "bodyAspect": 1.6933,
+          "connectedBodyFraction": 1.0,
+          "cardCrop": [
+            0.05,
+            0.12,
+            0.95,
+            0.88
+          ],
+          "cropOutsideAlphaMax": 0,
+          "cropBoundaryAlphaMax": 0,
+          "bodyBrightnessRange": 0.3856,
+          "minimumFringeRgb": 121
+        },
+        {
+          "cell": 1,
+          "alphaSha256": "42a798e7969f77e9e1ecd599032001abe20fd85fd302e22f2006e83119f69df6",
+          "emptyPixels": 29135,
+          "softPixels": 2265,
+          "bodyPixels": 5464,
+          "gutterAlphaMax": 0,
+          "bodyAspect": 1.6104,
+          "connectedBodyFraction": 1.0,
+          "cardCrop": [
+            0.05,
+            0.12,
+            0.95,
+            0.88
+          ],
+          "cropOutsideAlphaMax": 0,
+          "cropBoundaryAlphaMax": 0,
+          "bodyBrightnessRange": 0.285,
+          "minimumFringeRgb": 148
+        },
+        {
+          "cell": 2,
+          "alphaSha256": "37bbcf1824216ab237cb394f4f8bb0966173cc6103e1d84bfc348a123dd6af98",
+          "emptyPixels": 29970,
+          "softPixels": 2082,
+          "bodyPixels": 4812,
+          "gutterAlphaMax": 0,
+          "bodyAspect": 1.8824,
+          "connectedBodyFraction": 1.0,
+          "cardCrop": [
+            0.05,
+            0.12,
+            0.95,
+            0.88
+          ],
+          "cropOutsideAlphaMax": 0,
+          "cropBoundaryAlphaMax": 0,
+          "bodyBrightnessRange": 0.3464,
+          "minimumFringeRgb": 120
+        },
+        {
+          "cell": 3,
+          "alphaSha256": "77c8decc8002ea77251e9ef1a58842a67ce4fc9c60c110341aef0ae4845b2ee1",
+          "emptyPixels": 29129,
+          "softPixels": 2430,
+          "bodyPixels": 5305,
+          "gutterAlphaMax": 0,
+          "bodyAspect": 1.5875,
+          "connectedBodyFraction": 1.0,
+          "cardCrop": [
+            0.05,
+            0.12,
+            0.95,
+            0.88
+          ],
+          "cropOutsideAlphaMax": 0,
+          "cropBoundaryAlphaMax": 0,
+          "bodyBrightnessRange": 0.3085,
+          "minimumFringeRgb": 130
+        },
+        {
+          "cell": 4,
+          "alphaSha256": "2c9ed056a508435381c91606c636d5cdf51aa1793a9254a14eaa8c8780d488b2",
+          "emptyPixels": 29291,
+          "softPixels": 2208,
+          "bodyPixels": 5365,
+          "gutterAlphaMax": 0,
+          "bodyAspect": 1.8143,
+          "connectedBodyFraction": 1.0,
+          "cardCrop": [
+            0.05,
+            0.12,
+            0.95,
+            0.88
+          ],
+          "cropOutsideAlphaMax": 0,
+          "cropBoundaryAlphaMax": 0,
+          "bodyBrightnessRange": 0.3739,
+          "minimumFringeRgb": 122
+        },
+        {
+          "cell": 5,
+          "alphaSha256": "137324cd2f3a98d9160f9ed4e217dc26cb3fa64d60e9d6517c5bcc514e7f3364",
+          "emptyPixels": 28789,
+          "softPixels": 2454,
+          "bodyPixels": 5621,
+          "gutterAlphaMax": 0,
+          "bodyAspect": 1.6234,
+          "connectedBodyFraction": 1.0,
+          "cardCrop": [
+            0.05,
+            0.12,
+            0.95,
+            0.88
+          ],
+          "cropOutsideAlphaMax": 0,
+          "cropBoundaryAlphaMax": 0,
+          "bodyBrightnessRange": 0.2954,
+          "minimumFringeRgb": 122
+        },
+        {
+          "cell": 6,
+          "alphaSha256": "876c5fd8b4e2e11bf9d43642401b918cdfc6ee60a390538c39d94b3cd01c6ca3",
+          "emptyPixels": 29296,
+          "softPixels": 2297,
+          "bodyPixels": 5271,
+          "gutterAlphaMax": 0,
+          "bodyAspect": 1.5625,
+          "connectedBodyFraction": 1.0,
+          "cardCrop": [
+            0.05,
+            0.12,
+            0.95,
+            0.88
+          ],
+          "cropOutsideAlphaMax": 0,
+          "cropBoundaryAlphaMax": 0,
+          "bodyBrightnessRange": 0.3778,
+          "minimumFringeRgb": 118
+        },
+        {
+          "cell": 7,
+          "alphaSha256": "e50a39bf71e30fad89c4b16ff865ad83364f9edf9064739c5a2ff98793fe831e",
+          "emptyPixels": 30412,
+          "softPixels": 1948,
+          "bodyPixels": 4504,
+          "gutterAlphaMax": 0,
+          "bodyAspect": 1.8806,
+          "connectedBodyFraction": 1.0,
+          "cardCrop": [
+            0.05,
+            0.12,
+            0.95,
+            0.88
+          ],
+          "cropOutsideAlphaMax": 0,
+          "cropBoundaryAlphaMax": 0,
+          "bodyBrightnessRange": 0.3203,
+          "minimumFringeRgb": 122
+        }
+      ],
+      "valid": true
+    },
+    {
+      "file": "cloud-volume-v3-high.png",
+      "bytes": 221482,
+      "sha256": "2787c925cc5452fa60b40bbef70fc44d97070ff8a01759788c5bd370b2478e24",
+      "width": 1024,
+      "height": 512,
+      "rgbaMipEstimateBytes": 2796203,
+      "variants": [
+        {
+          "cell": 0,
+          "alphaSha256": "304675e331434f2ba06872b01544c70b053ca937404eb808e02da2d80db746b1",
+          "emptyPixels": 51826,
+          "softPixels": 3917,
+          "bodyPixels": 9793,
+          "gutterAlphaMax": 0,
+          "bodyAspect": 1.7,
+          "connectedBodyFraction": 1.0,
+          "cardCrop": [
+            0.05,
+            0.12,
+            0.95,
+            0.88
+          ],
+          "cropOutsideAlphaMax": 0,
+          "cropBoundaryAlphaMax": 0,
+          "bodyBrightnessRange": 0.383,
+          "minimumFringeRgb": 119
+        },
+        {
+          "cell": 1,
+          "alphaSha256": "3b14f2b0872d41847b0905d7c1991a41069efa7edb5d2ba0cdd4293ad05cf62e",
+          "emptyPixels": 51935,
+          "softPixels": 3847,
+          "bodyPixels": 9754,
+          "gutterAlphaMax": 0,
+          "bodyAspect": 1.6117,
+          "connectedBodyFraction": 1.0,
+          "cardCrop": [
+            0.05,
+            0.12,
+            0.95,
+            0.88
+          ],
+          "cropOutsideAlphaMax": 0,
+          "cropBoundaryAlphaMax": 0,
+          "bodyBrightnessRange": 0.2889,
+          "minimumFringeRgb": 140
+        },
+        {
+          "cell": 2,
+          "alphaSha256": "e61eaee4c32b2c810c6c139e05be461c87c4cbdc2307d591e89b00112677fa26",
+          "emptyPixels": 53433,
+          "softPixels": 3502,
+          "bodyPixels": 8601,
+          "gutterAlphaMax": 0,
+          "bodyAspect": 1.9,
+          "connectedBodyFraction": 1.0,
+          "cardCrop": [
+            0.05,
+            0.12,
+            0.95,
+            0.88
+          ],
+          "cropOutsideAlphaMax": 0,
+          "cropBoundaryAlphaMax": 0,
+          "bodyBrightnessRange": 0.3464,
+          "minimumFringeRgb": 120
+        },
+        {
+          "cell": 3,
+          "alphaSha256": "646280dab8e9d1c850c40ae2ff622cd2bcacc94e1c8a4a6f389302a2b52bfbe4",
+          "emptyPixels": 51932,
+          "softPixels": 4133,
+          "bodyPixels": 9471,
+          "gutterAlphaMax": 0,
+          "bodyAspect": 1.5888,
+          "connectedBodyFraction": 1.0,
+          "cardCrop": [
+            0.05,
+            0.12,
+            0.95,
+            0.88
+          ],
+          "cropOutsideAlphaMax": 0,
+          "cropBoundaryAlphaMax": 0,
+          "bodyBrightnessRange": 0.3098,
+          "minimumFringeRgb": 128
+        },
+        {
+          "cell": 4,
+          "alphaSha256": "4a81a588d2656c1f99f277245f21e98df3483b1bbb3fc756080e96d1aa9e7972",
+          "emptyPixels": 52220,
+          "softPixels": 3736,
+          "bodyPixels": 9580,
+          "gutterAlphaMax": 0,
+          "bodyAspect": 1.828,
+          "connectedBodyFraction": 1.0,
+          "cardCrop": [
+            0.05,
+            0.12,
+            0.95,
+            0.88
+          ],
+          "cropOutsideAlphaMax": 0,
+          "cropBoundaryAlphaMax": 0,
+          "bodyBrightnessRange": 0.383,
+          "minimumFringeRgb": 122
+        },
+        {
+          "cell": 5,
+          "alphaSha256": "8d29a935b89379bd7afe3852251a051bcc9cea2c54be5b6e57735cec1a3b4dff",
+          "emptyPixels": 51322,
+          "softPixels": 4187,
+          "bodyPixels": 10027,
+          "gutterAlphaMax": 0,
+          "bodyAspect": 1.6154,
+          "connectedBodyFraction": 1.0,
+          "cardCrop": [
+            0.05,
+            0.12,
+            0.95,
+            0.88
+          ],
+          "cropOutsideAlphaMax": 0,
+          "cropBoundaryAlphaMax": 0,
+          "bodyBrightnessRange": 0.2967,
+          "minimumFringeRgb": 121
+        },
+        {
+          "cell": 6,
+          "alphaSha256": "2a2c8557114fa47d8f46a207d4a710735aed23639c2bb6a9090b43ce359b54df",
+          "emptyPixels": 52235,
+          "softPixels": 3886,
+          "bodyPixels": 9415,
+          "gutterAlphaMax": 0,
+          "bodyAspect": 1.5463,
+          "connectedBodyFraction": 1.0,
+          "cardCrop": [
+            0.05,
+            0.12,
+            0.95,
+            0.88
+          ],
+          "cropOutsideAlphaMax": 0,
+          "cropBoundaryAlphaMax": 0,
+          "bodyBrightnessRange": 0.383,
+          "minimumFringeRgb": 117
+        },
+        {
+          "cell": 7,
+          "alphaSha256": "7db7da202b0d0c551c40b7f1667aa49bfe64b9aa79b6b23a69f7f8521e5f8995",
+          "emptyPixels": 54215,
+          "softPixels": 3294,
+          "bodyPixels": 8027,
+          "gutterAlphaMax": 0,
+          "bodyAspect": 1.8989,
+          "connectedBodyFraction": 1.0,
+          "cardCrop": [
+            0.05,
+            0.12,
+            0.95,
+            0.88
+          ],
+          "cropOutsideAlphaMax": 0,
+          "cropBoundaryAlphaMax": 0,
+          "bodyBrightnessRange": 0.3176,
+          "minimumFringeRgb": 122
+        }
+      ],
+      "valid": true
+    }
+  ],
+  "failures": []
+}

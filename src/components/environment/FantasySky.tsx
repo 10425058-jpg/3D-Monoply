@@ -1,9 +1,12 @@
-import { useLayoutEffect, useMemo, useRef } from 'react';
+import { Suspense, useLayoutEffect, useMemo, useRef } from 'react';
+import { useTexture } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { SKY_SUN_DIRECTION, SUN_ANGULAR_RADIUS } from './sunConfig';
 import type { EnvironmentQuality } from './environmentLayout';
 import { SKY_BAKE_FRAGMENT } from './skyCloudBake';
+import { cloudAtlasTexture, cloudAtlasUrl } from './cloudAtlas';
+import { EnvironmentAssetBoundary } from './EnvironmentAssetBoundary';
 
 // Baked once on mount/quality change. No procedural noise or trig cloud mapping
 // runs in the full-screen gameplay pass. Direction projection is continuous at
@@ -11,6 +14,17 @@ import { SKY_BAKE_FRAGMENT } from './skyCloudBake';
 /** A static atmosphere bake plus a small screen-resolution solar disc.
  * Slow instanced clouds/airship supply life without a repeating full-screen bake. */
 export function FantasySky({ quality = 'balanced' }: { animate: boolean; quality?: EnvironmentQuality }) {
+  return <EnvironmentAssetBoundary key={`cloud-sky-${quality}`} label="sky cloud atlas" fallback={<SkySurface quality={quality} />}>
+    <Suspense fallback={<SkySurface quality={quality} />}><TexturedSky quality={quality} /></Suspense>
+  </EnvironmentAssetBoundary>;
+}
+
+function TexturedSky({quality}:{quality:EnvironmentQuality}){
+  const source=useTexture(cloudAtlasUrl(quality));
+  return <SkySurface quality={quality} cloudSource={source} />;
+}
+
+function SkySurface({quality,cloudSource}:{quality:EnvironmentQuality;cloudSource?:THREE.Texture}){
   const gl=useThree(state=>state.gl),ref=useRef<THREE.Mesh>(null);
   const sunRef=useRef<THREE.Mesh>(null);
   const sunDirection=useMemo(()=>new THREE.Vector3(...SKY_SUN_DIRECTION),[]);
@@ -30,7 +44,11 @@ export function FantasySky({ quality = 'balanced' }: { animate: boolean; quality
     const bake=()=>{
       const scene=new THREE.Scene(),camera=new THREE.OrthographicCamera(-1,1,1,-1,0,1);
       const geometry=new THREE.PlaneGeometry(2,2);
-      const material=new THREE.ShaderMaterial({uniforms:{uSun:{value:new THREE.Vector3(...SKY_SUN_DIRECTION)},uSunRadius:{value:SUN_ANGULAR_RADIUS}},
+      // The sky needs this texture only during its static bake. Dispose the
+      // temporary GPU copy immediately; world cloud cards own their own map.
+      const cloudMap=cloudSource?cloudAtlasTexture(cloudSource,quality):null;
+      const material=new THREE.ShaderMaterial({uniforms:{uSun:{value:new THREE.Vector3(...SKY_SUN_DIRECTION)},uSunRadius:{value:SUN_ANGULAR_RADIUS},
+        uCloudAtlas:{value:cloudMap},uHasCloudAtlas:{value:cloudMap?1:0}},
         vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}',
         fragmentShader:SKY_BAKE_FRAGMENT,depthWrite:false,depthTest:false,toneMapped:false});
       const quad=new THREE.Mesh(geometry,material);quad.frustumCulled=false;scene.add(quad);
@@ -46,7 +64,7 @@ export function FantasySky({ quality = 'balanced' }: { animate: boolean; quality
       } finally {
         gl.setViewport(viewport);gl.setScissor(scissor);gl.setScissorTest(scissorTest);
         gl.setRenderTarget(previousTarget,cubeFace,mipLevel);
-        gl.autoClear=autoClear;gl.setClearColor(clearColor,clearAlpha);geometry.dispose();material.dispose();
+        gl.autoClear=autoClear;gl.setClearColor(clearColor,clearAlpha);geometry.dispose();material.dispose();cloudMap?.dispose();
       }
     };
     bake();
@@ -54,7 +72,7 @@ export function FantasySky({ quality = 'balanced' }: { animate: boolean; quality
     // Three restores its renderer first; then regenerate this small static map.
     gl.domElement.addEventListener('webglcontextrestored',bake);
     return()=>{gl.domElement.removeEventListener('webglcontextrestored',bake);target.dispose();};
-  },[gl,target]);
+  },[gl,target,cloudSource,quality]);
   useFrame(({camera})=>{
     ref.current?.position.copy(camera.position);
     if(sunRef.current) {

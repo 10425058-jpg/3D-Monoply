@@ -39,6 +39,9 @@ dist-ssr
 # Blender/Python local caches
 __pycache__/
 .final-*
+.cloud-*
+docs/cloud-system-overhaul/evidence/checkpoint/
+docs/cloud-system-overhaul/evidence/regression/context-*.png
 docs/final-background-overhaul/evidence/checkpoint/
 docs/final-background-overhaul/evidence/regression/context-*.png
 *.pyc

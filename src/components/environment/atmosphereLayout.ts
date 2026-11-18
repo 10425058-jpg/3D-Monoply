@@ -47,23 +47,36 @@ export function massifHeight(u:number,v:number,patch:MountainPatch){
   return patch.base+patch.height*Math.min(1.08,Math.max(0,Math.pow(peakSum,.25)+shoulders+erosion))*envelope;
 }
 
-/** High cumulus, mid-distance banks and lower side wisps. Their fixed positions
- * provide parallax; all remain outside the playable board's vertical column. */
-export type AtmosphereCloud=CloudLayout&{variant:number;opacity:number;layer:number};
+/** Square impostors preserve the authored cloud proportions at every orbit.
+ * Cradles sit below existing cliff tips; deeper beds and distant banks provide
+ * separate parallax layers. None of these positions follows the camera. */
+export type AtmosphereCloud=CloudLayout&{variant:number;opacity:number;layer:number;role:'cradle'|'bed'|'mid'|'far';island?:string};
+// The omitted atlas gutter has zero alpha. Cropping the quad to the same UV
+// rectangle reduces transparent overdraw without changing any cloud's shape.
+export const CLOUD_CARD_EXTENT=[.90,.76] as const;
 export function atmosphereCloudLayout(quality: EnvironmentQuality): AtmosphereCloud[] {
   const count = quality === 'low' ? 24 : quality === 'balanced' ? 32 : 40;
   const clouds: AtmosphereCloud[] = [];
-  for (let i=0;i<count;i++) {
-    const layer=Math.floor(i/8),angle=i*2.399963+.42;
-    const radius=layer===0?116+variation(i,71)*42:layer===1?64+variation(i,72)*23:
-      layer===2?34+variation(i,73)*17:layer===3?143+variation(i,74)*22:83+variation(i,75)*31;
-    const y=layer===0?-53-variation(i,81)*15:layer===1?-33-variation(i,82)*14:
-      layer===2?-28-variation(i,83)*10:layer===3?-9-variation(i,84)*18:-48-variation(i,85)*15;
-    const size:[number,number]=layer===0?[58+variation(i,91)*14,23+variation(i,92)*8]:
-      layer===1?[33+variation(i,93)*8,16+variation(i,94)*5]:layer===2?[23+variation(i,95)*5,12+variation(i,96)*4]:
-      layer===3?[54+variation(i,97)*12,27+variation(i,98)*6]:[42+variation(i,99)*10,18+variation(i,100)*6];
-    clouds.push({position:[Math.sin(angle)*radius,y,Math.cos(angle)*radius],size,
-      variant:i%8,opacity:layer===0?.47:layer===1?.50:layer===2?.38:layer===3?.35:.40,layer});
+  const cradles = [
+    [-41,-38,-22,44,'royal-left'],[40,-38,-22,43,'royal-right'],
+    [42,-41,8,34,'garden-near-right'],[-46,-43,12,34,'garden-near-left'],
+    [-44,-37,-67,38,'citadel-north'],[46,-40,-70,38,'garden-north'],
+    [-81,-32,21,34,'windmill-west'],[-57,-40,68,34,'garden-south'],
+  ] as const;
+  cradles.forEach(([x,y,z,size,island],i)=>clouds.push({position:[x,y,z],size:[size,size],
+    variant:i%8,opacity:.84,layer:1,role:'cradle',island}));
+  // Quiet interleaved beds below the islands. Offset centres, unequal heights
+  // and broad rounded silhouettes avoid a circular spoke arrangement.
+  const beds = [[-59,-70,-40,46],[40,-74,-39,48],[-30,-76,42,44],[54,-72,34,43],
+    [-76,-80,80,48],[72,-82,-100,47],[-42,-79,-119,50],[30,-84,119,46]] as const;
+  beds.forEach(([x,y,z,size],i)=>clouds.push({position:[x,y,z],size:[size,size],
+    variant:(i*3+2)%8,opacity:.24,layer:0,role:'bed'}));
+  for(let i=16;i<count;i++){
+    const far=i>=24,angle=i*2.399963+.42;
+    const radius=far?143+variation(i,74)*28:72+variation(i,73)*26;
+    const size=far?34+variation(i,97)*13:24+variation(i,95)*9;
+    clouds.push({position:[Math.sin(angle)*radius,far?-33-variation(i,84)*24:-43-variation(i,83)*13,Math.cos(angle)*radius],
+      size:[size,size],variant:(i*5+1)%8,opacity:far?.22:.25,layer:far?3:2,role:far?'far':'mid'});
   }
   return clouds;
 }
