@@ -2,8 +2,8 @@ import React, { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { RoundedBox } from '@react-three/drei';
 import * as THREE from 'three';
-import { useSceneStore, useSceneState as useGameStore } from '../../presentation/SceneStore';
-import { DIE_REST_ROTATIONS, diceResultScale } from '../../presentation/animationMath';
+import { useSceneStore } from '../../presentation/SceneStore';
+import { DICE_ROLL_MS, DIE_REST_ROTATIONS, diceResultScale, diceThrow } from '../../presentation/animationMath';
 import { useMotionPreferences } from '../../presentation/useMotionPreferences';
 import { isGameReset } from '../../presentation/effectEvents';
 
@@ -30,36 +30,42 @@ const PIP_POSITIONS = DICE_FACES.flatMap(face => PIP_LAYOUTS[face.value].map(([x
 ));
 
 
-const Die: React.FC<{
-  value: number; rolling: boolean; index: number; speed: number; reduced: boolean; visible: boolean; trails: boolean;
-}> = ({ value, rolling, index, speed, reduced, visible, trails }) => {
+const Die: React.FC<{ index: number; reduced: boolean; visible: boolean; impact: boolean }> = ({ index, reduced, visible, impact }) => {
   const store = useSceneStore();
   const die = useRef<THREE.Group>(null);
   const pips = useRef<THREE.InstancedMesh>(null);
   const halo = useRef<THREE.Mesh>(null);
   const contact = useRef<THREE.Mesh>(null);
-  const trail = useRef<THREE.InstancedMesh>(null);
   const started = useRef(performance.now());
   const landed = useRef<number | null>(null);
-  const hadRoll = useRef(rolling);
+  const hadRoll = useRef(store.getState().turnPhase === 'ROLLING');
+  const duration = useRef(DICE_ROLL_MS / store.getState().gameSpeed);
   const dummy = useMemo(() => new THREE.Object3D(), []);
-  const target = useMemo(() => new THREE.Quaternion().setFromEuler(new THREE.Euler(...DIE_REST_ROTATIONS[value])), [value]);
-  const rest = useRef(target.clone());
+  const rest = useMemo(() => new THREE.Quaternion(), []);
+  const face = useMemo(() => new THREE.Euler(), []);
 
-  useEffect(() => store.subscribe((next, previous) => {
-    if (next.dice !== previous.dice) rest.current.setFromEuler(new THREE.Euler(...DIE_REST_ROTATIONS[next.dice[index]]));
-    if (isGameReset(previous, next)) {
-      hadRoll.current = false; landed.current = null;
-      if (die.current) die.current.visible = false;
-      return;
-    }
-    if (previous.turnPhase !== 'ROLLING' && next.turnPhase === 'ROLLING') {
-      started.current = performance.now(); landed.current = null; hadRoll.current = true;
-    } else if (previous.turnPhase === 'ROLLING' && next.turnPhase !== 'ROLLING' && hadRoll.current) {
-      landed.current = performance.now();
-      die.current?.quaternion.copy(rest.current);
-    }
-  }), [index, store]);
+  useEffect(() => {
+    const setFace = (value: number) => rest.setFromEuler(face.set(...DIE_REST_ROTATIONS[value]));
+    setFace(store.getState().dice[index]);
+    return store.subscribe((next, previous) => {
+      if (next.dice[index] !== previous.dice[index]) setFace(next.dice[index]);
+      if (isGameReset(previous, next)) {
+        hadRoll.current = false;
+        landed.current = null;
+        for (const object of [die.current, contact.current, halo.current]) if (object) object.visible = false;
+        return;
+      }
+      if (previous.turnPhase !== 'ROLLING' && next.turnPhase === 'ROLLING') {
+        started.current = performance.now();
+        duration.current = DICE_ROLL_MS / next.gameSpeed;
+        landed.current = null;
+        hadRoll.current = true;
+      } else if (previous.turnPhase === 'ROLLING' && next.turnPhase !== 'ROLLING' && hadRoll.current) {
+        landed.current = performance.now();
+        die.current?.quaternion.copy(rest);
+      }
+    });
+  }, [face, index, rest, store]);
 
   useLayoutEffect(() => {
     PIP_POSITIONS.forEach((point, i) => {
@@ -77,69 +83,60 @@ const Die: React.FC<{
     const age = landed.current === null ? Infinity : (now - landed.current) / 1000;
     die.current.visible = rollingNow || age < 2.2;
     if (contact.current) contact.current.visible = die.current.visible;
-    const t = Math.min(1, (now - started.current) / (650 / speed));
+    if (!die.current.visible) {
+      if (halo.current) halo.current.visible = false;
+      return;
+    }
+    let height = 0;
     if (rollingNow && !reduced) {
-      const remaining = (1 - t) * (1 - t);
+      const pose = diceThrow((now - started.current) / duration.current, index);
       const rotation = DIE_REST_ROTATIONS[actual.dice[index]];
-      die.current.rotation.set(rotation[0] + remaining * Math.PI * 6, rotation[1] + remaining * Math.PI * 4, rotation[2] + remaining * Math.PI * (index ? -4 : 4));
-      die.current.position.y = DICE_REST_HEIGHT + Math.abs(Math.sin(t * Math.PI * 3)) * (1 - t) * 0.9;
+      height = pose.height;
+      die.current.rotation.set(rotation[0] + pose.pitch, rotation[1] + pose.yaw, rotation[2] + pose.bank);
+      die.current.position.set(pose.x, DICE_REST_HEIGHT + height, pose.z);
     } else {
-      die.current.quaternion.copy(rest.current);
-      die.current.position.y = DICE_REST_HEIGHT + (!reduced && age < 0.3 ? Math.abs(Math.sin(age * 22)) * Math.exp(-age * 12) * 0.16 : 0);
+      die.current.quaternion.copy(rest);
+      die.current.position.set(0, DICE_REST_HEIGHT, 0);
     }
     const scale = diceResultScale(rollingNow, age, reduced);
     die.current.scale.setScalar(scale);
-    if (halo.current) {
-      halo.current.visible = !reduced && (rollingNow || age < 0.45);
-      if (halo.current.visible) {
-        halo.current.scale.setScalar(rollingNow ? 0.9 : 1 + age * 2);
-        (halo.current.material as THREE.MeshBasicMaterial).opacity = rollingNow ? 0.12 : Math.max(0, 0.3 - age * 0.7);
-      }
+    if (contact.current) {
+      contact.current.position.x = die.current.position.x;
+      contact.current.position.z = die.current.position.z;
+      contact.current.scale.setScalar(scale * (1 + height * .45));
+      (contact.current.material as THREE.MeshBasicMaterial).opacity = scale * (.22 - height * .14);
     }
-    if (trail.current) {
-      const impact=!rollingNow&&age<.32;
-      trail.current.visible = trails && !reduced && ((rollingNow&&t<1)||impact);
-      if (!trail.current.visible) return;
-      for (let i = 0; i < 8; i++) {
-        const angle = impact?i*Math.PI/4:t * Math.PI * 4 - i * 0.35;
-        const radius=impact?.35+age*1.8:.75;
-        dummy.position.set(Math.cos(angle)*radius,impact?-.5+Math.sin(age/.32*Math.PI)*.15:die.current.position.y-DICE_REST_HEIGHT+Math.sin(angle)*.3,Math.sin(angle)*radius*.8);
-        dummy.scale.setScalar(impact?.055*(1-age/.32):0.055 * (1 - i / 9)); dummy.updateMatrix();
-        trail.current.setMatrixAt(i, dummy.matrix);
+    if (halo.current) {
+      halo.current.visible = impact && !reduced && age < .32;
+      if (halo.current.visible) {
+        halo.current.scale.setScalar(.9 + age * 1.4);
+        (halo.current.material as THREE.MeshBasicMaterial).opacity = .25 * (1 - age / .32);
       }
-      trail.current.instanceMatrix.needsUpdate = true;
     }
   });
 
   return <group position={[index === 0 ? -0.85 : 0.85, 0, 0]}>
-    <mesh ref={contact} visible={false} position={[0, 0.35, 0]} rotation={[-Math.PI / 2, 0, 0]} raycast={() => {}}>
-      <circleGeometry args={[0.58, 24]} /><meshBasicMaterial color="#24162f" transparent opacity={0.14} depthWrite={false} />
+    <mesh ref={contact} visible={false} position={[0, DICE_REST_HEIGHT - .41, 0]} rotation={[-Math.PI / 2, 0, 0]} raycast={() => {}}>
+      <circleGeometry args={[0.52, 24]} /><meshBasicMaterial color="#24162f" transparent opacity={.22} depthWrite={false} />
     </mesh>
-    <mesh ref={halo} position={[0, 0.36, 0]} rotation={[-Math.PI / 2, 0, 0]} visible={false} raycast={() => {}}>
+    {impact && <mesh ref={halo} position={[0, DICE_REST_HEIGHT - .405, 0]} rotation={[-Math.PI / 2, 0, 0]} visible={false} raycast={() => {}}>
       <ringGeometry args={[0.52, 0.55, 32]} /><meshBasicMaterial color="#ffd76a" transparent depthWrite={false} />
-    </mesh>
+    </mesh>}
     <group ref={die} name={`die-${index}`} position={[0, DICE_REST_HEIGHT, 0]} visible={false}>
       <RoundedBox args={[0.82, 0.82, 0.82]} radius={0.11} smoothness={4} castShadow receiveShadow raycast={() => {}}>
-        <meshPhysicalMaterial color="#fff0dc" roughness={0.24} metalness={0.04} clearcoat={0.45} />
+        <meshPhysicalMaterial color={index === 0 ? '#fff0dc' : '#225886'} roughness={0.28} metalness={0.04} clearcoat={0.45} />
       </RoundedBox>
       <instancedMesh ref={pips} args={[undefined, undefined, PIP_COUNT]} castShadow raycast={() => {}}>
-        <sphereGeometry args={[1, 10, 8]} /><meshStandardMaterial color="#382737" metalness={0.16} roughness={0.44} />
+        <sphereGeometry args={[1, 10, 8]} /><meshStandardMaterial color={index === 0 ? '#382737' : '#ffe5a6'} roughness={0.44} />
       </instancedMesh>
-      {trails && <instancedMesh ref={trail} args={[undefined, undefined, 8]} raycast={() => {}}>
-        <octahedronGeometry args={[1, 0]} /><meshBasicMaterial color="#ffd994" />
-      </instancedMesh>}
     </group>
   </group>;
 };
 
 export const Dice3D: React.FC<{ quality?: string }> = ({ quality = 'balanced' }) => {
-  const phase = useGameStore(s => s.turnPhase);
-  const dice = useGameStore(s => s.dice);
-  const speed = useGameStore(s => s.gameSpeed);
   const { reducedMotion, visible } = useMotionPreferences();
   return <group position={[0, 0, 4.2]} name="authoritative-dice">
-    {dice.map((value, index) => <Die key={index} value={value} index={index} rolling={phase === 'ROLLING'}
-      speed={speed} reduced={reducedMotion} visible={visible} trails={quality !== 'low'} />)}
+    {[0, 1].map(index => <Die key={index} index={index} reduced={reducedMotion} visible={visible} impact={quality !== 'low'} />)}
   </group>;
 };
 

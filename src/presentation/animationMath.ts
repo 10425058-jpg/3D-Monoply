@@ -13,6 +13,27 @@ export const isAdjacentTile = (from: number, to: number) =>
   (to - from + 40) % 40 === 1 || (from - to + 40) % 40 === 1;
 
 export const movementDuration = (speed: number) => 0.145 / speed;
+export const DICE_ROLL_MS = 680;
+export const TOKEN_STEP_MS = 155;
+
+/** Anticipation, a long throw, and two short bounces. Progress is shared with the committed roll. */
+export function diceThrow(progress: number, index: number) {
+  const windup = smoothStep(progress / .14);
+  const travel = Math.max(0, Math.min(1, (progress - .14) / .86));
+  const direction = index === 0 ? -1 : 1;
+  const flight = travel < .57 ? [0, .57, .86] : travel < .83 ? [.57, .83, .24] : [.83, 1, .07];
+  const bounce = (travel - flight[0]) / (flight[1] - flight[0]);
+  const height = 4 * bounce * (1 - bounce) * flight[2];
+  const turn = 2 * Math.PI * (1 - (1 - travel) ** 2);
+  return {
+    x: direction * (1 - smoothStep(travel)) * (.28 * windup - .1 * Math.sin(travel * Math.PI)),
+    z: -.52 * windup * (1 - travel) ** 2 + .11 * Math.sin(travel * Math.PI),
+    height: height * (index === 0 ? 1 : .85),
+    pitch: 2 * turn,
+    yaw: direction * turn,
+    bank: direction * (turn + Math.sin(windup * Math.PI) * .17),
+  };
+}
 
 /** A new roll has no landing age yet. Keep it full size until it settles. */
 export function diceResultScale(rolling: boolean, landingAge: number, reduced: boolean) {

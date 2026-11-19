@@ -55,6 +55,8 @@ export const PropertyCard: React.FC<{
   const rows = space.type === 'property' ? (space.rent ?? []).map((rent, index) => [rentLabels[index], money(rent)]) :
     space.type === 'railroad' ? (space.rent ?? []).map((rent, index) => [`${index + 1} railroad${index ? 's' : ''} owned`, money(rent)]) :
     space.type === 'utility' ? [['1 utility owned', '4 × dice total'], ['2 utilities owned', '10 × dice total']] : [];
+  const currentRent = state && state.ownerId !== null && space.type !== 'utility' ?
+    useGameStore.getState().calculateRent(space.id, 0) : null;
   return <motion.section className="fantasy-deed" aria-label={`${space.name} title deed`}
     style={{ '--property-color': space.colorHex } as React.CSSProperties}
     initial={{ opacity: 0, y: reduced ? 0 : 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: reduced ? 0 : 8 }}
@@ -71,6 +73,7 @@ export const PropertyCard: React.FC<{
         {space.mortgageValue !== undefined && <div><dt>Mortgage value</dt><dd>{money(space.mortgageValue)}</dd></div>}
         {state && <div><dt>Mortgage status</dt><dd>{state.isMortgaged ? 'Mortgaged' : 'Not mortgaged'}</dd></div>}
         {space.type === 'property' && state && <div><dt>Buildings</dt><dd>{state.houses === 5 ? 'Hotel' : `${state.houses} houses`}</dd></div>}
+        {currentRent !== null && <div><dt>Current rent</dt><dd>{money(currentRent)}</dd></div>}
         {space.taxAmount !== undefined && <div><dt>Tax due</dt><dd>{money(space.taxAmount)}</dd></div>}
       </dl>
       {rows.length > 0 && <div className="deed-rents"><h3><Icon size={18} /> Rent schedule</h3>

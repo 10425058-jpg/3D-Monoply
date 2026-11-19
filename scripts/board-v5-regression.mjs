@@ -78,7 +78,11 @@ try{
   await page.evaluate(()=>window.__soloTest.state());assert.equal((await state()).players[0].position,3);
   const token=(await page.evaluate(()=>window.__graphicsAudit.actors())).tokens[0];assert.ok(Math.abs(token.position[0]-3.6)<.6&&Math.abs(token.position[2]-9.55)<.6&&token.position[1]>=.34);
   await fixture('rent');await roll();s=await state();assert.equal(s.players[0].money,1496);assert.equal(s.players[1].money,1504);
-  await wait(()=>document.querySelector('.effect-transaction')?.textContent.includes('rent to Rival 1'));await capture('rent-payment');
+  await wait(()=>document.querySelector('.receipt-rent')?.getAttribute('aria-label')==='You paid $4 to Rival 1 · Rent on Baltic Avenue');
+  const rentReceipt=await page.$eval('.receipt-rent',element=>element.textContent);
+  assert.match(rentReceipt,/You.*1,496.*Rival 1.*1,504/);
+  assert.equal(await page.$$('.receipt-rent').then(receipts=>receipts.length),1);
+  await capture('rent-payment');
   await fixture('building');await page.click('button[title="Build on this property"]');
   await wait(()=>window.__soloTest.state().properties[1].houses===1);s=await state();assert.equal(s.players[0].money,1450);await capture('house-construction');
   assert.equal((await page.evaluate(()=>window.__graphicsAudit.actors())).buildings[0].models,1);
@@ -104,6 +108,13 @@ try{
   await fixture('bankruptcy');await roll();await debtAction('Declare bankruptcy');s=await state();assert.ok(s.players[0].isBankrupt);assert.equal(s.currentPlayerIndex,1);assert.equal(s.turnPhase,'PRE_ROLL');await capture('bankruptcy');
   await fixture('victory');await roll();await debtAction('Declare bankruptcy');await wait(()=>window.__soloTest.state().turnPhase==='GAME_OVER');await capture('victory');
   assert.equal(await page.$eval('[aria-label="Roll dice"]',e=>e.disabled),true);
+  const finishedGameId=(await state()).gameId;
+  await page.click('.winner-modal .modal-primary');
+  await wait(()=>document.querySelector('.setup-modal')&&!document.querySelector('.winner-modal'));
+  await page.click('.setup-modal .modal-primary');
+  await wait(()=>window.__soloTest.state().gameId>0&&window.__soloTest.state().turnPhase==='PRE_ROLL');
+  assert.ok((await state()).gameId>finishedGameId);
+  assert.ok((await state()).players.every(p=>p.money===1500&&p.position===0&&!p.isBankrupt));
   await fixture('six-players');await pause(300);const positions=(await page.evaluate(()=>window.__graphicsAudit.actors())).tokens.map(t=>t.position);assert.equal(new Set(positions.map(p=>`${p[0]},${p[2]}`)).size,6);await capture('six-player-start');
   await fixture('ai');await roll();await footer('Buy');await footer('End Turn');await wait(()=>window.__soloTest.state().currentPlayerIndex!==0);
   const deadline=Date.now()+90000;

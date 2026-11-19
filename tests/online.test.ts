@@ -4,6 +4,7 @@ import { EventEmitter } from 'node:events';
 import { ApiClient, ApiError, parseEnvelope } from '../src/online/apiClient';
 import { SessionManager } from '../src/online/sessionManager';
 import { mapMatch, MatchPresenter } from '../src/online/gamePresentationAdapter';
+import { committedFeedback, committedMove, type CommittedEvent } from '../src/online/committedPresentation';
 import { EventTracker } from '../src/online/eventTracker';
 import { SocketClient, GAME_EVENTS } from '../src/online/socketClient';
 import { OnlineController } from '../src/online/onlineController';
@@ -142,10 +143,81 @@ test('online scene has only presentation controls, without Solo commands or futu
 test('a canceled committed animation cannot overwrite a newer snapshot', async () => {
   const presenter = new MatchPresenter(() => {}); const before = snapshot(); presenter.apply(before, false);
   const roll = structuredClone(before); roll.stateVersion = 1; roll.players[1].position = 7; roll.dice = { values: [3, 4], total: 7, rolledByPlayerId: 'uuid-a' };
-  presenter.apply(roll, true, true);
+  presenter.apply(roll, true, [
+    { type: 'game:dice_rolled', payload: { playerId: 'uuid-a', dice: [3, 4], total: 7 } },
+    { type: 'game:player_moved', payload: { playerId: 'uuid-a', fromPosition: 0, toPosition: 7 } },
+  ]);
+  assert.equal(presenter.store.getState().turnPhase, 'ROLLING');
   const newer = structuredClone(roll); newer.stateVersion = 3; newer.players[1].position = 16; newer.dice.values = [4, 5];
   presenter.apply(newer, false); await new Promise(resolve => setTimeout(resolve, 750));
   assert.equal(presenter.store.getState().players.find(p => p.id === 1)?.position, 16); assert.deepEqual(presenter.store.getState().dice, [4, 5]); presenter.dispose();
+});
+
+const presentationLabels = {
+  spaceName: (id: number) => id === 3 ? 'Baltic Avenue' : `Space ${id}`,
+  card: () => ({ title: 'Go Back Three Spaces', description: 'Go back three spaces.', steps: -3 }),
+};
+const committedEvent = (type: string, payload: CommittedEvent['payload']): CommittedEvent => ({ type, payload });
+
+test('a committed Online roll walks each space and then follows the ordered backward card route', () => {
+  const before = snapshot(), after = structuredClone(before);
+  after.stateVersion++; after.players[1].position = 4;
+  after.dice = { values: [3, 4], total: 7, rolledByPlayerId: 'uuid-a' };
+  const events = [
+    committedEvent('game:dice_rolled', { playerId: 'uuid-a', dice: [3, 4], total: 7 }),
+    committedEvent('game:player_moved', { playerId: 'uuid-a', fromPosition: 0, toPosition: 7 }),
+    committedEvent('game:card_resolved', { playerId: 'uuid-a', cardId: 'back-three', effects: [{ type: 'move_relative' }] }),
+    committedEvent('game:player_moved', { playerId: 'uuid-a', fromPosition: 7, toPosition: 4 }),
+  ];
+  const motion = committedMove(before, after, events, presentationLabels);
+  assert.equal(motion.rolls, true);
+  assert.deepEqual(motion.beats.map(beat => 'card' in beat ? beat.card.label : beat.positions),
+    [[1, 2, 3, 4, 5, 6, 7], 'Go Back Three Spaces', [6, 5, 4]]);
+  assert.deepEqual(committedMove(before, after, events.slice(0, -1), presentationLabels).beats, []);
+});
+
+test('committed Online Jail is a relocation and same-valued newer rolls have their own timeline', () => {
+  const before = snapshot(), after = structuredClone(before);
+  before.dice = { values: [2, 2], total: 4, rolledByPlayerId: 'uuid-a' };
+  after.dice = before.dice; after.stateVersion++; after.players[1].position = 10; after.players[1].inJail = true;
+  const events = [
+    committedEvent('game:dice_rolled', { playerId: 'uuid-a', dice: [2, 2], total: 4 }),
+    committedEvent('game:player_moved', { playerId: 'uuid-a', fromPosition: 0, toPosition: 10 }),
+    committedEvent('game:jail_changed', { playerId: 'uuid-a', inJail: true, jailTurns: 0 }),
+  ];
+  assert.deepEqual(committedMove(before, after, events, presentationLabels), { rolls: true, beats: [{ seat: 1, positions: [10], jail: true }] });
+});
+
+test('committed Online rent produces one directional receipt with the actual debit and credit balances', () => {
+  const before = snapshot(), after = structuredClone(before);
+  after.players[0].money = 1070; after.players[1].money = 1430;
+  const events = [
+    committedEvent('game:money_changed', { playerId: 'uuid-a', amount: -70, balance: 1430, reason: 'RENT' }),
+    committedEvent('game:money_changed', { playerId: 'uuid-b', amount: 70, balance: 1070, reason: 'RENT' }),
+    committedEvent('game:rent_paid', { payerPlayerId: 'uuid-a', ownerPlayerId: 'uuid-b', spaceId: 3, amount: 70 }),
+  ];
+  const effects = committedFeedback(before, after, events, mapMatch(after).players, presentationLabels);
+  assert.deepEqual(effects.filter(event => event.cash).map(event => event.cash), [{
+    fromId: 1, toId: 3, amount: 70, reason: 'Rent on Baltic Avenue', category: 'rent', spaceId: 3,
+    fromName: 'Alice', toName: 'Bob', fromBalance: 1430, toBalance: 1070,
+  }]);
+  assert.equal(committedFeedback(before, after, events.slice(0, 2), mapMatch(after).players, presentationLabels).length, 0);
+});
+
+test('restoring or reapplying Online snapshots does not replay a purchase', () => {
+  const before = snapshot(), after = structuredClone(before);
+  const presenter = new MatchPresenter(() => {});
+  after.stateVersion++; after.properties[0].ownerPlayerId = 'uuid-a'; after.players[1].money = 1440;
+  const events = [committedEvent('game:property_purchased', { playerId: 'uuid-a', spaceId: 1, price: 60, balance: 1440 })];
+  presenter.apply(before, false);
+  presenter.apply(after, true, events);
+  assert.equal(presenter.store.getState().committedEffects?.filter(event => event.kind === 'ownership').length, 1);
+  presenter.reconcile();
+  presenter.apply(after, true, events);
+  presenter.apply(before, true, events);
+  assert.deepEqual(presenter.store.getState().committedEffects, []);
+  assert.equal(presenter.store.getState().properties[1].ownerId, 1);
+  presenter.dispose();
 });
 
 test('proactive expiry refresh is single-flight and also reconciles cross-tab identity', async () => {

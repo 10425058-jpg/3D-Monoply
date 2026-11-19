@@ -216,7 +216,10 @@ try {
   await a.setViewport({ width: 390, height: 844 }); await shot(a, '06-online-match-mobile');
   assert.equal(await a.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
   await a.setViewport({ width: 1440, height: 900 }); passed('E: server dice, 3D movement, balances, ownership and turn handoff agree');
-  const matchUrl = b.url(); observations.get(b).match = null; await b.reload({ waitUntil: 'domcontentloaded' }); await matchReady(b); await synchronized(a, b); passed('F: reload restores session and rejoins the same committed match');
+  const matchUrl = b.url(); observations.get(b).match = null; await b.reload({ waitUntil: 'domcontentloaded' }); await matchReady(b); await synchronized(a, b);
+  assert.equal(await b.$('.receipt-purchase'), null, 'restored ownership does not replay a celebration');
+  assert.ok(await b.evaluate(() => window.__graphicsAudit.dice().every(die => !die.visible)), 'restoring stored dice does not replay the roll');
+  passed('F: reload restores session, ownership and dice without replaying effects');
   const secondTab = await pageFor(cb); await go(secondTab, 'online/lobby'); await secondTab.waitForSelector('.city-lobby-actions');
   observations.get(b).match = null;
   await Promise.all([b.reload({ waitUntil: 'domcontentloaded' }), secondTab.reload({ waitUntil: 'domcontentloaded' })]);

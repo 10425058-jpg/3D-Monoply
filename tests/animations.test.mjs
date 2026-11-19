@@ -42,6 +42,22 @@ test('all six authoritative dice faces settle facing up', () => {
   }
 });
 
+test('each throw winds up, bounces, and settles on the authoritative orientation for every ordered pair', () => {
+  const normals = [null, [0, 1, 0], [0, 0, 1], [1, 0, 0], [-1, 0, 0], [0, 0, -1], [0, -1, 0]];
+  for (let first = 1; first <= 6; first++) for (let second = 1; second <= 6; second++) {
+    [first, second].forEach((die, index) => {
+      const moving = math.diceThrow(.39, index);
+      const rest = math.diceThrow(1, index);
+      assert.ok(moving.height > .4);
+      assert.ok(Math.hypot(rest.x, rest.z, rest.height) < 1e-10);
+      const rotation = math.DIE_REST_ROTATIONS[die];
+      const q = new Quaternion().setFromEuler(new Euler(rotation[0] + rest.pitch, rotation[1] + rest.yaw, rotation[2] + rest.bank));
+      assert.ok(new Vector3(...normals[die]).applyQuaternion(q).distanceTo(new Vector3(0, 1, 0)) < 1e-10);
+    });
+  }
+  assert.notEqual(math.diceThrow(.39, 0).yaw, math.diceThrow(.39, 1).yaw);
+});
+
 test('dice remain full size throughout tumbling and consecutive rolls, then fade only after landing', () => {
   for (const reduced of [false, true]) {
     assert.equal(math.diceResultScale(true, Infinity, reduced), 1, 'a fresh roll has no landing age');

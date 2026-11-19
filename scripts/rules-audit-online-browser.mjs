@@ -13,6 +13,7 @@ for (const url of [origin, process.env.DATABASE_URL]) {
   assert.ok(['localhost', '127.0.0.1', '[::1]'].includes(new URL(url).hostname), 'Card fixtures require loopback test services');
 }
 const requireBackend = createRequire(new URL('../backend/package.json', import.meta.url));
+const {io} = requireBackend('socket.io-client');
 const {PrismaClient} = requireBackend('@prisma/client');
 const {applyAction} = requireBackend('./dist/game/rules/engine');
 const {CONTENT, lockMatch, loadMatch, toEngineState, saveEngineState, appendEvents} = requireBackend('./dist/matches/match-store');
@@ -20,7 +21,7 @@ const prisma = new PrismaClient();
 const output = `${process.env.ONLINE_TEST_OUT || '.online-test/rules-audit'}/utility-card`;
 await mkdir(output, {recursive: true});
 const users = [];
-let roomId, browser;
+let roomId, browser, page, guestSocket;
 async function api(method, path, token, body) {
   const response = await fetch(`${origin}/api/v1${path}`, {method,
     headers: {...(token ? {Authorization: `Bearer ${token}`} : {}), ...(body === undefined ? {} : {'Content-Type': 'application/json'})},
@@ -43,6 +44,13 @@ try {
   await api('PATCH', `/rooms/${roomId}/ready`, users[1].accessToken, {isReady: true});
   const {matchId} = await api('POST', `/rooms/${roomId}/start`, users[0].accessToken,
     {rulesetId: 'mini-v1', contentVersion: 'central-castle@1'});
+  guestSocket = io(`${origin}/game`, {auth: {token: users[1].accessToken}, autoConnect: false});
+  await new Promise((resolve, reject) => {
+    guestSocket.once('connect', resolve);
+    guestSocket.once('connect_error', reject);
+    guestSocket.connect();
+  });
+  assert.equal((await guestSocket.timeout(8000).emitWithAck('match:join', {matchId})).ok, true);
   await prisma.$transaction(async tx => {
     assert.equal(await lockMatch(tx, matchId), true);
     const before = await loadMatch(tx, matchId), state = toEngineState(before);
@@ -63,7 +71,8 @@ try {
     executablePath: process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true,
     args: process.env.CI ? ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : [],
   });
-  const page = await browser.newPage(), errors = [];
+  page = await browser.newPage();
+  const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.setViewport({width: 1440, height: 900});
   await page.goto(`${origin}/#online/lobby`);
@@ -73,7 +82,7 @@ try {
   const signIn = await page.evaluateHandle(() => [...document.querySelectorAll('button')].find(button => button.textContent.trim() === 'Sign in'));
   await signIn.asElement().click(); await signIn.dispose();
   await page.waitForSelector('.city-lobby-actions');
-  await page.goto(`${origin}/#online/match/${matchId}`);
+  await page.goto(`${origin}/?graphicsAudit#online/match/${matchId}`);
   await page.waitForSelector('.city-last-card', {timeout: 120000});
   const instructions = await page.$eval('.city-last-card p', element => element.textContent);
   assert.match(instructions, /10 times/);
@@ -88,10 +97,63 @@ try {
   });
   assert.deepEqual(errors, []);
   await page.screenshot({path: `${output}/online-utility-mobile.png`});
-  await writeFile(`${output}/results.json`, JSON.stringify({passed: ['UI-01 authenticated Online card instructions and existing-dice 10x rent', 'Online mini-v1 excludes Solo landmark controls'], errors}, null, 2));
-  console.log('Passed Online Nearest Utility card instructions with a persisted engine fixture.');
+  await page.setViewport({width: 1440, height: 900});
+  // Start from a legal purchase decision, then submit through the real UI and
+  // action endpoint. The server's engine, ledger, and broadcasts stay live.
+  await prisma.$transaction(async tx => {
+    assert.equal(await lockMatch(tx, matchId), true);
+    const before = await loadMatch(tx, matchId), state = toEngineState(before);
+    state.players[0].position = 3;
+    state.pendingPurchaseSpaceId = 3;
+    state.turnPhase = 'LANDED_ACTION';
+    await saveEngineState(tx, before, state, before.stateVersion + 1, new Date());
+  });
+  await page.reload({waitUntil: 'domcontentloaded'});
+  await page.waitForFunction(() => [...document.querySelectorAll('.city-dock-actions button')].some(button =>
+    !button.disabled && button.textContent.trim() === 'Buy property · $60'), {timeout: 60_000});
+  await page.waitForFunction(() => !!window.__graphicsAudit && !!window.__phase2Environment?.ready, {timeout: 90_000});
+  await page.evaluate(() => window.__graphicsAudit.start());
+  const [receiptResponse] = await Promise.all([
+    page.waitForResponse(response => response.ok() && response.url().endsWith('/actions/buy-property')),
+    page.evaluate(() => [...document.querySelectorAll('.city-dock-actions button')]
+      .find(button => !button.disabled && button.textContent.trim() === 'Buy property · $60')?.click()),
+  ]);
+  const receipt = (await receiptResponse.json()).data;
+  await page.waitForSelector('.receipt-purchase', {timeout: 60_000});
+  const purchase = await page.$eval('.receipt-purchase', element => element.textContent);
+  assert.match(purchase, /Purchased Baltic Avenue.*\$60.*1,410.*Bank/);
+  assert.equal(await page.$$eval('.receipt-purchase', elements => elements.length), 1);
+  await page.screenshot({path: `${output}/online-purchase.png`});
+  const {samples} = await page.evaluate(() => window.__graphicsAudit.stop());
+  assert.ok(samples.length > 0);
+  const replay = await api('POST', `/matches/${matchId}/actions/buy-property`, users[0].accessToken, JSON.parse(receiptResponse.request().postData()));
+  assert.equal(replay.actionId, receipt.actionId);
+  assert.equal(replay.stateVersion, receipt.stateVersion);
+  await page.reload({waitUntil: 'domcontentloaded'});
+  await page.waitForFunction(() => window.__graphicsAudit?.game().properties[3]?.ownerId === 0 &&
+    document.querySelector('.city-match-header .city-connection')?.textContent === 'Connected', {timeout: 60_000});
+  assert.equal(await page.$('.receipt-purchase'), null);
+  assert.deepEqual(errors, []);
+  await writeFile(`${output}/results.json`, JSON.stringify({
+    passed: ['UI-01 authenticated Online card instructions and existing-dice 10x rent', 'Online mini-v1 excludes Solo landmark controls',
+      'One committed purchase receipt with exact balance and no replay on reload'],
+    purchase: { amount: 60, balance: 1410, version: receipt.stateVersion, frames: samples.length,
+      peakDrawCalls: Math.max(...samples.map(sample => sample.calls)) }, errors,
+  }, null, 2));
+  console.log('Passed restored Online card instructions, live purchase, action replay, and quiet reload.');
+} catch (error) {
+  if (page && !page.isClosed()) {
+    console.error('Online purchase diagnostics', await page.evaluate(() => ({
+      connection: document.querySelector('.city-connection')?.textContent,
+      actions: [...document.querySelectorAll('.city-dock-actions button')].map(button => [button.textContent, button.disabled]),
+      notice: document.querySelector('.city-error,.city-reconnect')?.textContent,
+    })).catch(() => ({})));
+    await page.screenshot({path: `${output}/failure.png`}).catch(() => {});
+  }
+  throw error;
 } finally {
   await browser?.close();
+  guestSocket?.disconnect();
   if (roomId) {
     await prisma.match.deleteMany({where: {roomId}});
     await prisma.room.deleteMany({where: {id: roomId}});

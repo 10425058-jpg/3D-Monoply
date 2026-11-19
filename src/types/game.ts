@@ -115,11 +115,21 @@ export type TurnPhase =
 
 export type CameraMode = 'isometric' | 'top' | 'follow' | 'city';
 
+export interface CashTransfer {
+  fromId: number | null;
+  toId: number | null;
+  amount: number;
+  reason: string;
+  category: 'purchase' | 'auction' | 'rent' | 'salary' | 'tax' | 'card' | 'mortgage' | 'construction' | 'trade' | 'jail' | 'landmark' | 'bonus' | 'debt';
+  spaceId?: number;
+}
+
 export interface LogEntry {
   id: string;
   timestamp: string;
   message: string;
   type: 'info' | 'money' | 'property' | 'alert' | 'card';
+  transfers?: readonly CashTransfer[];
 }
 
 export interface TradeOffer {

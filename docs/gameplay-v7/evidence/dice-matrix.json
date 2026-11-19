@@ -1,0 +1,1224 @@
+{
+    "passed":  true,
+    "normalRenderer":  "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "reducedRenderer":  "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "errors":  [
+
+               ],
+    "pairs":  [
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        1,
+                                        1
+                                    ],
+                      "rendered":  [
+                                       1,
+                                       1
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  29
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        1,
+                                        2
+                                    ],
+                      "rendered":  [
+                                       1,
+                                       2
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        1,
+                                        3
+                                    ],
+                      "rendered":  [
+                                       1,
+                                       3
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        1,
+                                        4
+                                    ],
+                      "rendered":  [
+                                       1,
+                                       4
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        1,
+                                        5
+                                    ],
+                      "rendered":  [
+                                       1,
+                                       5
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        1,
+                                        6
+                                    ],
+                      "rendered":  [
+                                       1,
+                                       6
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        2,
+                                        1
+                                    ],
+                      "rendered":  [
+                                       2,
+                                       1
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        2,
+                                        2
+                                    ],
+                      "rendered":  [
+                                       2,
+                                       2
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        2,
+                                        3
+                                    ],
+                      "rendered":  [
+                                       2,
+                                       3
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        2,
+                                        4
+                                    ],
+                      "rendered":  [
+                                       2,
+                                       4
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        2,
+                                        5
+                                    ],
+                      "rendered":  [
+                                       2,
+                                       5
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        2,
+                                        6
+                                    ],
+                      "rendered":  [
+                                       2,
+                                       6
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        3,
+                                        1
+                                    ],
+                      "rendered":  [
+                                       3,
+                                       1
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        3,
+                                        2
+                                    ],
+                      "rendered":  [
+                                       3,
+                                       2
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        3,
+                                        3
+                                    ],
+                      "rendered":  [
+                                       3,
+                                       3
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        3,
+                                        4
+                                    ],
+                      "rendered":  [
+                                       3,
+                                       4
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        3,
+                                        5
+                                    ],
+                      "rendered":  [
+                                       3,
+                                       5
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        3,
+                                        6
+                                    ],
+                      "rendered":  [
+                                       3,
+                                       6
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        4,
+                                        1
+                                    ],
+                      "rendered":  [
+                                       4,
+                                       1
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        4,
+                                        2
+                                    ],
+                      "rendered":  [
+                                       4,
+                                       2
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        4,
+                                        3
+                                    ],
+                      "rendered":  [
+                                       4,
+                                       3
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        4,
+                                        4
+                                    ],
+                      "rendered":  [
+                                       4,
+                                       4
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        4,
+                                        5
+                                    ],
+                      "rendered":  [
+                                       4,
+                                       5
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        4,
+                                        6
+                                    ],
+                      "rendered":  [
+                                       4,
+                                       6
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        5,
+                                        1
+                                    ],
+                      "rendered":  [
+                                       5,
+                                       1
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        5,
+                                        2
+                                    ],
+                      "rendered":  [
+                                       5,
+                                       2
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        5,
+                                        3
+                                    ],
+                      "rendered":  [
+                                       5,
+                                       3
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        5,
+                                        4
+                                    ],
+                      "rendered":  [
+                                       5,
+                                       4
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        5,
+                                        5
+                                    ],
+                      "rendered":  [
+                                       5,
+                                       5
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        5,
+                                        6
+                                    ],
+                      "rendered":  [
+                                       5,
+                                       6
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        6,
+                                        1
+                                    ],
+                      "rendered":  [
+                                       6,
+                                       1
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        6,
+                                        2
+                                    ],
+                      "rendered":  [
+                                       6,
+                                       2
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        6,
+                                        3
+                                    ],
+                      "rendered":  [
+                                       6,
+                                       3
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        6,
+                                        4
+                                    ],
+                      "rendered":  [
+                                       6,
+                                       4
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        6,
+                                        5
+                                    ],
+                      "rendered":  [
+                                       6,
+                                       5
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        6,
+                                        6
+                                    ],
+                      "rendered":  [
+                                       6,
+                                       6
+                                   ],
+                      "mode":  "normal",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        1,
+                                        1
+                                    ],
+                      "rendered":  [
+                                       1,
+                                       1
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        1,
+                                        2
+                                    ],
+                      "rendered":  [
+                                       1,
+                                       2
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        1,
+                                        3
+                                    ],
+                      "rendered":  [
+                                       1,
+                                       3
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        1,
+                                        4
+                                    ],
+                      "rendered":  [
+                                       1,
+                                       4
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        1,
+                                        5
+                                    ],
+                      "rendered":  [
+                                       1,
+                                       5
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        1,
+                                        6
+                                    ],
+                      "rendered":  [
+                                       1,
+                                       6
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        2,
+                                        1
+                                    ],
+                      "rendered":  [
+                                       2,
+                                       1
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        2,
+                                        2
+                                    ],
+                      "rendered":  [
+                                       2,
+                                       2
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        2,
+                                        3
+                                    ],
+                      "rendered":  [
+                                       2,
+                                       3
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        2,
+                                        4
+                                    ],
+                      "rendered":  [
+                                       2,
+                                       4
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        2,
+                                        5
+                                    ],
+                      "rendered":  [
+                                       2,
+                                       5
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        2,
+                                        6
+                                    ],
+                      "rendered":  [
+                                       2,
+                                       6
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        3,
+                                        1
+                                    ],
+                      "rendered":  [
+                                       3,
+                                       1
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        3,
+                                        2
+                                    ],
+                      "rendered":  [
+                                       3,
+                                       2
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        3,
+                                        3
+                                    ],
+                      "rendered":  [
+                                       3,
+                                       3
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        3,
+                                        4
+                                    ],
+                      "rendered":  [
+                                       3,
+                                       4
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        3,
+                                        5
+                                    ],
+                      "rendered":  [
+                                       3,
+                                       5
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        3,
+                                        6
+                                    ],
+                      "rendered":  [
+                                       3,
+                                       6
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        4,
+                                        1
+                                    ],
+                      "rendered":  [
+                                       4,
+                                       1
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        4,
+                                        2
+                                    ],
+                      "rendered":  [
+                                       4,
+                                       2
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        4,
+                                        3
+                                    ],
+                      "rendered":  [
+                                       4,
+                                       3
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        4,
+                                        4
+                                    ],
+                      "rendered":  [
+                                       4,
+                                       4
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        4,
+                                        5
+                                    ],
+                      "rendered":  [
+                                       4,
+                                       5
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        4,
+                                        6
+                                    ],
+                      "rendered":  [
+                                       4,
+                                       6
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        5,
+                                        1
+                                    ],
+                      "rendered":  [
+                                       5,
+                                       1
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        5,
+                                        2
+                                    ],
+                      "rendered":  [
+                                       5,
+                                       2
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        5,
+                                        3
+                                    ],
+                      "rendered":  [
+                                       5,
+                                       3
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        5,
+                                        4
+                                    ],
+                      "rendered":  [
+                                       5,
+                                       4
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        5,
+                                        5
+                                    ],
+                      "rendered":  [
+                                       5,
+                                       5
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        5,
+                                        6
+                                    ],
+                      "rendered":  [
+                                       5,
+                                       6
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        6,
+                                        1
+                                    ],
+                      "rendered":  [
+                                       6,
+                                       1
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        6,
+                                        2
+                                    ],
+                      "rendered":  [
+                                       6,
+                                       2
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        6,
+                                        3
+                                    ],
+                      "rendered":  [
+                                       6,
+                                       3
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        6,
+                                        4
+                                    ],
+                      "rendered":  [
+                                       6,
+                                       4
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        6,
+                                        5
+                                    ],
+                      "rendered":  [
+                                       6,
+                                       5
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  },
+                  {
+                      "alignment":  [
+                                        1,
+                                        1
+                                    ],
+                      "committed":  [
+                                        6,
+                                        6
+                                    ],
+                      "rendered":  [
+                                       6,
+                                       6
+                                   ],
+                      "mode":  "reduced",
+                      "rollingFrames":  30
+                  }
+              ],
+    "additionalCases":  [
+                            {
+                                "name":  "shader-warmup",
+                                "mode":  "normal",
+                                "passed":  true
+                            },
+                            {
+                                "name":  "consecutive-doubles",
+                                "mode":  "normal",
+                                "passed":  true
+                            },
+                            {
+                                "name":  "jail-failed-roll",
+                                "mode":  "normal",
+                                "passed":  true
+                            },
+                            {
+                                "name":  "jail-doubles",
+                                "mode":  "normal",
+                                "passed":  true
+                            },
+                            {
+                                "name":  "reset-during-roll",
+                                "mode":  "normal",
+                                "passed":  true
+                            },
+                            {
+                                "name":  "reset-after-landing",
+                                "mode":  "normal",
+                                "passed":  true
+                            },
+                            {
+                                "name":  "shader-warmup",
+                                "mode":  "reduced",
+                                "passed":  true
+                            },
+                            {
+                                "name":  "consecutive-doubles",
+                                "mode":  "reduced",
+                                "passed":  true
+                            },
+                            {
+                                "name":  "jail-failed-roll",
+                                "mode":  "reduced",
+                                "passed":  true
+                            },
+                            {
+                                "name":  "jail-doubles",
+                                "mode":  "reduced",
+                                "passed":  true
+                            },
+                            {
+                                "name":  "reset-during-roll",
+                                "mode":  "reduced",
+                                "passed":  true
+                            },
+                            {
+                                "name":  "reset-after-landing",
+                                "mode":  "reduced",
+                                "passed":  true
+                            }
+                        ]
+}

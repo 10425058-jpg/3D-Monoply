@@ -1,0 +1,236 @@
+{
+  "summary": {
+    "idle": {
+      "frames": 220,
+      "frameMedianMs": 9.9,
+      "frameP95Ms": 12.7,
+      "renderCpuMedianMs": 1.4,
+      "drawCallsMedian": 189,
+      "drawCallsPeak": 189,
+      "peakGeometries": 205
+    },
+    "rollAndWalk": {
+      "frames": 604,
+      "frameMedianMs": 9.6,
+      "frameP95Ms": 12,
+      "renderCpuMedianMs": 1.1,
+      "drawCallsMedian": 200,
+      "drawCallsPeak": 202,
+      "peakGeometries": 205
+    },
+    "purchase": {
+      "frames": 25,
+      "frameMedianMs": 10.8,
+      "frameP95Ms": 12.1,
+      "renderCpuMedianMs": 1.7,
+      "drawCallsMedian": 206,
+      "drawCallsPeak": 207,
+      "peakGeometries": 208
+    },
+    "rent": {
+      "frames": 107,
+      "frameMedianMs": 10.5,
+      "frameP95Ms": 12.9,
+      "renderCpuMedianMs": 1.2,
+      "drawCallsMedian": 204,
+      "drawCallsPeak": 211,
+      "peakGeometries": 211
+    },
+    "card": {
+      "frames": 148,
+      "frameMedianMs": 9.8,
+      "frameP95Ms": 13,
+      "renderCpuMedianMs": 1.4,
+      "drawCallsMedian": 199,
+      "drawCallsPeak": 202,
+      "peakGeometries": 205
+    },
+    "construction": {
+      "frames": 19,
+      "frameMedianMs": 15,
+      "frameP95Ms": 22.9,
+      "renderCpuMedianMs": 1.7,
+      "drawCallsMedian": 193,
+      "drawCallsPeak": 197,
+      "peakGeometries": 216
+    },
+    "sustainedSolo": {
+      "frames": 1924,
+      "frameMedianMs": 10.1,
+      "frameP95Ms": 13.4,
+      "renderCpuMedianMs": 1.2,
+      "drawCallsMedian": 206,
+      "drawCallsPeak": 213,
+      "peakGeometries": 217
+    }
+  },
+  "motion": {
+    "recordedFrames": 142,
+    "renderedRollFrames": 50,
+    "renderedHopFrames": 75,
+    "renderedTiles": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "finalTile": 8,
+    "landed": [
+      3,
+      5
+    ]
+  },
+  "renderer": {
+    "quality": "balanced",
+    "three": "164",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+    "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "gpuTimerAvailable": true,
+    "viewport": [
+      1440,
+      900
+    ],
+    "dpr": 1,
+    "drawingBuffer": [
+      1440,
+      900
+    ],
+    "fogRange": [
+      48,
+      150
+    ],
+    "clipping": [
+      0.5,
+      400
+    ],
+    "camera": {
+      "position": [
+        0.003690174103051196,
+        49.95758794390978,
+        19.154586493216982
+      ],
+      "fov": 40,
+      "view": {
+        "enabled": true,
+        "fullWidth": 1440,
+        "fullHeight": 900,
+        "offsetX": -74,
+        "offsetY": 42.816701245597784,
+        "width": 1440,
+        "height": 900
+      },
+      "target": [
+        0.002009769831434699,
+        0.6999441544202177,
+        0.0026657363736390803
+      ]
+    },
+    "meshes": 248,
+    "materialTextures": [
+      {
+        "name": "Sunset atmosphere 2048x1024",
+        "width": 2048,
+        "height": 1024
+      },
+      {
+        "name": "Kingdom_Surface_Atlas_128",
+        "width": 256,
+        "height": 256
+      },
+      {
+        "name": "Kingdom_Surface_Atlas_128",
+        "width": 256,
+        "height": 256
+      },
+      {
+        "name": "Kingdom_Surface_Atlas_128",
+        "width": 128,
+        "height": 128
+      },
+      {
+        "name": "Kingdom_Surface_Atlas_128",
+        "width": 128,
+        "height": 128
+      },
+      {
+        "name": "Kingdom_Surface_Atlas_128",
+        "width": 128,
+        "height": 128
+      },
+      {
+        "name": "Kingdom_Surface_Atlas_128",
+        "width": 128,
+        "height": 128
+      },
+      {
+        "name": "Kingdom_Surface_Atlas_128",
+        "width": 128,
+        "height": 128
+      },
+      {
+        "name": "Kingdom_Surface_Atlas_128",
+        "width": 128,
+        "height": 128
+      },
+      {
+        "name": "Kingdom_Surface_Atlas_128",
+        "width": 128,
+        "height": 128
+      },
+      {
+        "name": "Kingdom_Surface_Atlas_128",
+        "width": 256,
+        "height": 256
+      },
+      {
+        "name": "Kingdom_Surface_Atlas_128",
+        "width": 256,
+        "height": 256
+      },
+      {
+        "name": "Kingdom_Surface_Atlas_128",
+        "width": 256,
+        "height": 256
+      },
+      {
+        "name": "Offline cloud density atlas balanced",
+        "width": 768,
+        "height": 384
+      },
+      {
+        "name": "Walnut grain 128x32",
+        "width": 128,
+        "height": 32
+      },
+      {
+        "name": "Board V6 engraved labels 1024",
+        "width": 1024,
+        "height": 1024
+      },
+      {
+        "name": "Central_royal_surface_atlas_256",
+        "width": 256,
+        "height": 256
+      }
+    ],
+    "allocationEstimates": {
+      "geometryAttributeBytes": 17778206,
+      "instanceAttributeBytes": 55284,
+      "textureRgbaBytes": 18279082.66666667
+    },
+    "memory": {
+      "geometries": 211,
+      "textures": 18
+    },
+    "programs": 47
+  },
+  "audio": {
+    "voicesCreated": 391,
+    "running": 391
+  },
+  "soloHandoffs": 9
+}

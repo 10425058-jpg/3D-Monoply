@@ -3,27 +3,30 @@ import { useFrame } from '@react-three/fiber';
 import { AnimatedToken } from './AnimatedToken';
 import { useMotionPreferences } from '../../presentation/useMotionPreferences';
 import * as THREE from 'three';
-import { useSceneState as useGameStore } from '../../presentation/SceneStore';
+import { useSceneState as useGameStore, useSceneStore } from '../../presentation/SceneStore';
 import { BOARD_SPACES, getSpaceTransform } from '../../data/boardData';
 import { TokenType } from '../../types/game';
 import {tileActorHeight, TOKEN_RING_OUTER_RADIUS, tokenRingScale} from '../../presentation/animationMath';
 
 const PopInGroup: React.FC<{ position: [number, number, number]; reduced: boolean; children: React.ReactNode }> = ({ position, reduced, children }) => {
+  const store = useSceneStore();
   const groupRef = useRef<THREE.Group>(null);
   const startedAt = useRef(performance.now());
+  const duration = useRef(380 / store.getState().gameSpeed);
   const settled = useRef(false);
   useFrame(() => {
     const group = groupRef.current;
     if (!group || settled.current || document.hidden) return;
-    const progress = reduced ? 1 : Math.min(1, (performance.now() - startedAt.current) / 340);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    group.scale.setScalar(0.12 + eased * 0.88 + Math.sin(progress * Math.PI) * 0.08);
-    group.position.y = position[1] + (1 - eased) * 0.18;
+    const progress = reduced ? 1 : Math.min(1, (performance.now() - startedAt.current) / duration.current);
+    const build = Math.max(0, (progress - .12) / .88);
+    const eased = 1 - (1 - build) ** 3;
+    group.scale.set(.18 + eased * .82, .12 + eased * .88 + Math.sin(build * Math.PI) * .12, .18 + eased * .82);
+    group.position.y = position[1] * eased;
     if (progress === 1) settled.current = true;
   });
-  return <group ref={groupRef} position={position}>{children}</group>;
+  return <group ref={groupRef} position={position} scale={reduced ? 1 : .18}>{children}</group>;
 };
-const TokenMesh: React.FC<{ token: TokenType; color: string }> = ({ token, color }) => {
+const TokenMesh = React.memo(function TokenMesh({ token, color }: { token: TokenType; color: string }) {
   const enamel = { metalness: 0.62, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.1 };
   const gold = '#e9c36d';
 
@@ -238,7 +241,7 @@ const TokenMesh: React.FC<{ token: TokenType; color: string }> = ({ token, color
         </group>
       );
   }
-};
+});
 
 export const TokensAndBuildings: React.FC<{ quality?: string }> = ({ quality = 'balanced' }) => {
   const players = useGameStore((s) => s.players);

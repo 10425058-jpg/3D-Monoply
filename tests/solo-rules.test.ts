@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {useGameStore as store} from '../src/store/useGameStore';
 import {BOARD_SPACES,getSpaceTransform} from '../src/data/boardData';
 import {CHANCE_CARDS,COMMUNITY_CHEST_CARDS} from '../src/data/cardsData';
-import {runSoloAiStep} from '../src/game/soloAi';
+import {runSoloAiRaid, runSoloAiStep} from '../src/game/soloAi';
 import {unmortgageCost} from '../src/game/soloRules';
 
 const setup=(t:any,n=3)=>{
@@ -39,6 +39,48 @@ test('setup, stored dice, duplicate roll, clockwise movement and duplicate purch
 test('GO pays once with the existing landmark bonus; backwards card pays no salary',t=>{
   setup(t);player(0,{position:38,landmarkLevel:2});roll(t,1,1);assert.equal(store.getState().players[0].money,1800);
   draw('ch_8');flush(t);assert.equal(store.getState().players[0].position,37);assert.equal(store.getState().players[0].money,1800);
+});
+test('Solo creates a single receipt only after a committed purchase or rent payment', t => {
+  setup(t);
+  store.getState().buyCurrentProperty();
+  assert.ok(!store.getState().logs.some(log => log.transfers?.length));
+  roll(t, 1, 2);
+  store.getState().buyCurrentProperty();
+  store.getState().buyCurrentProperty();
+  assert.deepEqual(store.getState().logs.flatMap(log => log.transfers ?? []), [
+    { fromId: 0, toId: null, amount: 60, reason: 'Purchased Baltic Avenue', category: 'purchase', spaceId: 3 },
+  ]);
+  own(3, 1);
+  player(0, { position: 0 });
+  store.setState({ turnPhase: 'PRE_ROLL' });
+  roll(t, 1, 2);
+  assert.deepEqual(store.getState().logs[0].transfers, [
+    { fromId: 0, toId: 1, amount: 4, reason: 'Rent on Baltic Avenue', category: 'rent', spaceId: 3 },
+  ]);
+  assert.deepEqual(store.getState().players.map(candidate => candidate.money), [1436, 1504, 1500]);
+});
+
+test('a stale Solo card control cannot resolve a later draw', t => {
+  setup(t);
+  const card = CHANCE_CARDS.find(candidate => candidate.id === 'ch_6')!;
+  store.setState({ activeCard: card, cardDrawId: 2, turnPhase: 'CARD_DRAWN' });
+  store.getState().applyActiveCard(1);
+  assert.equal(store.getState().players[0].money, 1500);
+  assert.equal(store.getState().activeCard, card);
+  store.getState().applyActiveCard(2);
+  store.getState().applyActiveCard(2);
+  assert.equal(store.getState().players[0].money, 1550);
+});
+
+test('the Solo heist AI selects a vault without reading its hidden payout', t => {
+  const game = setup(t);
+  const raid = { attackerId: 1, mode: 'heist', vaultRewards: [150, 550, 300] } as const;
+  store.setState({ currentPlayerIndex: 1, turnPhase: 'END_TURN', railroadRaid: { ...raid, vaultRewards: [...raid.vaultRewards] } });
+  const random = t.mock.method(Math, 'random', () => .1);
+  runSoloAiRaid(game.gameId, store.getState().railroadRaid!);
+  random.mock.restore();
+  assert.equal(store.getState().players[1].money, 1650);
+  assert.equal(store.getState().railroadRaid, null);
 });
 test('third doubles sends directly to Jail; Jail doubles do not grant another roll',t=>{
   setup(t);store.setState({doublesCount:2});player(0,{position:39});roll(t,2,2);
