@@ -38,7 +38,9 @@ async function motionChecks(){
         assert.notEqual(next.trace.ready.playerId,result.trace.ready.playerId);
         cases.push({...profile,consecutive:true,...next});
       }
-      console.log(`Passed dice and token motion: ${name}.`);
+      const hopHeight = result.trace.hop?.token[1].toFixed(3);
+      console.log(`Passed ${name} with ${result.rollingFrames} rendered rolling frames and settled dice [${result.trace.settled.renderedDice.map(die=>die.face).join(', ')}].`);
+      if(hopHeight)console.log(`Rendered token hop height ${hopHeight}.`);
     }finally{await page.close();}
   }
   results.motion=cases[0];

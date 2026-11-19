@@ -45,6 +45,12 @@ The corrected test first reads the result after the board has submitted the land
 
 All 12 SwiftShader quality, speed and motion combinations passed, along with a consecutive turn in the same game. In two normal-motion profiles SwiftShader submitted only two rolling frames with near-level dice. Those cases verified rolling visibility, a rendered hop and the exact settled orientation. The other five normal-motion cases also recorded visibly tilted dice during the roll. [Recorded timelines and matrix measurements](timelines.json)
 
+### First GitHub runner trace
+
+The first instrumented run recorded a 681.5 ms `ROLLING` phase and zero submitted board frames within that window. The preceding `PRE_ROLL` frame finished 8.4 ms before the commit. The next board draw began 1,055.6 ms after the commit, in `MOVING`, and took 4,478.9 ms to return. It captured a token at Y=0.750 and both visible settled dice at [3, 5] with upward alignment [1, 1]. The trace also captured all eight store positions and the rendered decision at +6,855.1 ms. [Instrumented workflow run](https://github.com/10425058-jpg/3D-Monoply/actions/runs/44454930739) · [Trace excerpt](timelines.json)
+
+The extra rolling visibility assertion now applies whenever the renderer submits a frame in `ROLLING`. The test reports the number of rolling frames and always requires the actual phase transitions, a rendered hop at normal motion, exact visible settled faces and orientation, and the landing decision on tile 8. This keeps the phase and mesh assertions tied to the evidence each one needs.
+
 ## Reproduction and verification
 
 Run the focused check with `node scripts/board-v5-resilience.mjs --motion-only`. Add `--matrix` to cover Low, Balanced and High, both motion preferences, both speeds, and a consecutive roll in the same match. Set `CI=true` to use the workflow's SwiftShader flags. The full board regression uses `npm run test:board-browser`. On failure the trace and screenshot are written to `V5_EVIDENCE_OUT`.

@@ -1,5 +1,5 @@
 {
-  "timestampUnits": "Before at fields and after input are host epoch milliseconds. After trace fields are browser performance.now() milliseconds, relative to that trace timeOrigin.",
+  "timestampUnits": "Before at fields and after input are host epoch milliseconds. After trace fields are browser performance.now() milliseconds, relative to that trace timeOrigin. The GitHub trace excerpt uses milliseconds relative to the ROLLING commit.",
   "before": [
     {
       "summary": {
@@ -4321,6 +4321,41 @@
       }
     }
   ],
+  "ciFirstAttempt": {
+    "workflowRun": 44454930739,
+    "artifact": 14498251589,
+    "renderer": "Chrome SwiftShader",
+    "fontStatus": "loaded",
+    "trustedClickCapturedAt": -0.5,
+    "clickResolvedAt": 11.7,
+    "firstResultReadAt": 6861.5,
+    "failureResultReadAt": 6865.4,
+    "committedDice": [3, 5],
+    "turns": [
+      {"phase": "PRE_ROLL", "tile": 0, "at": -430.8},
+      {"phase": "ROLLING", "tile": 0, "at": 0},
+      {"phase": "MOVING", "tile": 0, "at": 681.5},
+      {"phase": "MOVING", "tile": 1, "at": 681.9},
+      {"phase": "MOVING", "tile": 2, "at": 837.3},
+      {"phase": "MOVING", "tile": 3, "at": 992.9},
+      {"phase": "MOVING", "tile": 4, "at": 5553.5},
+      {"phase": "MOVING", "tile": 5, "at": 5708.9},
+      {"phase": "MOVING", "tile": 6, "at": 5866.1},
+      {"phase": "MOVING", "tile": 7, "at": 6022.2},
+      {"phase": "MOVING", "tile": 8, "at": 6177.5},
+      {"phase": "LANDED_ACTION", "tile": 8, "at": 6333.5}
+    ],
+    "precedingBoardFrame": {"phase": "PRE_ROLL", "at": -8.4, "renderMs": 5.2},
+    "firstBoardFrameAfterClick": {"phase": "MOVING", "tile": 3, "startedAt": 1055.6, "at": 5534.5, "renderMs": 4478.9, "token": [5.101, 0.750, 9.960]},
+    "rollingFrames": 0,
+    "firstRenderedSettledDice": [
+      {"visible": true, "face": 3, "up": 1},
+      {"visible": true, "face": 5, "up": 1}
+    ],
+    "landedFrame": {"phase": "LANDED_ACTION", "tile": 8, "at": 6855.1, "token": [-4.990, 0.340, 9.960]},
+    "longTasks": [{"at": 1050.7, "durationMs": 4486}],
+    "consoleErrors": []
+  },
   "matrix": [
     {
       "quality": "low",
