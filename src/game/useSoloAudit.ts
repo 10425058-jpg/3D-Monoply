@@ -2,6 +2,13 @@ import {useEffect} from 'react';
 import {useGameStore} from '../store/useGameStore';
 import {CHANCE_CARDS,COMMUNITY_CHEST_CARDS} from '../data/cardsData';
 
+type GameState = ReturnType<typeof useGameStore.getState>;
+const turnSnapshot = (state: GameState) => {
+  const player = state.players[state.currentPlayerIndex];
+  return { gameId: state.gameId, phase: state.turnPhase, speed: state.gameSpeed,
+    dice: [...state.dice], playerId: player?.id, tile: player?.position };
+};
+
 /** Deterministic browser fixtures are available only in opt-in loopback Solo QA. */
 export function useSoloAudit(){
   useEffect(()=>{
@@ -52,7 +59,18 @@ export function useSoloAudit(){
       }
       return state();
     };
-    const api={fixture,state};(window as any).__soloTest=api;
+    const observeTurn = (listener: (turn: ReturnType<typeof turnSnapshot>) => void) => {
+      listener(turnSnapshot(useGameStore.getState()));
+      return useGameStore.subscribe((next, previous) => {
+        const player = next.players[next.currentPlayerIndex];
+        const before = previous.players[previous.currentPlayerIndex];
+        if (next.gameId !== previous.gameId || next.turnPhase !== previous.turnPhase || next.dice !== previous.dice ||
+          player?.id !== before?.id || player?.position !== before?.position || next.gameSpeed !== previous.gameSpeed) {
+          listener(turnSnapshot(next));
+        }
+      });
+    };
+    const api={fixture,state,observeTurn};(window as any).__soloTest=api;
     return()=>{if((window as any).__soloTest===api)delete (window as any).__soloTest;};
   },[]);
 }

@@ -2,19 +2,53 @@ import puppeteer from 'puppeteer-core';
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
+import {checkBoardMotion} from './board-v5-motion.mjs';
 const origin=process.env.V5_TEST_URL||'http://127.0.0.1:4193',out=process.env.V5_EVIDENCE_OUT||'docs/board-rules-v5/evidence/regression';
 const pause=ms=>new Promise(r=>setTimeout(r,ms));await mkdir(out,{recursive:true});
 const browser=await puppeteer.launch({executablePath:process.env.CHROME_PATH||'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true,
   args:process.env.CI?['--no-sandbox','--disable-setuid-sandbox','--disable-dev-shm-usage','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']:[]});
 const results={contexts:[]};
+const motionOnly=process.argv.includes('--motion-only'),matrix=process.argv.includes('--matrix');
 async function open(quality='balanced',motion='reduce'){
   const page=await browser.newPage();await page.setViewport({width:1440,height:900,deviceScaleFactor:1});await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:motion}]);
   await page.evaluateOnNewDocument(q=>localStorage.setItem('monopoly-graphics-quality',q),quality);await page.goto(`${origin}/?graphicsAudit&soloTest#solo`);
-  await page.waitForFunction(()=>window.__graphicsAudit&&window.__soloTest&&window.__centralCityAudit?.ready&&window.__phase2Environment?.ready,{timeout:90000});await pause(1200);return page;
+  await page.waitForFunction(()=>window.__graphicsAudit&&window.__soloTest&&window.__centralCityAudit?.ready&&window.__phase2Environment?.ready,{timeout:90000});return page;
 }
-try{
+async function motionChecks(){
+  const profiles=matrix?['low','balanced','high'].flatMap(quality=>['no-preference','reduce'].flatMap(motion=>
+    [1,2].map(speed=>({quality,motion,speed})))):[{quality:'balanced',motion:'no-preference',speed:1}];
+  const cases=[];
+  for(const profile of profiles){
+    const {quality,motion,speed}=profile,page=await open(quality,motion);
+    const name=`${quality}-${motion}-${speed}x`;
+    try{
+      await page.evaluate(()=>window.__soloTest.fixture('opening'));
+      await page.click(`.speed-options button:nth-child(${speed})`);
+      const result=await checkBoardMotion(page,{out,name,speed,motion});
+      cases.push({...profile,renderer:await page.evaluate(()=>window.__graphicsAudit.metadata().renderer),...result});
+      if(!matrix)await page.screenshot({path:`${out}/normal-motion-dice.png`});
+      if(matrix&&quality==='balanced'&&motion==='no-preference'&&speed===1){
+        await page.click('.solo-decision-strip button');
+        const endTurn=await page.waitForFunction(()=>[...document.querySelectorAll('footer button')]
+          .find(button=>!button.disabled&&button.textContent.trim()==='End Turn'));
+        await endTurn.asElement().click();
+        await endTurn.dispose();
+        const next=await checkBoardMotion(page,{out,name:`${name}-next-turn`,speed,motion});
+        assert.equal(next.trace.ready.gameId,result.trace.ready.gameId);
+        assert.notEqual(next.trace.ready.playerId,result.trace.ready.playerId);
+        cases.push({...profile,consecutive:true,...next});
+      }
+      console.log(`Passed dice and token motion: ${name}.`);
+    }finally{await page.close();}
+  }
+  results.motion=cases[0];
+  if(matrix)results.motionCases=cases;
+  await writeFile(`${out}/motion.json`,JSON.stringify(cases,null,2));
+}
+async function verifyContexts(){
   for(const quality of ['low','balanced','high']){
     const page=await open(quality),before=`${out}/context-${quality}-before.png`,after=`${out}/context-${quality}-after.png`;
+    await pause(1200);
     await page.screenshot({path:before});
     await page.evaluate(()=>{
       const gl=document.querySelector('canvas').getContext('webgl2'),extension=gl.getExtension('WEBGL_lose_context');if(!extension)throw Error('Context-loss extension unavailable');
@@ -26,16 +60,8 @@ try{
     assert.ok(pixels.meanAbsoluteChannelDelta<.5,'atlas, material and board geometry must restore within sub-byte mean pixel tolerance');
     results.contexts.push({quality,pixels,atlas:await page.evaluate(()=>window.__graphicsAudit.board())});await page.close();console.log(`Passed context recovery: ${quality}`);
   }
-  const motion=await open('balanced','no-preference');await motion.evaluate(()=>window.__soloTest.fixture('opening'));await pause(300);
-  await motion.click('.speed-options button:first-child');
-  await motion.evaluate(()=>{let faces=[3,5],original=Math.random;Math.random=()=>{const value=(faces.shift()-.5)/6;if(!faces.length)Math.random=original;return value;};});await motion.click('[aria-label="Roll dice"]');
-  const samples=[];for(let i=0;i<65;i++){samples.push(await motion.evaluate(()=>({phase:window.__soloTest.state().turnPhase,token:window.__graphicsAudit.actors().tokens[0].position})));if(samples.at(-1).phase==='LANDED_ACTION')break;await pause(35);}
-  assert.ok(samples.some(s=>s.phase==='ROLLING'));assert.ok(samples.some(s=>s.phase==='MOVING'));assert.ok(samples.some(s=>s.token[1]>.38),'actual rendered token hops above its surface');
-  await motion.waitForFunction(()=>window.__soloTest.state().turnPhase==='LANDED_ACTION',{timeout:60000});
-  await motion.waitForFunction(()=>window.__graphicsAudit.dice().every((die,index)=>die.face===[3,5][index]&&die.up>.999),{timeout:60000});
-  const final=await motion.evaluate(()=>({state:window.__soloTest.state(),dice:window.__graphicsAudit.dice(),actors:window.__graphicsAudit.actors()}));
-  assert.equal(final.state.players[0].position,8);assert.equal(final.state.players[0].money,1500);assert.deepEqual(final.dice.map(d=>d.face),[3,5]);
-  results.motion={samples,final};await motion.screenshot({path:`${out}/normal-motion-dice.png`});await motion.close();console.log('Passed normal token and dice motion.');
+}
+async function verifyOptionalFont(){
   const fault=await browser.newPage();await fault.setViewport({width:1440,height:900,deviceScaleFactor:1});await fault.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'}]);
   await fault.setCacheEnabled(false);await fault.setRequestInterception(true);const blocked=[],workerHooks=[];
   // Worker traffic has its own CDP session. Block and observe it explicitly,
@@ -76,5 +102,11 @@ try{
   assert.equal(fallback.appVisible,true);assert.equal(fallback.canvas,1);assert.deepEqual(fallback.money,[1496,1504,1500]);assert.match(fallback.receipt,/Rent on Baltic Avenue.*\$4.*1,496.*1,504/);
   assert.equal(await fault.$eval('.monopoly-app',e=>e.getBoundingClientRect().height>0),true);
   await fault.screenshot({path:`${out}/optional-font-fallback.png`});results.fontFallback={blocked,warmupTransactions,...fallback};await fault.close();
-  results.passed=true;await writeFile(`${out}/resilience.json`,JSON.stringify(results,null,2));console.log('Passed board atlas context recovery at all tiers, normal token/dice animation and optional-font failure without blocking gameplay.');
+}
+try{
+  if(!motionOnly)await verifyContexts();
+  await motionChecks();
+  if(!motionOnly)await verifyOptionalFont();
+  results.passed=true;await writeFile(`${out}/resilience.json`,JSON.stringify(results,null,2));
+  if(!motionOnly)console.log('Passed board atlas context recovery at all tiers, dice and token motion, and optional-font failure without blocking gameplay.');
 }finally{await browser.close();}
