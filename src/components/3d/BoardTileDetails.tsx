@@ -1,17 +1,26 @@
 import {useEffect,useLayoutEffect,useMemo,useRef} from 'react';
-import {useThree} from '@react-three/fiber';
+import {useFrame,useThree} from '@react-three/fiber';
 import * as THREE from 'three';
 import {BOARD_SPACES,getSpaceTransform} from '../../data/boardData';
-import {useSceneState} from '../../presentation/SceneStore';
+import {useSceneState,useSceneStore} from '../../presentation/SceneStore';
+import {usePresentationEvents} from '../../presentation/PresentationProvider';
+import {useMotionPreferences} from '../../presentation/useMotionPreferences';
 import {releaseInstanceBuffers} from '../environment/instanceResources';
 import {createBoardTileAtlas,tileAtlasRect,badgeAtlasRect} from './boardTileAtlas';
 import {ownerEdgeLayout,tileOutline} from './boardVisualState';
 
 /** Presentation only: original catalog, ownership and gameplay coordinates. */
 export function BoardTileDetails({hoveredId}:{hoveredId:number|null}){
-  const properties=useSceneState(s=>s.properties),players=useSceneState(s=>s.players);
-  const selected=useSceneState(s=>s.selectedSpaceId),hovered=useSceneState(s=>s.hoveredSpaceId),auction=useSceneState(s=>s.auction);
-  const phase=useSceneState(s=>s.turnPhase),current=useSceneState(s=>s.currentPlayerIndex);
+  const store=useSceneStore(), properties=useSceneState(s=>s.properties);
+  const seatColors=useSceneState(s=>s.players.map(player=>`${player.id}:${player.color}`).join(';'));
+  const selected=useSceneState(s=>s.selectedSpaceId),hovered=useSceneState(s=>s.hoveredSpaceId),auctionId=useSceneState(s=>s.auction?.spaceId);
+  const landedId=useSceneState(s=>s.turnPhase==='LANDED_ACTION'?s.players[s.currentPlayerIndex]?.position:undefined);
+  const landedCash=useSceneState(s=>s.turnPhase==='LANDED_ACTION'?s.players[s.currentPlayerIndex]?.money:undefined);
+  const events=usePresentationEvents();
+  const {reducedMotion}=useMotionPreferences();
+  const ownerBadges=useRef(new Map<number,{index:number;matrix:THREE.Matrix4}>());
+  const animated=useRef(new Set<number>());
+  const badgePose=useMemo(()=>new THREE.Matrix4(),[]);
   const anisotropy=useThree(s=>s.gl.capabilities.getMaxAnisotropy());
   const labels=useRef<THREE.InstancedMesh>(null),bands=useRef<THREE.InstancedMesh>(null),dividers=useRef<THREE.InstancedMesh>(null);
   const badges=useRef<THREE.InstancedMesh>(null),ribbons=useRef<THREE.InstancedMesh>(null),frames=useRef<THREE.InstancedMesh>(null);
@@ -35,6 +44,9 @@ export function BoardTileDetails({hoveredId}:{hoveredId:number|null}){
     resources.labelMaterial.dispose();resources.bandMaterial.dispose();resources.goldMaterial.dispose();resources.stateMaterial.dispose();},[resources]);
   useEffect(()=>{const instances=[labels.current,bands.current,dividers.current,badges.current,ribbons.current,frames.current,ownerEdges.current];return()=>instances.forEach(i=>{if(i)releaseInstanceBuffers(i);});},[]);
   useLayoutEffect(()=>{
+    const players=store.getState().players;
+    ownerBadges.current.clear();
+    animated.current.clear();
     const dummy=new THREE.Object3D(),local=new THREE.Vector3(),up=new THREE.Vector3(0,1,0);let bandCount=0,badgeCount=0,ribbonCount=0,frameCount=0,edgeCount=0;
     const labelRects=resources.labelGeometry.getAttribute('atlasRect') as THREE.InstancedBufferAttribute;
     const badgeRects=resources.badgeGeometry.getAttribute('atlasRect') as THREE.InstancedBufferAttribute;
@@ -61,15 +73,16 @@ export function BoardTileDetails({hoveredId}:{hoveredId:number|null}){
           ownerEdges.current?.setColorAt(edgeCount++,new THREE.Color(owner.color));
         }
         place(badges.current,badgeCount,-.57,tf.depth/2-.24,.31,1,.31,.091,id>=20);
+        ownerBadges.current.set(id,{index:badgeCount,matrix:dummy.matrix.clone()});
         badgeRects.setXYZW(badgeCount++,...badgeAtlasRect(players.findIndex(p=>p.id===owner.id)) as [number,number,number,number]);
       }
       if(property?.isMortgaged){
         place(badges.current,badgeCount,.57,tf.depth/2-.24,.31,1,.31,.092,id>=20);
         badgeRects.setXYZW(badgeCount++,...badgeAtlasRect(6) as [number,number,number,number]);
       }
-      const landed=phase==='LANDED_ACTION'&&players[current]?.position===id;
-      const outline=tileOutline({selected:isSelected,hovered:isHovered,auction:auction?.spaceId===id,landed,
-        purchasable:!!property&&property.ownerId===null&&(space.price??Infinity)<=(players[current]?.money??-1)});
+      const landed=landedId===id;
+      const outline=tileOutline({selected:isSelected,hovered:isHovered,auction:auctionId===id,landed,
+        purchasable:!!property&&property.ownerId===null&&(space.price??Infinity)<=(landedCash??-1)});
       if(outline){
         const color=new THREE.Color(outline);
         const w=tf.width-.075,d=tf.depth-.075;
@@ -82,7 +95,36 @@ export function BoardTileDetails({hoveredId}:{hoveredId:number|null}){
     for(const [mesh,count] of [[labels.current,40],[bands.current,bandCount],[dividers.current,bandCount],[badges.current,badgeCount],[ribbons.current,ribbonCount],[frames.current,frameCount],[ownerEdges.current,edgeCount]] as const){
       if(!mesh)continue;mesh.count=count;mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;mesh.computeBoundingSphere();
     }
-  },[resources,properties,players,selected,hoveredId,hovered,auction,phase,current]);
+  },[resources,store,properties,seatColors,selected,hoveredId,hovered,auctionId,landedId,landedCash]);
+  useFrame(()=>{
+    const mesh=badges.current;
+    if(!mesh)return;
+    const now=performance.now();
+    const previous=animated.current;
+    for(const id of previous){
+      const badge=ownerBadges.current.get(id);
+      if(badge)mesh.setMatrixAt(badge.index,badge.matrix);
+    }
+    if(previous.size)mesh.instanceMatrix.needsUpdate=true;
+    previous.clear();
+    if(reducedMotion)return;
+    for(const event of events){
+      if(event.kind!=='ownership'||event.spaceId===undefined)continue;
+      const progress=(now-event.createdAt)/540;
+      const badge=ownerBadges.current.get(event.spaceId);
+      if(!badge||progress>=1)continue;
+      const bounce=Math.sin(progress*Math.PI)*(1-progress);
+      badgePose.copy(badge.matrix);
+      const lift=badgePose.elements[13]+bounce*.16;
+      const scale=1+bounce*.5;
+      badgePose.elements[13]=lift;
+      badgePose.elements[0]*=scale;badgePose.elements[2]*=scale;
+      badgePose.elements[8]*=scale;badgePose.elements[10]*=scale;
+      mesh.setMatrixAt(badge.index,badgePose);
+      mesh.instanceMatrix.needsUpdate=true;
+      previous.add(event.spaceId);
+    }
+  });
   return <group name="board-tile-details-v5">
     <instancedMesh ref={labels} args={[resources.labelGeometry,resources.labelMaterial,40]} name="board-full-name-labels" dispose={null} raycast={()=>{}}/>
     <instancedMesh ref={bands} args={[resources.box,resources.bandMaterial,22]} name="board-color-bands" dispose={null} raycast={()=>{}}/>

@@ -19,18 +19,18 @@ const wait = fn => page.waitForFunction(fn, {timeout: 60000});
 const state = () => page.evaluate(() => window.__soloTest.state());
 const dieVisible = d => d.visible && d.scale?.every(v => v > .99);
 
-async function fixture() {
-  await page.evaluate(() => {
+async function fixture(name = 'opening', speed = 1) {
+  await page.evaluate(({name, speed}) => {
     window.__v6DiceStop?.();
-    window.__soloTest.fixture('opening');
-    document.querySelector('.speed-options button').click(); // Existing 1x UI.
+    window.__soloTest.fixture(name);
+    document.querySelectorAll('.speed-options button')[speed - 1].click();
     const audit = window.__graphicsAudit, originalFrame = audit.frame;
     window.__v6ResetFrames = 0;
     audit.frame = () => {originalFrame(); queueMicrotask(() => {
       if (audit.dice().every(d => !d.visible)) window.__v6ResetFrames++;
       if (window.__v6ResetFrames >= 2) audit.frame = originalFrame;
     });};
-  });
+  }, {name, speed});
   await wait(() => window.__v6ResetFrames >= 2);
 }
 
@@ -111,10 +111,15 @@ try {
     // checks each face under identical warm rendering conditions.
     const warmup = await observeRoll([1, 2]);
     results.cases.push({mode, name: 'shader-warmup', observation: warmup});
-    for (const faces of [[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 1]]) {
-      await fixture();
+    const matrix = process.argv.includes('--matrix');
+    const pairs = matrix ? Array.from({length: 36}, (_, index) => [Math.floor(index / 6) + 1, index % 6 + 1]) :
+      [[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 1]];
+    for (const faces of pairs) {
+      await fixture('opening', matrix && faces.join('-') !== '1-2' && faces.join('-') !== '6-1' ? 2 : 1);
       const observation = await observeRoll(faces, {rapid: faces[0] === 1, captureRolling: mode === 'normal' && faces[0] === 1,
-        captureResult: faces[0] === 6 ? `${mode}-6-1-landing` : undefined});
+        captureResult: faces.join('-') === '6-1' ? `${mode}-6-1-landing` : undefined});
+      if (motion === 'reduce') assert.ok(observation.rolling.filter(s => s.dice.every(dieVisible)).every(s =>
+        s.dice.every((die, index) => die.face === faces[index] && die.up > .999)), 'reduced motion holds the committed faces still');
       results.cases.push({mode, name: `faces-${faces.join('-')}`, observation});
       console.log(`Passed ${mode}: faces ${faces.join('/')} and rendered rolling visibility.`);
     }
@@ -134,6 +139,15 @@ try {
     assert.equal(thirdDouble.players[0].inJail, true);
     assert.equal(thirdDouble.players[0].position, 10);
     results.cases.push({mode, name: 'consecutive-doubles', observations: doubles, final: thirdDouble});
+
+    if (matrix) for (const [faces, escapes] of [[[1, 2], false], [[2, 2], true]]) {
+      await fixture('jail', 2);
+      const observation = await observeRoll(faces);
+      const final = await state();
+      assert.equal(final.players[0].inJail, !escapes);
+      assert.equal(final.players[0].position, escapes ? 14 : 10);
+      results.cases.push({mode, name: escapes ? 'jail-doubles' : 'jail-failed-roll', observation});
+    }
 
     await fixture();
     // Reset from the first rendered roll frame; the old roll timeout must not

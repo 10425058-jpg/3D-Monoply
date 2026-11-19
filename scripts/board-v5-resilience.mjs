@@ -66,14 +66,14 @@ try{
     window.__fontFallbackReceipt=null;const until=performance.now()+60000,priorGameId=window.__soloTest.state().gameId;
     const observe=()=>{
       const state=window.__soloTest.state(),money=state.players.map(p=>p.money),receipt=document.querySelector('.effect-transaction')?.textContent;
-      if(state.gameId>priorGameId&&money[0]===1496&&receipt?.includes('rent'))window.__fontFallbackReceipt={money,receipt,canvas:document.querySelectorAll('canvas').length,
+      if(state.gameId>priorGameId&&money[0]===1496&&receipt?.includes('Rent on Baltic Avenue'))window.__fontFallbackReceipt={money,receipt,canvas:document.querySelectorAll('canvas').length,
         appVisible:document.querySelector('.monopoly-app')?.getBoundingClientRect().height>0,observedAt:performance.now()};
       else if(performance.now()<until)requestAnimationFrame(observe);
     };requestAnimationFrame(observe);
   });
   await rentRoll();await fault.waitForFunction(()=>window.__fontFallbackReceipt,{timeout:60000});
   const fallback=await fault.evaluate(()=>window.__fontFallbackReceipt);
-  assert.equal(fallback.appVisible,true);assert.equal(fallback.canvas,1);assert.deepEqual(fallback.money,[1496,1504,1500]);assert.ok(fallback.receipt?.includes('rent'));
+  assert.equal(fallback.appVisible,true);assert.equal(fallback.canvas,1);assert.deepEqual(fallback.money,[1496,1504,1500]);assert.match(fallback.receipt,/Rent on Baltic Avenue.*\$4.*1,496.*1,504/);
   assert.equal(await fault.$eval('.monopoly-app',e=>e.getBoundingClientRect().height>0),true);
   await fault.screenshot({path:`${out}/optional-font-fallback.png`});results.fontFallback={blocked,warmupTransactions,...fallback};await fault.close();
   results.passed=true;await writeFile(`${out}/resilience.json`,JSON.stringify(results,null,2));console.log('Passed board atlas context recovery at all tiers, normal token/dice animation and optional-font failure without blocking gameplay.');

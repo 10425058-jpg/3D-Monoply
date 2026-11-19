@@ -25,6 +25,7 @@ export const BottomActionDock: React.FC<{
   const raid = useGameStore(s => s.railroadRaid);
   const pendingTrade = useGameStore(s => s.pendingTrade);
   const pendingDebt = useGameStore(s => s.pendingDebt);
+  const doublesCount = useGameStore(s => s.doublesCount);
   const active = players[currentIndex];
   const tradePlayer = phase === 'DEBT_RESOLUTION' ? players.find(player => player.id === (pendingDebt?.debtorId ?? active?.id)) : active;
   const human = !!active && !active.isAI && !active.isBankrupt;
@@ -37,6 +38,13 @@ export const BottomActionDock: React.FC<{
   const canBuild = selectedId !== null && human && canBuildHouse(active.id, selectedId);
   const canMortgage = human && selectedId !== null && canToggleMortgage(active.id, selectedId);
   const canEnd = human && phase === 'END_TURN' && !raid && !pendingTrade;
+  const extraRoll = phase === 'END_TURN' && doublesCount > 0 && !active?.inJail;
+  const nextAction = phase === 'ROLLING' ? 'Rolling dice' : phase === 'MOVING' ? 'Moving across the board' :
+    phase === 'CARD_DRAWN' ? 'Revealing a card' : raid ? 'Railroad bonus' :
+    phase === 'LANDED_ACTION' ? 'Reviewing the property' :
+    phase === 'END_TURN' ? extraRoll ? 'Doubles · End turn to roll again' : 'End your turn' : 'Ready to roll';
+  const showCue = !!active && !pendingTrade && !['AUCTION','DEBT_RESOLUTION','GAME_OVER','SETUP'].includes(phase) &&
+    (active.isAI || (phase !== 'LANDED_ACTION' && phase !== 'CARD_DRAWN' && !(phase === 'PRE_ROLL' && active.inJail)));
   const actions = [
     { name: 'Buy', Icon: Home, enabled: canBuy, primary: canBuy,
       hint: canBuy ? `Buy ${landed?.name} for $${landed?.price}` : 'Land on an unowned property with enough cash to buy',
@@ -54,6 +62,9 @@ export const BottomActionDock: React.FC<{
       run: () => { if (canEnd) { sounds.playClick(); endTurn(); } } },
   ];
   return <footer className="fantasy-dock">
+    {showCue && <div className="solo-turn-cue" role="status" aria-atomic="true">
+      <i style={{ background: active.color }} aria-hidden="true" /><strong>{active.name}{active.isAI ? ' · AI' : ''}</strong><span>{nextAction}</span>
+    </div>}
     <nav className="dock-utilities" aria-label="Game information">
       <button className="royal-utility" title="Game Statistics & Portfolio" onClick={() => { sounds.playClick(); onOpenStats(); }}><BarChart3 /><span>Stats</span></button>
       <button className="royal-utility" title="Monopoly Rules & Guide" onClick={() => { sounds.playClick(); onOpenRules(); }}><BookOpen /><span>Rules</span></button>
@@ -74,9 +85,9 @@ export const BottomActionDock: React.FC<{
       </div>
       <button className={`fantasy-roll ${rolling ? 'is-rolling' : ''}`} disabled={!canRoll} aria-busy={rolling}
         onClick={() => { if (canRoll) { rollDice(); } }}
-        aria-label={rolling ? 'Dice rolling' : 'Roll dice'} title={canRoll ? 'Roll dice' : rolling ? 'Your token is moving' : 'Wait for your pre-roll phase'}>
+        aria-label={rolling ? nextAction : 'Roll dice'} title={canRoll ? 'Roll dice' : nextAction}>
         <Crown className="roll-crown" size={23} aria-hidden="true" />
-        <span className="roll-dice-icons" aria-hidden="true"><Dice5 /><Dice3 /></span><strong>{rolling ? 'ROLLING' : 'ROLL'}</strong>
+        <span className="roll-dice-icons" aria-hidden="true"><Dice5 /><Dice3 /></span><strong>{phase === 'MOVING' ? 'MOVING' : rolling ? 'ROLLING' : 'ROLL'}</strong>
       </button>
     </div>
   </footer>;

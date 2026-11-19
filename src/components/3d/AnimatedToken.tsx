@@ -2,12 +2,13 @@ import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { Player } from '../../types/game';
-import { getSpaceTransform } from '../../data/boardData';
+import { BOARD_SPACES, getSpaceTransform } from '../../data/boardData';
 import { useSceneStore } from '../../presentation/SceneStore';
 import { isGameReset } from '../../presentation/effectEvents';
 import { hopPose, isAdjacentTile, movementDuration,tokenOffset,tileActorHeight } from '../../presentation/animationMath';
 
-type Step = { from: number; to: number; at: number; duration: number; teleport: boolean };
+type Step = { from: number; to: number; at: number; duration: number };
+const tiles = BOARD_SPACES.map(space => getSpaceTransform(space.id));
 
 export function AnimatedToken({ player, index, reduced, visible, trails, children }: {
   player: Player; index: number; reduced: boolean; visible: boolean; trails: boolean; children: React.ReactNode;
@@ -15,11 +16,12 @@ export function AnimatedToken({ player, index, reduced, visible, trails, childre
   const store = useSceneStore();
   const root = useRef<THREE.Group>(null);
   const trail = useRef<THREE.InstancedMesh>(null);
+  const landingRing = useRef<THREE.Mesh>(null);
   const steps = useRef<Step[]>([]);
   const landedAt = useRef(-Infinity);
   const offset = tokenOffset(index,store.getState().players.length);
   const ox = offset.x, oz = offset.z;
-  const initial = getSpaceTransform(player.position).position;
+  const initial = tiles[player.position].position;
   useLayoutEffect(() => {
     if (!trail.current) return;
     const dummy = new THREE.Object3D();
@@ -35,20 +37,30 @@ export function AnimatedToken({ player, index, reduced, visible, trails, childre
       steps.current = []; landedAt.current = -Infinity;
       root.current?.rotation.set(0, 0, 0);
       if (trail.current) trail.current.visible = false;
+      if (landingRing.current) landingRing.current.visible = false;
     };
     const unsubscribe = store.subscribe((next, previous) => {
       if (isGameReset(previous, next)) { reset(); return; }
       const before = previous.players.find(p => p.id === player.id);
       const after = next.players.find(p => p.id === player.id);
       if (!before || !after || before.position === after.position) return;
-      const teleport = !isAdjacentTile(before.position, after.position) || (!before.inJail && after.inJail);
-      if (teleport) { steps.current = []; landedAt.current = -Infinity; }
-      steps.current.push({ from: before.position, to: after.position, at: performance.now(), duration: movementDuration(next.gameSpeed) * 1000, teleport });
-      steps.current = steps.current.slice(-16);
+      const now = performance.now();
+      if (!isAdjacentTile(before.position, after.position) || (!before.inJail && after.inJail)) {
+        reset();
+        landedAt.current = now;
+        return;
+      }
+      if (reduced || document.hidden) return;
+      const last = steps.current[steps.current.length - 1];
+      if (last && last.at + last.duration <= now) steps.current = [];
+      if (steps.current.length >= 8) steps.current = [];
+      const queued = steps.current[steps.current.length - 1];
+      steps.current.push({ from: before.position, to: after.position,
+        at: queued ? Math.max(now, queued.at + queued.duration) : now, duration: movementDuration(next.gameSpeed) * 1000 });
     });
     document.addEventListener('visibilitychange', reset);
     return () => { unsubscribe(); reset(); document.removeEventListener('visibilitychange', reset); };
-  }, [player.id, store]);
+  }, [player.id, reduced, store]);
 
   useFrame(() => {
     const group = root.current;
@@ -60,34 +72,50 @@ export function AnimatedToken({ player, index, reduced, visible, trails, childre
     // Consume expired segments without ever drawing a chord across a corner.
     while (steps.current.length && now >= steps.current[0].at + steps.current[0].duration) {
       const finished = steps.current.shift()!;
-      if (!finished.teleport) landedAt.current = finished.at + finished.duration;
+      landedAt.current = finished.at + finished.duration;
     }
     const step = steps.current[0];
-    const destination = getSpaceTransform(actual.position);
+    const destination = tiles[step?.to ?? actual.position];
     const baseScale = (destination.isCorner ? 1.2 : 1.06)*offset.scale;
     const actorHeight=tileActorHeight(actual.position,state.hoveredSpaceId,state.selectedSpaceId);
-    const moving = step && !step.teleport && !reduced;
+    const moving = step && !reduced;
     if (moving) {
-      const from = getSpaceTransform(step.from).position;
-      const to = getSpaceTransform(step.to).position;
+      const from = tiles[step.from].position;
+      const to = tiles[step.to].position;
       const pose = hopPose((now - step.at) / step.duration);
-      group.position.set(THREE.MathUtils.lerp(from[0], to[0], pose.blend) + ox, actorHeight + pose.height, THREE.MathUtils.lerp(from[2], to[2], pose.blend) + oz);
+      const startHeight = tileActorHeight(step.from, state.hoveredSpaceId, state.selectedSpaceId);
+      const endHeight = tileActorHeight(step.to, state.hoveredSpaceId, state.selectedSpaceId);
+      const hopHeight = pose.height * (1 - (index % 3) * .09);
+      group.position.set(THREE.MathUtils.lerp(from[0], to[0], pose.blend) + ox,
+        THREE.MathUtils.lerp(startHeight, endHeight, pose.blend) + hopHeight,
+        THREE.MathUtils.lerp(from[2], to[2], pose.blend) + oz);
       group.rotation.set(0, Math.atan2(to[0] - from[0], to[2] - from[2]), pose.tilt);
-      group.scale.set(baseScale * (1 - pose.height * 0.05), baseScale * (1 + pose.height * 0.1), baseScale);
+      group.scale.set(baseScale * (1 - hopHeight * .10), baseScale * (1 + hopHeight * .18), baseScale);
     } else {
       const landingAge = (now - landedAt.current) / 180;
-      const landing = !reduced && landingAge >= 0 && landingAge < 1 ? Math.sin(landingAge * Math.PI) : 0;
+      const landing = !reduced && landingAge >= 0 && landingAge < 1 ? (1 - landingAge) ** 2 : 0;
       group.position.set(destination.position[0] + ox, actorHeight + landing * 0.025, destination.position[2] + oz);
       group.rotation.z = 0;
-      group.scale.set(baseScale * (1 + landing * 0.03), baseScale * (1 - landing * 0.04), baseScale);
+      group.scale.set(baseScale * (1 + landing * .05), baseScale * (1 - landing * .075), baseScale * (1 + landing * .05));
+      if (landingRing.current) {
+        landingRing.current.visible = !reduced && landing > 0;
+        if (landing > 0) {
+          landingRing.current.scale.setScalar(1 + landingAge * .65);
+          (landingRing.current.material as THREE.MeshBasicMaterial).opacity = landing * .55;
+        }
+      }
     }
+    if (moving && landingRing.current) landingRing.current.visible = false;
     if (trail.current) trail.current.visible = !!moving && trails;
   });
 
   return <group ref={root} name={`token-${player.id}`} position={[initial[0] + ox, .34, initial[2] + oz]}>
     {children}
+    {trails && <mesh ref={landingRing} visible={false} position={[0, .015, 0]} rotation={[-Math.PI / 2, 0, 0]} raycast={() => {}}>
+      <ringGeometry args={[.37, .395, 24]} /><meshBasicMaterial color={player.color} transparent depthWrite={false} />
+    </mesh>}
     {trails && <instancedMesh ref={trail} args={[undefined, undefined, 3]} visible={false} name={`token-trail-${player.id}`} raycast={() => {}}>
-      <octahedronGeometry args={[1, 0]} /><meshBasicMaterial color="#ffd994" />
+      <octahedronGeometry args={[1, 0]} /><meshBasicMaterial color={player.color} />
     </instancedMesh>}
   </group>;
 }

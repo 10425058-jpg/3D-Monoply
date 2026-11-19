@@ -1,5 +1,5 @@
 // Original synthesized effects. Audio follows confirmed events; it never changes game state.
-import type { EffectKind } from '../presentation/effectEvents';
+import type { CashReceipt, EffectKind } from '../presentation/effectEvents';
 
 export class SoundSystem {
   private ctx: AudioContext | null = null;
@@ -54,7 +54,7 @@ export class SoundSystem {
 
   private notes(key: string, frequencies: number[], duration = 0.14, spacing = 0.055, type: OscillatorType = 'sine') {
     const ctx = this.ctx;
-    if (!this.enabled || !this.unlocked || !ctx || ctx.state !== 'running' || !this.master || document.hidden) return;
+    if (!this.enabled || this.volume === 0 || !this.unlocked || !ctx || ctx.state !== 'running' || !this.master || document.hidden) return;
     const now = performance.now();
     if (now - (this.lastPlayed.get(key) ?? -Infinity) < (key === 'step' ? 85 : 140)) return;
     this.lastPlayed.set(key, now);
@@ -100,17 +100,27 @@ export class SoundSystem {
   public playCardDraw() { this.notes('card', [330, 660], 0.13); }
   public playStep() { this.notes('step', [440], 0.035); }
   public playAlert() { this.notes('alert', [220, 165], 0.13, 0.07, 'triangle'); }
-  public playEvent(kind: EffectKind, amount?: number) {
+  public playEvent(kind: EffectKind, amount?: number, cash?: CashReceipt) {
     if (kind === 'roll') this.playDiceRoll();
     else if (kind === 'dice-land') this.notes('land', [180, 240], 0.055, 0.025, 'triangle');
     else if (kind === 'move') this.playStep();
-    else if (kind === 'ownership' || kind === 'trade') this.playPurchase();
+    else if (kind === 'ownership') this.playPurchase();
+    else if (kind === 'trade') this.notes('trade', [494, 740, 622], .12, .045);
+    else if (kind === 'landmark') this.playUpgrade();
     else if (kind === 'build') amount!==undefined&&amount<0?this.playCash():this.playUpgrade();
     else if (kind === 'money') amount && amount > 0 ? this.playCash() : this.notes('payment', [660, 440], 0.1);
     else if (kind === 'turn') this.notes('turn', [659, 880], 0.12);
-    else if (kind === 'card' || kind === 'raid' || kind === 'auction') this.playCardDraw();
-    else if (kind === 'jail' || kind === 'bankrupt' || kind === 'mortgage') this.playAlert();
+    else if (kind === 'card' || kind === 'raid') this.playCardDraw();
+    else if (kind === 'auction') this.notes('auction', [298, 410], .065, .07, 'triangle');
+    else if (kind === 'jail') this.notes('jail', [268, 180], .09, .05, 'triangle');
+    else if (kind === 'bankrupt') this.notes('bankrupt', [330, 247, 196], .16, .07);
+    else if (kind === 'mortgage') this.playAlert();
     else if (kind === 'victory') this.notes('victory', [523, 659, 784, 1047, 1319], 0.26);
+    else if (kind === 'transaction' && cash) {
+      if (cash.category === 'rent') this.notes('rent', [660, 495, 740], .115, .045);
+      else if (cash.fromId === null) this.playCash();
+      else this.notes('payment', [660, 440], .10);
+    }
   }
 }
 export const sounds = new SoundSystem();

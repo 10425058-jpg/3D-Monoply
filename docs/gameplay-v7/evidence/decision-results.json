@@ -1,0 +1,13 @@
+{
+  "passed": [
+    "S-02 human debt trade, rejection, consent and payment",
+    "S-02 non-active human debtor during an AI card turn",
+    "S-01 exact-cash $11 raise and auction settlement",
+    "S-03 reachable landmark upgrade, price and GO income on desktop and mobile",
+    "S-03 all six players remain reachable above the action tray",
+    "UI-01 Solo Nearest Utility instructions and unowned utility",
+    "UI-01 Solo Nearest Utility instructions and self utility",
+    "UI-01 Solo Nearest Utility instructions and opponent utility"
+  ],
+  "errors": []
+}

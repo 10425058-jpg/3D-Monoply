@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import confetti from 'canvas-confetti';
 import { AnimatePresence } from 'framer-motion';
 import {
   ArrowRight,
@@ -23,7 +22,7 @@ import { Scene3D } from './components/3d/Scene3D';
 import { BOARD_SPACES } from './data/boardData';
 import { useGameStore } from './store/useGameStore';
 import { DAILY_MISSIONS, DAILY_REWARD_CYCLE, LUCKY_WHEEL_REWARDS, STICKER_COLLECTION } from './data/metaGameData';
-import type { TokenType, TradeOffer } from './types/game';
+import type { BoardSpace, TokenType, TradeOffer } from './types/game';
 import { TopHeader } from './components/ui/TopHeader';
 import { PlayerSidebar } from './components/ui/PlayerSidebar';
 import { RightActivityNav } from './components/ui/RightActivityNav';
@@ -39,9 +38,11 @@ import { GameplayFeedback } from './components/ui/GameplayFeedback';
 import { CardReveal } from './components/ui/CardReveal';
 import { AudioControls } from './components/ui/AudioControls';
 import {SoloDecisions} from './components/ui/SoloDecisions';
-import {runSoloAiStep} from './game/soloAi';
+import {aiDecisionDelay, runSoloAiAuction, runSoloAiRaid, runSoloAiStep} from './game/soloAi';
 import {useMotionPreferences} from './presentation/useMotionPreferences';
 import {useSoloAudit} from './game/useSoloAudit';
+import {groupHasBuildings} from './game/soloRules';
+import {TradeTerms} from './components/ui/TradeTerms';
 
 const DEFAULT_SETUP = [
   { name: 'You', isAI: false, token: 'rubber_duck' as TokenType, color: '#f59e0b' },
@@ -74,7 +75,7 @@ const localDateKey = (date = new Date()) => {
   return `${year}-${month}-${day}`;
 };
 
-export const App: React.FC = () => {
+export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
   useSoloAudit();
   const game = useGameStore();
   const [showSetup, setShowSetup] = useState(false);
@@ -98,15 +99,10 @@ export const App: React.FC = () => {
   const debtPlayer = game.players.find(p=>p.id===(game.pendingDebt?.debtorId??activePlayer?.id));
   const tradePlayer = game.turnPhase === 'DEBT_RESOLUTION' ? debtPlayer : activePlayer;
   const tradeProposal = useRef('');
-  const {reducedMotion,visible}=useMotionPreferences();
+  const {visible}=useMotionPreferences();
   useEffect(()=>{
     setShowTradeModal(false);setTradeFeedback('');setShowStats(false);setShowRules(false);setShowMetaHub(false);setLastPackReveal(null);setIsWheelSpinning(false);
   },[game.gameId]);
-  useEffect(()=>{
-    if(!game.winner||reducedMotion||!visible)return;
-    try{void confetti({particleCount:100,spread:65,origin:{y:.6},disableForReducedMotion:true});}catch{/* Celebration never blocks the committed result. */}
-    return()=>{confetti.reset();};
-  },[game.winner?.id,reducedMotion,visible]);
   const inspectorSpaceId = game.selectedSpaceId ?? game.hoveredSpaceId;
   const selectedSpace = inspectorSpaceId === null ? null : BOARD_SPACES[inspectorSpaceId];
   const selectedState = selectedSpace ? game.properties[selectedSpace.id] : undefined;
@@ -118,22 +114,14 @@ export const App: React.FC = () => {
     () => game.players.filter((player) => !player.isBankrupt && player.id !== tradePlayer?.id),
     [game.players, tradePlayer?.id]
   );
-
-  const myTradableProperties = useMemo(() => {
-    if (!tradePlayer) return [];
-    return BOARD_SPACES.filter((space) => {
-      const state = game.properties[space.id];
-      return state?.ownerId === tradePlayer.id && !state.isMortgaged && (state.houses ?? 0) === 0;
-    });
-  }, [tradePlayer, game.properties]);
-
-  const rivalTradableProperties = useMemo(() => {
-    if (!tradePlayer) return [];
-    return BOARD_SPACES.filter((space) => {
-      const state = game.properties[space.id];
-      return state?.ownerId === tradeTargetId && !state.isMortgaged && (state.houses ?? 0) === 0;
-    });
-  }, [tradePlayer, tradeTargetId, game.properties]);
+  const rival = rivalPlayers.find(player => player.id === tradeTargetId);
+  const tradeRestriction = (space: BoardSpace) => game.properties[space.id]?.isMortgaged ? 'Mortgaged' :
+    groupHasBuildings(space, game.properties) ? 'Group has buildings' : '';
+  const deedsOf = (id?: number) => BOARD_SPACES.filter(space => game.properties[space.id]?.ownerId === id);
+  const tradeOptions = (id?: number) => deedsOf(id).map(space => {
+    const restriction = tradeRestriction(space);
+    return <option key={space.id} value={space.id} disabled={!!restriction}>{space.name} · {restriction || 'Clear deed'}</option>;
+  });
 
   const todayKey = localDateKey();
   const dailyClaimedToday = game.metaProgress.lastDailyClaimDate === todayKey;
@@ -145,42 +133,17 @@ export const App: React.FC = () => {
 
   // AI Turn handler
   useEffect(() => {
-    if (!debtPlayer?.isAI || debtPlayer.isBankrupt || game.winner || game.pendingTrade || game.railroadRaid) return;
-    const timer = window.setTimeout(() => runSoloAiStep(game.gameId, debtPlayer.id, game.turnPhase), 850 / game.gameSpeed);
+    const delay = aiDecisionDelay[game.turnPhase];
+    if (!delay || !debtPlayer?.isAI || debtPlayer.isBankrupt || game.winner || game.pendingTrade || game.railroadRaid) return;
+    const timer = window.setTimeout(() => runSoloAiStep(game.gameId, debtPlayer.id, game.turnPhase), delay / game.gameSpeed);
     return () => window.clearTimeout(timer);
   }, [game.gameId, debtPlayer, game.turnPhase, game.winner, game.pendingDebt, game.pendingTrade, game.railroadRaid, game.gameSpeed]);
 
   // AI Auction handler
   useEffect(() => {
     const auction = game.auction;
-    const bidder = auction
-      ? game.players.find((player) => player.id === auction.currentBidderId)
-      : undefined;
-    if (!auction || !bidder?.isAI) return;
-
-    const timer = window.setTimeout(() => {
-      if(useGameStore.getState().gameId!==game.gameId||useGameStore.getState().auction!==auction)return;
-      const space = BOARD_SPACES[auction.spaceId];
-      const groupSpaces = BOARD_SPACES.filter((candidate) => candidate.colorGroup === space.colorGroup);
-      const ownedInGroup = groupSpaces.filter((candidate) =>
-        game.properties[candidate.id]?.ownerId === bidder.id
-      ).length;
-      const completesSet = groupSpaces.length > 0 && ownedInGroup + 1 === groupSpaces.length;
-      const strategicMultiplier = completesSet ? 1.08 : ownedInGroup > 0 ? 0.82 : 0.62;
-      const cashReserve = Math.max(100, Math.min(350, Math.round(bidder.money * 0.2)));
-      const maxBid = Math.max(0, Math.min(
-        bidder.money - cashReserve,
-        Math.round((space.price ?? 0) * strategicMultiplier)
-      ));
-      const nextBid = auction.currentBid + 10;
-
-      if (nextBid <= maxBid && bidder.money >= nextBid) {
-        game.placeAuctionBid(10, bidder.id);
-      } else {
-        game.passAuction(bidder.id);
-      }
-    }, 720 / game.gameSpeed);
-
+    if (!auction || !game.players.find(player => player.id === auction.currentBidderId)?.isAI) return;
+    const timer = window.setTimeout(() => runSoloAiAuction(game.gameId, auction), 530 / game.gameSpeed);
     return () => window.clearTimeout(timer);
   }, [game.gameId, game.auction, game.players, game.properties, game.gameSpeed]);
 
@@ -191,40 +154,25 @@ export const App: React.FC = () => {
     const attacker = game.players.find((player) => player.id === raid.attackerId);
     if (!attacker?.isAI) return;
 
-    const timer = window.setTimeout(() => {
-      if(useGameStore.getState().gameId!==game.gameId||useGameStore.getState().railroadRaid!==raid)return;
-      if (raid.mode === 'choose') {
-        const target = game.players
-          .filter((player) => !player.isBankrupt && player.id !== attacker.id)
-          .sort((left, right) => right.landmarkLevel - left.landmarkLevel)[0];
-
-        if (target && target.landmarkLevel > 0 && Math.random() < 0.55) {
-          game.shutdownLandmark(target.id);
-        } else {
-          game.startBankHeist();
-        }
-      } else {
-        const bestVault = raid.vaultRewards.indexOf(Math.max(...raid.vaultRewards));
-        game.resolveBankHeist(bestVault);
-      }
-    }, 700 / game.gameSpeed);
+    const timer = window.setTimeout(() => runSoloAiRaid(game.gameId, raid), 490 / game.gameSpeed);
 
     return () => window.clearTimeout(timer);
   }, [game.gameId, game.railroadRaid, game.players, game.gameSpeed]);
 
   // Auto-roll handler
   useEffect(() => {
-    if (!autoRoll || !activePlayer || activePlayer.isAI || activePlayer.isBankrupt || game.winner) return;
+    if (!autoRoll || !visible || !activePlayer || activePlayer.isAI || activePlayer.isBankrupt || game.winner) return;
     if (game.turnPhase !== 'PRE_ROLL' || game.railroadRaid || game.pendingTrade || showTradeModal || showMetaHub || showRules || showSetup) return;
     const timer = window.setTimeout(() => {if(useGameStore.getState().gameId===game.gameId)game.rollDice();}, 260 / game.gameSpeed);
     return () => window.clearTimeout(timer);
-  }, [game.gameId, autoRoll, activePlayer?.id, activePlayer?.isAI, game.turnPhase, game.railroadRaid, game.pendingTrade, game.gameSpeed, game.winner, showTradeModal, showMetaHub, showRules, showSetup]);
+  }, [game.gameId, autoRoll, visible, activePlayer?.id, activePlayer?.isAI, game.turnPhase, game.railroadRaid, game.pendingTrade, game.gameSpeed, game.winner, showTradeModal, showMetaHub, showRules, showSetup]);
 
   const openTrade = () => {
     if (!tradePlayer || tradePlayer.isAI || tradePlayer.isBankrupt || game.winner || game.pendingTrade || game.railroadRaid || !['PRE_ROLL','LANDED_ACTION','END_TURN','DEBT_RESOLUTION'].includes(game.turnPhase)) return;
     tradeProposal.current=`${game.gameId}-${crypto.randomUUID()}`;
     setTradeTargetId(rivalPlayers[0]?.id ?? 1);
-    setTradePropertyId(myTradableProperties[0] ? String(myTradableProperties[0].id) : '');
+    const deed = deedsOf(tradePlayer.id).find(space => !tradeRestriction(space));
+    setTradePropertyId(deed ? String(deed.id) : '');
     setTradeRequestPropertyId('');
     setTradeOfferCash('0');
     setTradeRequestCash('150');
@@ -232,19 +180,19 @@ export const App: React.FC = () => {
     setShowTradeModal(true);
   };
 
-  const handleTradeSubmit = () => {
-    if (useGameStore.getState().gameId!==game.gameId || !tradePlayer || !rivalPlayers.some((player) => player.id === tradeTargetId)) return;
-    const offerCash = Math.max(0, Math.floor(Number(tradeOfferCash) || 0));
-    const requestCash = Math.max(0, Math.floor(Number(tradeRequestCash) || 0));
-    const offer: TradeOffer = {
+  const offer: TradeOffer | null = tradePlayer && rival ? {
       proposalId: tradeProposal.current,
       fromPlayerId: tradePlayer.id,
       toPlayerId: tradeTargetId,
-      offerCash,
-      requestCash,
+      offerCash: Number(tradeOfferCash),
+      requestCash: Number(tradeRequestCash),
       offerProperties: tradePropertyId ? [Number(tradePropertyId)] : [],
       requestProperties: tradeRequestPropertyId ? [Number(tradeRequestPropertyId)] : [],
-    };
+  } : null;
+  const validCash = !!offer && Number.isSafeInteger(offer.offerCash) && Number.isSafeInteger(offer.requestCash) &&
+    offer.offerCash >= 0 && offer.requestCash >= 0 && offer.offerCash <= tradePlayer!.money && offer.requestCash <= rival!.money;
+  const handleTradeSubmit = () => {
+    if (useGameStore.getState().gameId !== game.gameId || !offer || !validCash) return;
     const result = game.proposeTrade(offer);
     setTradeFeedback(result.message);
     if (result.accepted || useGameStore.getState().pendingTrade) setShowTradeModal(false);
@@ -328,7 +276,7 @@ export const App: React.FC = () => {
             <div className="modal-ornament"><Coins size={24} /></div>
             <div className="eyebrow">NEGOTIATION DESK</div>
             <h2 id="trade-title">Propose a trade</h2>
-            <p>{tradePlayer.name} can exchange cash and one property from each side. The recipient must accept the offer.</p>
+            <p>Exchange cash and up to one clear deed per side. Deeds in groups with buildings are locked until those buildings are sold.</p>
             {rivalPlayers.length === 0 ? (
               <p>No rival is available to trade with.</p>
             ) : (
@@ -349,14 +297,14 @@ export const App: React.FC = () => {
                   <span>Property to offer</span>
                   <select value={tradePropertyId} onChange={(event) => setTradePropertyId(event.target.value)}>
                     <option value="">Cash only — no property</option>
-                    {myTradableProperties.map((space) => <option key={space.id} value={space.id}>{space.name} · {money(space.price ?? 0)}</option>)}
+                    {tradeOptions(tradePlayer.id)}
                   </select>
                 </label>
                 <label className="trade-field">
                   <span>Property to request</span>
                   <select value={tradeRequestPropertyId} onChange={(event) => setTradeRequestPropertyId(event.target.value)}>
                     <option value="">No property requested</option>
-                    {rivalTradableProperties.map((space) => <option key={space.id} value={space.id}>{space.name} · {money(space.price ?? 0)}</option>)}
+                    {tradeOptions(rival?.id)}
                   </select>
                 </label>
                 <div className="trade-cash-grid">
@@ -366,15 +314,16 @@ export const App: React.FC = () => {
                   </label>
                   <label className="trade-field">
                     <span>Ask for cash</span>
-                    <input type="number" min="0" step="1" value={tradeRequestCash} onChange={(event) => setTradeRequestCash(event.target.value)} />
+                    <input type="number" min="0" step="1" max={rival?.money} value={tradeRequestCash} onChange={(event) => setTradeRequestCash(event.target.value)} />
                   </label>
                 </div>
-                {tradeFeedback && <div className={`trade-feedback ${tradeFeedback.includes('accepted') ? 'is-success' : 'is-warning'}`}>{tradeFeedback}</div>}
+                {offer && rival && <TradeTerms from={tradePlayer} to={rival} offer={offer} properties={game.properties} />}
+                {!validCash && <p className="trade-feedback is-warning">Enter whole-dollar amounts within each player’s available cash.</p>}
+                {tradeFeedback && <div role="status" className={`trade-feedback ${tradeFeedback.includes('accepted') ? 'is-success' : 'is-warning'}`}>{tradeFeedback}</div>}
                 <div className="trade-modal-actions">
                   <button className="console-button secondary" onClick={() => setShowTradeModal(false)}>Cancel</button>
                   <button className="console-button primary" disabled={
-                    Number(tradeOfferCash) > tradePlayer.money ||
-                    (!tradePropertyId && !tradeRequestPropertyId && Number(tradeOfferCash) <= 0 && Number(tradeRequestCash) <= 0)
+                    !validCash || (!tradePropertyId && !tradeRequestPropertyId && Number(tradeOfferCash) <= 0 && Number(tradeRequestCash) <= 0)
                   } onClick={handleTradeSubmit}>
                     Send offer <ArrowRight size={14} />
                   </button>
@@ -644,21 +593,35 @@ export const App: React.FC = () => {
       {/* Active Card Modal (Chance & Community Chest) */}
       <AnimatePresence>
         {game.activeCard && game.turnPhase === 'CARD_DRAWN' && !activePlayer?.isAI && (
-          <CardReveal key={game.activeCard.id} card={game.activeCard} onResolve={game.applyActiveCard} />
+          <CardReveal key={`${game.gameId}-${game.cardDrawId}`} card={game.activeCard} onResolve={() => {
+            const current = useGameStore.getState();
+            if (current.gameId === game.gameId) current.applyActiveCard(game.cardDrawId);
+          }} />
         )}
       </AnimatePresence>
 
       {/* Winner / Game Over Modal */}
-      {game.winner && (
+      {game.winner && !showSetup && (
         <div className="modal-backdrop winner-backdrop">
-          <div className="game-modal winner-modal" role="dialog" aria-modal="true">
+          <div className="game-modal winner-modal" role="dialog" aria-modal="true" aria-labelledby="solo-winner-title">
             <div className="winner-trophy"><Trophy size={34} /></div>
-            <div className="eyebrow">THE CITY HAS A NEW RULER</div>
-            <h2>{game.winner.name} wins!</h2>
-            <p>The final empire remains standing. A new game is ready whenever you are.</p>
-            <button className="modal-primary" onClick={() => { sounds.playUpgrade(); setShowSetup(true); }}>
-              Start a new game <RotateCcw size={16} />
-            </button>
+            <div className="eyebrow">MATCH COMPLETE</div>
+            <h2 id="solo-winner-title">{game.winner.name === 'You' ? 'You win!' : `${game.winner.name} wins!`}</h2>
+            <p>Last player standing</p>
+            <p>{game.logs.find(log => log.message.includes(' declared bankruptcy over '))?.message}</p>
+            <ul className="solo-results" aria-label="Final portfolios">
+              {[game.winner, ...game.players.filter(player => player.id !== game.winner?.id)].map(player => {
+                const deeds = Object.values(game.properties).filter(property => property.ownerId === player.id).length;
+                return <li key={player.id}><strong>{player.name}</strong>
+                  <span>{money(player.money)} · {deeds} {deeds === 1 ? 'deed' : 'deeds'}{player.isBankrupt ? ' · Eliminated' : ''}</span></li>;
+              })}
+            </ul>
+            <div className="trade-modal-actions">
+              {onHome && <button className="console-button secondary" onClick={onHome}>Main menu</button>}
+              <button className="modal-primary" onClick={() => { sounds.playClick(); setShowSetup(true); }}>
+                Start a new game <RotateCcw size={16} />
+              </button>
+            </div>
           </div>
         </div>
       )}
