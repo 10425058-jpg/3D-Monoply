@@ -30,15 +30,23 @@ export function GraphicsAudit({ quality }: { quality: string }) {
     gl.domElement.addEventListener('webglcontextlost', lost);
     gl.domElement.addEventListener('webglcontextrestored', restored);
     const samples: Record<string, number | null>[] = [];
+    const renderListeners = new Set<(frame: { at: number; renderMs: number }) => void>();
     let collecting = false;
     gl.render = function (...args: Parameters<typeof gl.render>) {
       const query = contextAvailable && timer && pending.length < 8 ? context.createQuery() : null;
       if (query) context.beginQuery(timer.TIME_ELAPSED_EXT, query);
       const start = performance.now();
+      const boardFrame = renderListeners.size > 0 && contextAvailable && args[0] === scene &&
+        args[1] === camera && gl.getRenderTarget() === null;
       try { originalRender.apply(gl, args); }
       finally {
         renderMs += performance.now() - start; passes++;
         if (query) { context.endQuery(timer.TIME_ELAPSED_EXT); pending.push(query); }
+      }
+      // A useFrame callback alone does not prove Three submitted the scene.
+      if (boardFrame) {
+        const at = performance.now();
+        renderListeners.forEach(listener => listener({ at, renderMs: at - start }));
       }
     };
     const audit = {
@@ -105,6 +113,10 @@ export function GraphicsAudit({ quality }: { quality: string }) {
       },
       start() { samples.length = 0; collecting = true; previous = 0; },
       stop() { collecting = false; return { samples: [...samples], metadata: audit.metadata() }; },
+      observeRender(listener: (frame: { at: number; renderMs: number }) => void) {
+        renderListeners.add(listener);
+        return () => { renderListeners.delete(listener); };
+      },
       frame() {
         if (contextAvailable && timer) {
           if (context.getParameter(timer.GPU_DISJOINT_EXT)) {
@@ -210,6 +222,7 @@ export function GraphicsAudit({ quality }: { quality: string }) {
     (window as any).__graphicsAudit = audit;
     return () => {
       unsubscribe();
+      renderListeners.clear();
       gl.domElement.removeEventListener('webglcontextlost', lost);
       gl.domElement.removeEventListener('webglcontextrestored', restored);
       gl.render = originalRender; gl.info.autoReset = originalAutoReset;
