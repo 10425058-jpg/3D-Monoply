@@ -9,7 +9,14 @@ export function tileOutline({selected, hovered, auction, landed, purchasable}: {
   return null;
 }
 
-/** Narrow owner rails stay inside the independent interaction outline. */
-export function ownerEdgeLayout(width:number,depth:number) {
-  return [-1,1].map(side=>({x:side*(width/2-.11),z:0,width:.028,depth:depth-.27}));
+/** Owner frame: four rails just inside the independent interaction outline.
+ * Rails meet without overlapping, so an additive glow layer has even brightness. */
+export function ownerEdgeLayout(width:number,depth:number,thickness=.05) {
+  const x=width/2-.11,z=depth/2-.11;
+  return [
+    {x:-x,z:0,width:thickness,depth:2*z+thickness},
+    {x,z:0,width:thickness,depth:2*z+thickness},
+    {x:0,z:-z,width:2*x-thickness,depth:thickness},
+    {x:0,z,width:2*x-thickness,depth:thickness},
+  ];
 }
