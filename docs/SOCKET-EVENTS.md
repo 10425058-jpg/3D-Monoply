@@ -43,16 +43,19 @@ For lobby messages `roomId` is required and `roomRevision` is included inside th
 | `game:dice_rolled` | `{playerId,dice,total,fromPosition,toPosition}` |
 | `game:player_moved` | `{playerId,fromPosition,toPosition}` |
 | `game:property_purchased` | `{playerId,spaceId,price,balance}` |
+| `game:property_declined` | `{playerId,spaceId}` |
 | `game:rent_paid` | `{payerPlayerId,ownerPlayerId,spaceId,amount}` |
+| `game:money_changed` | `{playerId,amount,balance,reason}` |
 | `game:card_resolved` | `{playerId,cardId,deck,effects,resolvedAt}` (only revealed card, matches persisted `lastCardResolved`; no future deck order) |
-| `game:jail_changed` | `{playerId,inJail,jailTurns}` |
-| `game:player_bankrupt` | `{playerId,creditorPlayerId:null|string,reason:"INSOLVENT_TO_BANK"|"INSOLVENT_TO_PLAYER"|"VOLUNTARY_FORFEIT"|"HOST_FORFEIT_ABSENT"}`; reason required |
+| `game:jail_changed` | `{playerId,inJail,jailTurns,releaseReason?}` with `DOUBLES`, `BAIL`, or `CARD` on release |
+| `game:player_bankrupt` | `{playerId,creditorPlayerId,reason,forfeitedCash,creditorBalance,transferredSpaceIds}`. Reasons are `INSOLVENT_TO_BANK`, `INSOLVENT_TO_PLAYER`, `VOLUNTARY_FORFEIT`, and `HOST_FORFEIT_ABSENT`. Cash and deed fields accompany newly committed eliminations. |
+| `game:extra_roll` | `{playerId}` when a roll grants another roll after resolving the landing |
 | `game:turn_changed` | `{currentPlayerId,turnPhase}` |
 | `game:paused` | `{pausedAt,reason}` |
 | `game:resumed` | `{matchId,stateVersion}` broadcast; each client fetches personalized snapshot |
 | `game:finished` | `{winnerPlayerId,finishReason,standings}` |
 | `game:abandoned` | `{reason}` |
-| `player:connection_changed` | `{playerId,connectionStatus,disconnectedAt}` |
+| `player:connection_changed` | `{playerId,connectionStatus,disconnectedAt}` with the stored sequence. Presence can share the previous gameplay state version. |
 | `server_error` | `{code,message,details}` (protocol-level; not action success) |
 
 Only broadcast committed backend-approved results; include event envelope. A match may generate several events on one dice action including GO salary, card effect, rent or bankruptcy. All game mutations and explicit room ready/start occur via REST; the socket merely notifies subscribers.

@@ -1,10 +1,14 @@
 import {useGameStore} from '../store/useGameStore';
 import {BOARD_SPACES} from '../data/boardData';
 import type {BoardSpace, Player, RailroadRaid, TurnPhase} from '../types/game';
+import { arcadeLevel, arcadeNextLevel, arcadeSellRefund, arcadeUpgradeCost } from './arcadeRules';
 
 const reserve = (money: number) => Math.max(120, Math.min(350, Math.round(money * .22)));
 
 function propertyValue(game: ReturnType<typeof useGameStore.getState>, player: Player, space: BoardSpace) {
+  if (game.ruleset === 'arcade' && space.type === 'property') {
+    return { completesGroup: false, ceiling: Math.round((space.price ?? 0) * .85) };
+  }
   const group = BOARD_SPACES.filter(candidate => candidate.colorGroup === space.colorGroup);
   const owned = group.filter(candidate => game.properties[candidate.id]?.ownerId === player.id).length;
   const completesGroup = space.type === 'property' && owned + 1 === group.length;
@@ -70,13 +74,27 @@ export function runSoloAiStep(gameId:number, playerId:number, phase:TurnPhase) {
       const mortgages = BOARD_SPACES.filter(s => !game.properties[s.id]?.isMortgaged && game.canToggleMortgage(player.id, s.id));
       const mortgage = mortgages.filter(s => s.mortgageValue! >= shortfall).sort((a, b) => a.mortgageValue! - b.mortgageValue!)[0] ??
         mortgages.sort((a, b) => b.mortgageValue! - a.mortgageValue!)[0];
-      const sale = BOARD_SPACES.filter(s => game.canSellHouse(player.id, s.id)).sort((a, b) => b.houseCost! - a.houseCost!)[0];
+      const saleValue = (space: BoardSpace) => game.ruleset === 'arcade'
+        ? arcadeSellRefund(space, arcadeLevel(game.properties[space.id])) : (space.houseCost ?? 0) / 2;
+      const sale = BOARD_SPACES.filter(s => game.canSellHouse(player.id, s.id)).sort((a, b) => saleValue(b) - saleValue(a))[0];
       if(mortgage)game.toggleMortgage(mortgage.id);
       else if(sale)game.sellHouse(sale.id);
       else game.declareBankruptcy();
       break;
     }
     case 'END_TURN': {
+      if (game.ruleset === 'arcade') {
+        const landing = game.arcadeLanding;
+        if (landing && game.canUpgradeProperty(player.id, landing.spaceId)) {
+          const street = BOARD_SPACES[landing.spaceId];
+          const next = arcadeNextLevel(arcadeLevel(game.properties[landing.spaceId]));
+          if (next !== undefined && player.money - arcadeUpgradeCost(street, next) >= reserve(player.money)) {
+            game.upgradeProperty(street.id, landing.id);
+          }
+        }
+        game.endTurn();
+        break;
+      }
       const project = BOARD_SPACES.filter(space => space.houseCost && player.money - space.houseCost >= reserve(player.money) &&
         game.canBuildHouse(player.id, space.id)).sort((a, b) => {
         const gain = (space: BoardSpace) => {

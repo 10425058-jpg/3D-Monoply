@@ -1,5 +1,5 @@
 import type { Envelope } from './types';
-/** Presence is unsequenced and may share a version. Do not discard it as stale gameplay. */
+/** Unsequenced notifications can share a state version without being stale gameplay. */
 export class EventTracker {
   private seen = new Set<string>();
   private sequence = 0;

@@ -5,6 +5,7 @@ import { Scene3D } from '../components/3d/Scene3D';
 import { SceneStoreProvider, useSceneState } from '../presentation/SceneStore';
 import { PresentationProvider } from '../presentation/PresentationProvider';
 import { GameplayFeedback } from '../components/ui/GameplayFeedback';
+import { ActivityLog, MatchActivityNotices } from '../components/ui/ActivityLog';
 import { BOARD_SPACES } from '../data/boardData';
 import { CHANCE_CARDS, COMMUNITY_CHEST_CARDS } from '../data/cardsData';
 import { Brand, Busy, Dialog, ErrorNotice, cash, tokenNames, useSession, type Quality } from './components';
@@ -25,7 +26,6 @@ export function OnlineMatch({ controller, quality, settings, onLobby }: { contro
   const sceneProperties = useSceneState(s => s.properties);
   const presentationPhase = useSceneState(s => s.turnPhase);
   const [confirm, setConfirm] = useState<{ action: ActionName; target?: string } | null>(null);
-  const [activity, setActivity] = useState(false);
   const [playersOpen, setPlayersOpen] = useState(() => window.innerWidth > 760);
   useEffect(() => {
     const query = window.matchMedia('(max-width: 760px)');
@@ -49,7 +49,8 @@ export function OnlineMatch({ controller, quality, settings, onLobby }: { contro
       match.turnPhase === 'PRE_ROLL' ? viewer?.inJail ? 'Choose how to leave Jail' : match.pendingExtraRoll ? 'Doubles · Roll again' : 'Your roll' :
       match.turnPhase === 'LANDED_ACTION' ? 'Choose whether to buy' : 'End your turn' : `${active?.username ?? 'The active player'} is playing`;
   return <main className="city-match"><div className="world-layer"><Scene3D quality={quality} /></div><div className="city-match-vignette" />
-    <GameplayFeedback online />
+    <GameplayFeedback online activityNotices />
+    <MatchActivityNotices events={state.activity} matchId={match.matchId} layout="online" />
     <header className="city-match-header"><Brand /><div className="city-match-turn"><span className="city-eyebrow">ONLINE · MINI-V1 · TURN {match.turnNumber}</span>
       <strong>{terminal && !state.animating ? 'Match complete' : match.status === 'PAUSED' ? 'Game paused' : `${active?.username ?? 'Player'}’s turn`}</strong>
       <span className="city-game-cue" role="status">{cue}</span></div><span className={`city-connection ${state.connection}`} role="status"><Wifi size={17} />{state.syncing || state.connection !== 'connected' ? state.connection === 'offline' ? 'Offline' : 'Reconnecting…' : 'Connected'}</span><button className="city-icon" onClick={settings} aria-label="Settings"><Settings2 /></button></header>
@@ -60,8 +61,8 @@ export function OnlineMatch({ controller, quality, settings, onLobby }: { contro
     })}</div></details>
     {(state.connection !== 'connected' || match.status === 'PAUSED') && !terminal && <aside className="city-reconnect" role="status"><RefreshCw className="city-spin" size={23} /><div><strong>{state.connection !== 'connected' ? 'Finding our way back…' : 'Waiting for friends to reconnect'}</strong><p>Your last committed state is safe on the server. {match.status === 'PAUSED' ? 'The same game resumes when everyone returns.' : 'We’ll continue as soon as the connection returns.'}</p></div><button className="city-link" onClick={() => void controller.reconcile()}>Refresh</button></aside>}
     {selected && !terminal && <aside className="city-inspector"><button className="city-icon" aria-label="Close property" onClick={() => select(null)}><X size={17} /></button><span className="city-eyebrow">AROUND THE BOARD</span><h2 style={{ borderTopColor: selected.colorHex }}>{selected.name}</h2><p>{selected.price ? `${cash(selected.price)} · ${owner?.username ?? 'Unowned'}` : selected.type.replace(/_/g, ' ')}</p>{selected.rent && <small>Base rent {cash(selected.rent[0])}</small>}</aside>}
-    <aside className="city-match-tools"><button className="city-button outline" onClick={() => setActivity(v => !v)}>{activity ? 'Close activity' : 'City activity'}</button>{match.allowedActions.includes('forfeit') && <button className="city-link" disabled={disabled} onClick={() => setConfirm({ action: 'forfeit' })}><DoorOpen size={16} />Forfeit</button>}{viewer?.isBankrupt && <button className="city-link" onClick={onLobby}>Back to lobby</button>}</aside>
-    {activity && <aside className="city-activity"><h2>City activity</h2>{state.activity.length ? <ol>{state.activity.map(e => <li key={e.id}>{e.text}</li>)}</ol> : <p>Moves and moments will appear here.</p>}<small>State version {match.stateVersion}</small></aside>}
+    <aside className="city-match-tools">{match.allowedActions.includes('forfeit') && <button className="city-link" disabled={disabled} onClick={() => setConfirm({ action: 'forfeit' })}><DoorOpen size={16} />Forfeit</button>}{viewer?.isBankrupt && <button className="city-link" onClick={onLobby}>Back to lobby</button>}</aside>
+    {(!terminal || state.animating) && <ActivityLog events={state.activity} matchId={match.matchId} layout="online" />}
     <section className="city-online-dock" aria-label="Your actions"><ErrorNotice message={state.error} />
       {state.uncertain && <div className="city-info" role="status">Waiting to confirm your last action.<button className="city-link" disabled={!!state.pending || state.syncing || state.connection !== 'connected'} onClick={() => void controller.act(state.uncertain!.action, {}, true)}>Retry {labels[state.uncertain.action]}</button></div>}
       {card && !state.animating && <details className="city-last-card" key={`${card.id}-${match.lastCardResolved?.stateVersion}`} open><summary>{card.deck === 'chance' ? 'Chance' : 'Community Chest'} · {card.title}</summary><p>{card.description}</p></details>}
@@ -80,7 +81,9 @@ export function OnlineMatch({ controller, quality, settings, onLobby }: { contro
     {confirm && <Dialog title={confirm.action === 'forfeit' ? 'Leave this adventure?' : confirm.action === 'abandon' ? 'End the match for everyone?' : 'Remove the absent player?'} onClose={() => setConfirm(null)}><p>{confirm.action === 'forfeit' ? 'You’ll forfeit your cash and properties. The other players can continue.' : confirm.action === 'abandon' ? 'This paused match will end without a winner.' : 'The server will check the player’s disconnect grace period before forfeiting them.'}</p><div className="city-dialog-actions"><button className="city-button outline" onClick={() => setConfirm(null)}>Keep playing</button><button className="city-button purple" onClick={() => { void controller.act(confirm.action, confirm.target ? { targetPlayerId: confirm.target } : {}); setConfirm(null); }}>{labels[confirm.action]}</button></div></Dialog>}
     {terminal && !state.animating && <Dialog title={match.status === 'ABANDONED' ? 'Match abandoned' : 'Final standings'} onClose={onLobby}><div className="city-results"><Trophy size={55} aria-hidden="true" /><h2>{match.status === 'ABANDONED' ? 'This match has ended.' : `${match.players.find(p => p.playerId === match.winnerPlayerId)?.username} wins!`}</h2>
       {match.status === 'FINISHED' && <p>{match.finishReason === 'TURN_LIMIT' ? 'Highest net worth after 80 completed turns' : 'Last player standing'}</p>}
-      {match.standings?.map(row => <div className="city-result-row" key={row.playerId}><strong>{row.rank}. {match.players.find(p => p.playerId === row.playerId)?.username}</strong><span>{cash(row.netWorth)} net · {cash(row.money)} cash · {match.properties.filter(p => p.ownerPlayerId === row.playerId).length} deeds</span></div>)}<button className="city-button purple" onClick={onLobby}>Back to lobby<ArrowRight size={18} /></button></div></Dialog>}
+      {match.standings?.map(row => <div className="city-result-row" key={row.playerId}><strong>{row.rank}. {match.players.find(p => p.playerId === row.playerId)?.username}</strong><span>{cash(row.netWorth)} net · {cash(row.money)} cash · {match.properties.filter(p => p.ownerPlayerId === row.playerId).length} deeds</span></div>)}
+      <ActivityLog events={state.activity} matchId={match.matchId} layout="results" />
+      <button className="city-button purple" onClick={onLobby}>Back to lobby<ArrowRight size={18} /></button></div></Dialog>}
   </main>;
 }
 

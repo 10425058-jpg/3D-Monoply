@@ -22,12 +22,14 @@ import { Scene3D } from './components/3d/Scene3D';
 import { BOARD_SPACES } from './data/boardData';
 import { useGameStore } from './store/useGameStore';
 import { DAILY_MISSIONS, DAILY_REWARD_CYCLE, LUCKY_WHEEL_REWARDS, STICKER_COLLECTION } from './data/metaGameData';
-import type { BoardSpace, TokenType, TradeOffer } from './types/game';
+import type { BoardSpace, SoloRuleset, TokenType, TradeOffer } from './types/game';
 import { TopHeader } from './components/ui/TopHeader';
 import { PlayerSidebar } from './components/ui/PlayerSidebar';
 import { RightActivityNav } from './components/ui/RightActivityNav';
 import { BottomActionDock } from './components/ui/BottomActionDock';
 import { PropertyCard } from './components/ui/PropertyCard';
+import { PropertyEvolution } from './components/ui/PropertyEvolution';
+import { ActivityLog, MatchActivityNotices } from './components/ui/ActivityLog';
 import { StatsModal } from './components/ui/StatsModal';
 import { sounds } from './utils/audio';
 import './app-ui.css';
@@ -79,6 +81,8 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
   useSoloAudit();
   const game = useGameStore();
   const [showSetup, setShowSetup] = useState(false);
+  const [nextRuleset, setNextRuleset] = useState<SoloRuleset>('arcade');
+  const [evolutionSpaceId, setEvolutionSpaceId] = useState<number | null>(null);
   const [showRules, setShowRules] = useState(false);
   const [showStats, setShowStats] = useState(false);
   const [showMetaHub, setShowMetaHub] = useState(false);
@@ -102,13 +106,26 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
   const {visible}=useMotionPreferences();
   useEffect(()=>{
     setShowTradeModal(false);setTradeFeedback('');setShowStats(false);setShowRules(false);setShowMetaHub(false);setLastPackReveal(null);setIsWheelSpinning(false);
+    setEvolutionSpaceId(null);
   },[game.gameId]);
+  const arcade = game.ruleset === 'arcade';
+  const matchId = `solo-${game.gameId}`;
   const inspectorSpaceId = game.selectedSpaceId ?? game.hoveredSpaceId;
+  const evolutionOpen = arcade && evolutionSpaceId !== null && evolutionSpaceId === game.selectedSpaceId;
   const selectedSpace = inspectorSpaceId === null ? null : BOARD_SPACES[inspectorSpaceId];
   const selectedState = selectedSpace ? game.properties[selectedSpace.id] : undefined;
   const selectedOwner = selectedState?.ownerId === null || selectedState?.ownerId === undefined
     ? undefined
     : game.players.find((player) => player.id === selectedState.ownerId);
+  const openEvolution = (spaceId: number) => {
+    game.selectSpace(spaceId);
+    setEvolutionSpaceId(spaceId);
+  };
+  const closeProperty = () => {
+    setEvolutionSpaceId(null);
+    game.selectSpace(null);
+    game.setHoveredSpace(null);
+  };
 
   const rivalPlayers = useMemo(
     () => game.players.filter((player) => !player.isBankrupt && player.id !== tradePlayer?.id),
@@ -116,7 +133,7 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
   );
   const rival = rivalPlayers.find(player => player.id === tradeTargetId);
   const tradeRestriction = (space: BoardSpace) => game.properties[space.id]?.isMortgaged ? 'Mortgaged' :
-    groupHasBuildings(space, game.properties) ? 'Group has buildings' : '';
+    !arcade && groupHasBuildings(space, game.properties) ? 'Group has buildings' : '';
   const deedsOf = (id?: number) => BOARD_SPACES.filter(space => game.properties[space.id]?.ownerId === id);
   const tradeOptions = (id?: number) => deedsOf(id).map(space => {
     const restriction = tradeRestriction(space);
@@ -208,17 +225,19 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
 
   const handleStart = () => {
     sounds.playPurchase();
-    game.startNewGame(DEFAULT_SETUP);
+    game.startNewGame(DEFAULT_SETUP, nextRuleset);
     setShowSetup(false);
   };
 
   return (
     <main className="monopoly-app">
-      <GameplayFeedback />
-      <SoloDecisions onOpenTrade={openTrade} tradeOpen={showTradeModal} />
+      <GameplayFeedback activityNotices />
+      <MatchActivityNotices matchId={matchId} events={game.activity} />
+      <SoloDecisions onOpenTrade={openTrade} tradeOpen={showTradeModal}
+        onOpenEvolution={openEvolution} evolutionOpen={evolutionOpen} />
       {/* 3D Scene Layer */}
       <div className="world-layer">
-        <Scene3D quality={graphicsQuality} />
+        <Scene3D quality={graphicsQuality} propertyPanel={evolutionOpen} />
       </div>
       <div className="world-vignette" aria-hidden="true" />
 
@@ -235,6 +254,7 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
         onOpenAlbum={() => { setMetaTab('album'); setShowMetaHub(true); }}
         onOpenMissions={() => { setMetaTab('missions'); setShowMetaHub(true); }}
       />
+      {!game.winner && <ActivityLog matchId={matchId} events={game.activity} />}
 
       {/* 4. BOTTOM ACTION DOCK */}
       <BottomActionDock
@@ -242,24 +262,26 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
         onOpenRules={() => setShowRules(true)}
         onOpenTrade={openTrade}
         onOpenAuction={game.auctionCurrentProperty}
+        onOpenEvolution={openEvolution}
         autoRoll={autoRoll}
         onToggleAutoRoll={() => setAutoRoll((v) => !v)}
       />
 
       {/* 5. PROPERTY DEED INSPECTOR CARD */}
       <AnimatePresence mode="wait">
-      {selectedSpace && (
+      {selectedSpace && (evolutionOpen && selectedSpace.type === 'property' ? (
+        <PropertyEvolution key={`evolution-${selectedSpace.id}`} space={selectedSpace} state={selectedState}
+          owner={selectedOwner} onClose={closeProperty} />
+      ) : (
         <PropertyCard
           key={selectedSpace.id}
           space={selectedSpace}
           state={selectedState}
           owner={selectedOwner}
-          onClose={() => {
-            game.selectSpace(null);
-            game.setHoveredSpace(null);
-          }}
+          onClose={closeProperty}
+          onOpenEvolution={openEvolution}
         />
-      )}
+      ))}
       </AnimatePresence>
 
       {/* 6. STATS & PORTFOLIO MODAL */}
@@ -317,7 +339,7 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
                     <input type="number" min="0" step="1" max={rival?.money} value={tradeRequestCash} onChange={(event) => setTradeRequestCash(event.target.value)} />
                   </label>
                 </div>
-                {offer && rival && <TradeTerms from={tradePlayer} to={rival} offer={offer} properties={game.properties} />}
+                {offer && rival && <TradeTerms from={tradePlayer} to={rival} offer={offer} properties={game.properties} ruleset={game.ruleset} />}
                 {!validCash && <p className="trade-feedback is-warning">Enter whole-dollar amounts within each player’s available cash.</p>}
                 {tradeFeedback && <div role="status" className={`trade-feedback ${tradeFeedback.includes('accepted') ? 'is-success' : 'is-warning'}`}>{tradeFeedback}</div>}
                 <div className="trade-modal-actions">
@@ -559,6 +581,15 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
               <div><Bot size={15} /><strong>3</strong><span>AI rivals</span></div>
               <div><Wallet size={15} /><strong>$1,500</strong><span>Starting cash</span></div>
             </div>
+            <fieldset className="solo-ruleset">
+              <legend>Ruleset for the new match</legend>
+              <div className="solo-ruleset-options">
+                <label><input type="radio" name="solo-ruleset" value="arcade" checked={nextRuleset === 'arcade'} onChange={() => setNextRuleset('arcade')} />
+                  <span><strong>Arcade</strong>Develop each street into a house, apartment, and hotel.</span></label>
+                <label><input type="radio" name="solo-ruleset" value="classic" checked={nextRuleset === 'classic'} onChange={() => setNextRuleset('classic')} />
+                  <span><strong>Classic</strong>Own a full color group and build houses evenly.</span></label>
+              </div>
+            </fieldset>
             <button className="modal-primary" onClick={handleStart}>Enter the city <ArrowRight size={17} /></button>
             <span className="modal-caption">The board is set. Fortune favors the bold.</span>
           </div>
@@ -576,13 +607,18 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
             <div className="rule-list">
               <div><span>01</span><p><strong>Roll & move</strong>Roll two dice and travel clockwise around the board.</p></div>
               <div><span>02</span><p><strong>Acquire property</strong>Buy unowned spaces and collect rent when rivals land on your holdings.</p></div>
-              <div><span>03</span><p><strong>Build your district</strong>Own every property in a color group to build houses and hotels.</p></div>
+              <div><span>03</span><p><strong>{arcade ? 'Develop your streets' : 'Build your district'}</strong>{arcade ?
+                'Buy a street, then choose one upgrade per landing. Land becomes a house, then an apartment, then a hotel. Each stage has its own cost and rent.' :
+                'Own every property in a color group to build houses and hotels evenly.'}</p></div>
               <div><span>04</span><p><strong>Manage your fortune</strong>Pay taxes, resolve cards, and use mortgages carefully to avoid bankruptcy.</p></div>
               <div><span>05</span><p><strong>Watch the dice</strong>Rolling doubles grants another turn. Three consecutive doubles send you to jail.</p></div>
               <div><span>06</span><p><strong>Grow your landmark</strong>Upgrade your city landmark to increase the bonus you collect each time you pass GO.</p></div>
               <div><span>07</span><p><strong>Railroad bonus</strong>Landing on a railroad unlocks a Bank Heist or a chance to shut down a rival landmark.</p></div>
               <div><span>08</span><p><strong>Jail options</strong>Before rolling, pay $50 bail or use a held Jail card. Jail doubles release you without an extra roll; after three failed attempts, raise the bail and move using that roll.</p></div>
-              <div><span>09</span><p><strong>Raise funds</strong>Sell buildings evenly for half cost or mortgage eligible deeds. Release a mortgage for principal plus 10% interest rounded up to whole dollars. You cannot build while a group deed is mortgaged.</p></div>
+              <div><span>09</span><p><strong>Raise funds</strong>{arcade ?
+                'Sell one stage for half its upgrade cost, rounded down. A street can be mortgaged at Land. Unmortgaged deeds carry their development in a trade.' :
+                'Sell buildings evenly for half cost or mortgage eligible deeds. A mortgaged deed blocks construction in its group.'}
+                {' '}Release a mortgage for principal plus 10% interest rounded up to whole dollars.</p></div>
               <div><span>10</span><p><strong>Local variations</strong>Solo has unlimited building stock, counts unmortgaged companion railroads/utilities for rent, and permits optional property auctions. It is not a strict G0009 Classic mode.</p></div>
             </div>
             <button className="modal-primary" onClick={() => setShowRules(false)}>Back to the board <ArrowRight size={16} /></button>
@@ -616,6 +652,7 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
                   <span>{money(player.money)} · {deeds} {deeds === 1 ? 'deed' : 'deeds'}{player.isBankrupt ? ' · Eliminated' : ''}</span></li>;
               })}
             </ul>
+            <ActivityLog matchId={matchId} events={game.activity} layout="results" />
             <div className="trade-modal-actions">
               {onHome && <button className="console-button secondary" onClick={onHome}>Main menu</button>}
               <button className="modal-primary" onClick={() => { sounds.playClick(); setShowSetup(true); }}>

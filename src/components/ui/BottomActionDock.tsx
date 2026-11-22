@@ -6,8 +6,9 @@ import { BOARD_SPACES } from '../../data/boardData';
 
 export const BottomActionDock: React.FC<{
   onOpenStats: () => void; onOpenRules: () => void; onOpenTrade: () => void; onOpenAuction: () => void;
+  onOpenEvolution: (spaceId: number) => void;
   autoRoll: boolean; onToggleAutoRoll: () => void;
-}> = ({ onOpenStats, onOpenRules, onOpenTrade, onOpenAuction, autoRoll, onToggleAutoRoll }) => {
+}> = ({ onOpenStats, onOpenRules, onOpenTrade, onOpenAuction, onOpenEvolution, autoRoll, onToggleAutoRoll }) => {
   const phase = useGameStore(s => s.turnPhase);
   const players = useGameStore(s => s.players);
   const currentIndex = useGameStore(s => s.currentPlayerIndex);
@@ -21,6 +22,9 @@ export const BottomActionDock: React.FC<{
   const buildHouse = useGameStore(s => s.buildHouse);
   const toggleMortgage = useGameStore(s => s.toggleMortgage);
   const canBuildHouse = useGameStore(s => s.canBuildHouse);
+  const canUpgradeProperty = useGameStore(s => s.canUpgradeProperty);
+  const arcade = useGameStore(s => s.ruleset === 'arcade');
+  const arcadeLanding = useGameStore(s => s.arcadeLanding);
   const canToggleMortgage = useGameStore(s => s.canToggleMortgage);
   const raid = useGameStore(s => s.railroadRaid);
   const pendingTrade = useGameStore(s => s.pendingTrade);
@@ -35,30 +39,42 @@ export const BottomActionDock: React.FC<{
   const canBuy = human && phase === 'LANDED_ACTION' && landed?.price !== undefined &&
     properties[landed.id]?.ownerId === null && active.money >= landed.price;
   const canAuction = human && phase === 'LANDED_ACTION' && !!landed?.price && properties[landed.id]?.ownerId === null;
-  const canBuild = selectedId !== null && human && canBuildHouse(active.id, selectedId);
+  const canUpgrade = !!(arcade && human && arcadeLanding && canUpgradeProperty(active.id, arcadeLanding.spaceId));
+  const selectedStreet = selectedId !== null && BOARD_SPACES[selectedId]?.type === 'property' ? selectedId : null;
+  const evolutionId = canUpgrade ? arcadeLanding!.spaceId : selectedStreet ?? arcadeLanding?.spaceId ?? null;
+  const canBuild = arcade ? human && evolutionId !== null && !raid && !pendingTrade &&
+    ['PRE_ROLL', 'LANDED_ACTION', 'END_TURN'].includes(phase) : selectedId !== null && human && canBuildHouse(active.id, selectedId);
   const canMortgage = human && selectedId !== null && canToggleMortgage(active.id, selectedId);
   const canEnd = human && phase === 'END_TURN' && !raid && !pendingTrade;
   const extraRoll = phase === 'END_TURN' && doublesCount > 0 && !active?.inJail;
   const nextAction = phase === 'ROLLING' ? 'Rolling dice' : phase === 'MOVING' ? 'Moving across the board' :
     phase === 'CARD_DRAWN' ? 'Revealing a card' : raid ? 'Railroad bonus' :
     phase === 'LANDED_ACTION' ? 'Reviewing the property' :
-    phase === 'END_TURN' ? extraRoll ? 'Doubles · End turn to roll again' : 'End your turn' : 'Ready to roll';
-  const showCue = !!active && !pendingTrade && !['AUCTION','DEBT_RESOLUTION','GAME_OVER','SETUP'].includes(phase) &&
+    phase === 'END_TURN' ? canUpgrade ? 'Development available' : extraRoll ? 'Doubles · End turn to roll again' : 'End your turn' : 'Ready to roll';
+  const showCue = !!active && !canUpgrade && !pendingTrade && !['AUCTION','DEBT_RESOLUTION','GAME_OVER','SETUP'].includes(phase) &&
     (active.isAI || (phase !== 'LANDED_ACTION' && phase !== 'CARD_DRAWN' && !(phase === 'PRE_ROLL' && active.inJail)));
   const actions = [
     { name: 'Buy', Icon: Home, enabled: canBuy, primary: canBuy,
       hint: canBuy ? `Buy ${landed?.name} for $${landed?.price}` : 'Land on an unowned property with enough cash to buy',
       run: () => { if (canBuy) { buyCurrentProperty(); } } },
-    { name: 'Build', Icon: Hammer, enabled: canBuild, primary: false, hint: canBuild ? 'Build on selected property' : 'Select a property in a complete color group with enough cash',
-      run: () => { if (canBuild && selectedId !== null) { buildHouse(selectedId); } } },
+    { name: 'Build', Icon: Hammer, enabled: canBuild, primary: canUpgrade,
+      hint: arcade ? 'Open Property Evolution for this street' :
+        canBuild ? 'Build on selected property' : 'Select a property in a complete color group with enough cash',
+      run: () => {
+        if (!canBuild) return;
+        if (arcade && evolutionId !== null) onOpenEvolution(evolutionId);
+        else if (selectedId !== null) buildHouse(selectedId);
+      } },
     { name: 'Mortgage', Icon: Landmark, enabled: canMortgage, primary: false,
-      hint: canMortgage ? 'Mortgage or unmortgage selected property' : 'Select your property; sell group buildings or raise unmortgage funds first',
+      hint: canMortgage ? 'Mortgage or unmortgage selected property' : arcade ?
+        'Select an eligible deed. Street development must be at Land before mortgage.' :
+        'Select your property; sell group buildings or raise unmortgage funds first',
       run: () => { if (canMortgage && selectedId !== null) { toggleMortgage(selectedId,properties[selectedId].isMortgaged); } } },
     { name: 'Trade', Icon: ArrowLeftRight, enabled: !!tradePlayer && !tradePlayer.isAI && !tradePlayer.isBankrupt && ['PRE_ROLL','LANDED_ACTION','END_TURN','DEBT_RESOLUTION'].includes(phase) && !raid && !pendingTrade, primary: false, hint: 'Trade properties and cash with a rival to raise funds',
       run: () => { sounds.playClick(); onOpenTrade(); } },
     { name: 'Auction', Icon: Gavel, enabled: canAuction, primary: false, hint: canAuction ? 'Auction this unowned property' : 'Land on an unowned property to start an auction',
       run: () => { sounds.playClick(); onOpenAuction(); } },
-    { name: 'End Turn', Icon: Flag, enabled: canEnd, primary: canEnd, hint: canEnd ? 'Finish your turn' : 'Complete your current action first',
+    { name: 'End Turn', Icon: Flag, enabled: canEnd, primary: canEnd && !canUpgrade, hint: canEnd ? 'Finish your turn' : 'Complete your current action first',
       run: () => { if (canEnd) { sounds.playClick(); endTurn(); } } },
   ];
   return <footer className="fantasy-dock">

@@ -5,8 +5,8 @@ import { ApiError } from './apiClient';
 
 export const GAME_EVENTS: (keyof EventPayloads)[] = [
   'room:snapshot', 'room:updated', 'room:host_changed', 'match:started', 'match:snapshot',
-  'game:dice_rolled', 'game:player_moved', 'game:property_purchased', 'game:rent_paid', 'game:money_changed',
-  'game:card_resolved', 'game:jail_changed', 'game:turn_changed', 'game:paused', 'game:resumed',
+  'game:dice_rolled', 'game:player_moved', 'game:property_purchased', 'game:property_declined', 'game:rent_paid', 'game:money_changed',
+  'game:card_resolved', 'game:jail_changed', 'game:extra_roll', 'game:turn_changed', 'game:paused', 'game:resumed',
   'game:player_bankrupt', 'game:finished', 'game:abandoned', 'player:connection_changed',
 ];
 export class SocketClient {

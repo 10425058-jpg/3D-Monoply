@@ -1,0 +1,160 @@
+{
+  "schema": "monopoly.arcade-property-assets.v1",
+  "source": "tools/blender/generate_arcade_properties.py",
+  "authoringTool": "Blender 5.2.3 LTS",
+  "license": "MIT (repository LICENSE)",
+  "provenance": "Original parametric geometry, UV atlas and rendered previews. No external textures or geometry.",
+  "profiles": "A single batched mesh per material per level. Low skips property shadows and particles; high adds contact shadows and a larger construction burst.",
+  "assets": [
+    {
+      "id": "arcade-land",
+      "file": "land.glb",
+      "tier": "shared",
+      "triangles": 1794,
+      "bytes": 159180,
+      "sha256": "824178f3075da97a6889265c3cb2ef1860fabdeaaf2124561d79dc5034e12a24",
+      "bounds": {
+        "min": [
+          -0.737500011920929,
+          0.0,
+          -0.3269999921321869
+        ],
+        "max": [
+          0.737500011920929,
+          0.406000018119812,
+          0.3269999921321869
+        ]
+      },
+      "anchors": {},
+      "materials": [
+        "Arcade Antique brass",
+        "Arcade Painted limestone",
+        "Arcade owner pennant"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 2408,
+      "level": 0,
+      "preview": "land.png",
+      "previewSha256": "69320905faed8959112f201c207673b177699906a4187d0bf72ba06c194df841"
+    },
+    {
+      "id": "arcade-house",
+      "file": "house.glb",
+      "tier": "shared",
+      "triangles": 2970,
+      "bytes": 257208,
+      "sha256": "ca466f464c5401ea74ebf5bda6ace12708624d3e5faca1b192ffc10d5ab20ae3",
+      "bounds": {
+        "min": [
+          -0.737500011920929,
+          0.0,
+          -0.3269999921321869
+        ],
+        "max": [
+          0.737500011920929,
+          1.1039999723434448,
+          0.3269999921321869
+        ]
+      },
+      "anchors": {},
+      "materials": [
+        "Arcade Antique brass",
+        "Arcade Glazed slate",
+        "Arcade Lit glass",
+        "Arcade Painted limestone",
+        "Arcade owner pennant"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 2408,
+      "level": 1,
+      "preview": "house.png",
+      "previewSha256": "c7d120642a7b580d4b7c337760757c4f11588db7180a65a6eaef0572f13b0bef"
+    },
+    {
+      "id": "arcade-apartment",
+      "file": "apartment.glb",
+      "tier": "shared",
+      "triangles": 4338,
+      "bytes": 372312,
+      "sha256": "1c5c1148a8f19d4fd96767068ca8c3b396a4a23309f00f733b8f23d52ac27ffb",
+      "bounds": {
+        "min": [
+          -0.737500011920929,
+          0.0,
+          -0.3269999921321869
+        ],
+        "max": [
+          0.737500011920929,
+          1.2799999713897705,
+          0.3269999921321869
+        ]
+      },
+      "anchors": {},
+      "materials": [
+        "Arcade Antique brass",
+        "Arcade Glazed slate",
+        "Arcade Lit glass",
+        "Arcade Painted limestone",
+        "Arcade owner pennant"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 2408,
+      "level": 2,
+      "preview": "apartment.png",
+      "previewSha256": "ed3b9a3468657723744c457dc8bc5e5cfa7a1d18fb02c4acbd3747adb90f2dd2"
+    },
+    {
+      "id": "arcade-hotel",
+      "file": "hotel.glb",
+      "tier": "shared",
+      "triangles": 5403,
+      "bytes": 429660,
+      "sha256": "c76efb5b9da01a4f69100bcf4aed1f1cac9207e2d706e315b80463e1d67a6f53",
+      "bounds": {
+        "min": [
+          -0.7394999861717224,
+          0.0,
+          -0.3269999921321869
+        ],
+        "max": [
+          0.7394999861717224,
+          1.6710000038146973,
+          0.3269999921321869
+        ]
+      },
+      "anchors": {},
+      "materials": [
+        "Arcade Antique brass",
+        "Arcade Glazed slate",
+        "Arcade Lit glass",
+        "Arcade Painted limestone",
+        "Arcade owner pennant"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "coordinateSystem": "glTF Y-up, metres, semantic front +Z",
+      "seed": 2408,
+      "level": 3,
+      "preview": "hotel.png",
+      "previewSha256": "e77b67d3642258525ee338714dc5f0ca8454f875e8075f4190576a87a22471c8"
+    }
+  ]
+}

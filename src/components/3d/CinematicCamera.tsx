@@ -25,8 +25,8 @@ export function useReducedMotion() {
 }
 
 /** Presentation only: never advances a turn or writes a gameplay result. */
-export function CinematicCamera({ request, reducedMotion }: {
-  request: { preset: CameraPreset; sequence: number }; reducedMotion: boolean;
+export function CinematicCamera({ request, reducedMotion, propertyPanel }: {
+  request: { preset: CameraPreset; sequence: number }; reducedMotion: boolean; propertyPanel: boolean;
 }) {
   const { size, camera } = useThree();
   const mode = useGameStore(s => s.cameraMode);
@@ -54,6 +54,10 @@ export function CinematicCamera({ request, reducedMotion }: {
     active.current = true;
   }, [selected]);
   useEffect(() => {
+    if (propertyPanel && selected !== null) preset.current = 'property';
+    active.current = true;
+  }, [propertyPanel, selected]);
+  useEffect(() => {
     if (phase === 'MOVING' && mode === 'follow') {
       preset.current = 'movement'; active.current = true;
     } else if (phase !== 'MOVING' && preset.current === 'movement') {
@@ -76,6 +80,9 @@ export function CinematicCamera({ request, reducedMotion }: {
     const perspective = camera as THREE.PerspectiveCamera;
     if (preset.current === 'overview') {
       perspective.setViewOffset(size.width, size.height, ...fit.offset, size.width, size.height);
+    } else if (preset.current === 'property' && propertyPanel && size.width > 760) {
+      const offset = Math.min(size.width * .18, Math.max(0, (1640 - size.width) * .6));
+      perspective.setViewOffset(size.width, size.height, offset, 0, size.width, size.height);
     } else {
       // Close views retain their existing centered composition and interactions.
       perspective.clearViewOffset();

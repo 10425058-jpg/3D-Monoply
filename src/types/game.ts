@@ -24,6 +24,8 @@ export type ColorGroup =
   | 'none';
 
 export type TokenType = 'top_hat' | 'racecar' | 'scottie_dog' | 'yacht' | 'rubber_duck' | 'cat';
+export type SoloRuleset = 'classic' | 'arcade';
+export type ArcadeLevel = 0 | 1 | 2 | 3;
 
 export interface BoardSpace {
   id: number;
@@ -44,6 +46,7 @@ export interface PropertyState {
   ownerId: number | null;
   houses: number; // 0-4 houses, 5 = Hotel
   isMortgaged: boolean;
+  developmentLevel?: ArcadeLevel;
 }
 
 export interface Player {

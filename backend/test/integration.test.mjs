@@ -262,6 +262,8 @@ test('REST + Socket.IO: lobby events, match idempotency, privacy, disconnect and
     assert.equal((await startedB).payload.matchId, matchId);
 
     rejected(await api('GET', '/matches/' + matchId, { token: outsider.token }), 403, 'FORBIDDEN');
+    rejected(await api('GET', '/matches/' + matchId + '?activityAfter=0', { token: outsider.token }), 403, 'FORBIDDEN');
+    rejected(await api('GET', '/matches/' + matchId + '?activityAfter=-1', { token: alice.token }), 400, 'VALIDATION_ERROR');
     const unauthorizedMatch = await emitAck(stranger, 'match:join', { matchId });
     assert.equal(unauthorizedMatch.ok, false);
     assert.equal(unauthorizedMatch.error.code, 'FORBIDDEN');
@@ -299,6 +301,17 @@ test('REST + Socket.IO: lobby events, match idempotency, privacy, disconnect and
     assert.equal(count, 1, 'Idempotency ledger must record the action once');
     const fresh = ok(await api('GET', '/matches/' + matchId, { token: actor.token }));
     assert.equal(fresh.stateVersion, 1);
+    assert.ok(!Object.hasOwn(fresh, 'activityEvents'), 'Existing snapshot callers remain unchanged');
+    const historyPath = '/matches/' + matchId + '?activityAfter=';
+    const hostHistory = ok(await api('GET', historyPath + 0, { token: alice.token }));
+    const guestHistory = ok(await api('GET', historyPath + 0, { token: bob.token }));
+    assert.deepEqual(hostHistory.activityEvents, guestHistory.activityEvents);
+    assert.ok(!Object.hasOwn(hostHistory, 'decks'), 'Activity snapshots must not expose deck order');
+    assert.equal(hostHistory.activityEvents.filter(event => event.type === 'game:dice_rolled').length, 1);
+    assert.equal(hostHistory.activityEvents.find(event => event.type === 'game:dice_rolled').eventId, diceEvent.eventId);
+    const lastSequence = hostHistory.activityEvents.at(-1).sequence;
+    const incremental = ok(await api('GET', historyPath + lastSequence, { token: alice.token }));
+    assert.deepEqual(incremental.activityEvents, []);
     rejected(await api('POST', endpoint, { token: actor.token, body: actionBody(0) }), 409, 'STATE_VERSION_CONFLICT');
 
     // Leaving the room socket is NOT leaving the room or match.

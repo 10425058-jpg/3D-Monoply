@@ -3,6 +3,13 @@ import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { getSpaceTransform } from '../../data/boardData';
 import { useSceneStore } from '../../presentation/SceneStore';
+import { OWNER_PENNANT_MATERIAL } from './arcadePropertyLayout';
+
+type ArcadeAuditBuilding = {
+  spaceId: number; ownerId: number; level: number; color: string | null;
+  position: number[]; scale: number[]; rotationY: number; parts: number;
+  source: 'gltf' | 'fallback';
+};
 
 /** Explicit opt-in diagnostics. No instrumentation or globals in ordinary play. */
 export const graphicsAuditEnabled = () => new URLSearchParams(window.location.search).has('graphicsAudit');
@@ -94,6 +101,46 @@ export function GraphicsAudit({ quality }: { quality: string }) {
             const group=scene.getObjectByName(`buildings-${p.spaceId}`);return {spaceId:p.spaceId,level:p.houses,models:group?.children.length,
               position:group?.getWorldPosition(new THREE.Vector3()).toArray()};
           })};
+      },
+      arcade() {
+        const root = scene.getObjectByName('arcade-property-buildings');
+        const matrix = new THREE.Matrix4(), scale = new THREE.Vector3(), color = new THREE.Color();
+        let drawMeshes = 0, triangles = 0, shadowCasters = 0;
+        const atlasIds = new Set<string>();
+        const construction: { spaceId: number; level: number }[] = [];
+        const buildings = root?.children.flatMap<ArcadeAuditBuilding>(group => {
+          if (!group.visible) return [];
+          if (group.name.startsWith('arcade-construction-')) {
+            construction.push({ spaceId: group.userData.spaceId, level: group.userData.level });
+            return [];
+          }
+          if (group.name === 'arcade-lot-loading') return group.children.map(plot => ({
+            spaceId: Number(plot.name.slice('arcade-fallback-'.length)), level: Number(plot.userData.level),
+            ownerId: Number(plot.userData.ownerId), color: String(plot.userData.color),
+            position: plot.getWorldPosition(new THREE.Vector3()).toArray(), rotationY: plot.rotation.y,
+            scale: plot.scale.toArray(), parts: plot.children.length, source: 'fallback' as const,
+          }));
+          const parts = group.children.filter((part): part is THREE.InstancedMesh =>
+            part instanceof THREE.InstancedMesh && part.visible && part.count > 0);
+          if (!parts.length) return [];
+          drawMeshes += parts.length;
+          let pennant: THREE.InstancedMesh | undefined;
+          for (const part of parts) {
+            const material = part.material as THREE.MeshStandardMaterial;
+            if (material.name === OWNER_PENNANT_MATERIAL) pennant = part;
+            else if (material.map) atlasIds.add(material.map.uuid);
+            if (part.castShadow) shadowCasters++;
+            triangles += (part.geometry.index?.count ?? part.geometry.getAttribute('position').count) / 3 * part.count;
+          }
+          return (group.userData.sites as { spaceId: number; ownerId: number }[]).slice(0, parts[0].count).map(({ spaceId, ownerId }, slot) => {
+            parts[0].getMatrixAt(slot, matrix);
+            pennant?.getColorAt(slot, color);
+            return { spaceId, ownerId, level: Number(group.userData.level), color: pennant ? `#${color.getHexString()}` : null,
+              position: matrix.elements.slice(12, 15), scale: scale.setFromMatrixScale(matrix).toArray(),
+              rotationY: Math.atan2(matrix.elements[8], matrix.elements[10]), parts: parts.length, source: 'gltf' as const };
+          });
+        }) ?? [];
+        return { buildings, construction, drawMeshes, triangles, shadowCasters, atlasTextures: atlasIds.size };
       },
       board() {
         const root=scene.getObjectByName('board-tile-details-v5'),meshes:Record<string,number>={},textures=new Map<string,THREE.Texture>();

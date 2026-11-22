@@ -1,16 +1,17 @@
 import { createStore } from 'zustand/vanilla';
+import type { MatchActivityEvent } from '../game/matchActivity';
 import { ApiError, describeError } from './apiClient';
 import { EventTracker } from './eventTracker';
 import type { MatchPresenter } from './gamePresentationAdapter';
 import type { CommittedEvent, PresentationLabels } from './committedPresentation';
 import { SocketClient } from './socketClient';
 import type { SessionManager } from './sessionManager';
-import type { ActionBody, ActionName, ActionReceipt, Connection, Envelope, EventPayloads, Match, Room } from './types';
+import type { ActionBody, ActionName, ActionReceipt, Connection, Envelope, EventPayloads, Match, PublicActivityEvent, Room } from './types';
 
 interface OnlineState {
   room: Room | null; match: Match | null; connection: Connection; error: string | null;
   pending: string | null; uncertain: { action: ActionName; body: ActionBody } | null;
-  animating: boolean; syncing: boolean; activity: { id: string; text: string }[];
+  animating: boolean; syncing: boolean; activity: MatchActivityEvent[];
 }
 export class OnlineController {
   readonly state = createStore<OnlineState>(() => ({ room: null, match: null, connection: 'connecting',
@@ -28,13 +29,24 @@ export class OnlineController {
   private timer: ReturnType<typeof setInterval> | null = null;
   private commits = new Map<number, { events: CommittedEvent[]; receipt?: CommittedEvent[]; gap?: boolean }>();
   private restoring = true;
-  private spaceNames: ReadonlyMap<number, string> | null = null;
+  private labels: PresentationLabels | null = null;
+  private projectActivity: typeof import('./committedActivity')['projectActivity'] | null = null;
+  private activitySequence = 0;
+  private pendingActivity: { match: Match; events: PublicActivityEvent[]; silent: boolean }[] = [];
   get isActive() { return !this.disposed; }
   // Labels arrive from the already-authorized lazy match screen. The room
   // controller must not pull the gameplay catalog into the waiting-room bundle.
   setSpaceNames(names: ReadonlyMap<number, string> | null, card?: PresentationLabels['card']) {
-    this.spaceNames = names;
-    this.matchPresenter?.setLabels({ spaceName: id => this.spaceNames?.get(id) ?? `space ${id}`, card: card ?? (() => undefined) });
+    const labels = { spaceName: (id: number) => names?.get(id) ?? `space ${id}`, card: card ?? (() => undefined) };
+    this.labels = names ? labels : null;
+    this.matchPresenter?.setLabels(labels);
+    const project = this.projectActivity;
+    if (!names || !project || !this.pendingActivity.length) return;
+    const pending = this.pendingActivity;
+    this.pendingActivity = [];
+    this.state.setState(s => ({ activity: pending.reduce(
+      (history, batch) => project(history, batch.match, batch.events, labels, batch.silent), s.activity,
+    ) }));
   }
   constructor(private readonly session: SessionManager, private readonly socketUrl: string,
     private readonly target: { roomId?: string; matchId?: string },
@@ -73,6 +85,16 @@ export class OnlineController {
     if (this.commits.size > 8) this.commits.delete(this.commits.keys().next().value!);
     return this.commits.get(version)!;
   }
+  private acceptActivity(match: Match, rows: PublicActivityEvent[] | undefined, silent: boolean) {
+    const events = rows?.filter(event => event.sequence > this.activitySequence && event.stateVersion <= match.stateVersion);
+    if (!events?.length) return;
+    this.activitySequence = events[events.length - 1].sequence;
+    if (!this.labels || !this.projectActivity) {
+      this.pendingActivity.push({ match, events, silent });
+      return;
+    }
+    return this.projectActivity(this.state.getState().activity, match, events, this.labels, silent);
+  }
   reconcile = (): Promise<void> => {
     if (this.disposed) return Promise.resolve();
     if (this.flight) { this.again = true; return this.flight; }
@@ -81,11 +103,16 @@ export class OnlineController {
         this.again = false;
         try {
           if (this.target.matchId) {
-            const match = await this.session.api.request<Match>(`/matches/${this.target.matchId}`);
+            const { activityEvents, ...match } = await this.session.api.request<Match>(
+              `/matches/${this.target.matchId}?activityAfter=${this.activitySequence}`,
+            );
             if (this.disposed) return;
             if (!this.matchPresenter) {
-              const { MatchPresenter } = await import('./gamePresentationAdapter');
+              const [{ MatchPresenter }, activity] = await Promise.all([
+                import('./gamePresentationAdapter'), import('./committedActivity'),
+              ]);
               if (this.disposed) return;
+              this.projectActivity = activity.projectActivity;
               this.matchPresenter = new MatchPresenter(animating => this.state.setState({ animating }));
             }
             const previous = this.state.getState().match;
@@ -93,10 +120,13 @@ export class OnlineController {
               const ready = this.state.getState().connection === 'connected' && (typeof document === 'undefined' || !document.hidden);
               if (!previous || match.stateVersion > previous.stateVersion) {
                 const commit = this.commits.get(match.stateVersion);
-                this.presenter.apply(match, ready && !this.restoring, commit?.receipt ?? (commit?.gap ? [] : commit?.events));
+                const stored = activityEvents?.filter(event => event.stateVersion === match.stateVersion && event.type.startsWith('game:'));
+                const effects = stored?.length ? stored : commit?.receipt ?? (commit?.gap ? [] : commit?.events);
+                this.presenter.apply(match, ready && !this.restoring, effects);
                 for (const version of this.commits.keys()) if (version <= match.stateVersion) this.commits.delete(version);
               }
-              this.state.setState({ match, syncing: !ready });
+              const activity = this.acceptActivity(match, activityEvents, !ready || this.restoring || !previous);
+              this.state.setState({ match, syncing: !ready, ...(activity && { activity }) });
               if (ready) this.restoring = false;
             }
             const room = await this.session.api.request<Room>(`/rooms/${match.roomId}`);
@@ -131,30 +161,8 @@ export class OnlineController {
       commit.events.push({ type: name, payload: event.payload as Record<string, unknown> });
       commit.gap ||= decision.gap;
     }
-    if (name.startsWith('game:') || name === 'player:connection_changed') {
-      const payload = event.payload as Record<string, unknown>;
-      if (name !== 'game:money_changed' || (payload.reason !== 'RENT' && payload.reason !== 'PURCHASE')) {
-        const text = this.describeEvent(name, payload);
-        this.state.setState(s => ({ activity: [...s.activity, { id: event.eventId, text }].slice(-35) }));
-      }
-    }
     // Snapshots are always fetched for this viewer. Events never mutate money or allowedActions.
     void this.reconcile();
-  }
-  private describeEvent(name: string, p: Record<string, unknown>) {
-    const match=this.state.getState().match;
-    const player = this.state.getState().match?.players.find(v => v.playerId === p.playerId);
-    const who = player?.username ?? 'Player';
-    if (name === 'game:dice_rolled') return `${who} rolled ${(p.dice as number[])?.join(' + ')}.`;
-    if (name === 'game:money_changed') return `${who}: ${Number(p.amount) >= 0 ? '+' : ''}$${p.amount}.`;
-    if (name === 'game:property_purchased') return `${who} bought ${this.spaceNames?.get(Number(p.spaceId))??'a property'} for $${p.price}.`;
-    if (name === 'game:rent_paid') {
-      const payer=match?.players.find(v=>v.playerId===p.payerPlayerId)?.username??'Player';
-      const owner=match?.players.find(v=>v.playerId===p.ownerPlayerId)?.username??'the owner';
-      return `${payer} paid $${p.amount} rent to ${owner} for ${this.spaceNames?.get(Number(p.spaceId))??'the property'}.`;
-    }
-    if (name === 'player:connection_changed') return `${who} ${p.connectionStatus === 'CONNECTED' ? 'reconnected' : 'disconnected'}.`;
-    return name.replace('game:', '').replace(/_/g, ' ');
   }
   async roomAction<T>(label: string, fn: () => Promise<T>): Promise<T | undefined> {
     if (this.state.getState().pending) return;
@@ -186,7 +194,9 @@ export class OnlineController {
     } finally { if (!this.disposed) this.state.setState({ pending: null }); }
   }
   stop() {
-    this.spaceNames = null;
+    this.labels = null;
+    this.projectActivity = null;
+    this.pendingActivity = [];
     this.disposed = true; this.socket?.stop(); this.matchPresenter?.dispose();
     this.commits.clear();
     if (this.timer) clearInterval(this.timer);

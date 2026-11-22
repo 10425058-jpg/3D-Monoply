@@ -553,7 +553,10 @@ test('rent the payer cannot afford: cash and deeds go to the creditor', () => {
   assert.equal(p(r.state, 1).money, 1503);
   assert.equal(r.state.owners[39], 'p1');
   const ev = r.events.find((e) => e.type === 'game:player_bankrupt');
-  assert.deepEqual(ev?.payload, { playerId: 'p0', creditorPlayerId: 'p1', reason: 'INSOLVENT_TO_PLAYER' });
+  assert.deepEqual(ev?.payload, {
+    playerId: 'p0', creditorPlayerId: 'p1', reason: 'INSOLVENT_TO_PLAYER', forfeitedCash: 3,
+    creditorBalance: 1503, transferredSpaceIds: [39],
+  });
   assert.ok(!types(r).includes('game:rent_paid'));
 });
 

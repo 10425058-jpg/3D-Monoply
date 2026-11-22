@@ -1,0 +1,15 @@
+{
+  "passed": [
+    "UI-01 authenticated Online card instructions and existing-dice 10x rent",
+    "Online mini-v1 excludes Solo landmark controls",
+    "One committed purchase receipt with exact balance and no replay on reload"
+  ],
+  "purchase": {
+    "amount": 60,
+    "balance": 1410,
+    "version": 3,
+    "frames": 29,
+    "peakDrawCalls": 2338
+  },
+  "errors": []
+}

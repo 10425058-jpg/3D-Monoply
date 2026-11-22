@@ -20,7 +20,7 @@ function Receipt({ cash }: { cash: CashReceipt }) {
   </div>;
 }
 
-export function GameplayFeedback({ online = false }: { online?: boolean }) {
+export function GameplayFeedback({ online = false, activityNotices = false }: { online?: boolean; activityNotices?: boolean }) {
   const events = usePresentationEvents();
   const latest = [...events].reverse();
   const landed = latest.find(e => e.kind === 'dice-land');
@@ -46,7 +46,7 @@ export function GameplayFeedback({ online = false }: { online?: boolean }) {
     {!online && landed && <div key={landed.id} className="dice-result" data-effect-kind="dice-land">
       <span>Dice result</span><strong>{landed.label}</strong>
     </div>}
-    <div className="feedback-notices">
+    {!activityNotices && <div className="feedback-notices">
       {notice && <div key={notice.id} className={`effect-notice effect-${notice.kind}`} data-effect-kind={notice.kind}>
         <NoticeIcon size={17} aria-hidden="true" /><div><strong>{notice.label}</strong>
           <span>{notice.detail ?? (notice.spaceId !== undefined ? BOARD_SPACES[notice.spaceId]?.name : null)}</span></div>
@@ -55,6 +55,6 @@ export function GameplayFeedback({ online = false }: { online?: boolean }) {
       {standalone && <div key={change.id} className="effect-notice" data-effect-kind="money">
         <Coins size={16} aria-hidden="true" /><div><strong>{change.label} {change.amount! > 0 ? '+' : '−'}{money(Math.abs(change.amount!))}</strong><span>{change.detail}</span></div>
       </div>}
-    </div>
+    </div>}
   </div>;
 }
