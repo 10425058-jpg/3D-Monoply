@@ -41,11 +41,15 @@ export interface Match {
   stateVersion: number; pausedAt: string | null; pauseReason: string | null;
   allPlayersOfflineSince: string | null; startedAt: string; updatedAt: string;
   standings?: { playerId: string; rank: number; money: number; netWorth: number }[];
+  activityEvents?: PublicActivityEvent[];
 }
 export interface ActionBody { clientActionId: string; expectedStateVersion: number; contentVersion: string;
   spaceId?: number; cardId?: string; targetPlayerId?: string }
 export interface ActionReceipt { actionId: string; matchId: string; stateVersion: number; status: Match['status'];
   events: { type: string; payload: Record<string, unknown> }[] }
+export interface PublicActivityEvent {
+  type: string; eventId: string; sequence: number; stateVersion: number; occurredAt: string; payload: Record<string, unknown>;
+}
 export interface EventPayloads {
   'room:snapshot': Room;
   'room:updated': Room;
@@ -55,15 +59,18 @@ export interface EventPayloads {
   'game:dice_rolled': { playerId: string; dice: [number, number]; total: number; fromPosition: number; toPosition: number };
   'game:player_moved': { playerId: string; fromPosition: number; toPosition: number; passedGo: boolean };
   'game:property_purchased': { playerId: string; spaceId: number; price: number; balance: number };
+  'game:property_declined': { playerId: string; spaceId: number };
   'game:rent_paid': { payerPlayerId: string; ownerPlayerId: string; spaceId: number; amount: number };
   'game:money_changed': { playerId: string; amount: number; balance: number; reason: string };
-  'game:card_resolved': { playerId: string; cardId: string; deck: string; effects: unknown[]; resolvedAt: string };
-  'game:jail_changed': { playerId: string; inJail: boolean; jailTurns: number };
+  'game:card_resolved': { playerId: string; cardId: string; deck: 'chance' | 'chest'; effects: { type: string; amount?: number; targetSpaceId?: number }[]; resolvedAt: string };
+  'game:jail_changed': { playerId: string; inJail: boolean; jailTurns: number; releaseReason?: 'DOUBLES' | 'BAIL' | 'CARD' };
+  'game:extra_roll': { playerId: string };
   'game:turn_changed': { currentPlayerId: string | null; turnPhase: string };
   'game:paused': { pausedAt: string; reason: string };
   'game:resumed': { matchId: string; stateVersion: number };
-  'game:player_bankrupt': { playerId: string; creditorPlayerId: string | null; reason: string };
-  'game:finished': { winnerPlayerId: string; finishReason: string; standings: { playerId: string; rank: number; netWorth: number }[] };
+  'game:player_bankrupt': { playerId: string; creditorPlayerId: string | null; reason: string;
+    forfeitedCash?: number; creditorBalance?: number | null; transferredSpaceIds?: number[] };
+  'game:finished': { winnerPlayerId: string | null; finishReason: string; standings: { playerId: string; rank: number; netWorth: number }[] };
   'game:abandoned': { reason: string };
   'player:connection_changed': { playerId: string; connectionStatus: string; disconnectedAt: string | null };
 }

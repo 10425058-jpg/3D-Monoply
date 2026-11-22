@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import {
+  ArcadeLevel,
   BoardSpace,
   CameraMode,
   CashTransfer,
@@ -11,6 +12,7 @@ import {
   PropertyAuction,
   PropertyState,
   RailroadRaid,
+  SoloRuleset,
   TokenType,
   TradeOffer,
   TurnPhase,
@@ -19,6 +21,8 @@ import { BOARD_SPACES, COLOR_GROUP_TOTALS } from '../data/boardData';
 import { CHANCE_CARDS, COMMUNITY_CHEST_CARDS } from '../data/cardsData';
 import { DAILY_MISSIONS, DAILY_REWARD_CYCLE, LUCKY_WHEEL_REWARDS, STICKER_COLLECTION, type MissionId, type MissionStat, type WheelReward } from '../data/metaGameData';
 import { groupHasBuildings, unmortgageCost } from '../game/soloRules';
+import { ARCADE_STAGES, arcadeDevelopmentValue, arcadeLevel, arcadeNextLevel, arcadePreviousLevel, arcadeRent, arcadeRepairCharge, arcadeSellRefund, arcadeUpgradeCost } from '../game/arcadeRules';
+import { appendMatchActivity, type ActivityActor, type ActivityKind, type ActivityTransfer, type MatchActivityEvent } from '../game/matchActivity';
 import { DICE_ROLL_MS, TOKEN_STEP_MS } from '../presentation/animationMath';
 
 interface SoloPayment {
@@ -27,6 +31,34 @@ interface SoloPayment {
   amount: number;
   reason: string;
 }
+
+interface ArcadeLanding {
+  id: string;
+  playerId: number;
+  spaceId: number;
+  upgraded: boolean;
+}
+
+interface SoloCardOutcome {
+  card: DeckCard;
+  playerId: number;
+  spaceId: number;
+  transfers: readonly ActivityTransfer[];
+  participants?: readonly ActivityActor[];
+  destinationId?: number;
+  notes?: readonly string[];
+}
+
+type ActivityData = Omit<MatchActivityEvent, 'id' | 'matchId' | 'sequence' | 'timestamp' | 'turn' | 'actor' | 'counterparty' | 'title'> & {
+  title?: string;
+  actorId?: number;
+  counterpartyId?: number;
+};
+
+const transferKinds: Record<CashTransfer['category'], ActivityKind> = {
+  purchase: 'purchase', auction: 'auction', rent: 'rent', salary: 'go', tax: 'tax', card: 'card',
+  mortgage: 'mortgage', construction: 'upgrade', trade: 'trade', jail: 'bail', landmark: 'landmark', bonus: 'money', debt: 'money',
+};
 
 interface PlayerSetupConfig {
   name: string;
@@ -37,6 +69,9 @@ interface PlayerSetupConfig {
 
 interface GameStore {
   gameId: number;
+  ruleset?: SoloRuleset;
+  arcadeLanding: ArcadeLanding | null;
+  arcadeLandingSequence: number;
   players: Player[];
   properties: Record<number, PropertyState>;
   currentPlayerIndex: number;
@@ -47,11 +82,14 @@ interface GameStore {
   chestDeck: DeckCard[];
   activeCard: DeckCard | null;
   cardDrawId: number;
+  resolvingCard: SoloCardOutcome | null;
   selectedSpaceId: number | null;
   hoveredSpaceId: number | null;
   gameSpeed: 1 | 2;
   cameraMode: CameraMode;
   logs: LogEntry[];
+  activity: MatchActivityEvent[];
+  turnNumber: number;
   pendingDebt: {
     amount: number;
     creditorId: number | null;
@@ -59,6 +97,8 @@ interface GameStore {
     debtorId?: number;
     remainingPayments?: SoloPayment[];
     distribution?: { recipientIds: number[]; amountPerPlayer: number };
+    category?: CashTransfer['category'];
+    spaceId?: number;
   } | null;
   auction: PropertyAuction | null;
   heldJailCards: Record<number, DeckCard[]>;
@@ -72,7 +112,7 @@ interface GameStore {
   isSetupModalOpen: boolean;
 
   // Actions
-  startNewGame: (configs: PlayerSetupConfig[]) => void;
+  startNewGame: (configs: PlayerSetupConfig[], ruleset?: SoloRuleset) => void;
   setCameraMode: (mode: CameraMode) => void;
   selectSpace: (spaceId: number | null) => void;
   setHoveredSpace: (spaceId: number | null) => void;
@@ -103,7 +143,8 @@ interface GameStore {
   declineProperty: () => void;
   applyActiveCard: (expectedDrawId?: number) => void;
   buildHouse: (spaceId: number) => void;
-  sellHouse: (spaceId: number) => void;
+  upgradeProperty: (spaceId: number, expectedLandingId?: string) => void;
+  sellHouse: (spaceId: number, expectedLevel?: number) => void;
   toggleMortgage: (spaceId: number, expectedIsMortgaged?: boolean) => void;
   proposeTrade: (offer: TradeOffer) => { accepted: boolean; message: string };
   acceptTrade: (playerId: number) => { accepted: boolean; message: string };
@@ -114,6 +155,7 @@ interface GameStore {
 
   // Helpers
   canBuildHouse: (playerId: number, spaceId: number) => boolean;
+  canUpgradeProperty: (playerId: number, spaceId: number) => boolean;
   canSellHouse: (playerId: number, spaceId: number) => boolean;
   canToggleMortgage: (playerId: number, spaceId: number) => boolean;
   liquidationValue: (playerId: number) => number;
@@ -192,7 +234,7 @@ function shuffleDeck<T>(items: T[]): T[] {
   return copy;
 }
 
-function createInitialProperties(): Record<number, PropertyState> {
+function createInitialProperties(ruleset: SoloRuleset): Record<number, PropertyState> {
   const props: Record<number, PropertyState> = {};
   BOARD_SPACES.forEach((space) => {
     if (space.type === 'property' || space.type === 'railroad' || space.type === 'utility') {
@@ -201,10 +243,37 @@ function createInitialProperties(): Record<number, PropertyState> {
         ownerId: null,
         houses: 0,
         isMortgaged: false,
+        ...(ruleset === 'arcade' && space.type === 'property' ? { developmentLevel: 0 as const } : {}),
       };
     }
   });
   return props;
+}
+
+function getDevelopmentLiquidation(property: PropertyState, ruleset?: SoloRuleset) {
+  const space = BOARD_SPACES[property.spaceId];
+  return ruleset === 'arcade'
+    ? (space.type === 'property' ? arcadeDevelopmentValue(space, arcadeLevel(property)) : 0)
+    : property.houses * Math.floor((space.houseCost ?? 0) / 2);
+}
+
+function claimNewDeed(property: PropertyState, ownerId: number, ruleset?: SoloRuleset): PropertyState {
+  return ruleset === 'arcade' && BOARD_SPACES[property.spaceId].type === 'property'
+    ? { ...property, ownerId, developmentLevel: 0 }
+    : { ...property, ownerId };
+}
+
+const activityActor = (player?: Player): ActivityActor | undefined => player && {
+  id: String(player.id), name: player.name, color: player.color,
+};
+
+function activityTransfer(transfer: CashTransfer, players: Player[]): ActivityTransfer {
+  const from = players.find(player => player.id === transfer.fromId);
+  const to = players.find(player => player.id === transfer.toId);
+  return {
+    from: activityActor(from) ?? null, to: activityActor(to) ?? null,
+    amount: transfer.amount, fromBalance: from?.money, toBalance: to?.money, reason: transfer.reason,
+  };
 }
 
 const DEFAULT_PLAYERS: PlayerSetupConfig[] = [
@@ -217,6 +286,7 @@ const DEFAULT_PLAYERS: PlayerSetupConfig[] = [
 export const useGameStore = create<GameStore>((set, get) => {
   // Invalidate in-flight movement and dice callbacks whenever a new game starts.
   let gameGeneration = 0;
+  let logSequence = 0;
   let animationTimer: ReturnType<typeof setTimeout> | undefined;
   const processedTrades = new Set<string>();
   let approvedTrade: TradeOffer | null = null;
@@ -240,7 +310,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       const creditor = state.players.find(p => p.id === payment.creditorId);
       if (!debtor || debtor.isBankrupt || (payment.creditorId !== null && (!creditor || creditor.isBankrupt))) continue;
       if (debtor.money < payment.amount) {
-        set({pendingDebt: {...payment, remainingPayments: payments.slice(i + 1)}, turnPhase: 'DEBT_RESOLUTION'});
+        set({pendingDebt: {...payment, remainingPayments: payments.slice(i + 1), category: 'card'}, turnPhase: 'DEBT_RESOLUTION'});
         return;
       }
       set(s => ({players: s.players.map(p => p.id === debtor.id ? {...p, money: p.money - payment.amount} :
@@ -249,17 +319,78 @@ export const useGameStore = create<GameStore>((set, get) => {
         { fromId: debtor.id, toId: payment.creditorId, amount: payment.amount, reason: payment.reason, category: 'card' });
     }
     set({pendingDebt: null, turnPhase: 'END_TURN'});
+    finishCard();
   };
 
-  const addLog = (message: string, type: LogEntry['type'] = 'info', transfer?: CashTransfer | CashTransfer[]) => {
+  const activityPatch = (state: GameStore, title: string, data: ActivityData) => {
+    const history = state.activity ?? [];
+    const sequence = (history[history.length - 1]?.sequence ?? 0) + 1;
+    const matchId = `solo-${state.gameId}`;
+    const { actorId, counterpartyId, title: noticeTitle, ...details } = data;
+    return { activity: appendMatchActivity(history, [{
+      ...details, id: `${matchId}:${sequence}`, matchId, title: noticeTitle ?? title, sequence,
+      actor: activityActor(state.players.find(player => player.id === actorId)),
+      counterparty: activityActor(state.players.find(player => player.id === counterpartyId)),
+      timestamp: new Date().toISOString(), turn: state.turnNumber ?? 1,
+    }]) };
+  };
+
+  const logPatch = (state: GameStore, message: string, type: LogEntry['type'], transfer?: CashTransfer | CashTransfer[], data?: ActivityData | false): Partial<GameStore> => {
+    const transfers = (Array.isArray(transfer) ? transfer : transfer ? [transfer] : []).filter(item => item.amount > 0);
+    const receipts = transfers.map(item => activityTransfer(item, state.players));
     const entry: LogEntry = {
-      id: `${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      id: `log-${state.gameId}-${++logSequence}`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
       message,
       type,
-      ...(transfer && { transfers: (Array.isArray(transfer) ? transfer : [transfer]).filter(item => item.amount > 0) }),
+      ...(transfer && { transfers }),
     };
-    set((state) => ({ logs: [entry, ...state.logs.slice(0, 79)] }));
+    const patch: Partial<GameStore> = { logs: [entry, ...state.logs.slice(0, 79)] };
+    const resolvingCard = state.resolvingCard;
+    if (resolvingCard && transfers.length) {
+      const cardReceipts = receipts.filter((_, index) => transfers[index].category === 'card');
+      const linked = receipts.filter((_, index) => ['rent', 'salary', 'tax'].includes(transfers[index].category));
+      patch.resolvingCard = {
+        ...resolvingCard,
+        transfers: [...resolvingCard.transfers, ...cardReceipts],
+        participants: [...(resolvingCard.participants ?? []), ...linked.flatMap(receipt =>
+          [receipt.from, receipt.to].filter((actor): actor is ActivityActor => !!actor))],
+        notes: [...(resolvingCard.notes ?? []), ...linked.map(receipt =>
+          `${receipt.from?.name ?? 'The Bank'} paid $${receipt.amount.toLocaleString('en-US')} to ${receipt.to?.name ?? 'the Bank'} · ${receipt.reason}.`)],
+      };
+    }
+    const primary = transfers[0];
+    if (data === false || (!data && (!primary || (resolvingCard && primary.category === 'card')))) return patch;
+    const actorId = primary?.fromId ?? primary?.toId ?? undefined;
+    return { ...patch, ...activityPatch(state, message, {
+      kind: data?.kind ?? (primary ? transferKinds[primary.category] : 'money'),
+      actorId, counterpartyId: primary?.fromId === actorId ? primary?.toId ?? undefined : undefined,
+      spaceId: primary?.spaceId, amount: primary?.amount, transfers: receipts.length ? receipts : undefined,
+      ...data,
+    }) };
+  };
+
+  const addLog = (message: string, type: LogEntry['type'] = 'info', transfer?: CashTransfer | CashTransfer[], data?: ActivityData | false) => {
+    set(state => logPatch(state, message, type, transfer, data));
+  };
+
+  const finishCard = (...details: string[]) => {
+    const state = get(), result = state.resolvingCard;
+    if (!result) return;
+    const { card, playerId, spaceId, transfers, destinationId } = result;
+    const player = state.players.find(candidate => candidate.id === playerId)!;
+    const deckName = card.deck === 'chance' ? 'Chance' : 'Community Chest';
+    const participants = new Map((result.participants ?? []).map(actor => [actor.id, actor]));
+    for (const transfer of transfers) {
+      for (const actor of [transfer.from, transfer.to]) if (actor) participants.set(actor.id, actor);
+    }
+    set({ resolvingCard: null, ...activityPatch(state, `${player.name} drew ${deckName} — ${card.title}`, {
+      kind: 'card', actorId: playerId, spaceId: destinationId ?? spaceId,
+      card: { id: card.id, deck: card.deck, title: card.title, instruction: card.description },
+      details: [...(destinationId === undefined ? [] : [`${player.name} moved to ${BOARD_SPACES[destinationId].name}.`]),
+        ...(result.notes ?? []), ...details], participants: [...participants.values()], transfers,
+      amount: transfers.length === 1 ? transfers[0].amount : undefined,
+    }) });
   };
 
   const progressMission = (stat: MissionStat, amount = 1) => {
@@ -303,7 +434,8 @@ export const useGameStore = create<GameStore>((set, get) => {
     const shuffledRewards = shuffleDeck([150, 300, 550]);
     const vaultRewards: [number, number, number] = [shuffledRewards[0], shuffledRewards[1], shuffledRewards[2]];
     set({ railroadRaid: { attackerId, mode: 'choose', vaultRewards } });
-    addLog('Railroad bonus unlocked: choose a Bank Heist or shut down a rival landmark.', 'card');
+    addLog('Railroad bonus unlocked: choose a Bank Heist or shut down a rival landmark.', 'card', undefined,
+      { kind: 'railroad', actorId: attackerId, silent: true });
   };
 
   const stepMovePlayer = (playerIndex: number, totalSteps: number, onComplete: () => void) => {
@@ -336,8 +468,18 @@ export const useGameStore = create<GameStore>((set, get) => {
     const state = get();
     const player = state.players[state.currentPlayerIndex];
     const space: BoardSpace = BOARD_SPACES[player.position];
+    const propState = state.properties[space.id];
+    const upgradeLanding = state.ruleset === 'arcade' && space.type === 'property' && propState &&
+      (propState.ownerId === null || propState.ownerId === player.id);
+    if (upgradeLanding) {
+      const sequence = (state.arcadeLandingSequence ?? 0) + 1;
+      set({ arcadeLandingSequence: sequence, arcadeLanding: {
+        id: `${state.gameId}:${sequence}`, spaceId: space.id, playerId: player.id, upgraded: false,
+      } });
+    } else if (state.arcadeLanding) set({ arcadeLanding: null });
 
-    addLog(`${player.name} landed on ${space.name}.`, 'info');
+    addLog(`${player.name} landed on ${space.name}.`, 'info', undefined,
+      { kind: 'land', actorId: player.id, spaceId: space.id, silent: true });
 
     if (space.type === 'go' || space.type === 'jail' || space.type === 'free_parking') {
       set({ turnPhase: 'END_TURN' });
@@ -345,7 +487,6 @@ export const useGameStore = create<GameStore>((set, get) => {
     }
 
     if (space.type === 'go_to_jail') {
-      addLog(`${player.name} is sent directly to Jail!`, 'alert');
       set((s) => {
         const players = [...s.players];
         players[s.currentPlayerIndex] = {
@@ -356,6 +497,8 @@ export const useGameStore = create<GameStore>((set, get) => {
         };
         return { players, doublesCount: 0, turnPhase: 'END_TURN' };
       });
+      addLog(`${player.name} is sent directly to Jail!`, 'alert', undefined,
+        { kind: 'jail', actorId: player.id, spaceId: 10 });
       return;
     }
 
@@ -374,7 +517,7 @@ export const useGameStore = create<GameStore>((set, get) => {
           { fromId: player.id, toId: null, amount: tax, reason: space.name, category: 'tax', spaceId: space.id });
       } else {
         set({
-          pendingDebt: { amount: tax, creditorId: null, reason: space.name },
+          pendingDebt: { amount: tax, creditorId: null, reason: space.name, category: 'tax', spaceId: space.id },
           turnPhase: 'DEBT_RESOLUTION',
         });
       }
@@ -399,7 +542,6 @@ export const useGameStore = create<GameStore>((set, get) => {
     }
 
     // Property, Railroad, or Utility
-    const propState = state.properties[space.id];
     if (!propState) {
       set({ turnPhase: 'END_TURN' });
       return;
@@ -443,7 +585,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     } else {
       addLog(`${player.name} owes $${rent} rent to ${owner.name} and must raise funds!`, 'alert');
       set({
-        pendingDebt: { amount: rent, creditorId: owner.id, reason: `Rent on ${space.name}` },
+        pendingDebt: { amount: rent, creditorId: owner.id, reason: `Rent on ${space.name}`, category: 'rent', spaceId: space.id },
         turnPhase: 'DEBT_RESOLUTION',
       });
     }
@@ -451,6 +593,9 @@ export const useGameStore = create<GameStore>((set, get) => {
 
   return {
     gameId: 0,
+    ruleset: 'arcade',
+    arcadeLanding: null,
+    arcadeLandingSequence: 0,
     players: DEFAULT_PLAYERS.map((cfg, idx) => ({
       id: idx,
       name: cfg.name,
@@ -465,7 +610,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       isBankrupt: false,
       landmarkLevel: 0,
     })),
-    properties: createInitialProperties(),
+    properties: createInitialProperties('arcade'),
     currentPlayerIndex: 0,
     turnPhase: 'PRE_ROLL',
     dice: [3, 4],
@@ -474,6 +619,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     chestDeck: shuffleDeck(COMMUNITY_CHEST_CARDS),
     activeCard: null,
     cardDrawId: 0,
+    resolvingCard: null,
     selectedSpaceId: null,
     hoveredSpaceId: null,
     gameSpeed: 1,
@@ -486,6 +632,8 @@ export const useGameStore = create<GameStore>((set, get) => {
         type: 'info',
       },
     ],
+    activity: [],
+    turnNumber: 1,
     pendingDebt: null,
     auction: null,
     heldJailCards: {},
@@ -498,11 +646,14 @@ export const useGameStore = create<GameStore>((set, get) => {
     isTradeModalOpen: false,
     isSetupModalOpen: false,
 
-    startNewGame: (configs) => {
+    startNewGame: (configs, ruleset = 'classic') => {
       if (configs.length < 2 || configs.length > 6) return;
-      gameGeneration += 1;
+      gameGeneration = Math.max(gameGeneration, get().gameId) + 1;
       clearTimeout(animationTimer);
       processedTrades.clear();
+      approvedTrade = null;
+      const started = new Date();
+      const matchId = `solo-${gameGeneration}`;
       const newPlayers: Player[] = configs.map((cfg, idx) => ({
         id: idx,
         name: cfg.name,
@@ -519,8 +670,11 @@ export const useGameStore = create<GameStore>((set, get) => {
       }));
       set({
         gameId: gameGeneration,
+        ruleset,
+        arcadeLanding: null,
+        arcadeLandingSequence: 0,
         players: newPlayers,
-        properties: createInitialProperties(),
+        properties: createInitialProperties(ruleset),
         currentPlayerIndex: 0,
         turnPhase: 'PRE_ROLL',
         dice: [1, 1],
@@ -529,6 +683,7 @@ export const useGameStore = create<GameStore>((set, get) => {
         chestDeck: shuffleDeck(COMMUNITY_CHEST_CARDS),
         activeCard: null,
         cardDrawId: 0,
+        resolvingCard: null,
         selectedSpaceId: null,
         hoveredSpaceId: null,
         pendingDebt: null,
@@ -538,10 +693,13 @@ export const useGameStore = create<GameStore>((set, get) => {
         railroadRaid: null,
         winner: null,
         isSetupModalOpen: false,
+        turnNumber: 1,
+        activity: [{ id: `${matchId}:1`, matchId, kind: 'match', sequence: 1, turn: 1,
+          timestamp: started.toISOString(), title: `${ruleset === 'arcade' ? 'Arcade' : 'Classic'} match started with ${newPlayers.length} players.`, silent: true }],
         logs: [
           {
-            id: `start-${Date.now()}`,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+            id: `start-${gameGeneration}`,
+            timestamp: started.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
             message: `New game started with ${newPlayers.length} players! Each player receives $1,500.`,
             type: 'info',
           },
@@ -590,6 +748,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       }
 
       if (space.type === 'property' && space.rent) {
+        if (state.ruleset === 'arcade') return arcadeRent(space, arcadeLevel(prop));
         if (prop.houses > 0) {
           return space.rent[prop.houses];
         }
@@ -603,6 +762,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     canBuildHouse: (playerId, spaceId) => {
       if (!canManage(playerId, true)) return false;
       const state = get();
+      if (state.ruleset === 'arcade') return false;
       const space = BOARD_SPACES[spaceId];
       const prop = state.properties[spaceId];
       const player = state.players.find((p) => p.id === playerId);
@@ -619,13 +779,29 @@ export const useGameStore = create<GameStore>((set, get) => {
       return prop.houses === minHouses;
     },
 
+    canUpgradeProperty: (playerId, spaceId) => {
+      const state = get();
+      const landing = state.arcadeLanding;
+      if (state.ruleset !== 'arcade' || state.turnPhase !== 'END_TURN' || !canManage(playerId, true) ||
+        !landing || landing.upgraded || landing.playerId !== playerId || landing.spaceId !== spaceId) return false;
+      const player = state.players[state.currentPlayerIndex];
+      const street = BOARD_SPACES[spaceId];
+      const property = state.properties[spaceId];
+      if (player.id !== playerId || player.inJail || player.position !== spaceId || street?.type !== 'property' ||
+        property?.ownerId !== playerId || property.isMortgaged) return false;
+      const nextLevel = arcadeNextLevel(arcadeLevel(property));
+      return nextLevel !== undefined && player.money >= arcadeUpgradeCost(street, nextLevel);
+    },
+
     canSellHouse: (playerId, spaceId) => {
       if (!canManage(playerId)) return false;
       const state = get();
       const space = BOARD_SPACES[spaceId];
       const prop = state.properties[spaceId];
       if (!space || !prop || space.type !== 'property') return false;
-      if (prop.ownerId !== playerId || prop.houses <= 0) return false;
+      if (prop.ownerId !== playerId) return false;
+      if (state.ruleset === 'arcade') return !prop.isMortgaged && arcadeLevel(prop) > 0;
+      if (prop.houses <= 0) return false;
 
       const groupSpaces = BOARD_SPACES.filter((s) => s.colorGroup === space.colorGroup);
       const maxHouses = Math.max(...groupSpaces.map((s) => state.properties[s.id]?.houses ?? 0));
@@ -637,8 +813,8 @@ export const useGameStore = create<GameStore>((set, get) => {
       const state = get(), space = BOARD_SPACES[spaceId], prop = state.properties[spaceId];
       const player = state.players.find(p => p.id === playerId);
       if (!space?.mortgageValue || !prop || prop.ownerId !== playerId || !player) return false;
-      return prop.isMortgaged ? player.money >= unmortgageCost(space.mortgageValue) :
-        !BOARD_SPACES.some(s => s.colorGroup === space.colorGroup && (state.properties[s.id]?.houses ?? 0) > 0);
+      if (prop.isMortgaged) return player.money >= unmortgageCost(space.mortgageValue);
+      return state.ruleset === 'arcade' ? arcadeLevel(prop) === 0 : !groupHasBuildings(space, state.properties);
     },
 
     liquidationValue: (playerId) => {
@@ -646,7 +822,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       return (player?.money ?? 0) + Object.values(state.properties).reduce((sum, prop) => {
         if (prop.ownerId !== playerId) return sum;
         const space = BOARD_SPACES[prop.spaceId];
-        return sum + prop.houses * Math.floor((space.houseCost ?? 0) / 2) + (prop.isMortgaged ? 0 : space.mortgageValue ?? 0);
+        return sum + getDevelopmentLiquidation(prop, state.ruleset) + (prop.isMortgaged ? 0 : space.mortgageValue ?? 0);
       }, 0);
     },
 
@@ -661,7 +837,10 @@ export const useGameStore = create<GameStore>((set, get) => {
       const total = d1 + d2;
       const player = state.players[state.currentPlayerIndex];
 
-      set({ dice: [d1, d2], turnPhase: 'ROLLING' });
+      set({ dice: [d1, d2], turnPhase: 'ROLLING', arcadeLanding: null,
+        ...activityPatch(state, `${player.name} rolled ${d1} + ${d2} = ${total}${isDoubles ? ' (doubles)' : ''}.`, {
+          kind: 'roll', actorId: player.id, silent: true,
+        }) });
       if (!player.isAI) progressMission('rolls');
 
       animationTimer = setTimeout(() => {
@@ -672,7 +851,6 @@ export const useGameStore = create<GameStore>((set, get) => {
         // Handle Jail Roll
         if (activePlayer.inJail) {
           if (isDoubles) {
-            addLog(`${activePlayer.name} rolled doubles (${d1} & ${d2}) and escaped Jail!`, 'info');
             set((s) => {
               const players = [...s.players];
               players[s.currentPlayerIndex] = {
@@ -682,6 +860,8 @@ export const useGameStore = create<GameStore>((set, get) => {
               };
               return { players, doublesCount: 0, turnPhase: 'MOVING' };
             });
+            addLog(`${activePlayer.name} rolled doubles (${d1} & ${d2}) and escaped Jail!`, 'info', undefined,
+              { kind: 'jail', actorId: activePlayer.id, spaceId: 10 });
             stepMovePlayer(currentState.currentPlayerIndex, total, evaluateLandedSpace);
             return;
           }
@@ -705,12 +885,11 @@ export const useGameStore = create<GameStore>((set, get) => {
             } else {
               addLog(`${activePlayer.name} must raise $50 to leave Jail after the third failed roll.`, 'alert');
               set({
-                pendingDebt: { amount: 50, creditorId: null, reason: 'Jail release after third failed roll' },
+                pendingDebt: { amount: 50, creditorId: null, reason: 'Jail release after third failed roll', category: 'jail', spaceId: 10 },
                 turnPhase: 'DEBT_RESOLUTION',
               });
             }
           } else {
-            addLog(`${activePlayer.name} rolled ${d1} & ${d2} (no doubles) and stays in Jail (Turn ${nextJailTurns}/3).`, 'info');
             set((s) => {
               const players = [...s.players];
               players[s.currentPlayerIndex] = {
@@ -719,6 +898,8 @@ export const useGameStore = create<GameStore>((set, get) => {
               };
               return { players, turnPhase: 'END_TURN' };
             });
+            addLog(`${activePlayer.name} rolled ${d1} & ${d2} (no doubles) and stays in Jail (Turn ${nextJailTurns}/3).`, 'info', undefined,
+              { kind: 'jail', actorId: activePlayer.id, spaceId: 10, silent: true });
           }
           return;
         }
@@ -726,7 +907,6 @@ export const useGameStore = create<GameStore>((set, get) => {
         // Standard roll outside Jail
         const newDoublesCount = isDoubles ? currentState.doublesCount + 1 : 0;
         if (newDoublesCount === 3) {
-          addLog(`${activePlayer.name} rolled 3 consecutive doubles and goes directly to Jail!`, 'alert');
           set((s) => {
             const players = [...s.players];
             players[s.currentPlayerIndex] = {
@@ -737,6 +917,8 @@ export const useGameStore = create<GameStore>((set, get) => {
             };
             return { players, doublesCount: 0, turnPhase: 'END_TURN' };
           });
+          addLog(`${activePlayer.name} rolled 3 consecutive doubles and goes directly to Jail!`, 'alert', undefined,
+            { kind: 'jail', actorId: activePlayer.id, spaceId: 10 });
           return;
         }
 
@@ -773,14 +955,16 @@ export const useGameStore = create<GameStore>((set, get) => {
         ),
       }));
       addLog(`${player.name} upgraded their city landmark to level ${player.landmarkLevel + 1} for $${cost}.`, 'property',
-        { fromId: player.id, toId: null, amount: cost, reason: `Landmark level ${player.landmarkLevel + 1}`, category: 'landmark' });
+        { fromId: player.id, toId: null, amount: cost, reason: `Landmark level ${player.landmarkLevel + 1}`, category: 'landmark' },
+        { kind: 'landmark', previousLevel: player.landmarkLevel, level: player.landmarkLevel + 1 });
     },
 
     startBankHeist: () => {
       const raid = get().railroadRaid;
       if (!raid || raid.mode !== 'choose' || get().turnPhase !== 'END_TURN') return;
       set({ railroadRaid: { ...raid, mode: 'heist' } });
-      addLog('Bank Heist started! Pick one of three vaults.', 'card');
+      addLog('Bank Heist started! Pick one of three vaults.', 'card', undefined,
+        { kind: 'railroad', actorId: raid.attackerId, silent: true });
     },
 
     resolveBankHeist: (vaultIndex) => {
@@ -800,7 +984,7 @@ export const useGameStore = create<GameStore>((set, get) => {
         railroadRaid: null,
       }));
       addLog(`${attacker.name} cracked vault ${vaultIndex + 1} and stole $${reward} from the Bank!`, 'money',
-        { fromId: null, toId: attacker.id, amount: reward, reason: 'Bank heist', category: 'bonus' });
+        { fromId: null, toId: attacker.id, amount: reward, reason: 'Bank heist', category: 'bonus' }, { kind: 'railroad' });
       if (!attacker.isAI) progressMission('railroadEvents');
     },
 
@@ -821,7 +1005,9 @@ export const useGameStore = create<GameStore>((set, get) => {
           }),
           railroadRaid: null,
         }));
-        addLog(`${attacker.name} shut down ${target.name}'s landmark! Its level dropped by one.`, 'alert');
+        addLog(`${attacker.name} shut down ${target.name}'s landmark and earned $100 from the Bank.`, 'alert',
+          { fromId: null, toId: attacker.id, amount: 100, reason: 'Landmark shutdown', category: 'bonus' },
+          { kind: 'railroad', counterpartyId: target.id, previousLevel: target.landmarkLevel, level: target.landmarkLevel - 1 });
         if (!attacker.isAI) progressMission('railroadEvents');
       } else {
         const stolen = Math.min(100, target.money);
@@ -834,7 +1020,8 @@ export const useGameStore = create<GameStore>((set, get) => {
           railroadRaid: null,
         }));
         addLog(`${attacker.name} raided ${target.name}'s empty landmark site and stole $${stolen}.`, 'alert',
-          { fromId: target.id, toId: attacker.id, amount: stolen, reason: 'Landmark raid', category: 'bonus' });
+          { fromId: target.id, toId: attacker.id, amount: stolen, reason: 'Landmark raid', category: 'bonus' },
+          { kind: 'railroad', actorId: attacker.id, counterpartyId: target.id });
         if (!attacker.isAI) progressMission('railroadEvents');
       }
     },
@@ -869,7 +1056,8 @@ export const useGameStore = create<GameStore>((set, get) => {
           : candidate),
         metaProgress,
       }));
-      addLog(`Daily reward claimed: ${reward.cash}${reward.packs ? ' and 1 Sticker Pack' : ''} (Day ${rewardDay}).`, 'money');
+      addLog(`Daily reward claimed: $${reward.cash}${reward.packs ? ' and 1 Sticker Pack' : ''} (Day ${rewardDay}).`, 'money',
+        { fromId: null, toId: player.id, amount: reward.cash, reason: 'Daily reward', category: 'bonus' });
       return true;
     },
 
@@ -894,7 +1082,8 @@ export const useGameStore = create<GameStore>((set, get) => {
         metaProgress,
         lastWheelReward: reward,
       }));
-      addLog(`Lucky Wheel reward: ${reward.label}!`, reward.kind === 'cash' ? 'money' : 'card');
+      addLog(`Lucky Wheel reward: ${reward.label}!`, reward.kind === 'cash' ? 'money' : 'card', reward.kind === 'cash'
+        ? { fromId: null, toId: player.id, amount: reward.amount, reason: 'Lucky Wheel reward', category: 'bonus' } : undefined);
     },
 
     claimMissionReward: (missionId) => {
@@ -919,7 +1108,8 @@ export const useGameStore = create<GameStore>((set, get) => {
           : candidate),
         metaProgress,
       }));
-      addLog(`Mission completed: ${mission.title}. Collected ${mission.cashReward}.`, 'money');
+      addLog(`Mission completed: ${mission.title}. Collected $${mission.cashReward}.`, 'money',
+        { fromId: null, toId: player.id, amount: mission.cashReward, reason: mission.title, category: 'bonus' });
     },
 
     openStickerPack: () => {
@@ -963,7 +1153,8 @@ export const useGameStore = create<GameStore>((set, get) => {
           : candidate),
         metaProgress,
       }));
-      addLog('Sticker Album completed! Collected the $2,500 grand album reward.', 'money');
+      addLog('Sticker Album completed! Collected the $2,500 grand album reward.', 'money',
+        { fromId: null, toId: player.id, amount: 2500, reason: 'Sticker Album completion', category: 'bonus' });
     },
 
     payJailBail: () => {
@@ -1006,7 +1197,9 @@ export const useGameStore = create<GameStore>((set, get) => {
         return { players, heldJailCards: {...s.heldJailCards, [player.id]: held.slice(1)},
           ...(card.deck === 'chance' ? {chanceDeck: [...s.chanceDeck, card]} : {chestDeck: [...s.chestDeck, card]}) };
       });
-      addLog(`${player.name} used a "Get Out of Jail Free" card!`, 'card');
+      addLog(`${player.name} used a "Get Out of Jail Free" card!`, 'card', undefined, {
+        kind: 'jail', actorId: player.id, spaceId: 10, details: [`${player.name} was released from Jail.`],
+      });
     },
 
     buyCurrentProperty: () => {
@@ -1026,13 +1219,15 @@ export const useGameStore = create<GameStore>((set, get) => {
         };
         const properties = {
           ...s.properties,
-          [space.id]: { ...prop, ownerId: player.id },
+          [space.id]: claimNewDeed(prop, player.id, state.ruleset),
         };
         return { players, properties, turnPhase: 'END_TURN' };
       });
 
       addLog(`${player.name} purchased ${space.name} for $${space.price}!`, 'property',
-        { fromId: player.id, toId: null, amount: space.price, reason: `Purchased ${space.name}`, category: 'purchase', spaceId: space.id });
+        { fromId: player.id, toId: null, amount: space.price, reason: `Purchased ${space.name}`, category: 'purchase', spaceId: space.id },
+        { kind: 'purchase', level: state.ruleset === 'arcade' && space.type === 'property' ? 0 : undefined,
+          details: [`${player.name} now owns the property.`] });
       if (!player.isAI) progressMission('purchases');
       if (space.type === 'railroad') openRailroadRaid(player.id);
     },
@@ -1062,7 +1257,8 @@ export const useGameStore = create<GameStore>((set, get) => {
         },
         turnPhase: 'AUCTION',
       });
-      addLog(`Auction started for ${space.name}. Opening bid is $10.`, 'property');
+      addLog(`Auction started for ${space.name}. Opening bid is $10.`, 'property', undefined,
+        { kind: 'auction', actorId: player.id, spaceId: space.id, silent: true });
     },
 
     placeAuctionBid: (increment = 10, expectedBidderId, expectedCurrentBid) => {
@@ -1109,7 +1305,7 @@ export const useGameStore = create<GameStore>((set, get) => {
           ),
           properties: {
             ...current.properties,
-            [space.id]: { ...current.properties[space.id], ownerId: bidder.id },
+            [space.id]: claimNewDeed(current.properties[space.id], bidder.id, current.ruleset),
           },
           auction: null,
           turnPhase: 'END_TURN',
@@ -1121,7 +1317,8 @@ export const useGameStore = create<GameStore>((set, get) => {
       }
 
       set({ auction: nextAuction });
-      addLog(`${bidder.name} bid $${nextBid} for ${BOARD_SPACES[auction.spaceId].name}.`, 'info');
+      addLog(`${bidder.name} bid $${nextBid} for ${BOARD_SPACES[auction.spaceId].name}.`, 'info', undefined,
+        { kind: 'auction', actorId: bidder.id, spaceId: auction.spaceId, amount: nextBid, silent: true });
     },
 
     passAuction: (expectedBidderId) => {
@@ -1131,6 +1328,10 @@ export const useGameStore = create<GameStore>((set, get) => {
       if (expectedBidderId !== undefined && expectedBidderId !== auction.currentBidderId) return;
 
       const passingId = auction.currentBidderId;
+      const passingPlayer = state.players.find(player => player.id === passingId)!;
+      const space = BOARD_SPACES[auction.spaceId];
+      const logPass = () => addLog(`${passingPlayer.name} passed on ${space.name}.`, 'info', undefined,
+        { kind: 'auction', actorId: passingId, spaceId: space.id, silent: true });
       const passedPlayerIds = [...new Set([...auction.passedPlayerIds, passingId])];
       const nextAuction: PropertyAuction = {
         ...auction,
@@ -1152,15 +1353,13 @@ export const useGameStore = create<GameStore>((set, get) => {
 
       if (nextAuction.currentBidderId !== null) {
         set({ auction: nextAuction });
-        addLog(`${state.players.find((candidate) => candidate.id === passingId)?.name ?? 'Player'} passed on ${BOARD_SPACES[auction.spaceId].name}.`, 'info');
+        logPass();
         return;
       }
 
       const winner = auction.highestBidderId === null
         ? null
         : state.players.find((candidate) => candidate.id === auction.highestBidderId) ?? null;
-      const space = BOARD_SPACES[auction.spaceId];
-
       if (winner) {
         set((current) => ({
           players: current.players.map((candidate) =>
@@ -1168,16 +1367,19 @@ export const useGameStore = create<GameStore>((set, get) => {
           ),
           properties: {
             ...current.properties,
-            [space.id]: { ...current.properties[space.id], ownerId: winner.id },
+            [space.id]: claimNewDeed(current.properties[space.id], winner.id, current.ruleset),
           },
           auction: null,
           turnPhase: 'END_TURN',
         }));
+        logPass();
         addLog(`${winner.name} won ${space.name} for $${auction.currentBid}.`, 'property',
           { fromId: winner.id, toId: null, amount: auction.currentBid, reason: `Won ${space.name} at auction`, category: 'auction', spaceId: space.id });
       } else {
         set({ auction: null, turnPhase: 'END_TURN' });
-        addLog(`All players passed. ${space.name} remains unowned.`, 'info');
+        logPass();
+        addLog(`All players passed. ${space.name} remains unowned.`, 'info', undefined,
+          { kind: 'auction', actorId: passingId, spaceId: space.id, silent: true });
       }
       if (space.type === 'railroad') openRailroadRaid(state.players[state.currentPlayerIndex].id);
     },
@@ -1186,8 +1388,9 @@ export const useGameStore = create<GameStore>((set, get) => {
       if (state.turnPhase !== 'LANDED_ACTION' || state.pendingTrade) return;
       const player = state.players[state.currentPlayerIndex];
       const space = BOARD_SPACES[player.position];
-      addLog(`${player.name} passed on buying ${space.name}.`, 'info');
       set({ turnPhase: 'END_TURN' });
+      addLog(`${player.name} passed on buying ${space.name}.`, 'info', undefined,
+        { kind: 'land', actorId: player.id, spaceId: space.id, silent: true });
       if (space.type === 'railroad') openRailroadRaid(player.id);
     },
 
@@ -1198,7 +1401,18 @@ export const useGameStore = create<GameStore>((set, get) => {
 
       const playerIndex = state.currentPlayerIndex;
       const player = state.players[playerIndex];
-      set({ activeCard: null });
+      set({ activeCard: null, resolvingCard: { card, playerId: player.id, spaceId: player.position, transfers: [] } });
+
+      const moveBy = (steps: number, rentOverride?: number) => {
+        set({ turnPhase: 'MOVING' });
+        stepMovePlayer(playerIndex, steps, () => {
+          evaluateLandedSpace(1, rentOverride);
+          const landed = get(), outcome = landed.resolvingCard;
+          if (!outcome) return;
+          set({ resolvingCard: { ...outcome, destinationId: landed.players[playerIndex].position } });
+          if (!landed.pendingDebt) finishCard();
+        });
+      };
 
       switch (card.actionType) {
         case 'collect': {
@@ -1210,6 +1424,7 @@ export const useGameStore = create<GameStore>((set, get) => {
           });
           addLog(`${player.name} collected $${amt}.`, 'money',
             { fromId: null, toId: player.id, amount: amt, reason: card.title, category: 'card', spaceId: player.position });
+          finishCard();
           break;
         }
         case 'pay': {
@@ -1222,9 +1437,10 @@ export const useGameStore = create<GameStore>((set, get) => {
             });
             addLog(`${player.name} paid $${amt}.`, 'money',
               { fromId: player.id, toId: null, amount: amt, reason: card.title, category: 'card', spaceId: player.position });
+            finishCard();
           } else {
             set({
-              pendingDebt: { amount: amt, creditorId: null, reason: card.title },
+              pendingDebt: { amount: amt, creditorId: null, reason: card.title, category: 'card', spaceId: player.position },
               turnPhase: 'DEBT_RESOLUTION',
             });
           }
@@ -1240,6 +1456,7 @@ export const useGameStore = create<GameStore>((set, get) => {
             return { players, heldJailCards: {...s.heldJailCards, [player.id]: [...(s.heldJailCards[player.id] ?? []), card]}, turnPhase: 'END_TURN' };
           });
           addLog(`${player.name} kept a "Get Out of Jail Free" card.`, 'card');
+          finishCard(`${player.name} kept the card for a future Jail release.`);
           break;
         }
         case 'go_to_jail': {
@@ -1253,30 +1470,27 @@ export const useGameStore = create<GameStore>((set, get) => {
             };
             return { players, doublesCount: 0, turnPhase: 'END_TURN' };
           });
-          addLog(`${player.name} was sent to Jail!`, 'alert');
+          addLog(`${player.name} was sent to Jail!`, 'alert', undefined,
+            { kind: 'jail', actorId: player.id, spaceId: 10, silent: true });
+          finishCard(`${player.name} was sent directly to Jail.`);
           break;
         }
         case 'move_to': {
           const target = card.targetSpaceId ?? 0;
           const steps = (target - player.position + 40) % 40;
-          set({ turnPhase: 'MOVING' });
-          stepMovePlayer(playerIndex, steps === 0 ? 40 : steps, evaluateLandedSpace);
+          moveBy(steps === 0 ? 40 : steps);
           break;
         }
         case 'move_relative': {
           const steps = card.steps ?? -3;
-          set({ turnPhase: 'MOVING' });
-          stepMovePlayer(playerIndex, steps, evaluateLandedSpace);
+          moveBy(steps);
           break;
         }
         case 'nearest_utility': {
           const pos = player.position;
           const target = pos >= 12 && pos < 28 ? 28 : 12;
           const steps = (target - pos + 40) % 40;
-          set({ turnPhase: 'MOVING' });
-          stepMovePlayer(playerIndex, steps, () =>
-            evaluateLandedSpace(1, (state.dice[0] + state.dice[1]) * 10)
-          );
+          moveBy(steps, (state.dice[0] + state.dice[1]) * 10);
           break;
         }
         case 'nearest_railroad': {
@@ -1286,23 +1500,24 @@ export const useGameStore = create<GameStore>((set, get) => {
           else if (pos >= 15 && pos < 25) target = 25;
           else if (pos >= 25 && pos < 35) target = 35;
           const steps = (target - pos + 40) % 40;
-          set({ turnPhase: 'MOVING' });
           // This project's card says "pay owner rental due"; it does not
           // specify a double-rent modifier. Do not import another edition.
-          stepMovePlayer(playerIndex, steps, evaluateLandedSpace);
+          moveBy(steps);
           break;
         }
         case 'repairs': {
           let totalCost = 0;
           Object.values(state.properties).forEach((prop) => {
             if (prop.ownerId === player.id) {
-              if (prop.houses === 5) totalCost += card.perHotel || 100;
+              if (state.ruleset === 'arcade') totalCost += arcadeRepairCharge(card, arcadeLevel(prop));
+              else if (prop.houses === 5) totalCost += card.perHotel || 100;
               else if (prop.houses > 0) totalCost += prop.houses * (card.perHouse || 25);
             }
           });
           if (totalCost === 0) {
             addLog(`${player.name} owns no buildings—no repair cost due.`, 'info');
             set({ turnPhase: 'END_TURN' });
+            finishCard('No repair cost was due.');
           } else if (player.money >= totalCost) {
             set((s) => {
               const players = [...s.players];
@@ -1314,9 +1529,10 @@ export const useGameStore = create<GameStore>((set, get) => {
             });
             addLog(`${player.name} paid $${totalCost} for street & property repairs.`, 'money',
               { fromId: player.id, toId: null, amount: totalCost, reason: card.title, category: 'card', spaceId: player.position });
+            finishCard();
           } else {
             set({
-              pendingDebt: { amount: totalCost, creditorId: null, reason: card.title },
+              pendingDebt: { amount: totalCost, creditorId: null, reason: card.title, category: 'card', spaceId: player.position },
               turnPhase: 'DEBT_RESOLUTION',
             });
           }
@@ -1363,11 +1579,36 @@ export const useGameStore = create<GameStore>((set, get) => {
       addLog(
         `${player.name} built a ${newLevel === 5 ? 'hotel' : `house (#${newLevel})`} on ${space.name} for $${cost}.`,
         'property', { fromId: player.id, toId: null, amount: cost,
-          reason: `${newLevel === 5 ? 'Hotel' : `House ${newLevel}`} on ${space.name}`, category: 'construction', spaceId }
+          reason: `${newLevel === 5 ? 'Hotel' : `House ${newLevel}`} on ${space.name}`, category: 'construction', spaceId },
+        { kind: 'upgrade', previousLevel: prop.houses, level: newLevel }
       );
     },
 
-    sellHouse: (spaceId) => {
+    upgradeProperty: (spaceId, expectedLandingId) => set(state => {
+      const landing = state.arcadeLanding;
+      const player = state.players[state.currentPlayerIndex];
+      if (!landing || !player || (expectedLandingId !== undefined && landing.id !== expectedLandingId) ||
+        !state.canUpgradeProperty(player.id, spaceId)) return state;
+
+      const street = BOARD_SPACES[spaceId], property = state.properties[spaceId];
+      const previousLevel = arcadeLevel(property), level = arcadeNextLevel(previousLevel)!;
+      const cost = arcadeUpgradeCost(street, level);
+      const title = level === 3 ? `${player.name} completed a Level 3 Hotel at ${street.name}.`
+        : `${player.name} upgraded ${street.name} to ${ARCADE_STAGES[level].name} Lv.${level}.`;
+      const players = state.players.map(candidate => candidate.id === player.id ? { ...candidate, money: candidate.money - cost } : candidate);
+      const properties = { ...state.properties, [spaceId]: { ...property, developmentLevel: level } };
+      const receipt: CashTransfer = { fromId: player.id, toId: null, amount: cost,
+        reason: `Upgraded ${street.name} to ${ARCADE_STAGES[level].name}`, category: 'construction', spaceId };
+      return {
+        players, properties, arcadeLanding: { ...landing, upgraded: true },
+        ...logPatch({ ...state, players }, title, 'property', receipt, { kind: 'upgrade', previousLevel, level,
+          emphasis: level === 3 ? 'milestone' : undefined,
+          details: [`${ARCADE_STAGES[previousLevel].name} Lv.${previousLevel} → ${ARCADE_STAGES[level].name} Lv.${level}.`,
+            `Rent is now $${arcadeRent(street, level).toLocaleString('en-US')}.`] }),
+      };
+    }),
+
+    sellHouse: (spaceId, expectedLevel) => {
       const state = get();
       const player = managementPlayer();
       if (!player) return;
@@ -1375,7 +1616,12 @@ export const useGameStore = create<GameStore>((set, get) => {
 
       const space = BOARD_SPACES[spaceId];
       const prop = state.properties[spaceId];
-      const refund = Math.floor((space.houseCost || 100) / 2);
+      const isArcade = state.ruleset === 'arcade';
+      const currentArcadeLevel = arcadeLevel(prop);
+      const level = isArcade ? currentArcadeLevel : prop.houses;
+      if (expectedLevel !== undefined && expectedLevel !== level) return;
+      const fallbackLevel = arcadePreviousLevel(currentArcadeLevel);
+      const refund = isArcade ? arcadeSellRefund(space, currentArcadeLevel) : Math.floor((space.houseCost || 100) / 2);
 
       set((s) => {
         const players = [...s.players];
@@ -1386,14 +1632,16 @@ export const useGameStore = create<GameStore>((set, get) => {
         };
         const properties = {
           ...s.properties,
-          [spaceId]: { ...prop, houses: prop.houses - 1 },
+          [spaceId]: isArcade ? { ...prop, developmentLevel: fallbackLevel } : { ...prop, houses: prop.houses - 1 },
         };
         return { players, properties };
       });
 
-      addLog(`${player.name} sold a building on ${space.name} for $${refund}.`, 'money',
-        { fromId: null, toId: player.id, amount: refund, reason: `${prop.houses === 5 ? 'Hotel downgraded' : 'House sold'} · ${space.name}`,
-          category: 'construction', spaceId });
+      const building = isArcade ? ARCADE_STAGES[currentArcadeLevel].name : prop.houses === 5 ? 'Hotel' : 'House';
+      const reason = building === 'Hotel' ? 'Hotel downgraded' : `${building} sold`;
+      addLog(`${player.name} sold ${isArcade ? `the ${building}` : 'a building'} on ${space.name} for $${refund}.`, 'money',
+        { fromId: null, toId: player.id, amount: refund, reason: `${reason} · ${space.name}`,
+          category: 'construction', spaceId }, { kind: 'sale', previousLevel: level, level: isArcade ? fallbackLevel : level - 1 });
     },
 
     toggleMortgage: (spaceId, expectedIsMortgaged) => {
@@ -1407,10 +1655,6 @@ export const useGameStore = create<GameStore>((set, get) => {
       if (expectedIsMortgaged !== undefined && prop.isMortgaged !== expectedIsMortgaged) return;
 
       if (!prop.isMortgaged) {
-        // Cannot mortgage if any property in the color group has houses
-        const groupSpaces = BOARD_SPACES.filter((s) => s.colorGroup === space.colorGroup);
-        if (groupSpaces.some((s) => (state.properties[s.id]?.houses ?? 0) > 0)) return;
-
         set((s) => {
           const players = [...s.players];
           players[playerIndex] = {
@@ -1491,7 +1735,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       }
 
       const tradedIds = [...offer.offerProperties, ...offer.requestProperties];
-      if (tradedIds.some((id) => groupHasBuildings(BOARD_SPACES[id], state.properties))) {
+      if (state.ruleset !== 'arcade' && tradedIds.some((id) => groupHasBuildings(BOARD_SPACES[id], state.properties))) {
         return { accepted: false, message: 'Sell all buildings in a color group before trading its properties.' };
       }
       if (
@@ -1506,6 +1750,9 @@ export const useGameStore = create<GameStore>((set, get) => {
       // AI evaluates the overall value of the exchange, including a modest set-completion bonus.
       const propertyValue = (id: number, acquiringPlayerId: number) => {
         const space = BOARD_SPACES[id];
+        if (state.ruleset === 'arcade' && space.type === 'property') {
+          return (space.price ?? 0) + arcadeDevelopmentValue(space, arcadeLevel(state.properties[id]));
+        }
         const group = BOARD_SPACES.filter((candidate) => candidate.colorGroup === space.colorGroup);
         const completesSet = group.length > 0 && group.every((candidate) =>
           candidate.id === id || state.properties[candidate.id]?.ownerId === acquiringPlayerId
@@ -1525,6 +1772,8 @@ export const useGameStore = create<GameStore>((set, get) => {
       const totalRequestedValue = offer.requestCash + requestedPropVal;
 
       if (toPlayer.isAI && totalOfferedValue < totalRequestedValue * 0.95) {
+        addLog(`${toPlayer.name} declined the trade with ${fromPlayer.name}.`, 'info', undefined,
+          { kind: 'trade', actorId: fromPlayer.id, counterpartyId: toPlayer.id, silent: true });
         return {
           accepted: false,
           message: `${toPlayer.name} declined the trade.`,
@@ -1533,6 +1782,8 @@ export const useGameStore = create<GameStore>((set, get) => {
 
       if (!toPlayer.isAI && approvedTrade !== offer) {
         set({pendingTrade: {...offer, proposalId: key}});
+        addLog(`${fromPlayer.name} proposed a trade to ${toPlayer.name}.`, 'info', undefined,
+          { kind: 'trade', actorId: fromPlayer.id, counterpartyId: toPlayer.id, silent: true });
         return {accepted: false, message: `Waiting for ${toPlayer.name} to accept or reject.`};
       }
 
@@ -1562,7 +1813,9 @@ export const useGameStore = create<GameStore>((set, get) => {
       addLog(`Trade completed between ${fromPlayer.name} and ${toPlayer.name}!`, 'property', [
         { fromId: fromPlayer.id, toId: toPlayer.id, amount: offer.offerCash, reason: 'Trade cash', category: 'trade' },
         { fromId: toPlayer.id, toId: fromPlayer.id, amount: offer.requestCash, reason: 'Trade cash', category: 'trade' },
-      ]);
+      ], { kind: 'trade', actorId: fromPlayer.id, counterpartyId: toPlayer.id,
+        details: [...offer.offerProperties.map(id => `${toPlayer.name} now owns ${BOARD_SPACES[id].name}.`),
+          ...offer.requestProperties.map(id => `${fromPlayer.name} now owns ${BOARD_SPACES[id].name}.`)] });
       return { accepted: true, message: `${toPlayer.name} accepted your trade offer!` };
     },
 
@@ -1573,7 +1826,15 @@ export const useGameStore = create<GameStore>((set, get) => {
       set({pendingTrade: null});
       try { return get().proposeTrade(offer); } finally { approvedTrade = null; }
     },
-    rejectTrade: () => set({pendingTrade: null}),
+    rejectTrade: () => {
+      const state = get(), offer = state.pendingTrade;
+      if (!offer) return;
+      const from = state.players.find(player => player.id === offer.fromPlayerId)!;
+      const to = state.players.find(player => player.id === offer.toPlayerId)!;
+      set({ pendingTrade: null });
+      addLog(`${to.name} declined the trade with ${from.name}.`, 'info', undefined,
+        { kind: 'trade', actorId: to.id, counterpartyId: from.id, silent: true });
+    },
 
     settlePendingDebt: () => {
       const state = get();
@@ -1583,6 +1844,10 @@ export const useGameStore = create<GameStore>((set, get) => {
 
       const jailRelease = debt.reason === 'Jail release after third failed roll';
       const jailMoveTotal = state.dice[0] + state.dice[1];
+      const category = debt.category ?? (jailRelease ? 'jail' : 'debt');
+      const spaceId = debt.spaceId ?? player.position;
+      const creditor = state.players.find(candidate => candidate.id === debt.creditorId);
+      const space = BOARD_SPACES[spaceId];
 
       set((s) => {
         const players = s.players.map((p) => {
@@ -1616,15 +1881,20 @@ export const useGameStore = create<GameStore>((set, get) => {
           ? debt.distribution.recipientIds.filter(id => state.players.some(p => p.id === id && !p.isBankrupt))
             .map(toId => ({ fromId: player.id, toId, amount: debt.distribution!.amountPerPlayer, reason: debt.reason, category: 'debt' as const }))
           : { fromId: player.id, toId: debt.creditorId, amount: debt.amount, reason: debt.reason,
-            category: jailRelease ? 'jail' : 'debt', spaceId: player.position })
+            category, spaceId }),
+        category === 'rent' ? { kind: 'rent', title: `${player.name} paid $${debt.amount} rent to ${creditor?.name ?? 'the owner'} for ${space.name}.` }
+          : category === 'tax' ? { kind: 'tax', title: `${player.name} paid $${debt.amount} for ${space.name}.` }
+          : jailRelease ? { kind: 'bail', title: `${player.name} paid $${debt.amount} bail and was released from Jail.` }
+          : undefined,
       );
       if (jailRelease) {
         addLog(`${player.name} is released from Jail and moves ${jailMoveTotal} spaces.`, 'info');
         stepMovePlayer(state.currentPlayerIndex, jailMoveTotal, evaluateLandedSpace);
       } else if (debt.remainingPayments) {
         resolvePayments(debt.remainingPayments);
-      } else if (BOARD_SPACES[player.position].type === 'railroad') {
-        openRailroadRaid(player.id);
+      } else {
+        finishCard();
+        if (BOARD_SPACES[player.position].type === 'railroad') openRailroadRaid(player.id);
       }
     },
 
@@ -1635,11 +1905,10 @@ export const useGameStore = create<GameStore>((set, get) => {
       if (!player || player.isBankrupt || !debt || state.turnPhase !== 'DEBT_RESOLUTION' || state.winner || state.pendingTrade || get().liquidationValue(player.id) >= debt.amount) return;
       const creditorId = state.pendingDebt?.creditorId ?? null;
       const held = state.heldJailCards[player.id] ?? [];
-      const liquidation = Object.values(state.properties).reduce((sum, prop) => prop.ownerId === player.id ?
-        sum + prop.houses * Math.floor((BOARD_SPACES[prop.spaceId].houseCost ?? 0) / 2) : sum, 0);
+      const deeds = Object.values(state.properties).filter(prop => prop.ownerId === player.id);
+      const liquidation = deeds.reduce((sum, prop) => sum + getDevelopmentLiquidation(prop, state.ruleset), 0);
 
       const creditor = state.players.find(p => p.id === creditorId);
-      addLog(`${player.name} declared bankruptcy over ${debt.reason}. Eligible assets go to ${creditor?.name ?? 'the Bank'}.`, 'alert');
 
       set((s) => {
         const players = s.players.map((p) => {
@@ -1666,6 +1935,7 @@ export const useGameStore = create<GameStore>((set, get) => {
               ...properties[id],
               ownerId: creditorId,
               houses: 0,
+              ...(s.ruleset === 'arcade' && BOARD_SPACES[id].type === 'property' ? { developmentLevel: 0 as const } : {}),
               isMortgaged: creditorId !== null ? properties[id].isMortgaged : false,
             };
           }
@@ -1681,15 +1951,32 @@ export const useGameStore = create<GameStore>((set, get) => {
             winner: remainingPlayers[0],
             turnPhase: 'GAME_OVER',
             activeCard: null, railroadRaid: null, auction: null, pendingTrade: null, doublesCount: 0,
+            arcadeLanding: null,
           };
         }
 
         return { ...returnedCards, players, properties, pendingDebt: null,
+          arcadeLanding: s.arcadeLanding?.playerId === player.id ? null : s.arcadeLanding,
           doublesCount: s.players[s.currentPlayerIndex]?.id === player.id ? 0 : s.doublesCount,
           turnPhase: 'END_TURN' };
       });
-      if (get().winner) return;
+      const paid = Math.max(0, player.money) + (creditor ? liquidation : 0);
+      addLog(`${player.name} declared bankruptcy over ${debt.reason}. Eligible assets go to ${creditor?.name ?? 'the Bank'}.`, 'alert',
+        { fromId: player.id, toId: creditorId, amount: paid, reason: 'Bankruptcy settlement', category: debt.category === 'card' ? 'card' : 'debt' },
+        { kind: 'bankruptcy', actorId: player.id, counterpartyId: creditor?.id, emphasis: 'important', details: deeds.map(property =>
+          creditor ? `${creditor.name} received ${BOARD_SPACES[property.spaceId].name}.`
+            : `${BOARD_SPACES[property.spaceId].name} returned to the Bank.`) });
+      const result = get().resolvingCard;
+      if (result) set({ resolvingCard: { ...result, notes: [...(result.notes ?? []),
+        `${player.name} could not cover the $${debt.amount} obligation and was eliminated.`] } });
+      const winner = get().winner;
+      if (winner) {
+        finishCard();
+        addLog(`${winner.name} won the match!`, 'alert', undefined, { kind: 'victory', actorId: winner.id, emphasis: 'milestone' });
+        return;
+      }
       if (debt.remainingPayments) resolvePayments(debt.remainingPayments);
+      else finishCard();
       if (get().players[get().currentPlayerIndex].isBankrupt) get().endTurn();
     },
 
@@ -1701,8 +1988,9 @@ export const useGameStore = create<GameStore>((set, get) => {
 
       // If current player rolled doubles, is not in Jail, and not bankrupt, they get another turn!
       if (state.doublesCount > 0 && !currentPlayer.inJail && !currentPlayer.isBankrupt) {
-        addLog(`${currentPlayer.name} rolled doubles and takes another turn!`, 'info');
-        set({ turnPhase: 'PRE_ROLL' });
+        set({ turnPhase: 'PRE_ROLL', arcadeLanding: null });
+        addLog(`${currentPlayer.name} rolled doubles and takes another turn!`, 'info', undefined,
+          { kind: 'turn', actorId: currentPlayer.id, silent: true });
         return;
       }
 
@@ -1716,7 +2004,12 @@ export const useGameStore = create<GameStore>((set, get) => {
         currentPlayerIndex: nextIdx,
         doublesCount: 0,
         turnPhase: 'PRE_ROLL',
+        arcadeLanding: null,
+        turnNumber: (state.turnNumber ?? 1) + 1,
       });
+      const nextPlayer = state.players[nextIdx];
+      addLog(nextPlayer.name === 'You' ? 'It’s your turn.' : `It’s ${nextPlayer.name}’s turn.`, 'info', undefined,
+        { kind: 'turn', actorId: state.players[nextIdx].id, silent: true });
     },
   };
 });

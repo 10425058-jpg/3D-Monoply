@@ -13,6 +13,70 @@ type Db = Prisma.TransactionClient;
 
 const json = (value: unknown) => value as Prisma.InputJsonValue;
 
+// Only stored payloads for these public notifications can leave the event log.
+const PUBLIC_ACTIVITY_FIELDS: Record<string, readonly string[]> = {
+  'game:dice_rolled': ['playerId', 'dice', 'total', 'fromPosition', 'toPosition'],
+  'game:player_moved': ['playerId', 'fromPosition', 'toPosition', 'passedGo'],
+  'game:property_purchased': ['playerId', 'spaceId', 'price', 'balance'],
+  'game:property_declined': ['playerId', 'spaceId'],
+  'game:rent_paid': ['payerPlayerId', 'ownerPlayerId', 'spaceId', 'amount'],
+  'game:money_changed': ['playerId', 'amount', 'balance', 'reason'],
+  'game:card_resolved': ['playerId', 'cardId', 'deck', 'effects', 'resolvedAt'],
+  'game:jail_changed': ['playerId', 'inJail', 'jailTurns', 'releaseReason'],
+  'game:extra_roll': ['playerId'],
+  'game:turn_changed': ['currentPlayerId', 'turnPhase'],
+  'game:paused': ['pausedAt', 'reason'],
+  'game:resumed': ['matchId', 'stateVersion'],
+  'game:player_bankrupt': ['playerId', 'creditorPlayerId', 'reason', 'forfeitedCash', 'creditorBalance', 'transferredSpaceIds'],
+  'game:finished': ['winnerPlayerId', 'finishReason'],
+  'game:abandoned': ['reason'],
+  'player:connection_changed': ['playerId', 'connectionStatus', 'disconnectedAt'],
+};
+
+// Card payments can have several debits and credits with just one feed entry.
+const RAW_ACTIVITY_LIMIT = 800;
+
+export interface PublicActivityEvent {
+  type: string;
+  eventId: string;
+  sequence: number;
+  stateVersion: number;
+  occurredAt: string;
+  payload: Record<string, unknown>;
+}
+
+export async function readMatchActivity(db: Db, matchId: string, throughVersion: number, afterSequence: number): Promise<PublicActivityEvent[]> {
+  const where = {
+    matchId,
+    stateVersion: { lte: throughVersion },
+    eventType: { in: Object.keys(PUBLIC_ACTIVITY_FIELDS) },
+    sequence: { gt: afterSequence },
+  };
+  const select = { id: true, eventType: true, payload: true, sequence: true, stateVersion: true, createdAt: true } as const;
+  const rows = await db.gameEvent.findMany({ where, select, orderBy: { sequence: 'desc' }, take: RAW_ACTIVITY_LIMIT });
+  const oldest = rows[rows.length - 1];
+  if (rows.length === RAW_ACTIVITY_LIMIT && oldest) {
+    // Keep the earliest surviving commit intact, including card and rent ledger rows.
+    rows.push(...await db.gameEvent.findMany({
+      where: { ...where, stateVersion: oldest.stateVersion, sequence: { gt: afterSequence, lt: oldest.sequence } },
+      select,
+      orderBy: { sequence: 'desc' },
+    }));
+  }
+  return rows.reverse().map(row => {
+    const source = row.payload as Record<string, unknown> | null;
+    const fields = PUBLIC_ACTIVITY_FIELDS[row.eventType];
+    return {
+      type: row.eventType,
+      eventId: row.id,
+      sequence: row.sequence,
+      stateVersion: row.stateVersion,
+      occurredAt: row.createdAt.toISOString(),
+      payload: Object.fromEntries(source ? fields.filter(field => Object.hasOwn(source, field)).map(field => [field, source[field]]) : []),
+    };
+  });
+}
+
 export const isTerminal = (status: string) => status === 'FINISHED' || status === 'ABANDONED';
 
 /** Locks the match row for the rest of the transaction, so actions on one match run one at a time. */
@@ -228,6 +292,7 @@ export interface PublicMatchState {
   startedAt: string;
   updatedAt: string;
   standings: Array<{ playerId: string; rank: number; money: number; netWorth: number }>;
+  activityEvents?: PublicActivityEvent[];
 }
 
 const iso = (d: Date | null) => (d ? d.toISOString() : null);

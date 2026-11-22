@@ -1,0 +1,18 @@
+{
+  "twoPlayer": {
+    "identicalRows": true,
+    "rent": 30,
+    "resultingBalances": [
+      1470,
+      1530
+    ],
+    "restoredQuietly": true
+  },
+  "fourPlayer": {
+    "identicalRows": true,
+    "playersPaid": 3,
+    "amountPerPlayer": 10
+  },
+  "source": "Actual Chromium, NestJS, Socket.IO and PostgreSQL with deterministic mini-v1 rolls",
+  "browserErrors": []
+}

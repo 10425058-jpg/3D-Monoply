@@ -20,6 +20,24 @@ const snapshot = () => ({
 });
 const copy = value => structuredClone(value);
 
+test('Arcade construction requires a live committed purchase or level change', () => {
+  const empty = { ...snapshot(), ruleset: 'arcade', activity: [] };
+  const restored = copy(empty);
+  Object.assign(restored.properties[1], { ownerId: 0, developmentLevel: 0 });
+  assert.equal(diff(empty, restored).some(entry => entry.kind === 'construction'), false);
+  const purchase = { id: 'solo-1:2', kind: 'purchase', title: 'Bought land', spaceId: 1, actor: { id: '0' } };
+  const bought = { ...restored, activity: [purchase] };
+  assert.equal(diff(restored, bought).find(entry => entry.kind === 'construction')?.developmentLevel, 0);
+  assert.equal(diff(bought, { ...bought, activity: [purchase] }).some(entry => entry.kind === 'construction'), false);
+  const house = copy(bought);
+  house.properties[1].developmentLevel = 1;
+  const upgrade = { ...purchase, id: 'solo-1:3', kind: 'upgrade', level: 1 };
+  house.activity.push({ ...upgrade, silent: true });
+  assert.equal(diff(bought, house).some(entry => entry.kind === 'construction'), false);
+  house.activity[1] = upgrade;
+  assert.equal(diff(bought, house).find(entry => entry.kind === 'construction')?.developmentLevel, 1);
+});
+
 test('four to six co-located tokens have distinct stable offsets above the tile surface',()=>{
   for(const count of [4,5,6]){
     const offsets=Array.from({length:count},(_,i)=>math.tokenOffset(i,count));

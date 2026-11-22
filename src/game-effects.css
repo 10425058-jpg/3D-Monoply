@@ -9,7 +9,7 @@
 .effect-notice strong, .effect-notice span { display: block; font-size: 12px; }
 .effect-notice span { color: #e8cda7; font-size: 10px; margin-top: 2px; }
 .effect-bankrupt { border-color: #de93a7; }
-.effect-transaction { display: grid; gap: 8px; padding: 10px 13px; font-variant-numeric: tabular-nums; }
+.effect-notice.effect-transaction { display: grid; gap: 8px; padding: 10px 13px; font-variant-numeric: tabular-nums; }
 .receipt-heading { display: flex; align-items: center; gap: 8px; }
 .receipt-heading strong { flex: 1; line-height: 1.25; font-size: 13px; }
 .receipt-heading svg, .receipt-heading > b { color: #ffdf9c; flex-shrink: 0; }

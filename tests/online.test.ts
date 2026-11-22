@@ -5,10 +5,11 @@ import { ApiClient, ApiError, parseEnvelope } from '../src/online/apiClient';
 import { SessionManager } from '../src/online/sessionManager';
 import { mapMatch, MatchPresenter } from '../src/online/gamePresentationAdapter';
 import { committedFeedback, committedMove, type CommittedEvent } from '../src/online/committedPresentation';
+import { committedActivity } from '../src/online/committedActivity';
 import { EventTracker } from '../src/online/eventTracker';
 import { SocketClient, GAME_EVENTS } from '../src/online/socketClient';
 import { OnlineController } from '../src/online/onlineController';
-import type { Match } from '../src/online/types';
+import type { Match, PublicActivityEvent } from '../src/online/types';
 import { useGameStore } from '../src/store/useGameStore';
 import { BoxGeometry, InstancedMesh, MeshBasicMaterial } from 'three';
 import { releaseInstanceBuffers } from '../src/components/environment/instanceResources';
@@ -16,13 +17,122 @@ import { releaseInstanceBuffers } from '../src/components/environment/instanceRe
 const json = (data: unknown, status = 200) => new Response(JSON.stringify(status < 400 ? { data, meta: {} } : { error: { code: data, message: 'secret database stack trace' } }), { status });
 const user = { id: 'user-a', username: 'Alice', email: 'alice@example.com', avatarUrl: null, createdAt: '' };
 const tokens = { accessToken: 'memory-only', csrfToken: 'csrf-in-memory', expiresIn: 900 };
-test('online rent feedback uses the committed server amount and UUID identities without mutating state',()=>{
-  const manager=new SessionManager('',(async()=>json({})) as typeof fetch);
-  const controller=new OnlineController(manager,'',{matchId:'match-a'},()=>{}),s=snapshot();
-  controller.setSpaceNames(new Map([[3,'Baltic Avenue']]));
-  controller.state.setState({match:s});const original=structuredClone(s);
-  const text=(controller as any).describeEvent('game:rent_paid',{payerPlayerId:'uuid-a',ownerPlayerId:'uuid-b',spaceId:3,amount:70});
-  assert.equal(text,'Alice paid $70 rent to Bob for Baltic Avenue.');assert.deepEqual(controller.state.getState().match,original);controller.stop();
+const activityLabels = {
+  spaceName: (id: number) => ({ 0: 'GO', 3: 'Baltic Avenue', 7: 'Chance', 10: 'Jail', 12: 'Electric Company', 39: 'Boardwalk' })[id] ?? `space ${id}`,
+  card: (id: string) => ({
+    utility: { title: 'Advance to the nearest Utility', description: 'Pay ten times the dice roll.' },
+    birthday: { title: 'It is your Birthday', description: 'Collect $10 from each player.' },
+    dividend: { title: 'Bank pays you a Dividend', description: 'Collect $50.' },
+  })[id],
+};
+function publicEvents(version: number, events: [type: string, payload: Record<string, unknown>][], firstSequence = 1): PublicActivityEvent[] {
+  return events.map(([type, payload], index) => ({
+    type, payload, stateVersion: version, sequence: firstSequence + index, eventId: `event-${firstSequence + index}`,
+    occurredAt: '2026-11-22T00:00:00.000Z',
+  }));
+}
+test('Online Match Activity collapses a committed rent debit and credit to one directional event', () => {
+  const s = { ...snapshot(), stateVersion: 1 };
+  const original = structuredClone(s);
+  const rows = publicEvents(1, [
+    ['game:money_changed', { playerId: 'uuid-a', amount: -70, balance: 1430, reason: 'RENT' }],
+    ['game:money_changed', { playerId: 'uuid-b', amount: 70, balance: 1070, reason: 'RENT' }],
+    ['game:rent_paid', { payerPlayerId: 'uuid-a', ownerPlayerId: 'uuid-b', spaceId: 3, amount: 70 }],
+  ]);
+  const entries = committedActivity(s, rows, activityLabels);
+  assert.equal(entries.length, 1);
+  const [rent] = entries;
+  assert.equal(rent.title, 'Alice paid $70 rent to Bob for Baltic Avenue.');
+  assert.equal(rent.id, 'event-3');
+  assert.deepEqual(rent.transfers?.map(transfer => [transfer.from?.id, transfer.fromBalance, transfer.to?.id, transfer.toBalance, transfer.amount]),
+    [['uuid-a', 1430, 'uuid-b', 1070, 70]]);
+  assert.deepEqual(s, original);
+});
+test('four Online players see the same multi-party card outcome and recorded bankruptcy asset transfer', () => {
+  const s = { ...snapshot(), stateVersion: 2, turnNumber: 3 };
+  s.players.push({ ...s.players[0], playerId: 'uuid-c', username: 'Cara', seatOrder: 2 });
+  s.players.push({ ...s.players[0], playerId: 'uuid-d', username: 'Dan', seatOrder: 0 });
+  const rows = publicEvents(2, [
+    ['game:card_resolved', { playerId: 'uuid-a', cardId: 'birthday', deck: 'chest', effects: [{ type: 'collect_from_each_player', amount: 10 }] }],
+    ['game:money_changed', { playerId: 'uuid-b', amount: -10, balance: 990, reason: 'CARD' }],
+    ['game:money_changed', { playerId: 'uuid-a', amount: 10, balance: 1510, reason: 'CARD' }],
+    ['game:player_bankrupt', { playerId: 'uuid-c', creditorPlayerId: 'uuid-a', reason: 'INSOLVENT_TO_PLAYER',
+      forfeitedCash: 3, creditorBalance: 1513, transferredSpaceIds: [39] }],
+    ['game:money_changed', { playerId: 'uuid-d', amount: -10, balance: 990, reason: 'CARD' }],
+    ['game:money_changed', { playerId: 'uuid-a', amount: 10, balance: 1523, reason: 'CARD' }],
+    ['game:turn_changed', { currentPlayerId: 'uuid-d', turnPhase: 'PRE_ROLL' }],
+  ]);
+  const entries = committedActivity(s, rows, activityLabels);
+  for (let seat = 0; seat < 4; seat++) {
+    const viewer = { ...s, players: [...s.players.slice(seat), ...s.players.slice(0, seat)], allowedActions: [] };
+    assert.deepEqual(committedActivity(viewer, rows, activityLabels), entries);
+  }
+  assert.deepEqual(entries.map(item => [item.kind, item.turn]), [['card', 2], ['bankruptcy', 2], ['turn', 3]]);
+  assert.equal(entries[0].title, 'Alice drew Community Chest — It is your Birthday');
+  assert.equal(entries[0].card?.instruction, 'Collect $10 from each player.');
+  assert.deepEqual(entries[0].transfers?.map(item => [item.from?.name, item.to?.name, item.amount]),
+    [['Bob', 'Alice', 10], ['Dan', 'Alice', 10]]);
+  assert.match(entries[0].details?.join(' ') ?? '', /Cara went bankrupt/);
+  assert.equal(entries[1].transfers?.[0].amount, 3);
+  assert.deepEqual(entries[1].details, ['Boardwalk transferred to Alice.']);
+});
+test('Online Chance records committed movement, rent and card rewards in the correct historical turn', () => {
+  const s = { ...snapshot(), stateVersion: 3, turnNumber: 2 };
+  const rows = [
+    ...publicEvents(1, [
+      ['game:dice_rolled', { playerId: 'uuid-a', dice: [2, 2], total: 4 }],
+      ['game:player_moved', { playerId: 'uuid-a', fromPosition: 3, toPosition: 7 }],
+      ['game:card_resolved', { playerId: 'uuid-a', cardId: 'utility', deck: 'chance', effects: [{ type: 'nearest_utility', targetSpaceId: 12 }] }],
+      ['game:player_moved', { playerId: 'uuid-a', fromPosition: 7, toPosition: 12 }],
+      ['game:money_changed', { playerId: 'uuid-a', amount: -40, balance: 1460, reason: 'RENT' }],
+      ['game:money_changed', { playerId: 'uuid-b', amount: 40, balance: 1040, reason: 'RENT' }],
+      ['game:rent_paid', { payerPlayerId: 'uuid-a', ownerPlayerId: 'uuid-b', spaceId: 12, amount: 40 }],
+      ['game:extra_roll', { playerId: 'uuid-a' }],
+    ]),
+    ...publicEvents(2, [['game:turn_changed', { currentPlayerId: 'uuid-b' }]], 9),
+    ...publicEvents(3, [
+      ['game:card_resolved', { playerId: 'uuid-b', cardId: 'dividend', deck: 'chance', effects: [{ type: 'collect', amount: 50 }] }],
+      ['game:money_changed', { playerId: 'uuid-b', amount: 50, balance: 1090, reason: 'CARD' }],
+    ], 10),
+  ];
+  const entries = committedActivity(s, rows, activityLabels);
+  assert.deepEqual(entries.map(entry => entry.kind), ['roll', 'land', 'card', 'land', 'rent', 'turn', 'card']);
+  assert.deepEqual(entries[0].details, ['Doubles earned another roll.']);
+  assert.equal(entries[2].spaceId, 12);
+  assert.match(entries[2].details?.join(' ') ?? '', /moved to Electric Company.*paid \$40 to Bob/);
+  assert.equal(entries[2].turn, 1);
+  assert.equal(entries[2].silent, true);
+  assert.equal(entries[6].turn, 2);
+  assert.equal(entries[6].silent, false);
+  assert.deepEqual(entries[6].transfers?.map(item => [item.from, item.to?.name, item.amount, item.toBalance]), [[null, 'Bob', 50, 1090]]);
+  assert.ok(committedActivity(s, rows, activityLabels, true).every(entry => entry.silent));
+});
+test('Online cursors keep history quiet on initial mount and deduplicate repeated reconciliations', async () => {
+  const s = { ...snapshot(), stateVersion: 1 };
+  const rows = publicEvents(1, [
+    ['game:money_changed', { playerId: 'uuid-a', amount: -60, balance: 1440, reason: 'PURCHASE' }],
+    ['game:property_purchased', { playerId: 'uuid-a', spaceId: 3, price: 60, balance: 1440 }],
+  ]);
+  const cursors: string[] = [];
+  const manager = new SessionManager('', (async input => {
+    const url = new URL(String(input), 'http://localhost');
+    if (!url.pathname.includes('/matches/')) return json({ roomId: 'room-a', roomRevision: 0, members: [], matchId: null });
+    cursors.push(url.searchParams.get('activityAfter') ?? '');
+    return json({ ...s, activityEvents: rows });
+  }) as typeof fetch);
+  const controller = new OnlineController(manager, '', { matchId: s.matchId }, () => {});
+  controller.state.setState({ connection: 'connected' });
+  await controller.reconcile();
+  assert.equal(controller.state.getState().activity.length, 0, 'The lazy authorized screen supplies catalog labels.');
+  controller.setSpaceNames(new Map([[3, 'Baltic Avenue']]), activityLabels.card);
+  const [purchase] = controller.state.getState().activity;
+  assert.equal(purchase.title, 'Alice purchased Baltic Avenue for $60');
+  assert.equal(purchase.silent, true);
+  assert.equal(purchase.transfers?.[0].fromBalance, 1440);
+  await controller.reconcile();
+  assert.deepEqual(cursors, ['0', '2']);
+  assert.deepEqual(controller.state.getState().activity, [purchase]);
+  controller.stop();
 });
 function snapshot(): Match {
   return { matchId: 'match-a', roomId: 'room-a', stateVersion: 0, status: 'IN_PROGRESS', mapId: 'central-castle', rulesetId: 'mini-v1', contentVersion: 'central-castle@1',

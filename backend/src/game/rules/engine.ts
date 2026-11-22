@@ -198,12 +198,13 @@ function credit(run: Run, p: EnginePlayer, amount: number, reason: string): void
 function bankrupt(run: Run, p: EnginePlayer, creditor: EnginePlayer | null, reason: BankruptReason): void {
   const { s } = run;
   const cash = p.money;
+  const deeds = ownedSpaceIds(s, p.playerId);
   p.money = 0;
   if (creditor && cash > 0) {
     if (creditor.money + cash > MAX_MONEY) throw new Error('Money out of range');
     creditor.money += cash;
   }
-  for (const id of ownedSpaceIds(s, p.playerId)) s.owners[id] = creditor ? creditor.playerId : null;
+  for (const id of deeds) s.owners[id] = creditor ? creditor.playerId : null;
   // Held Get Out of Jail cards go back to the bottom of their decks.
   for (const cardId of p.heldJailCardIds) s.decks[card(run, cardId).deck].push(cardId);
   p.heldJailCardIds = [];
@@ -215,6 +216,9 @@ function bankrupt(run: Run, p: EnginePlayer, creditor: EnginePlayer | null, reas
     playerId: p.playerId,
     creditorPlayerId: creditor ? creditor.playerId : null,
     reason,
+    forfeitedCash: cash,
+    creditorBalance: creditor?.money ?? null,
+    transferredSpaceIds: deeds,
   });
 }
 
@@ -267,10 +271,10 @@ function sendToJail(run: Run, p: EnginePlayer): void {
   emit(run, 'game:jail_changed', { playerId: p.playerId, inJail: true, jailTurns: 0 });
 }
 
-function releaseFromJail(run: Run, p: EnginePlayer): void {
+function releaseFromJail(run: Run, p: EnginePlayer, releaseReason: 'DOUBLES' | 'BAIL' | 'CARD'): void {
   p.inJail = false;
   p.jailTurns = 0;
-  emit(run, 'game:jail_changed', { playerId: p.playerId, inJail: false, jailTurns: 0 });
+  emit(run, 'game:jail_changed', { playerId: p.playerId, inJail: false, jailTurns: 0, releaseReason });
 }
 
 // ---------------------------------------------------------------------------
@@ -526,6 +530,7 @@ function afterRoll(run: Run, p: EnginePlayer, extraRollIfDouble: boolean): void 
   const { s } = run;
   if (p.isBankrupt) return; // settle() moves the turn on
   s.pendingExtraRoll = extraRollIfDouble && !p.inJail;
+  if (s.pendingExtraRoll) emit(run, 'game:extra_roll', { playerId: p.playerId });
   if (s.pendingPurchaseSpaceId !== null) s.turnPhase = 'LANDED_ACTION';
   else s.turnPhase = s.pendingExtraRoll ? 'PRE_ROLL' : 'END_TURN';
 }
@@ -549,7 +554,7 @@ function rollDice(run: Run, p: EnginePlayer): Record<string, unknown> {
     // Jail attempt.
     if (isDouble) {
       rolled((from + total) % BOARD_SIZE);
-      releaseFromJail(run, p);
+      releaseFromJail(run, p, 'DOUBLES');
       moveForward(run, p, total);
       resolveLanding(run, p, 0);
       afterRoll(run, p, false); // no extra roll for doubles that get you out of jail
@@ -563,7 +568,7 @@ function rollDice(run: Run, p: EnginePlayer): Record<string, unknown> {
         // Third failed attempt: forced bail, then move by this roll (or bankruptcy to the Bank).
         rolled(p.money >= JAIL_BAIL ? (from + total) % BOARD_SIZE : from);
         if (charge(run, p, JAIL_BAIL, null, 'JAIL_BAIL')) {
-          releaseFromJail(run, p);
+          releaseFromJail(run, p, 'BAIL');
           moveForward(run, p, total);
           resolveLanding(run, p, 0);
           afterRoll(run, p, false);
@@ -635,6 +640,7 @@ export function applyAction(state: EngineState, action: EngineAction, ctx: Engin
     case 'decline-property': {
       requireTurn(run, actor, 'LANDED_ACTION');
       const sp = requirePendingSpace(run, action);
+      emit(run, 'game:property_declined', { playerId: actor.playerId, spaceId: sp.id });
       afterPurchaseDecision(run);
       result = { spaceId: sp.id };
       break;
@@ -650,7 +656,7 @@ export function applyAction(state: EngineState, action: EngineAction, ctx: Engin
       if (!actor.inJail) throw new RuleError('INVALID_ACTION', 'You are not in jail.');
       if (actor.money < JAIL_BAIL) throw new RuleError('INSUFFICIENT_FUNDS', 'You cannot afford bail.');
       charge(run, actor, JAIL_BAIL, null, 'JAIL_BAIL');
-      releaseFromJail(run, actor);
+      releaseFromJail(run, actor, 'BAIL');
       break;
 
     case 'use-jail-card': {
@@ -660,7 +666,7 @@ export function applyAction(state: EngineState, action: EngineAction, ctx: Engin
       if (!actor.heldJailCardIds.includes(cardId)) throw new RuleError('INVALID_ACTION', 'You do not hold that card.');
       actor.heldJailCardIds = actor.heldJailCardIds.filter((id) => id !== cardId);
       s.decks[card(run, cardId).deck].push(cardId); // back to the bottom of its deck
-      releaseFromJail(run, actor);
+      releaseFromJail(run, actor, 'CARD');
       result = { cardId };
       break;
     }

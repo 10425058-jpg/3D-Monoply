@@ -1,8 +1,8 @@
 import type { SceneState } from './SceneStore';
-import type { CashTransfer, Player } from '../types/game';
+import type { ArcadeLevel, CashTransfer, Player } from '../types/game';
 
 export type GameSnapshot = SceneState;
-export type EffectKind = 'roll' | 'dice-land' | 'move' | 'money' | 'ownership' | 'build' |
+export type EffectKind = 'roll' | 'dice-land' | 'move' | 'money' | 'ownership' | 'build' | 'construction' |
   'mortgage' | 'turn' | 'card' | 'auction' | 'trade' | 'jail' | 'bankrupt' | 'victory' | 'raid' | 'transaction' | 'landmark';
 export type CashReceipt = CashTransfer & { fromBalance?: number; toBalance?: number; fromName: string; toName: string };
 export interface EffectChange {
@@ -15,6 +15,7 @@ export interface EffectChange {
   label: string;
   cash?: CashReceipt;
   detail?: string;
+  developmentLevel?: ArcadeLevel;
 }
 export interface PresentationEvent extends EffectChange { id: number; createdAt: number; expiresAt: number }
 
@@ -93,6 +94,14 @@ export function collectEffectChanges(previous: GameSnapshot, next: GameSnapshot)
       label: property.ownerId === null ? 'Deed returned to the Bank' :
         previous.auction?.spaceId === property.spaceId ? 'Auction won' : before.ownerId === null ? 'Property purchased' : 'Ownership transferred',
     });
+    if (property.developmentLevel !== undefined && property.ownerId !== null && before.ownerId === property.ownerId) {
+      const from = before.developmentLevel ?? 0;
+      const to = property.developmentLevel;
+      if (to !== from) events.push({
+        kind: 'build', playerId: property.ownerId, spaceId: property.spaceId, amount: to - from,
+        label: to > from ? `Property upgraded · Level ${to}` : 'Building sold',
+      });
+    }
     if (before.houses !== property.houses) events.push({ kind: 'build', playerId: property.ownerId ?? undefined, spaceId: property.spaceId,
       amount: property.houses - before.houses, label: property.houses > before.houses ? (property.houses === 5 ? 'Hotel built' : 'House built') : 'Building sold' });
     if (before.isMortgaged !== property.isMortgaged) events.push({ kind: 'mortgage', spaceId: property.spaceId, label: property.isMortgaged ? 'Property mortgaged' : 'Mortgage released' });
@@ -105,6 +114,20 @@ export function collectEffectChanges(previous: GameSnapshot, next: GameSnapshot)
     spaceId: previous.auction.spaceId, label: 'Everyone passed' });
   if (next.railroadRaid && !previous.railroadRaid) events.push({ kind: 'raid', label: 'Railroad bonus unlocked' });
   if (next.winner && next.winner.id !== previous.winner?.id) events.push({ kind: 'victory', playerId: next.winner.id, label: `${next.winner.name} wins!` });
+  // Construction is a committed action beat. Installing an owned board snapshot alone does not play it.
+  if (next.ruleset === 'arcade' && next.activity && next.activity !== previous.activity) {
+    const known = new Set(previous.activity?.map(event => event.id));
+    for (const entry of next.activity) {
+      if (known.has(entry.id) || entry.silent || entry.spaceId === undefined) continue;
+      const purchase = entry.kind === 'purchase' || (entry.kind === 'auction' && !!entry.transfers?.length);
+      const property = next.properties[entry.spaceId];
+      const level = property?.developmentLevel;
+      if (level === undefined || property.ownerId === null || String(property.ownerId) !== entry.actor?.id) continue;
+      if (!(purchase && level === 0) && !(entry.kind === 'upgrade' && entry.level === level && level > 0)) continue;
+      events.push({ kind: 'construction', playerId: property.ownerId, spaceId: entry.spaceId,
+        developmentLevel: level, label: entry.title });
+    }
+  }
   // Trades have no dedicated result field. Consume only newly confirmed log IDs.
   if (next.logs !== previous.logs) {
     const known = new Set(previous.logs.map(log => log.id));

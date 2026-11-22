@@ -14,7 +14,7 @@ import { useSceneState as useGameStore } from '../../presentation/SceneStore';
 
 type GraphicsQuality = 'low' | 'balanced' | 'high';
 
-export const Scene3D = React.memo<{ quality?: GraphicsQuality }>(({ quality = 'balanced' }) => {
+export const Scene3D = React.memo<{ quality?: GraphicsQuality; propertyPanel?: boolean }>(({ quality = 'balanced', propertyPanel = false }) => {
   const reducedMotion = useReducedMotion();
   const selected = useGameStore(s => s.selectedSpaceId);
   const [request, setRequest] = useState<{ preset: CameraPreset; sequence: number }>({ preset: 'overview', sequence: 0 });
@@ -45,7 +45,7 @@ export const Scene3D = React.memo<{ quality?: GraphicsQuality }>(({ quality = 'b
       {!reducedMotion && quality !== 'low' && <Sparkles count={quality === 'high' ? 48 : 24}
         position={[0, 2.4, -0.5]} scale={[13, 4, 12]} size={2.2} speed={0.16}
         opacity={0.45} color="#ffe0a1" raycast={() => {}} />}
-      <CinematicCamera request={request} reducedMotion={reducedMotion} />
+      <CinematicCamera request={request} reducedMotion={reducedMotion} propertyPanel={propertyPanel} />
       <Board3D />
       <CenterCity3D quality={quality} />
       <TokensAndBuildings quality={quality} />

@@ -26,6 +26,7 @@ import {
   overduePlayerIds,
   projectMatchState,
   PublicMatchState,
+  readMatchActivity,
   saveEngineState,
   toEngineState,
 } from './match-store';
@@ -138,11 +139,15 @@ export class MatchesService {
   }
 
   /** GET /matches/:matchId — the viewer's personal snapshot. Participants only. */
-  async getSnapshot(matchId: string, userId: string): Promise<PublicMatchState> {
+  async getSnapshot(matchId: string, userId: string, afterActivitySequence?: number): Promise<PublicMatchState> {
     const m = await loadMatch(this.prisma, matchId);
     if (!m) throw matchNotFound();
     if (!m.players.some((p) => p.userId === userId)) throw forbidden('You are not a player in this match.');
-    return projectMatchState(m, userId, Date.now());
+    const snapshot = projectMatchState(m, userId, Date.now());
+    if (afterActivitySequence !== undefined) {
+      snapshot.activityEvents = await readMatchActivity(this.prisma, m.id, m.stateVersion, afterActivitySequence);
+    }
+    return snapshot;
   }
 
   /**

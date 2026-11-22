@@ -1,5 +1,6 @@
 import { transactionEffect, type EffectChange } from '../presentation/effectEvents';
-import type { CashTransfer, DeckCard, Player } from '../types/game';
+import type { DeckCard, Player } from '../types/game';
+import { committedLedger } from './committedLedger';
 import type { ActionReceipt, EventPayloads, Match } from './types';
 
 export type CommittedEvent = ActionReceipt['events'][number];
@@ -58,9 +59,7 @@ export function committedFeedback(before: Match, match: Match, events: readonly 
   const effects: EffectChange[] = [];
   const player = (id: unknown) => match.players.find(candidate => candidate.playerId === id);
   const properties = new Map(match.properties.map(property => [property.spaceId, property]));
-  const money = (event?: CommittedEvent) => event?.type === 'game:money_changed' ? event.payload as EventPayloads['game:money_changed'] : undefined;
-  let cardType: string | undefined;
-  let cardTitle: string | undefined;
+  const ledger = committedLedger(events, labels);
   for (let index = 0; index < events.length; index++) {
     const { type, payload } = events[index];
     const actor = player(payload.playerId);
@@ -68,41 +67,6 @@ export function committedFeedback(before: Match, match: Match, events: readonly 
       const spaceId = Number(payload.spaceId);
       const name = labels.spaceName(spaceId);
       effects.push({ kind: 'ownership', spaceId, playerId: actor.seatOrder, label: `${actor.username} purchased ${name}` });
-      effects.push(transactionEffect({ fromId: actor.seatOrder, toId: null, amount: Number(payload.price), reason: `Purchased ${name}`,
-        category: 'purchase', spaceId }, players, { fromBalance: Number(payload.balance) }));
-    } else if (type === 'game:rent_paid') {
-      const rent = payload as EventPayloads['game:rent_paid'];
-      const payer = player(rent.payerPlayerId);
-      const owner = player(rent.ownerPlayerId);
-      if (!payer || !owner) continue;
-      const debit = money(events[index - 2]);
-      const credit = money(events[index - 1]);
-      effects.push(transactionEffect({ fromId: payer.seatOrder, toId: owner.seatOrder, amount: rent.amount,
-        reason: `Rent on ${labels.spaceName(rent.spaceId)}`, category: 'rent', spaceId: rent.spaceId }, players,
-      { fromBalance: debit?.playerId === payer.playerId ? debit.balance : payer.money,
-        toBalance: credit?.playerId === owner.playerId ? credit.balance : owner.money }));
-    } else if (type === 'game:card_resolved') {
-      cardType = ((payload.effects as { type?: string }[] | undefined)?.[0])?.type;
-      cardTitle = labels.card(String(payload.cardId))?.title;
-    } else if (type === 'game:money_changed' && actor) {
-      const { amount, balance, reason } = payload as EventPayloads['game:money_changed'];
-      const sharedCard = reason === 'CARD' && (cardType === 'pay_each_player' || cardType === 'collect_from_each_player');
-      if (sharedCard) {
-        const credit = money(events[index + 1]);
-        const recipient = credit && player(credit.playerId);
-        if (amount < 0 && recipient && credit.reason === reason && credit.amount === -amount) {
-          effects.push(transactionEffect({ fromId: actor.seatOrder, toId: recipient.seatOrder, amount: -amount,
-            reason: cardTitle ?? 'Card payment', category: 'card' }, players, { fromBalance: balance, toBalance: credit.balance }));
-        }
-        continue;
-      }
-      const categories: Record<string, CashTransfer['category']> = { GO_SALARY: 'salary', TAX: 'tax', JAIL_BAIL: 'jail', CARD: 'card' };
-      const category = categories[reason];
-      if (!category || (reason === 'CARD' && !cardType)) continue;
-      const label = { salary: 'GO salary', tax: 'Tax', jail: 'Jail bail', card: cardTitle ?? 'Card payment' }[category as 'salary' | 'tax' | 'jail' | 'card'];
-      effects.push(transactionEffect({ fromId: amount < 0 ? actor.seatOrder : null, toId: amount > 0 ? actor.seatOrder : null,
-        amount: Math.abs(amount), reason: label, category, spaceId: category === 'salary' ? 0 : actor.position }, players,
-      amount < 0 ? { fromBalance: balance } : { toBalance: balance }));
     } else if (type === 'game:jail_changed' && actor) {
       const jail = payload as EventPayloads['game:jail_changed'];
       const old = before.players.find(candidate => candidate.playerId === actor.playerId);
@@ -121,6 +85,16 @@ export function committedFeedback(before: Match, match: Match, events: readonly 
       for (const deed of deeds) if (properties.get(deed.spaceId)?.ownerPlayerId !== actor.playerId) {
         effects.push({ kind: 'ownership', spaceId: deed.spaceId, playerId: creditor?.seatOrder, label: 'Ownership transferred' });
       }
+    }
+    const cash = ledger.get(index);
+    if (cash) {
+      const payer = cash.from && player(cash.from.id);
+      const recipient = cash.to && player(cash.to.id);
+      if ((cash.from && !payer) || (cash.to && !recipient)) continue;
+      effects.push(transactionEffect({
+        fromId: payer?.seatOrder ?? null, toId: recipient?.seatOrder ?? null, amount: cash.amount,
+        reason: cash.reason, category: cash.category, spaceId: cash.spaceId ?? payer?.position ?? recipient?.position,
+      }, players, { fromBalance: cash.from?.balance, toBalance: cash.to?.balance }));
     }
   }
   if (match.currentPlayerId && match.currentPlayerId !== before.currentPlayerId) effects.push({ kind: 'turn', label: 'Turn changed' });

@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { AnimatedToken } from './AnimatedToken';
+import { ArcadePropertyLots } from './ArcadePropertyLots';
 import { useMotionPreferences } from '../../presentation/useMotionPreferences';
 import * as THREE from 'three';
 import { useSceneState as useGameStore, useSceneStore } from '../../presentation/SceneStore';
@@ -247,6 +248,7 @@ export const TokensAndBuildings: React.FC<{ quality?: string }> = ({ quality = '
   const players = useGameStore((s) => s.players);
   const currentPlayerIndex = useGameStore((s) => s.currentPlayerIndex);
   const properties = useGameStore((s) => s.properties);
+  const arcade = useGameStore(s => s.ruleset === 'arcade');
   const hovered=useGameStore(s=>s.hoveredSpaceId),selected=useGameStore(s=>s.selectedSpaceId);
   const { reducedMotion, visible } = useMotionPreferences();
   return (
@@ -266,10 +268,12 @@ export const TokensAndBuildings: React.FC<{ quality?: string }> = ({ quality = '
         );
       })}
 
+      {arcade && <ArcadePropertyLots quality={quality} reduced={reducedMotion} visible={visible} />}
+
       {/* 3D Green Houses & Red Hotels on Color Strips */}
       {BOARD_SPACES.map((space) => {
         const prop = properties[space.id];
-        if (!prop || prop.houses <= 0) return null;
+        if (!prop || arcade || prop.houses <= 0) return null;
         const tf = getSpaceTransform(space.id);
 
         return (

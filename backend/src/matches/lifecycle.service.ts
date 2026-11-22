@@ -2,6 +2,7 @@ import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/commo
 import { Prisma } from '@prisma/client';
 import { config } from '../config';
 import { abandonMatch } from '../game/rules/engine';
+import type { EngineEvent } from '../game/rules/types';
 import { PrismaService } from '../prisma/prisma.service';
 import { MatchBroadcast, RealtimeService } from '../realtime/realtime.service';
 import { loadRoomState, lockRoom } from '../rooms/room-state';
@@ -114,7 +115,11 @@ export class LifecycleService implements OnModuleInit, OnModuleDestroy {
 
       // 24-hour clock: runs while no player who is still in the game is connected.
       let stateVersion = m.stateVersion;
-      let broadcasts: MatchBroadcast[] = [];
+      const events: EngineEvent[] = [{
+        type: 'player:connection_changed',
+        actorPlayerId: player.id,
+        payload: { playerId: player.id, connectionStatus: player.connectionStatus, disconnectedAt: disconnectedAt?.toISOString() ?? null },
+      }];
       const everyoneOnline = m.players.filter((p) => !p.isBankrupt).every((p) => p.connectionStatus === 'CONNECTED');
 
       if (m.status === 'PAUSED' && everyoneOnline) {
@@ -124,29 +129,18 @@ export class LifecycleService implements OnModuleInit, OnModuleDestroy {
           where: { id: matchId },
           data: { status: 'IN_PROGRESS', pausedAt: null, pauseReason: null, stateVersion, allPlayersOfflineSince: null },
         });
-        broadcasts = await appendEvents(
-          tx,
-          matchId,
-          stateVersion,
-          [{ type: 'game:resumed', actorPlayerId: null, payload: { matchId, stateVersion } }],
-          now,
-        );
+        events.push({ type: 'game:resumed', actorPlayerId: null, payload: { matchId, stateVersion } });
       } else {
         await tx.match.update({
           where: { id: matchId },
           data: { allPlayersOfflineSince: nextAllPlayersOfflineSince(m, toEngineState(m), now) },
         });
       }
-      return { playerId: player.id, disconnectedAt, stateVersion, broadcasts };
+      return appendEvents(tx, matchId, stateVersion, events, now);
     });
     if (!outcome) return;
 
-    this.realtime.toMatchUnsequenced(matchId, 'player:connection_changed', outcome.stateVersion, {
-      playerId: outcome.playerId,
-      connectionStatus: connected ? 'CONNECTED' : 'DISCONNECTED',
-      disconnectedAt: outcome.disconnectedAt ? outcome.disconnectedAt.toISOString() : null,
-    });
-    this.realtime.toMatch(matchId, outcome.broadcasts);
+    this.realtime.toMatch(matchId, outcome);
     // A reconnecting player may be the first eligible host candidate.
     if (connected) await this.electHostIfNeeded(matchId);
   }

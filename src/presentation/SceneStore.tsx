@@ -8,7 +8,7 @@ export type SceneState = Pick<ReturnType<typeof useGameStore.getState>,
   'players' | 'properties' | 'currentPlayerIndex' | 'turnPhase' | 'dice' | 'gameSpeed' |
   'cameraMode' | 'selectedSpaceId' | 'hoveredSpaceId' | 'selectSpace' | 'setHoveredSpace' |
   'setCameraMode' | 'logs' | 'activeCard' | 'auction' | 'railroadRaid' | 'winner'> &
-  Partial<Pick<ReturnType<typeof useGameStore.getState>, 'gameId' | 'pendingDebt'>> & {
+  Partial<Pick<ReturnType<typeof useGameStore.getState>, 'gameId' | 'pendingDebt' | 'ruleset' | 'activity'>> & {
     committedEffects?: readonly EffectChange[];
   };
 

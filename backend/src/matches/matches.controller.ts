@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard, UserId } from '../auth/auth.guard';
 import { matchNotFound, validationError } from '../common/errors';
 import { RateLimit } from '../common/rate-limit.guard';
@@ -31,9 +31,13 @@ export class MatchesController {
   }
 
   @Get(':matchId')
-  snapshot(@Param('matchId') matchId: string, @UserId() userId: string) {
+  snapshot(@Param('matchId') matchId: string, @UserId() userId: string, @Query('activityAfter') activityAfter?: string) {
     if (!isUuid(matchId)) throw matchNotFound();
-    return this.matches.getSnapshot(matchId, userId);
+    if (activityAfter !== undefined && (typeof activityAfter !== 'string' || !/^\d{1,10}$/.test(activityAfter))) {
+      throw validationError('activityAfter must be a non-negative event sequence.');
+    }
+    const cursor = activityAfter === undefined ? undefined : int(Number(activityAfter), 'activityAfter', 0, 2147483647);
+    return this.matches.getSnapshot(matchId, userId, cursor);
   }
 
   /**
