@@ -48,9 +48,10 @@ export function RoyalCityEffects({anchors,level,quality,animate}:{anchors:Anchor
   useLayoutEffect(()=>{
     const instance=flags.current;if(!instance)return;
     const dummy=new THREE.Object3D();
+    const castleFlagBlue=new THREE.Color('#244da5');
     visibleFlags.forEach((flag,i)=>{
       dummy.position.copy(flag.position);dummy.scale.setScalar(flag.scale);dummy.rotation.set(0,0,0);dummy.updateMatrix();instance.setMatrixAt(i,dummy.matrix);
-      instance.setColorAt(i,new THREE.Color(i%3===0?'#244da5':'#ac2448'));
+      instance.setColorAt(i,castleFlagBlue);
     });
     instance.instanceMatrix.needsUpdate=true;if(instance.instanceColor)instance.instanceColor.needsUpdate=true;instance.computeBoundingSphere();instance.boundingSphere!.radius+=.6;
     return()=>releaseInstanceBuffers(instance);
