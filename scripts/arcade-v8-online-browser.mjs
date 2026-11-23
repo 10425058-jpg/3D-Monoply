@@ -106,14 +106,18 @@ async function openMatch(page, matchId) {
   if (page.url() === url) await page.reload({ waitUntil: 'domcontentloaded' });
   else await page.goto(url, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => document.querySelector('.city-match-header .city-connection')?.textContent === 'Connected', { timeout });
-  await page.waitForSelector('.match-activity-toggle', { visible: true, timeout });
-  await page.click('.match-activity-toggle');
+  assert.equal(await page.$('.match-activity'), null, 'floating Match Activity panel removed from Online game');
 }
 
-async function matchingRow(page, kind, text) {
-  await page.waitForFunction((kind, text) => [...document.querySelectorAll(`[data-activity-kind="${kind}"]`)]
-    .some(row => row.textContent.includes(text)), { timeout }, kind, text);
-  return page.$$eval(`[data-activity-kind="${kind}"]`, (rows, text) => rows.find(row => row.textContent.includes(text)).textContent, text);
+// The floating history UI is intentionally removed. Continue verifying that
+// each authenticated player receives the same durable server-confirmed events.
+async function committedEvents(page, matchId, kind) {
+  const viewerIndex = pages.indexOf(page);
+  assert.ok(viewerIndex >= 0, 'known viewer');
+  const snapshot = await api('GET', `/matches/${matchId}?activityAfter=0`, users[viewerIndex].accessToken);
+  return snapshot.activityEvents.filter(event => event.type === kind).map(event => ({
+    id: event.eventId, sequence: event.sequence, payload: event.payload,
+  }));
 }
 
 async function shot(page, name) {
@@ -175,23 +179,28 @@ try {
   const hostChance = await cardNotice(pages[0], 'chance');
   await shot(pages[0], 'chance-live');
   assert.equal(await cardNotice(pages[1], 'chance'), hostChance);
-  const compareRows = async (playerPages, kind, text) => {
-    const rows = [];
+  const compareCommitted = async (playerPages, matchId, kind) => {
+    const all = [];
     for (const page of playerPages) {
       await page.bringToFront();
-      rows.push(await matchingRow(page, kind, text));
+      all.push(await committedEvents(page, matchId, kind));
     }
-    assert.ok(rows.every(row => row === rows[0]));
-    return rows[0];
+    assert.ok(all.every(entries => JSON.stringify(entries) === JSON.stringify(all[0])),
+      `all participants receive the same ${kind} events`);
+    return all[0];
   };
-  const chance = await compareRows(pages.slice(0, 2), 'card', 'drew Chance');
-  assert.match(chance, /Nearest Utility.*10 times.*moved to Electric Company/s);
-  const rent = await compareRows(pages.slice(0, 2), 'rent', 'paid $30 rent');
-  assert.match(rent, /Electric Company.*1,470.*1,530/s);
-  await pages[1].click('[data-activity-kind="rent"] summary');
-  await shot(pages[1], 'two-player-rent');
+  const chance = await compareCommitted(pages.slice(0, 2), two.matchId, 'game:card_resolved');
+  assert.ok(chance.some(event => event.payload.deck === 'chance' && event.payload.cardId === 'ch_4'));
+  const rent = await compareCommitted(pages.slice(0, 2), two.matchId, 'game:rent_paid');
+  assert.equal(rent.length, 1);
+  assert.equal(rent[0].payload.amount, 30);
+  assert.equal(rent[0].payload.spaceId, 12);
+  const transfers = await compareCommitted(pages.slice(0, 2), two.matchId, 'game:money_changed');
+  assert.ok(transfers.some(event => event.payload.amount === -30 && event.payload.balance === 1470));
+  assert.ok(transfers.some(event => event.payload.amount === 30 && event.payload.balance === 1530));
+  await shot(pages[1], 'two-player-clear-view');
   await openMatch(pages[1], two.matchId);
-  await matchingRow(pages[1], 'rent', 'paid $30 rent');
+  assert.equal((await committedEvents(pages[1], two.matchId, 'game:rent_paid')).length, 1);
   assert.equal(await pages[1].$('[data-activity-notice="rent"]'), null);
   const restored = await api('GET', `/matches/${two.matchId}?activityAfter=0`, users[0].accessToken);
   assert.equal(restored.activityEvents.filter(event => event.type === 'game:rent_paid').length, 1);
@@ -210,17 +219,15 @@ try {
   const hostChest = await cardNotice(pages[0], 'chest');
   await shot(pages[0], 'community-chest-live');
   for (const page of pages.slice(1)) assert.equal(await cardNotice(page, 'chest'), hostChest);
-  const chest = await compareRows(pages, 'card', 'drew Community Chest');
-  assert.match(chest, /It Is Your Birthday/);
-  assert.equal((chest.match(/−\$10/g) ?? []).length, 3);
-  for (const user of users) assert.ok(chest.includes(user.username));
-  await pages[3].click('[data-activity-kind="card"] summary');
-  await shot(pages[3], 'four-player-feed');
+  const chest = await compareCommitted(pages, four.matchId, 'game:card_resolved');
+  assert.ok(chest.some(event => event.payload.cardId === 'cc_9' && event.payload.deck === 'chest'));
+  const chestTransfers = await compareCommitted(pages, four.matchId, 'game:money_changed');
+  assert.equal(chestTransfers.filter(event => event.payload.amount === -10).length, 3);
+  await shot(pages[3], 'four-player-clear-view');
   await pages[3].setViewport({ width: 390, height: 844, deviceScaleFactor: 1 });
   assert.equal(await pages[3].evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
-  assert.ok(await pages[3].evaluate(() => document.querySelector('.match-activity').getBoundingClientRect().bottom <
-    document.querySelector('.city-online-dock').getBoundingClientRect().top));
-  await shot(pages[3], 'feed-mobile');
+  assert.equal(await pages[3].$('.match-activity'), null);
+  await shot(pages[3], 'clear-view-mobile');
   assert.deepEqual(browserErrors, []);
   await writeFile(`${output}/online-results.json`, JSON.stringify({
     twoPlayer: { identicalRows: true, rent: 30, resultingBalances: [1470, 1530], restoredQuietly: true },
@@ -228,7 +235,7 @@ try {
     source: 'Actual Chromium, NestJS, Socket.IO and PostgreSQL with deterministic mini-v1 rolls',
     browserErrors,
   }, null, 2));
-  console.log('Verified two-player Chance and rent, four-player Community Chest, refresh and mobile history.');
+  console.log('Verified synchronized committed events and popups without floating history panel.');
 } catch (error) {
   console.error(error.message);
   for (const [index, page] of pages.entries()) if (!page.isClosed()) {
