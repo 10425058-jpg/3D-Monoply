@@ -28,47 +28,71 @@ export function useReducedMotion() {
 export function CinematicCamera({ request, reducedMotion, propertyPanel }: {
   request: { preset: CameraPreset; sequence: number }; reducedMotion: boolean; propertyPanel: boolean;
 }) {
-  const { size, camera } = useThree();
+  const { size, camera, scene } = useThree();
   const mode = useGameStore(s => s.cameraMode);
   const selected = useGameStore(s => s.selectedSpaceId);
   const phase = useGameStore(s => s.turnPhase);
   const position = useGameStore(s => s.players[s.currentPlayerIndex]?.position ?? 0);
+  const playerId = useGameStore(s => s.players[s.currentPlayerIndex]?.id ?? null);
   const controls = useRef<OrbitControlsImpl>(null);
   const active = useRef(true);
-  const preset = useRef<CameraPreset>('overview');
+  const preset = useRef<CameraPreset | 'manual'>('overview');
   const destination = useRef(new THREE.Vector3());
   const target = useRef(new THREE.Vector3());
   const outward = useRef(new THREE.Vector3());
+  // Preserve the player's viewing angle as the token travels around the board.
+  const followOffset = useRef(new THREE.Vector3(0, 20, 27));
   const fit = useMemo(() => overviewCamera(size.width, size.height, mode === 'top'), [size.width, size.height, mode]);
+  const captureFollowAngle = () => {
+    const orbit = controls.current;
+    if (!orbit) return;
+    followOffset.current.copy(camera.position).sub(orbit.target);
+    if (followOffset.current.lengthSq() < 1) followOffset.current.set(0, 20, 27);
+    followOffset.current.setLength(THREE.MathUtils.clamp(followOffset.current.length(), 26, 42));
+  };
 
   useEffect(() => {
+    if (request.preset === 'player' || request.preset === 'movement') captureFollowAngle();
     preset.current = request.preset;
     active.current = true;
   }, [request]);
   useEffect(() => {
+    if (mode === 'follow') captureFollowAngle();
     preset.current = mode === 'follow' ? 'player' : mode === 'city' ? 'event' : 'overview';
     active.current = true;
   }, [mode]);
   useEffect(() => {
-    preset.current = selected === null ? 'overview' : 'property';
-    active.current = true;
+    if (selected !== null) {
+      preset.current = 'property';
+      active.current = true;
+    } else if (preset.current === 'property') {
+      // Closing a property panel must not send the camera back to the board origin.
+      preset.current = 'manual';
+      active.current = false;
+    }
   }, [selected]);
   useEffect(() => {
-    if (propertyPanel && selected !== null) preset.current = 'property';
-    active.current = true;
+    if (propertyPanel && selected !== null) {
+      preset.current = 'property';
+      active.current = true;
+    }
   }, [propertyPanel, selected]);
   useEffect(() => {
-    if (phase === 'MOVING' && mode === 'follow') {
-      preset.current = 'movement'; active.current = true;
+    if (phase === 'MOVING' && mode !== 'top' && mode !== 'city' && selected === null) {
+      captureFollowAngle();
+      preset.current = 'movement';
+      active.current = true;
     } else if (phase !== 'MOVING' && preset.current === 'movement') {
-      preset.current = 'overview'; active.current = true;
+      // Stay with the landed token instead of returning to overview every turn.
+      preset.current = 'player';
+      active.current = true;
     }
   }, [phase, mode]);
   useEffect(() => {
     const perspective = camera as THREE.PerspectiveCamera;
     perspective.fov = fit.fov;
     perspective.updateProjectionMatrix();
-    active.current = true;
+    if (preset.current === 'overview') active.current = true;
   }, [size.width, size.height, reducedMotion, camera, fit]);
 
   useFrame((_, delta) => {
@@ -87,15 +111,25 @@ export function CinematicCamera({ request, reducedMotion, propertyPanel }: {
       // Close views retain their existing centered composition and interactions.
       perspective.clearViewOffset();
     }
-    if (preset.current === 'property' || preset.current === 'player' || preset.current === 'movement') {
-      const id = preset.current === 'property' ? selected : position;
-      if (id !== null) {
-        const [x, , z] = getSpaceTransform(id).position;
-        // Approach from outside the board so the castle cannot hide the subject.
-        outward.current.set(x, 0, z).normalize();
-        aim.set(x, 0.5, z);
-        dest.set(x + outward.current.x * 10, 17, z + outward.current.z * 10 + 4);
+    if (preset.current === 'property' && selected !== null) {
+      const [x, , z] = getSpaceTransform(selected).position;
+      // Retain the existing unobstructed property detail composition.
+      outward.current.set(x, 0, z).normalize();
+      aim.set(x, 0.5, z);
+      dest.set(x + outward.current.x * 10, 17, z + outward.current.z * 10 + 4);
+    } else if (preset.current === 'player' || preset.current === 'movement') {
+      const [x, , z] = getSpaceTransform(position).position;
+      aim.set(x, 0.6, z);
+      if (preset.current === 'movement' && playerId !== null) {
+        // Use the actual animated token while it hops between tiles, if present.
+        const token = scene.getObjectByName(`token-${playerId}`);
+        if (token) {
+          token.getWorldPosition(aim);
+          aim.y = 0.6;
+        }
       }
+      // Translate the camera and its look-at point together: no spinning at corners.
+      dest.copy(aim).add(followOffset.current);
     } else if (preset.current === 'dice') {
       aim.set(0, 0.8, 4.2); dest.set(0, 18, 22);
     } else if (preset.current === 'event') {
@@ -112,5 +146,5 @@ export function CinematicCamera({ request, reducedMotion, propertyPanel }: {
   return <OrbitControls ref={controls} makeDefault enablePan={false}
     enableDamping={!reducedMotion} dampingFactor={0.09} rotateSpeed={0.55} zoomSpeed={0.7}
     minPolarAngle={0.04} maxPolarAngle={Math.PI / 2.65} minDistance={16} maxDistance={Math.max(85, fit.distance * 1.3)}
-    onStart={() => { active.current = false; }} />;
+    onStart={() => { active.current = false; preset.current = 'manual'; }} />;
 }
