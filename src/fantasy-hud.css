@@ -149,14 +149,6 @@
 .deed-footer { text-align: center; color: #a77439; font-size: 13px; line-height: 20px; flex-shrink: 0; }
 /* Keep the existing sky continuous; panels overlay the existing full-screen scene. */
 .monopoly-app .world-layer { inset: 0; }
-.monopoly-app .camera-toolbar { top: 96px; white-space: nowrap; }
-/* On desktop, use the clear sky between the left HUD and the castle spire. */
-@media (min-width: 1151px) {
-  .monopoly-app .camera-toolbar {
-    top: 46px;
-    left: clamp(410px, 33%, 640px);
-  }
-}
 @keyframes royal-value { from { opacity: .65; } to { opacity: 1; } }
 @keyframes royal-dice { to { transform: rotate(8deg) translateY(-2px); } }
 @media (min-width: 1600px) {
@@ -252,13 +244,9 @@
   .deed-close { right: -5px; top: -10px; width: 32px; height: 32px; }
   .deed-crown { height: 22px; top: -16px; }
   .deed-crown svg { width: 17px; }
-  .monopoly-app .camera-toolbar { position: fixed; top: 153px; right: 10px; left: auto; transform: none; padding: 3px; border-radius: 8px; width: 174px; max-width: calc(100% - 210px); }
-  .camera-toolbar select, .camera-toolbar button { font-size: 9px; padding: 2px 4px; min-height: 27px; }
-  .camera-toolbar select { width: 92px; max-width: 100%; }
   /* Lift the selected tile above the bottom sheet while retaining the scene. */
   .monopoly-app:has(.fantasy-deed) { background: #433068; }
   .monopoly-app:has(.fantasy-deed) .world-layer { transform: translateY(-110px); }
-  .monopoly-app:has(.fantasy-deed) .camera-toolbar { top: 263px; }
 }
 @media (min-width: 761px) and (max-height: 600px) {
   .fantasy-shortcuts { grid-template-columns: repeat(2, 1fr); gap: 7px; }
