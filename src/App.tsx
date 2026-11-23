@@ -98,6 +98,10 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
   const [lastPackReveal, setLastPackReveal] = useState<{ stickers: string[]; duplicateCount: number } | null>(null);
 
   const activePlayer = game.players[game.currentPlayerIndex];
+  const cardDraw = activePlayer && game.activeCard && game.turnPhase === 'CARD_DRAWN'
+    ? { id: game.cardDrawId, card: game.activeCard, player: activePlayer } : undefined;
+  const decisionCard = cardDraw && !cardDraw.player.isAI ? cardDraw : undefined;
+  const finalCard = game.winner ? game.activity.at(-2)?.card : undefined;
   const debtPlayer = game.players.find(p=>p.id===(game.pendingDebt?.debtorId??activePlayer?.id));
   const tradePlayer = game.turnPhase === 'DEBT_RESOLUTION' ? debtPlayer : activePlayer;
   const tradeProposal = useRef('');
@@ -221,7 +225,9 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
   return (
     <main className="monopoly-app">
       <GameplayFeedback activityNotices />
-      <MatchActivityNotices matchId={matchId} events={game.activity} />
+      <MatchActivityNotices matchId={matchId} events={game.activity} draw={cardDraw}
+        paused={!!(decisionCard || game.pendingTrade || game.pendingDebt || game.auction || game.winner ||
+          showSetup || showRules || showTradeModal || showMetaHub || (game.railroadRaid && !activePlayer?.isAI))} />
       <SoloDecisions onOpenTrade={openTrade} tradeOpen={showTradeModal}
         onOpenEvolution={openEvolution} evolutionOpen={evolutionOpen} />
       {/* 3D Scene Layer */}
@@ -615,10 +621,10 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
 
       {/* Active Card Modal (Chance & Community Chest) */}
       <AnimatePresence>
-        {game.activeCard && game.turnPhase === 'CARD_DRAWN' && !activePlayer?.isAI && (
-          <CardReveal key={`${game.gameId}-${game.cardDrawId}`} card={game.activeCard} onResolve={() => {
+        {decisionCard && (
+          <CardReveal key={`${game.gameId}-${decisionCard.id}`} card={decisionCard.card} onResolve={() => {
             const current = useGameStore.getState();
-            if (current.gameId === game.gameId) current.applyActiveCard(game.cardDrawId);
+            if (current.gameId === game.gameId) current.applyActiveCard(decisionCard.id);
           }} />
         )}
       </AnimatePresence>
@@ -632,6 +638,7 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
             <h2 id="solo-winner-title">{game.winner.name === 'You' ? 'You win!' : `${game.winner.name} wins!`}</h2>
             <p>Last player standing</p>
             <p>{game.logs.find(log => log.message.includes(' declared bankruptcy over '))?.message}</p>
+            {finalCard && <p><strong>{finalCard.deck === 'chance' ? 'Chance' : 'Community Chest'} · {finalCard.title}</strong><br />{finalCard.instruction}</p>}
             <ul className="solo-results" aria-label="Final portfolios">
               {[game.winner, ...game.players.filter(player => player.id !== game.winner?.id)].map(player => {
                 const deeds = Object.values(game.properties).filter(property => property.ownerId === player.id).length;

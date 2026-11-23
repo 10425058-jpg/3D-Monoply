@@ -41,6 +41,7 @@ interface ArcadeLanding {
 
 interface SoloCardOutcome {
   card: DeckCard;
+  drawId: number;
   playerId: number;
   spaceId: number;
   transfers: readonly ActivityTransfer[];
@@ -377,7 +378,7 @@ export const useGameStore = create<GameStore>((set, get) => {
   const finishCard = (...details: string[]) => {
     const state = get(), result = state.resolvingCard;
     if (!result) return;
-    const { card, playerId, spaceId, transfers, destinationId } = result;
+    const { card, drawId, playerId, spaceId, transfers, destinationId } = result;
     const player = state.players.find(candidate => candidate.id === playerId)!;
     const deckName = card.deck === 'chance' ? 'Chance' : 'Community Chest';
     const participants = new Map((result.participants ?? []).map(actor => [actor.id, actor]));
@@ -386,7 +387,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     }
     set({ resolvingCard: null, ...activityPatch(state, `${player.name} drew ${deckName} — ${card.title}`, {
       kind: 'card', actorId: playerId, spaceId: destinationId ?? spaceId,
-      card: { id: card.id, deck: card.deck, title: card.title, instruction: card.description },
+      card: { id: card.id, deck: card.deck, title: card.title, instruction: card.description, drawId },
       details: [...(destinationId === undefined ? [] : [`${player.name} moved to ${BOARD_SPACES[destinationId].name}.`]),
         ...(result.notes ?? []), ...details], participants: [...participants.values()], transfers,
       amount: transfers.length === 1 ? transfers[0].amount : undefined,
@@ -497,7 +498,7 @@ export const useGameStore = create<GameStore>((set, get) => {
         };
         return { players, doublesCount: 0, turnPhase: 'END_TURN' };
       });
-      addLog(`${player.name} is sent directly to Jail!`, 'alert', undefined,
+      addLog(`${player.name} went directly to Jail!`, 'alert', undefined,
         { kind: 'jail', actorId: player.id, spaceId: 10 });
       return;
     }
@@ -1401,7 +1402,9 @@ export const useGameStore = create<GameStore>((set, get) => {
 
       const playerIndex = state.currentPlayerIndex;
       const player = state.players[playerIndex];
-      set({ activeCard: null, resolvingCard: { card, playerId: player.id, spaceId: player.position, transfers: [] } });
+      set({ activeCard: null, resolvingCard: {
+        card, drawId: state.cardDrawId, playerId: player.id, spaceId: player.position, transfers: [],
+      } });
 
       const moveBy = (steps: number, rentOverride?: number) => {
         set({ turnPhase: 'MOVING' });

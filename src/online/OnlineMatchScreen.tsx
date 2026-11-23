@@ -25,6 +25,7 @@ export function OnlineMatch({ controller, quality, settings, onLobby }: { contro
   const scenePlayers = useSceneState(s => s.players);
   const sceneProperties = useSceneState(s => s.properties);
   const presentationPhase = useSceneState(s => s.turnPhase);
+  const animatedCardId = useSceneState(s => s.committedEffects?.find(effect => effect.kind === 'card')?.activityId);
   const [confirm, setConfirm] = useState<{ action: ActionName; target?: string } | null>(null);
   const [playersOpen, setPlayersOpen] = useState(() => window.innerWidth > 760);
   useEffect(() => {
@@ -50,7 +51,8 @@ export function OnlineMatch({ controller, quality, settings, onLobby }: { contro
       match.turnPhase === 'LANDED_ACTION' ? 'Choose whether to buy' : 'End your turn' : `${active?.username ?? 'The active player'} is playing`;
   return <main className="city-match"><div className="world-layer"><Scene3D quality={quality} /></div><div className="city-match-vignette" />
     <GameplayFeedback online activityNotices />
-    <MatchActivityNotices events={state.activity} matchId={match.matchId} layout="online" />
+    <MatchActivityNotices events={state.activity} matchId={match.matchId} layout="online"
+      animating={state.animating} animatedCardId={animatedCardId} paused={!!confirm || (terminal && !state.animating)} />
     <header className="city-match-header"><Brand /><div className="city-match-turn"><span className="city-eyebrow">ONLINE · MINI-V1 · TURN {match.turnNumber}</span>
       <strong>{terminal && !state.animating ? 'Match complete' : match.status === 'PAUSED' ? 'Game paused' : `${active?.username ?? 'Player'}’s turn`}</strong>
       <span className="city-game-cue" role="status">{cue}</span></div><span className={`city-connection ${state.connection}`} role="status"><Wifi size={17} />{state.syncing || state.connection !== 'connected' ? state.connection === 'offline' ? 'Offline' : 'Reconnecting…' : 'Connected'}</span><button className="city-icon" onClick={settings} aria-label="Settings"><Settings2 /></button></header>
@@ -81,6 +83,8 @@ export function OnlineMatch({ controller, quality, settings, onLobby }: { contro
     {confirm && <Dialog title={confirm.action === 'forfeit' ? 'Leave this adventure?' : confirm.action === 'abandon' ? 'End the match for everyone?' : 'Remove the absent player?'} onClose={() => setConfirm(null)}><p>{confirm.action === 'forfeit' ? 'You’ll forfeit your cash and properties. The other players can continue.' : confirm.action === 'abandon' ? 'This paused match will end without a winner.' : 'The server will check the player’s disconnect grace period before forfeiting them.'}</p><div className="city-dialog-actions"><button className="city-button outline" onClick={() => setConfirm(null)}>Keep playing</button><button className="city-button purple" onClick={() => { void controller.act(confirm.action, confirm.target ? { targetPlayerId: confirm.target } : {}); setConfirm(null); }}>{labels[confirm.action]}</button></div></Dialog>}
     {terminal && !state.animating && <Dialog title={match.status === 'ABANDONED' ? 'Match abandoned' : 'Final standings'} onClose={onLobby}><div className="city-results"><Trophy size={55} aria-hidden="true" /><h2>{match.status === 'ABANDONED' ? 'This match has ended.' : `${match.players.find(p => p.playerId === match.winnerPlayerId)?.username} wins!`}</h2>
       {match.status === 'FINISHED' && <p>{match.finishReason === 'TURN_LIMIT' ? 'Highest net worth after 80 completed turns' : 'Last player standing'}</p>}
+      {card && match.lastCardResolved?.stateVersion === match.stateVersion &&
+        <p><strong>{card.deck === 'chance' ? 'Chance' : 'Community Chest'} · {card.title}</strong><br />{card.description}</p>}
       {match.standings?.map(row => <div className="city-result-row" key={row.playerId}><strong>{row.rank}. {match.players.find(p => p.playerId === row.playerId)?.username}</strong><span>{cash(row.netWorth)} net · {cash(row.money)} cash · {match.properties.filter(p => p.ownerPlayerId === row.playerId).length} deeds</span></div>)}
       <ActivityLog events={state.activity} matchId={match.matchId} layout="results" />
       <button className="city-button purple" onClick={onLobby}>Back to lobby<ArrowRight size={18} /></button></div></Dialog>}

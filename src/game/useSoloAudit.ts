@@ -17,17 +17,18 @@ export function useSoloAudit(){
       currentPlayerIndex:s.currentPlayerIndex,pendingDebt:s.pendingDebt,pendingTrade:s.pendingTrade,activeCard:s.activeCard,heldJailCards:s.heldJailCards,auction:s.auction,railroadRaid:s.railroadRaid,winner:s.winner,logs:s.logs,
       ruleset:s.ruleset,arcadeLanding:s.arcadeLanding,activity:s.activity};};
     const fixture=(name:string)=>{
-      const names=['opening','rent','building','hotel','jail','go-to-jail','chance','chest','card-chain','debt','bankruptcy','victory','ai','six-players','ownership','debt-trade','birthday-trade','auction-small-bid','utility-unowned','utility-self','utility-opponent',
+      const names=['opening','rent','building','hotel','jail','go-to-jail','chance','ai-chance','chest','card-chain','debt','bankruptcy','victory','ai','six-players','ownership','debt-trade','birthday-trade','auction-small-bid','utility-unowned','utility-self','utility-opponent',
         'arcade-evolution','arcade-activity','arcade-gallery','arcade-gallery-empty','royal-tokens','royal-tokens-property'];
       if(!names.includes(name))throw new Error('Unknown Solo QA fixture');
       const arcade = name.startsWith('arcade-');
       const royal = name.startsWith('royal-tokens');
-      const count = arcade || royal ? 4 : name === 'victory' ? 2 : name === 'six-players' ? 6 : 3;
+      const aiChance = name === 'ai-chance';
+      const count = arcade || royal ? 4 : name === 'victory' || aiChance ? 2 : name === 'six-players' ? 6 : 3;
       const tokenIds = royal ? ['rubber_duck','cat','racecar','top_hat'] as const
         : ['rubber_duck','cat','racecar','yacht','top_hat','scottie_dog'] as const;
       useGameStore.getState().startNewGame(Array.from({length:count},(_, i) => ({
         name: arcade ? ['You', 'Victoria', 'Arthur', 'Elena'][i] : i === 0 ? 'You' : `Rival ${i}`,
-        isAI: (royal || name === 'ai' || name === 'arcade-activity') && i > 0,
+        isAI: (royal || name === 'ai' || name === 'arcade-activity' || aiChance) && i > 0,
         token: tokenIds[i],
         color: ['#f59e0b','#ec4899','#3b82f6','#10b981','#9c74df','#e56d52'][i],
       })), arcade ? 'arcade' : 'classic');
@@ -42,7 +43,7 @@ export function useSoloAudit(){
         players[0]={...players[0],position:10,inJail:true,getOutOfJailCards:1};
         heldJailCards={0:[CHANCE_CARDS.find(c=>c.id==='ch_7')!]};chanceDeck=chanceDeck.filter(c=>c.id!=='ch_7');
       }
-      if(name==='chance'){players[0].position=4;const card=chanceDeck.find(c=>c.id==='ch_6')!;chanceDeck=[card,...chanceDeck.filter(c=>c!==card)];}
+      if(name==='chance'||aiChance){players[aiChance?1:0].position=4;const card=chanceDeck.find(c=>c.id==='ch_6')!;chanceDeck=[card,...chanceDeck.filter(c=>c!==card)];}
       if(name==='chest'){players[0].position=39;const card=chestDeck.find(c=>c.id==='cc_2')!;chestDeck=[card,...chestDeck.filter(c=>c!==card)];}
       if(name==='card-chain'){
         players[0].position=33;const card=chanceDeck.find(c=>c.id==='ch_8')!;chanceDeck=[card,...chanceDeck.filter(c=>c!==card)];
@@ -67,7 +68,15 @@ export function useSoloAudit(){
         const chest = chestDeck.find(card => card.id === 'cc_2')!;
         chestDeck = [chest, ...chestDeck.filter(card => card !== chest)];
       }
-      useGameStore.setState({players,properties,selectedSpaceId,gameSpeed:2,chanceDeck,chestDeck,heldJailCards});
+      useGameStore.setState({players,properties,selectedSpaceId,gameSpeed:2,chanceDeck,chestDeck,heldJailCards,
+        ...(aiChance && {currentPlayerIndex:1})});
+      if(aiChance){
+        const original = Math.random, rolls = [.03, .20];
+        try {
+          Math.random = () => rolls.shift() ?? original();
+          useGameStore.getState().rollDice();
+        } finally { Math.random = original; }
+      }
       if(name==='debt-trade')useGameStore.setState({turnPhase:'DEBT_RESOLUTION',pendingDebt:{amount:270,creditorId:1,reason:'Rent'}});
       if(name==='birthday-trade'){
         useGameStore.setState({turnPhase:'CARD_DRAWN',activeCard:COMMUNITY_CHEST_CARDS.find(card=>card.id==='cc_9')!,doublesCount:1});

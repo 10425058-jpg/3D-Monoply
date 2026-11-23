@@ -128,11 +128,21 @@ async function focusReady(page) {
     document.querySelector('.city-match-header .city-connection')?.textContent === 'Connected', { timeout });
 }
 
-async function cardNotice(page) {
-  await page.waitForFunction(() => {
-    const notice = document.querySelector('[data-activity-notice="card"]');
+async function cardNotice(page, deck) {
+  await page.bringToFront();
+  const selector = `.match-notice--center[data-activity-notice="card"][data-deck="${deck}"]`;
+  await page.waitForFunction(selector => {
+    const notice = document.querySelector(selector);
     return notice && Number(getComputedStyle(notice).opacity) > 0.95;
-  }, { timeout });
+  }, { timeout }, selector);
+  const notice = await page.$eval(selector, element => {
+    const box = element.getBoundingClientRect();
+    return { text: element.textContent, centered: Math.abs(box.x + box.width / 2 - innerWidth / 2) < 4 &&
+      Math.abs(box.y + box.height / 2 - innerHeight / 2) < 4, resolvesCard: !!element.querySelector('.modal-primary') };
+  });
+  assert.equal(notice.centered, true);
+  assert.equal(notice.resolvesCard, false);
+  return notice.text;
 }
 
 try {
@@ -162,8 +172,9 @@ try {
   await openMatch(pages[1], two.matchId);
   await focusReady(pages[0]);
   await fixture(two.matchId, null, [1, 2]);
-  await cardNotice(pages[0]);
+  const hostChance = await cardNotice(pages[0], 'chance');
   await shot(pages[0], 'chance-live');
+  assert.equal(await cardNotice(pages[1], 'chance'), hostChance);
   const compareRows = async (playerPages, kind, text) => {
     const rows = [];
     for (const page of playerPages) {
@@ -196,8 +207,9 @@ try {
   for (const page of pages) await openMatch(page, four.matchId);
   await focusReady(pages[0]);
   await fixture(four.matchId, null, [1, 2]);
-  await cardNotice(pages[0]);
+  const hostChest = await cardNotice(pages[0], 'chest');
   await shot(pages[0], 'community-chest-live');
+  for (const page of pages.slice(1)) assert.equal(await cardNotice(page, 'chest'), hostChest);
   const chest = await compareRows(pages, 'card', 'drew Community Chest');
   assert.match(chest, /It Is Your Birthday/);
   assert.equal((chest.match(/−\$10/g) ?? []).length, 3);

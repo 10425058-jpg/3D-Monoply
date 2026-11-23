@@ -3,7 +3,7 @@ import type { DeckCard, Player } from '../types/game';
 import { committedLedger } from './committedLedger';
 import type { ActionReceipt, EventPayloads, Match } from './types';
 
-export type CommittedEvent = ActionReceipt['events'][number];
+export type CommittedEvent = ActionReceipt['events'][number] & { eventId?: string };
 type CardInfo = Pick<DeckCard, 'title' | 'description' | 'steps'>;
 export interface PresentationLabels {
   spaceName: (id: number) => string;
@@ -29,7 +29,8 @@ export function committedMove(before: Match, match: Match, events: readonly Comm
         (payload.effects[0] as { type?: string } | undefined)?.type;
       redirect = { playerId: payload.playerId, steps: effect === 'move_relative' ? card?.steps : undefined };
       if (effect === 'move_relative' && redirect.steps === undefined) return { rolls, beats: [] };
-      if (card) beats.push({ card: { kind: 'card', label: card.title, detail: card.description } });
+      if (card) beats.push({ card: { kind: 'card', label: card.title, detail: card.description,
+        ...(event.eventId && { activityId: event.eventId }) } });
     }
     if (event.type !== 'game:player_moved') continue;
     const { playerId, fromPosition, toPosition, passedGo } = event.payload as EventPayloads['game:player_moved'];

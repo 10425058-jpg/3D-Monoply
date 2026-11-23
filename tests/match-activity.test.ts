@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { activityNoticePriority, appendMatchActivity, matchesActivityFilter, MATCH_ACTIVITY_LIMIT, type MatchActivityEvent } from '../src/game/matchActivity';
+import { activityNoticePriority, appendMatchActivity, isCenterActivityNotice, matchesActivityFilter, MATCH_ACTIVITY_LIMIT, type MatchActivityEvent } from '../src/game/matchActivity';
 
 const actor = { id: 'victoria', name: 'Victoria', color: '#ec4899' };
 const recipient = { id: 'arthur', name: 'Arthur', color: '#3b82f6' };
@@ -32,4 +32,15 @@ test('quiet mode retains critical notices and restored entries never produce one
   assert.equal(activityNoticePriority(event(3, { kind: 'rent' }), 'important'), 2);
   assert.equal(activityNoticePriority(event(4, { kind: 'card', silent: true }), 'standard'), 0);
   assert.equal(activityNoticePriority(event(5, { kind: 'upgrade', emphasis: 'milestone' }), 'important'), 3);
+});
+
+test('card instructions, Jail and milestones get a centered window while routine receipts stay compact', () => {
+  const chance = event(1, { kind: 'card',
+    card: { id: 'dividend', deck: 'chance', title: 'Dividend', instruction: 'Collect $50.' } });
+  assert.equal(isCenterActivityNotice(chance), true);
+  assert.equal(isCenterActivityNotice(event(2, { kind: 'jail' })), true);
+  assert.equal(isCenterActivityNotice(event(3, { kind: 'bankruptcy' })), true);
+  assert.equal(isCenterActivityNotice(event(4, { kind: 'upgrade', emphasis: 'milestone' })), true);
+  assert.equal(isCenterActivityNotice(event(5, { kind: 'rent' })), false);
+  assert.equal(activityNoticePriority(event(6, { kind: 'railroad' }), 'important'), 2);
 });

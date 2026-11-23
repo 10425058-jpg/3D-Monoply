@@ -7,6 +7,7 @@ export type EffectKind = 'roll' | 'dice-land' | 'move' | 'money' | 'ownership' |
 export type CashReceipt = CashTransfer & { fromBalance?: number; toBalance?: number; fromName: string; toName: string };
 export interface EffectChange {
   kind: EffectKind;
+  activityId?: string;
   playerId?: number;
   spaceId?: number;
   amount?: number;

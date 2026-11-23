@@ -255,10 +255,12 @@ test('four-player activity records AI and human committed card effects and exact
     ['Victoria', 'You', 10], ['Arthur', 'You', 10], ['Elena', 'You', 10],
   ]);
   roll(t, 1, 4, 1, 2);
+  const drawId = store.getState().cardDrawId;
   runSoloAiStep(store.getState().gameId, 1, 'CARD_DRAWN');
   const aiCard = events('card')[1];
   assert.equal(aiCard.actor?.name, 'Victoria');
   assert.equal(aiCard.card?.id, dividend.id);
+  assert.equal(aiCard.card?.drawId, drawId);
   assert.equal(aiCard.transfers?.[0].amount, 50);
   own(6, 1, 2);
   roll(t, 0, 3, 1, 2);

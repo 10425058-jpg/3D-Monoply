@@ -30,7 +30,7 @@ export interface MatchActivityEvent {
   counterparty?: ActivityActor;
   participants?: readonly ActivityActor[];
   spaceId?: number;
-  card?: { id: string; deck: 'chance' | 'chest'; title: string; instruction: string };
+  card?: { id: string; deck: 'chance' | 'chest'; title: string; instruction: string; drawId?: number };
   amount?: number;
   previousLevel?: number;
   level?: number;
@@ -74,10 +74,15 @@ export function matchesActivityFilter(event: MatchActivityEvent, filter: Activit
   }
 }
 
+export function isCenterActivityNotice(event: Pick<MatchActivityEvent, 'card' | 'kind' | 'emphasis'>): boolean {
+  return !!event.card || event.emphasis === 'milestone' ||
+    event.kind === 'jail' || event.kind === 'bankruptcy' || event.kind === 'victory' || event.kind === 'railroad';
+}
+
 export function activityNoticePriority(event: MatchActivityEvent, frequency: NoticeFrequency): number {
   if (event.silent) return 0;
   if (event.emphasis === 'milestone' || event.kind === 'victory' || event.kind === 'bankruptcy') return 3;
-  if (majorKinds.has(event.kind)) return 2;
+  if (majorKinds.has(event.kind) || isCenterActivityNotice(event)) return 2;
   if (frequency === 'important') return 0;
   return event.emphasis || standardKinds.has(event.kind) || (event.kind === 'auction' && !!event.transfers?.length) ? 1 : 0;
 }

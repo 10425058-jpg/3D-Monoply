@@ -77,7 +77,11 @@ export class OnlineController {
   }
   private offline = () => this.setConnection('offline');
   private focus = () => {
-    if (document.hidden) { this.beginRestore(); return; }
+    if (document.hidden) {
+      this.matchPresenter?.reconcile();
+      if (this.target.matchId) this.state.setState({ syncing: true });
+      return;
+    }
     void this.session.ensureFresh().then(() => this.reconcile()).catch(() => {});
   };
   private commit(version: number) {
@@ -117,7 +121,8 @@ export class OnlineController {
             }
             const previous = this.state.getState().match;
             if (!previous || match.stateVersion >= previous.stateVersion) {
-              const ready = this.state.getState().connection === 'connected' && (typeof document === 'undefined' || !document.hidden);
+              const connected = this.state.getState().connection === 'connected';
+              const ready = connected && (typeof document === 'undefined' || !document.hidden);
               if (!previous || match.stateVersion > previous.stateVersion) {
                 const commit = this.commits.get(match.stateVersion);
                 const stored = activityEvents?.filter(event => event.stateVersion === match.stateVersion && event.type.startsWith('game:'));
@@ -125,9 +130,9 @@ export class OnlineController {
                 this.presenter.apply(match, ready && !this.restoring, effects);
                 for (const version of this.commits.keys()) if (version <= match.stateVersion) this.commits.delete(version);
               }
-              const activity = this.acceptActivity(match, activityEvents, !ready || this.restoring || !previous);
+              const activity = this.acceptActivity(match, activityEvents, !connected || this.restoring || !previous);
               this.state.setState({ match, syncing: !ready, ...(activity && { activity }) });
-              if (ready) this.restoring = false;
+              if (connected) this.restoring = false;
             }
             const room = await this.session.api.request<Room>(`/rooms/${match.roomId}`);
             if (!this.disposed) this.acceptRoom(room);
@@ -158,7 +163,7 @@ export class OnlineController {
       const current = this.state.getState().match?.stateVersion ?? -1;
       if (event.stateVersion <= current) return;
       const commit = this.commit(event.stateVersion);
-      commit.events.push({ type: name, payload: event.payload as Record<string, unknown> });
+      commit.events.push({ type: name, payload: event.payload as Record<string, unknown>, eventId: event.eventId });
       commit.gap ||= decision.gap;
     }
     // Snapshots are always fetched for this viewer. Events never mutate money or allowedActions.
