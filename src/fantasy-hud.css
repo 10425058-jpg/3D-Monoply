@@ -150,6 +150,13 @@
 /* Keep the existing sky continuous; panels overlay the existing full-screen scene. */
 .monopoly-app .world-layer { inset: 0; }
 .monopoly-app .camera-toolbar { top: 96px; white-space: nowrap; }
+/* On desktop, use the clear sky between the left HUD and the castle spire. */
+@media (min-width: 1151px) {
+  .monopoly-app .camera-toolbar {
+    top: 46px;
+    left: clamp(410px, 33%, 640px);
+  }
+}
 @keyframes royal-value { from { opacity: .65; } to { opacity: 1; } }
 @keyframes royal-dice { to { transform: rotate(8deg) translateY(-2px); } }
 @media (min-width: 1600px) {
