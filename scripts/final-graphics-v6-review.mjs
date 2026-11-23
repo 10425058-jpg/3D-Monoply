@@ -61,7 +61,6 @@ try{
       for(const [name,pose,target] of [['board-detail',[0,25,24],[0,.5,9.55]],['west-labels',[-25,25,0],[-9.55,.5,0]],['north-labels',[0,25,-24],[0,.5,-9.55]],['east-labels',[25,25,0],[9.55,.5,0]],['castle',[15,18,19],[0,2,0]]]){
         await page.evaluate((p,t)=>window.__graphicsAudit.camera(p,t),pose,target);await pause(500);await page.screenshot({path:`${out}/${name}.png`});
       }
-      await page.click('.camera-toolbar button');await pause(350);
       await page.click('button[title="Switch to Top-Down View"]');await pause(350);await page.screenshot({path:`${out}/board-overview.png`});
     }
     await page.close();
