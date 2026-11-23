@@ -577,7 +577,7 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
                   <span><strong>Classic</strong>Own a full color group and build houses evenly.</span></label>
               </div>
             </fieldset>
-            <button className="modal-primary" onClick={handleStart}>Enter the city <ArrowRight size={17} /></button>
+            <button className="modal-primary" onClick={handleStart}>Restart The Game <ArrowRight size={17} /></button>
             <span className="modal-caption">The board is set. Fortune favors the bold.</span>
           </div>
         </div>
