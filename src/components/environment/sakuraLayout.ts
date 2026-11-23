@@ -5,22 +5,22 @@ import type { SakuraPlacement } from './SakuraTree3D';
 import { ARCHIPELAGO } from './archipelagoLayout';
 import { FAR_LEFT, FAR_RIGHT, LEFT_ISLAND, LOW_FAR_LEFT, RIGHT_ISLAND, SUNSET_KINGDOM } from './sunsetKingdomLayout';
 
-// Y values are the lawn elevations measured at the original trunk positions.
+// Taller specimens sit on the open lawn. The two plaza-side trees leave
+// room for the fountain, benches and footpaths.
 const BOARD_SITES = [
-  [6, .28, -2.3, .52], [6, .28, 2.8, .52], [6, .28, 6.15, .43], [3.05, .28, 5.1, .45],
+  [-6.02, .28, -2.58, .56], [-6.03, .28, 2.77, .52], [-6.03, .28, 6.25, .445], [-3.08, .28, 5.20, .405],
+  [5.97, .28, -2.50, .51], [6.03, .28, 2.86, .56], [5.99, .28, 6.29, .47], [3.03, .28, 5.05, .435],
 ] as const;
 const FALLBACK_SITES = [
   [4.8, .46, -2.6, .58], [2.8, .46, -1.8, .47], [3.2, .37, 2, .49], [5.4, .34, 5.8, .53],
 ] as const;
 
-function boardSites(sites: typeof BOARD_SITES | typeof FALLBACK_SITES, name: string): SakuraPlacement[] {
-  return [-1, 1].flatMap(side => sites.map(([x, y, z, scale], index) => ({
-    id: `${name}-${side}-${index}`, position: [side * x, y, z], scale,
-  })));
-}
-
-export const BOARD_SAKURA = boardSites(BOARD_SITES, 'board');
-export const FALLBACK_SAKURA = boardSites(FALLBACK_SITES, 'fallback');
+export const BOARD_SAKURA: SakuraPlacement[] = BOARD_SITES.map(([x, y, z, scale], index) => ({
+  id: `board-${Math.sign(x)}-${index % 4}`, position: [x, y, z], scale,
+}));
+export const FALLBACK_SAKURA: SakuraPlacement[] = [-1, 1].flatMap(side => FALLBACK_SITES.map(([x, y, z, scale], index) => ({
+  id: `fallback-${side}-${index}`, position: [side * x, y, z], scale,
+})));
 
 type LocalSite = readonly [x: number, y: number, z: number, scale: number];
 const LEFT: readonly LocalSite[] = [
