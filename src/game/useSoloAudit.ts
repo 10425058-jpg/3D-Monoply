@@ -103,7 +103,9 @@ export function useSoloAudit(){
           { ...player, position: (spaceId + 37) % 40 } : player),
       });
     };
-    const api={fixture,state,observeTurn,prepareArcadeVisit};(window as any).__soloTest=api;
+    // Loopback-only test API replaces the removed 1x/2x UI controls.
+    const setSpeed = (speed: 1 | 2) => useGameStore.getState().setGameSpeed(speed);
+    const api={fixture,state,observeTurn,prepareArcadeVisit,setSpeed};(window as any).__soloTest=api;
     return()=>{if((window as any).__soloTest===api)delete (window as any).__soloTest;};
   },[]);
 }

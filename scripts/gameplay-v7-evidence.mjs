@@ -42,7 +42,7 @@ async function twoFrames() {
 async function fixture(name, speed = 1) {
   await page.evaluate(({ name, speed }) => {
     window.__soloTest.fixture(name);
-    document.querySelectorAll('.speed-options button')[speed - 1].click();
+    window.__soloTest.setSpeed(speed);
   }, { name, speed });
   await twoFrames();
 }

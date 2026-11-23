@@ -41,7 +41,6 @@ import { CardReveal } from './components/ui/CardReveal';
 import { AudioControls } from './components/ui/AudioControls';
 import {SoloDecisions} from './components/ui/SoloDecisions';
 import {aiDecisionDelay, runSoloAiAuction, runSoloAiRaid, runSoloAiStep} from './game/soloAi';
-import {useMotionPreferences} from './presentation/useMotionPreferences';
 import {useSoloAudit} from './game/useSoloAudit';
 import {groupHasBuildings} from './game/soloRules';
 import {TradeTerms} from './components/ui/TradeTerms';
@@ -94,7 +93,6 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
   const [tradeOfferCash, setTradeOfferCash] = useState<string>('0');
   const [tradeRequestCash, setTradeRequestCash] = useState<string>('150');
   const [tradeFeedback, setTradeFeedback] = useState<string>('');
-  const [autoRoll, setAutoRoll] = useState(false);
   const [graphicsQuality, setGraphicsQuality] = useState<GraphicsQuality>(getInitialGraphicsQuality);
   const [isWheelSpinning, setIsWheelSpinning] = useState(false);
   const [lastPackReveal, setLastPackReveal] = useState<{ stickers: string[]; duplicateCount: number } | null>(null);
@@ -103,7 +101,6 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
   const debtPlayer = game.players.find(p=>p.id===(game.pendingDebt?.debtorId??activePlayer?.id));
   const tradePlayer = game.turnPhase === 'DEBT_RESOLUTION' ? debtPlayer : activePlayer;
   const tradeProposal = useRef('');
-  const {visible}=useMotionPreferences();
   useEffect(()=>{
     setShowTradeModal(false);setTradeFeedback('');setShowStats(false);setShowRules(false);setShowMetaHub(false);setLastPackReveal(null);setIsWheelSpinning(false);
     setEvolutionSpaceId(null);
@@ -175,14 +172,6 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
 
     return () => window.clearTimeout(timer);
   }, [game.gameId, game.railroadRaid, game.players, game.gameSpeed]);
-
-  // Auto-roll handler
-  useEffect(() => {
-    if (!autoRoll || !visible || !activePlayer || activePlayer.isAI || activePlayer.isBankrupt || game.winner) return;
-    if (game.turnPhase !== 'PRE_ROLL' || game.railroadRaid || game.pendingTrade || showTradeModal || showMetaHub || showRules || showSetup) return;
-    const timer = window.setTimeout(() => {if(useGameStore.getState().gameId===game.gameId)game.rollDice();}, 260 / game.gameSpeed);
-    return () => window.clearTimeout(timer);
-  }, [game.gameId, autoRoll, visible, activePlayer?.id, activePlayer?.isAI, game.turnPhase, game.railroadRaid, game.pendingTrade, game.gameSpeed, game.winner, showTradeModal, showMetaHub, showRules, showSetup]);
 
   const openTrade = () => {
     if (!tradePlayer || tradePlayer.isAI || tradePlayer.isBankrupt || game.winner || game.pendingTrade || game.railroadRaid || !['PRE_ROLL','LANDED_ACTION','END_TURN','DEBT_RESOLUTION'].includes(game.turnPhase)) return;
@@ -263,8 +252,6 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
         onOpenTrade={openTrade}
         onOpenAuction={game.auctionCurrentProperty}
         onOpenEvolution={openEvolution}
-        autoRoll={autoRoll}
-        onToggleAutoRoll={() => setAutoRoll((v) => !v)}
       />
 
       {/* 5. PROPERTY DEED INSPECTOR CARD */}

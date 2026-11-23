@@ -23,7 +23,7 @@ async function motionChecks(){
     const name=`${quality}-${motion}-${speed}x`;
     try{
       await page.evaluate(()=>window.__soloTest.fixture('opening'));
-      await page.click(`.speed-options button:nth-child(${speed})`);
+      await page.evaluate(value => window.__soloTest.setSpeed(value), speed);
       const result=await checkBoardMotion(page,{out,name,speed,motion});
       cases.push({...profile,renderer:await page.evaluate(()=>window.__graphicsAudit.metadata().renderer),...result});
       if(!matrix)await page.screenshot({path:`${out}/normal-motion-dice.png`});

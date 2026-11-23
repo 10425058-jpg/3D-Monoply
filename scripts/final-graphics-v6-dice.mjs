@@ -23,7 +23,7 @@ async function fixture(name = 'opening', speed = 1) {
   await page.evaluate(({name, speed}) => {
     window.__v6DiceStop?.();
     window.__soloTest.fixture(name);
-    document.querySelectorAll('.speed-options button')[speed - 1].click();
+    window.__soloTest.setSpeed(speed);
     const audit = window.__graphicsAudit, originalFrame = audit.frame;
     window.__v6ResetFrames = 0;
     audit.frame = () => {originalFrame(); queueMicrotask(() => {

@@ -7,14 +7,11 @@ import { BOARD_SPACES } from '../../data/boardData';
 export const BottomActionDock: React.FC<{
   onOpenStats: () => void; onOpenRules: () => void; onOpenTrade: () => void; onOpenAuction: () => void;
   onOpenEvolution: (spaceId: number) => void;
-  autoRoll: boolean; onToggleAutoRoll: () => void;
-}> = ({ onOpenStats, onOpenRules, onOpenTrade, onOpenAuction, onOpenEvolution, autoRoll, onToggleAutoRoll }) => {
+}> = ({ onOpenStats, onOpenRules, onOpenTrade, onOpenAuction, onOpenEvolution }) => {
   const phase = useGameStore(s => s.turnPhase);
   const players = useGameStore(s => s.players);
   const currentIndex = useGameStore(s => s.currentPlayerIndex);
   const properties = useGameStore(s => s.properties);
-  const speed = useGameStore(s => s.gameSpeed);
-  const setGameSpeed = useGameStore(s => s.setGameSpeed);
   const selectedId = useGameStore(s => s.selectedSpaceId);
   const rollDice = useGameStore(s => s.rollDice);
   const buyCurrentProperty = useGameStore(s => s.buyCurrentProperty);
@@ -93,12 +90,6 @@ export const BottomActionDock: React.FC<{
         </button>)}
     </nav>
     <div className="dice-controls">
-      <div className="roll-options royal-panel">
-        <label className="auto-roll-label"><span>Auto-roll</span><button type="button" role="switch" aria-checked={autoRoll} aria-label="Auto-roll" onClick={onToggleAutoRoll}><i aria-hidden="true" /></button></label>
-        <div className="speed-options" role="group" aria-label="Roll speed">
-          {([1, 2] as const).map(value => <button key={value} aria-pressed={speed === value} onClick={() => { sounds.playClick(); setGameSpeed(value); }}>{value}x</button>)}
-        </div>
-      </div>
       <button className={`fantasy-roll ${rolling ? 'is-rolling' : ''}`} disabled={!canRoll} aria-busy={rolling}
         onClick={() => { if (canRoll) { rollDice(); } }}
         aria-label={rolling ? nextAction : 'Roll dice'} title={canRoll ? 'Roll dice' : nextAction}>
