@@ -1,5 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import * as THREE from 'three';
 import {tileOutline,ownerEdgeLayout} from '../src/components/3d/boardVisualState';
 import {tileAtlasRect,badgeAtlasRect} from '../src/components/3d/boardTileAtlas';
 import {BOARD_SPACES,getSpaceTransform} from '../src/data/boardData';
@@ -27,4 +29,22 @@ test('selected, hovered, auction, purchasable and occupied states have distinct 
   const colors=[tileOutline({...base,selected:true}),tileOutline({...base,hovered:true}),tileOutline({...base,auction:true}),tileOutline({...base,landed:true,purchasable:true}),tileOutline({...base,landed:true})];
   assert.equal(new Set(colors).size,5);
   assert.equal(tileOutline({...base,selected:true,hovered:true,landed:true}),colors[0]);
+});
+
+test('all board labels use only the tile world rotation; the atlas must not counter-rotate north/east text',()=>{
+  const source=readFileSync(new URL('../src/components/3d/boardTileAtlas.ts',import.meta.url),'utf8');
+  const detailSource=readFileSync(new URL('../src/components/3d/BoardTileDetails.tsx',import.meta.url),'utf8');
+  assert.doesNotMatch(source,/rotate\(Math\.PI\)/,'tile artwork must not be turned 180 degrees in the canvas atlas');
+  assert.doesNotMatch(source,/s\.id\s*>=\s*20/,'north/east tiles must not be flipped by ID');
+  assert.doesNotMatch(detailSource,/flip\s*\?\s*Math\.PI/,'instanced labels must not get a second 180-degree turn');
+  assert.doesNotMatch(detailSource,/id\s*>=\s*20/,'owner and mortgage badges must follow the same tile rotation');
+  // Text is painted upright with the canvas top pointing along local -Z.
+  // Each edge has exactly one quarter-turn to face the board's interior.
+  const localTop=new THREE.Vector3(0,0,-1),up=new THREE.Vector3(0,1,0);
+  for(const s of BOARD_SPACES.filter(s=>s.id%10!==0)){
+    const tf=getSpaceTransform(s.id);
+    const top=localTop.clone().applyAxisAngle(up,tf.rotationY);
+    const inside=new THREE.Vector3(...tf.innerStripDirection);
+    assert.ok(top.distanceTo(inside)<1e-9,`space ${s.id} should read toward the center`);
+  }
 });
