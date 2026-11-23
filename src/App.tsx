@@ -111,9 +111,9 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
   },[game.gameId]);
   const arcade = game.ruleset === 'arcade';
   const matchId = `solo-${game.gameId}`;
-  const inspectorSpaceId = game.selectedSpaceId ?? game.hoveredSpaceId;
-  const evolutionOpen = arcade && evolutionSpaceId !== null && evolutionSpaceId === game.selectedSpaceId;
-  const selectedSpace = inspectorSpaceId === null ? null : BOARD_SPACES[inspectorSpaceId];
+  const { selectedSpaceId } = game;
+  const evolutionOpen = arcade && evolutionSpaceId !== null && evolutionSpaceId === selectedSpaceId;
+  const selectedSpace = selectedSpaceId === null ? null : BOARD_SPACES[selectedSpaceId];
   const selectedState = selectedSpace ? game.properties[selectedSpace.id] : undefined;
   const selectedOwner = selectedState?.ownerId === null || selectedState?.ownerId === undefined
     ? undefined
@@ -125,7 +125,6 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
   const closeProperty = () => {
     setEvolutionSpaceId(null);
     game.selectSpace(null);
-    game.setHoveredSpace(null);
   };
 
   const rivalPlayers = useMemo(

@@ -93,6 +93,23 @@ try {
   await wait(() => window.__soloTest && window.__graphicsAudit?.arcade && window.__centralCityAudit?.ready && window.__phase2Environment?.ready);
   assert.equal((await state()).ruleset, 'arcade');
   await fixture('arcade-evolution');
+  const tiles = await page.evaluate(() => window.__graphicsAudit.tiles());
+  const chance = tiles.find(tile => tile.id === 7);
+  const baltic = tiles.find(tile => tile.id === 3);
+  await page.mouse.move(chance.x, chance.y);
+  await wait(() => window.__graphicsAudit.game().hoveredSpaceId === 7);
+  assert.equal(await page.$('.fantasy-deed'), null, 'Hovering a tile leaves the details closed');
+  await page.mouse.click(chance.x, chance.y);
+  await page.waitForSelector('.fantasy-deed[aria-label="Chance title deed"]', { visible: true });
+  await page.mouse.move(baltic.x, baltic.y);
+  await wait(() => window.__graphicsAudit.game().hoveredSpaceId === 3);
+  assert.equal(await page.$eval('.fantasy-deed h2', heading => heading.textContent), 'Chance');
+  await page.mouse.click(baltic.x, baltic.y);
+  await page.waitForSelector('.fantasy-deed[aria-label="Baltic Avenue title deed"]', { visible: true });
+  await page.click('[aria-label="Close property card"]');
+  await page.waitForSelector('.fantasy-deed', { hidden: true });
+  await moveMouseOffBoard();
+
   await roll(3, 3, 'LANDED_ACTION');
   assert.equal((await state()).players[0].position, 6);
   assert.equal((await state()).properties[6].ownerId, null);
