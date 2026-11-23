@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Sparkles } from '@react-three/drei';
 import * as THREE from 'three';
@@ -8,17 +8,16 @@ import { TokensAndBuildings } from './TokensAndBuildings';
 import { Dice3D } from './Dice3D';
 import { GameplayEffects } from './GameplayEffects';
 import { FantasySkyBackground } from './FantasySkyBackground';
-import { CAMERA_PRESETS, CameraPreset, CinematicCamera, useReducedMotion } from './CinematicCamera';
+import { CinematicCamera, useReducedMotion } from './CinematicCamera';
 import { GraphicsAudit, graphicsAuditEnabled } from './GraphicsAudit';
-import { useSceneState as useGameStore } from '../../presentation/SceneStore';
 
 type GraphicsQuality = 'low' | 'balanced' | 'high';
 
+// The opening camera settles once; players control rotation and zoom directly.
+const INITIAL_CAMERA_REQUEST = { preset: 'overview' as const, sequence: 0 };
+
 export const Scene3D = React.memo<{ quality?: GraphicsQuality; propertyPanel?: boolean }>(({ quality = 'balanced', propertyPanel = false }) => {
   const reducedMotion = useReducedMotion();
-  const selected = useGameStore(s => s.selectedSpaceId);
-  const [request, setRequest] = useState<{ preset: CameraPreset; sequence: number }>({ preset: 'overview', sequence: 0 });
-  const focus = (preset: CameraPreset) => setRequest(previous => ({ preset, sequence: previous.sequence + 1 }));
   return <div className="relative h-full w-full">
     <Canvas camera={{ position: [0, 29, 27], fov: 40, near: 0.5, far: 400 }}
       shadows={quality === 'low' ? false : 'soft'}
@@ -45,7 +44,7 @@ export const Scene3D = React.memo<{ quality?: GraphicsQuality; propertyPanel?: b
       {!reducedMotion && quality !== 'low' && <Sparkles count={quality === 'high' ? 48 : 24}
         position={[0, 2.4, -0.5]} scale={[13, 4, 12]} size={2.2} speed={0.16}
         opacity={0.45} color="#ffe0a1" raycast={() => {}} />}
-      <CinematicCamera request={request} reducedMotion={reducedMotion} propertyPanel={propertyPanel} />
+      <CinematicCamera request={INITIAL_CAMERA_REQUEST} reducedMotion={reducedMotion} propertyPanel={propertyPanel} />
       <Board3D />
       <CenterCity3D quality={quality} />
       <TokensAndBuildings quality={quality} />
@@ -53,14 +52,6 @@ export const Scene3D = React.memo<{ quality?: GraphicsQuality; propertyPanel?: b
       <GameplayEffects quality={quality} />
       {graphicsAuditEnabled() && <GraphicsAudit quality={quality} />}
     </Canvas>
-    <nav className="camera-toolbar" aria-label="Board camera">
-      <label><span className="sr-only">Camera view</span><select aria-label="Camera view"
-        value={request.preset} onChange={event => focus(event.target.value as CameraPreset)}>
-        {Object.entries(CAMERA_PRESETS).map(([value, label]) => <option key={value} value={value}
-          disabled={value === 'property' && selected === null}>{label}</option>)}
-      </select></label>
-      <button type="button" onClick={() => focus('overview')}>Reset view</button>
-    </nav>
   </div>;
 });
 
