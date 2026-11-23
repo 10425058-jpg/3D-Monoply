@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
+// Run the targeted café-roof material regression in existing graphics CI.
+import './blue-cafe-roof.test';
 import { finishCastleMaterial } from '../src/components/3d/castle/finishCastleMaterial';
 
 test('city finishing preserves the cached GLTF material, shared atlas and authored stone color', () => {

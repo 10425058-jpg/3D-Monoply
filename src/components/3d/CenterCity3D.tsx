@@ -6,38 +6,13 @@ import {useMotionPreferences} from '../../presentation/useMotionPreferences';
 import {CenterCity3D as ExistingCity} from './CenterCityLegacy';
 import {RoyalCityEffects} from './castle/RoyalCityEffects';
 import {finishCastleMaterial} from './castle/finishCastleMaterial';
+import {blueCafeMansard} from './castle/blueCafeMansard';
 import {SakuraTree3D, sakuraModelUrl} from '../environment/SakuraTree3D';
 import {BOARD_SAKURA} from '../environment/sakuraLayout';
 import {ContactOcclusion} from './ContactOcclusion';
 
 type Quality='low'|'balanced'|'high';
 
-/** The baked city GLBs share one red atlas swatch between the café mansard
- * and unrelated red accents. Remap only the café roof's UVs to the existing
- * royal-blue swatch; leave shared GLTF geometry and other accents untouched. */
-function blueCafeMansard(object:THREE.Mesh):THREE.BufferGeometry|null{
-  if(Array.isArray(object.material)||!/^Royal district red(?:\.\d{3})?$/.test(object.material.name))return null;
-  const positions=object.geometry.getAttribute('position'),uv=object.geometry.getAttribute('uv');
-  if(!positions||!uv)return null;
-  const point=new THREE.Vector3();
-  let recolored:THREE.BufferGeometry|null=null;
-  for(let i=0;i<positions.count;i++){
-    point.fromBufferAttribute(positions,i).applyMatrix4(object.matrixWorld);
-    // The left café mansard is at X≈-5.15 and Y≈2.5–3.5.
-    // Exclude the lower shop awning and the central red stair runner.
-    if(point.x< -6.5||point.x> -3.85||point.y<2.45||point.y>3.55)continue;
-    const u=uv.getX(i),v=uv.getY(i);
-    if(u<.5||u>.75)continue;
-    // Atlas indices: red=10 (col 2, row 2), blue=2 (col 2, row 0).
-    // The exporter may invert V relative to Blender's authored UVs.
-    const shift=v>=.25&&v<.5 ? .5 : v>=.5&&v<.75 ? -.5 : null;
-    if(shift===null)continue;
-    if(!recolored)recolored=object.geometry.clone();
-    recolored.getAttribute('uv').setY(i,v+shift);
-  }
-  if(recolored)recolored.getAttribute('uv').needsUpdate=true;
-  return recolored;
-}
 export const centralCityUrl=(quality:Quality)=>new URL(`assets/models/central-city/central-royal-district${quality==='high'?'':`-${quality}`}.glb`,document.baseURI).href;
 
 class CityAssetBoundary extends React.Component<{children:React.ReactNode;fallback:React.ReactNode},{failed:boolean}>{
