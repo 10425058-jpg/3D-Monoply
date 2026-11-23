@@ -28,19 +28,17 @@ export function useReducedMotion() {
 export function CinematicCamera({ request, reducedMotion, propertyPanel }: {
   request: { preset: CameraPreset; sequence: number }; reducedMotion: boolean; propertyPanel: boolean;
 }) {
-  const { size, camera, scene } = useThree();
+  const { size, camera } = useThree();
   const mode = useGameStore(s => s.cameraMode);
   const selected = useGameStore(s => s.selectedSpaceId);
-  const phase = useGameStore(s => s.turnPhase);
   const position = useGameStore(s => s.players[s.currentPlayerIndex]?.position ?? 0);
-  const playerId = useGameStore(s => s.players[s.currentPlayerIndex]?.id ?? null);
   const controls = useRef<OrbitControlsImpl>(null);
   const active = useRef(true);
   const preset = useRef<CameraPreset | 'manual'>('overview');
   const destination = useRef(new THREE.Vector3());
   const target = useRef(new THREE.Vector3());
   const outward = useRef(new THREE.Vector3());
-  // Preserve the player's viewing angle as the token travels around the board.
+  // Preserve the player's viewing angle for user-requested, one-time focus presets.
   const followOffset = useRef(new THREE.Vector3(0, 20, 27));
   const fit = useMemo(() => overviewCamera(size.width, size.height, mode === 'top'), [size.width, size.height, mode]);
   const captureFollowAngle = () => {
@@ -61,33 +59,9 @@ export function CinematicCamera({ request, reducedMotion, propertyPanel }: {
     preset.current = mode === 'follow' ? 'player' : mode === 'city' ? 'event' : 'overview';
     active.current = true;
   }, [mode]);
-  useEffect(() => {
-    if (selected !== null) {
-      preset.current = 'property';
-      active.current = true;
-    } else if (preset.current === 'property') {
-      // Closing a property panel must not send the camera back to the board origin.
-      preset.current = 'manual';
-      active.current = false;
-    }
-  }, [selected]);
-  useEffect(() => {
-    if (propertyPanel && selected !== null) {
-      preset.current = 'property';
-      active.current = true;
-    }
-  }, [propertyPanel, selected]);
-  useEffect(() => {
-    if (phase === 'MOVING' && mode !== 'top' && mode !== 'city' && selected === null) {
-      captureFollowAngle();
-      preset.current = 'movement';
-      active.current = true;
-    } else if (phase !== 'MOVING' && preset.current === 'movement') {
-      // Stay with the landed token instead of returning to overview every turn.
-      preset.current = 'player';
-      active.current = true;
-    }
-  }, [phase, mode]);
+  // Property selection, dice, token movement and turn changes are gameplay events.
+  // They must not override a camera angle chosen by the player. Only explicit
+  // toolbar requests and camera-mode changes can initiate a new camera transition.
   useEffect(() => {
     const perspective = camera as THREE.PerspectiveCamera;
     perspective.fov = fit.fov;
@@ -120,15 +94,7 @@ export function CinematicCamera({ request, reducedMotion, propertyPanel }: {
     } else if (preset.current === 'player' || preset.current === 'movement') {
       const [x, , z] = getSpaceTransform(position).position;
       aim.set(x, 0.6, z);
-      if (preset.current === 'movement' && playerId !== null) {
-        // Use the actual animated token while it hops between tiles, if present.
-        const token = scene.getObjectByName(`token-${playerId}`);
-        if (token) {
-          token.getWorldPosition(aim);
-          aim.y = 0.6;
-        }
-      }
-      // Translate the camera and its look-at point together: no spinning at corners.
+      // A manually selected player preset is a one-time focus, never a tracking mode.
       dest.copy(aim).add(followOffset.current);
     } else if (preset.current === 'dice') {
       aim.set(0, 0.8, 4.2); dest.set(0, 18, 22);
@@ -139,10 +105,13 @@ export function CinematicCamera({ request, reducedMotion, propertyPanel }: {
     camera.position.lerp(dest, blend);
     orbit.target.lerp(aim, blend);
     orbit.update();
-    if (camera.position.distanceToSquared(dest) < 0.0001 && orbit.target.distanceToSquared(aim) < 0.0001
-      && preset.current !== 'movement' && preset.current !== 'player') active.current = false;
+    // Release control once the requested pose settles, including player presets.
+    // Changes in board state cannot start a second camera movement.
+    if (camera.position.distanceToSquared(dest) < 0.0001 &&
+      orbit.target.distanceToSquared(aim) < 0.0001) active.current = false;
   });
 
+  // Orbit around the board only when the player drags/pinches; do not pan away from it.
   return <OrbitControls ref={controls} makeDefault enablePan={false}
     enableDamping={!reducedMotion} dampingFactor={0.09} rotateSpeed={0.55} zoomSpeed={0.7}
     minPolarAngle={0.04} maxPolarAngle={Math.PI / 2.65} minDistance={16} maxDistance={Math.max(85, fit.distance * 1.3)}
