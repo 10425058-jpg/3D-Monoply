@@ -5,6 +5,7 @@
   "seed": 10425058,
   "license": "Original project assets; repository MIT license",
   "units": "metres; glTF Y-up; front +Z",
+  "sourceHashNormalization": "UTF-8 with LF line endings",
   "sourceHashes": {
     "core.py": "491c567688469aabd5722feaba0a3d83c42c26d09f8ed2b4af8e73c7b0d44270",
     "generate_castles.py": "99524bca89ab7c0af56b9d2b55896c10647e2d93f9e22909fec14e27af5b7a23",
@@ -12,19 +13,19 @@
     "generate_vegetation.py": "d1c72e6f9b70b8197d4d2cb63df8d1906bb3d0dbcae9be5db9010c1f855299ef",
     "generate_gardens.py": "ca42f1f98089c5591edc871081d1369b9d06129424e0d67cacbdbc9c319cc477",
     "generate_lanterns.py": "6e020f85ea28e6685af99c7296e23aede30953e9dfeeeb1ec12489049966ac0e",
-    "generate_central_city.py": "82ec6c7f1d3d3a1316eec2c8d65699b322e9d82708e40964a82b8a7705215633"
+    "generate_central_city.py": "1ffdbf17d3d3f78833f5a4bcd222ff11c6bef4976af337769e32265d6a14ae38"
   },
   "assets": [
     {
       "id": "central-royal-district",
       "file": "central-royal-district.glb",
       "tier": "high",
-      "triangles": 94194,
+      "triangles": 68138,
       "triangleBudget": 100000,
-      "bytes": 6864236,
-      "sha256": "35c637685c91135f67efaa5ed0d79b4f89ef6a5fff27ce8b87a2434fccea058e",
+      "bytes": 4778180,
+      "sha256": "fec62d7e4b0f33711ba7a844a4a41984b9981687662c0f6d7d51d084b5825725",
       "levelTriangles": {
-        "1": 82766,
+        "1": 56710,
         "2": 5512,
         "3": 5512,
         "4": 232,
@@ -159,12 +160,12 @@
       "id": "central-royal-district",
       "file": "central-royal-district-balanced.glb",
       "tier": "balanced",
-      "triangles": 67170,
+      "triangles": 49694,
       "triangleBudget": 68000,
-      "bytes": 4809904,
-      "sha256": "04666f7a4c3352e5ef0d31058e5f33f21f138afbbdcd8df28df19a5bbf7e1dd9",
+      "bytes": 3524608,
+      "sha256": "bc2cab1ba7ad8d95bdadd09f07432deb251fa93fc44b53769386f9751e0259d4",
       "levelTriangles": {
-        "1": 61214,
+        "1": 43738,
         "2": 2776,
         "3": 2776,
         "4": 232,
@@ -299,12 +300,12 @@
       "id": "central-royal-district",
       "file": "central-royal-district-low.glb",
       "tier": "low",
-      "triangles": 33494,
+      "triangles": 28866,
       "triangleBudget": 38000,
-      "bytes": 2383384,
-      "sha256": "f271badb527b793b0724e43b13ce729176ffbd35caffc5bb1e1577fcb013d251",
+      "bytes": 2001944,
+      "sha256": "92ef3943e1a2300074d58f4c91ed594d18645c0413c02b86228901f07b717879",
       "levelTriangles": {
-        "1": 30402,
+        "1": 25774,
         "2": 1344,
         "3": 1344,
         "4": 232,
@@ -435,6 +436,5 @@
         ]
       }
     }
-  ],
-  "sourceHashNormalization": "UTF-8 with LF line endings"
+  ]
 }

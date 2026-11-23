@@ -1,6 +1,7 @@
 import { GltfEnvironmentModel } from './GltfEnvironmentModel';
 import type { EnvironmentPlacement } from './GltfEnvironmentModel';
 import type { EnvironmentQuality } from './environmentLayout';
+import { SakuraTree3D } from './SakuraTree3D';
 
 const REFINED_MODELS=new Set(['royal-island-left','royal-island-right','royal-island-citadel','crown-foundation']);
 const SCENIC_MODELS=new Set(['royal-island-left','royal-island-right','royal-island-citadel','sky-garden','sky-windmill']);
@@ -23,5 +24,6 @@ function Asset({ id, placements, quality = 'high' }: Prop & { id: string }) {
 }
 export const FantasyCastle = (props: Prop) => <Asset id="royal-castle" {...props} />;
 export const FantasyVillage = (props: Prop) => <Asset id="fantasy-house" {...props} />;
-export const CherryBlossomTree = (props: Prop) => <Asset id="cherry-blossom" {...props} />;
+export const CherryBlossomTree = ({ placements, quality = 'high' }: Prop) =>
+  <SakuraTree3D name="cherry-blossom" placements={placements} detail={quality === 'high' ? 'full' : 'lite'} />;
 export const FantasyBridge = (props: Prop) => <Asset id="royal-bridge" {...props} />;

@@ -13,6 +13,7 @@ import sys
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+import bmesh
 import bpy
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
@@ -27,6 +28,57 @@ OUT = HERE.parents[1] / 'public/assets/models/environment'
 ASSETS = ['royal-island-left', 'royal-island-right', 'royal-island-citadel', 'sky-garden', 'sky-windmill']
 SEED = 10425058
 BUDGETS = {'high': 55000, 'balanced': 38000, 'low': 24000}
+
+# The archived GLBs batch bark with carpentry. These half-open polygon ranges
+# trace the original tree objects in the timber primitives at each source LOD.
+# Keep the exact cuts here so nearby doors, rails, pines and mill sails survive.
+TREE_TIMBER = {
+    'royal-island-left': {
+        'high': (4330, [(2136, 4051)]), 'balanced': (3085, [(1336, 2650)]), 'low': (1245, [(700, 1174)]),
+    },
+    'royal-island-right': {
+        'high': (3677, [(1384, 3278)]), 'balanced': (2769, [(976, 2288)]), 'low': (1004, [(460, 928)]),
+    },
+    'royal-island-citadel': {
+        'high': (2256, [(1520, 1733), (1847, 2060)]),
+        'balanced': (1527, [(754, 926), (1096, 1269)]),
+        'low': (481, [(150, 269), (297, 425)]),
+    },
+    'sky-garden': {
+        'high': (1236, [(180, 828)]), 'balanced': (1116, [(180, 708)]), 'low': (564, [(100, 508)]),
+    },
+    'sky-windmill': {
+        'high': (1220, [(988, 1204)]), 'balanced': (1180, [(988, 1164)]), 'low': (772, [(620, 756)]),
+    },
+}
+
+
+def cut_faces(mesh, faces):
+    if not faces:
+        return
+    editable = bmesh.new()
+    try:
+        editable.from_mesh(mesh)
+        editable.faces.ensure_lookup_table()
+        bmesh.ops.delete(editable, geom=[editable.faces[i] for i in faces], context='FACES')
+        editable.to_mesh(mesh)
+        mesh.update()
+    finally:
+        editable.free()
+
+
+def remove_baked_sakura(objects, materials, asset_id, tier):
+    timber, spans = TREE_TIMBER[asset_id][tier]
+    wood = next(obj.data for obj in objects if obj.type == 'MESH' and obj.data.materials[0] == materials['wood'])
+    if len(wood.polygons) != timber:
+        raise ValueError(f'Timber primitive changed in {asset_id} {tier}; check the Sakura polygon ranges')
+    cut_faces(wood, [i for start, stop in spans for i in range(start, stop)])
+
+    # The remaining legacy crown accents are well above the meadow flowerbeds.
+    for obj in objects:
+        if obj.type == 'MESH' and obj.data.materials[0] == materials['blossom']:
+            mesh = obj.data
+            cut_faces(mesh, [face.index for face in mesh.polygons if all(mesh.vertices[i].co.z > .85 for i in face.vertices)])
 
 
 def bake_scenic_contacts(objects, additions, materials):
@@ -146,7 +198,12 @@ def main():
             architecture, architecture_stats = apply_architecture(objects,materials,tier,base_id)
             additions = terrain+architecture
             bake_scenic_contacts(objects,additions,materials)
-            objects += additions
+            # The old silhouettes supply the existing baked contact shading.
+            # Export their surroundings and let the shared GLB supply the trees.
+            remove_baked_sakura(objects, materials, base_id, tier)
+            objects += [obj for obj in additions if not obj.name.startswith((
+                'Final branch-led sakura blossom spray', 'Final visible sakura flowering twig',
+            ))]
             normalize_atlas_uvs(objects)
             asset_id = base_id+'-final-v1'
             record = export_glb(objects,OUT/f'{asset_id}{suffix}.glb',asset_id,tier,SEED,{
@@ -168,7 +225,7 @@ def main():
     manifest.write_text(json.dumps({'schemaVersion':1,'generator':'tools/blender/final_background_overhaul.py',
         'blenderVersion':bpy.app.version_string,'seed':SEED,'license':'Original project MIT geometry and textures; no external assets',
         'sourceHashes':{name:hashlib.sha256((HERE/name).read_bytes().replace(b'\r\n',b'\n')).hexdigest() for name in helpers},
-        'scope':'Five scenic island families only. Board, foundation, city, controls and placements unchanged.',
+        'scope':'Five scenic island families. Sakura are instanced at runtime at the original planting sites.',
         'materials':'Ten shared materials, one original embedded 256px atlas, vertex contact shading',
         'assets':list(previous.values())},indent=2)+'\n',encoding='utf-8')
 

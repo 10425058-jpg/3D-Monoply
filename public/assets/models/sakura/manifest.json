@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "source": "Original GLB files supplied with the Sakura replacement request",
+  "assets": [
+    {
+      "file": "Sakura_Cherry_Blossom_Tree.glb",
+      "detail": "full",
+      "sha256": "09368a66cb8057cf591f33e333548ff28aaad56b66e01590ba4394a0611b75e3",
+      "triangles": 68930
+    },
+    {
+      "file": "Sakura_Cherry_Blossom_Tree_Lite.glb",
+      "detail": "lite",
+      "sha256": "f2f176ea9ec51c7d97be6ce3861184349bfe82212b769983b1885289be490ad6",
+      "triangles": 28602
+    }
+  ]
+}

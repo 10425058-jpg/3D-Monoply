@@ -3,13 +3,14 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useSceneState as useGameStore } from '../../presentation/SceneStore';
 import { mayAnimateEnvironment } from '../environment/environmentMotion';
+import { SakuraTree3D } from '../environment/SakuraTree3D';
+import { FALLBACK_SAKURA } from '../environment/sakuraLayout';
 import { CASTLE_COLORS } from './castle/CastleMaterials';
 import { ContactOcclusion } from './ContactOcclusion';
 import { CentralCastle } from './castle/CentralCastle';
 import { CentralPlazaFountain } from './castle/CentralPlazaFountain';
 import { LeftTownhouseCafe, RightTownhouseBoutique } from './castle/SupportingBuildings';
 import {
-  StylizedSakuraTree,
   StylizedCypressTree,
   GardenRoseArbor,
   GardenFlowerBeds,
@@ -23,7 +24,7 @@ import {
   GoldStoneBollard,
 } from './castle/CastleProps';
 
-export const CenterCity3D: React.FC = () => {
+export const CenterCity3D: React.FC<{ shadows?: boolean }> = ({ shadows = true }) => {
   const players = useGameStore((s) => s.players);
 
   // Highest landmark level among players
@@ -191,15 +192,7 @@ export const CenterCity3D: React.FC = () => {
       {/* ============================================================== */}
       {/* 5. GARDENS, SCULPTED SAKURA & CYPRESS TREES                    */}
       {/* ============================================================== */}
-      {/* Stylized Sakura (Cherry Blossom) Trees */}
-      <StylizedSakuraTree position={[-4.8, 0.36, -2.6]} scale={1.22} rotationY={0.3} />
-      <StylizedSakuraTree position={[4.8, 0.36, -2.6]} scale={1.22} rotationY={-0.3} />
-      <StylizedSakuraTree position={[-2.8, 0.36, -1.8]} scale={1.08} rotationY={0.6} />
-      <StylizedSakuraTree position={[2.8, 0.36, -1.8]} scale={1.08} rotationY={-0.5} />
-      <StylizedSakuraTree position={[-3.2, 0.32, 2.0]} scale={0.98} rotationY={1.2} />
-      <StylizedSakuraTree position={[3.2, 0.32, 2.0]} scale={0.98} rotationY={-1.0} />
-      <StylizedSakuraTree position={[-5.4, 0.32, 5.8]} scale={1.08} rotationY={0.2} />
-      <StylizedSakuraTree position={[5.4, 0.32, 5.8]} scale={1.08} rotationY={-0.4} />
+      <SakuraTree3D name="fallback-sakura" placements={FALLBACK_SAKURA} shadows={shadows} />
 
       {/* Stylized Cypress / Pine Trees with Drooping Tips */}
       <StylizedCypressTree position={[-2.4, 0.36, -0.6]} scale={0.96} />

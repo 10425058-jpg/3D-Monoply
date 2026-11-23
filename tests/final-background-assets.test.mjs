@@ -108,6 +108,8 @@ test('actual normals, contact tints and topology survive reconstruction and port
       assert.ok(colors.every(color => color.every(value => value >= 0 && value <= 1)), 'contact colors stay normalized');
       const material = asset.document.materials[primitive.material];
       if (material.name === 'Sakura blossom clusters') {
+        const blossoms = values(asset, primitive.attributes.POSITION);
+        assert.ok(blossoms.every(position => position[1] < .85), `${record.file} keeps only low flowerbeds and ground blossoms`);
         const bright = colors.filter(color => (color[0]+color[1]+color[2])/3 > .2).length;
         assert.ok(bright/colors.length > .98, `${record.file}: repeated shadow baking must not blacken shared blossom geometry`);
       }

@@ -5,7 +5,7 @@
   "seed": 10425058,
   "license": "Original project MIT geometry and textures; no external assets",
   "sourceHashes": {
-    "final_background_overhaul.py": "37fb4e27fd907a7221abc0071c4ef9b582fcd4539b11c738099cf08aa8ffa1a0",
+    "final_background_overhaul.py": "e0c85c21090bce90cbba0480f6fe56abcd29bf1a7e47268a8b5ae4e0084555ee",
     "final_terrain_vegetation.py": "b9ebd45d1090ccc605132a107747f60f6c3f053569041824c68bf25f0d2d9e7b",
     "final_architecture.py": "0c231eed2f3959216568e1e75166b1e2841a4d7a3c11190e23e4bb7385e36208",
     "core.py": "491c567688469aabd5722feaba0a3d83c42c26d09f8ed2b4af8e73c7b0d44270",
@@ -17,16 +17,16 @@
     "generate_vegetation.py": "d1c72e6f9b70b8197d4d2cb63df8d1906bb3d0dbcae9be5db9010c1f855299ef",
     "generate_floating_islands.py": "13b222b791de67c8d2dda2ee13873205998896ac680f625fc3b17056eb358a89"
   },
-  "scope": "Five scenic island families only. Board, foundation, city, controls and placements unchanged.",
+  "scope": "Five scenic island families. Sakura are instanced at runtime at the original planting sites.",
   "materials": "Ten shared materials, one original embedded 256px atlas, vertex contact shading",
   "assets": [
     {
       "id": "royal-island-citadel-final-v1",
       "file": "royal-island-citadel-final-v1-low.glb",
       "tier": "low",
-      "triangles": 19334,
-      "bytes": 1441980,
-      "sha256": "93735fc6ab635b22db5ea30be8244d2087872827feb380314150267b486b5394",
+      "triangles": 17651,
+      "bytes": 1324704,
+      "sha256": "98e12811161e7fe59ba69ea3b5c82bad2bb3d09d513255ff5308fdacc4f4cd69",
       "bounds": {
         "min": [
           -6.598441123962402,
@@ -134,9 +134,9 @@
       "id": "sky-windmill-final-v1",
       "file": "sky-windmill-final-v1-balanced.glb",
       "tier": "balanced",
-      "triangles": 11258,
-      "bytes": 933332,
-      "sha256": "6fa6eca9ac9ba052a34f8d68a08eb8b7de324f8a6a01fea01d66f3b582c8f6e4",
+      "triangles": 9962,
+      "bytes": 848024,
+      "sha256": "49def0e04f71ec236ef0aced9f2ee1a11283d81c567c7c2e684480283b92057c",
       "bounds": {
         "min": [
           -8.590539932250977,
@@ -224,9 +224,9 @@
       "id": "royal-island-citadel-final-v1",
       "file": "royal-island-citadel-final-v1.glb",
       "tier": "high",
-      "triangles": 54875,
-      "bytes": 4041620,
-      "sha256": "d94911115fae06c56c2426cb0a8cd888834c3390745311832ef8c360df79fcd5",
+      "triangles": 46947,
+      "bytes": 3508024,
+      "sha256": "aca6b66079ac0e76ad90f38c07a95afe556706d77d862d135133fef3a35d4001",
       "bounds": {
         "min": [
           -7.1371636390686035,
@@ -334,9 +334,9 @@
       "id": "royal-island-citadel-final-v1",
       "file": "royal-island-citadel-final-v1-balanced.glb",
       "tier": "balanced",
-      "triangles": 35373,
-      "bytes": 2666024,
-      "sha256": "738e77b1017803b8484721adf0a4596c75f60f8802d4e32d34adf4809eb4deb3",
+      "triangles": 30794,
+      "bytes": 2356168,
+      "sha256": "839e8e692d84f7ad83fde327695247775ce6b92383d210eff18bdbf4bfe91f80",
       "bounds": {
         "min": [
           -6.703404426574707,
@@ -444,18 +444,18 @@
       "id": "sky-garden-final-v1",
       "file": "sky-garden-final-v1.glb",
       "tier": "high",
-      "triangles": 17724,
-      "bytes": 1404812,
-      "sha256": "b726379d86c4c9618ea714beb05901dc17f4cdd1787e4e1f565491b29efa4ce8",
+      "triangles": 10770,
+      "bytes": 944460,
+      "sha256": "82b38653bedf408b25578fc90e8c2f0534e4744eeff326a464659c640ee07b81",
       "bounds": {
         "min": [
-          -6.524895191192627,
+          -6.493072032928467,
           -6.972823143005371,
           -4.9583024978637695
         ],
         "max": [
           7.165016174316406,
-          5.163212299346924,
+          4.989999771118164,
           5.670817852020264
         ]
       },
@@ -544,18 +544,18 @@
       "id": "sky-garden-final-v1",
       "file": "sky-garden-final-v1-balanced.glb",
       "tier": "balanced",
-      "triangles": 12412,
-      "bytes": 1002284,
-      "sha256": "8f2b98f77b18f1ba8d9fd5c56cd5bcae44b1e3f2a16607f225730ba0e8d3163e",
+      "triangles": 8094,
+      "bytes": 717204,
+      "sha256": "1ddf6d705d222b0d354158c9aa1cfc7ed6be405b0067ea9735b5891d92b5945d",
       "bounds": {
         "min": [
-          -6.468102931976318,
+          -6.1650390625,
           -7.003483772277832,
           -5.328592777252197
         ],
         "max": [
           6.9837517738342285,
-          5.2726898193359375,
+          4.989999771118164,
           5.730986595153809
         ]
       },
@@ -644,18 +644,18 @@
       "id": "sky-garden-final-v1",
       "file": "sky-garden-final-v1-low.glb",
       "tier": "low",
-      "triangles": 6921,
-      "bytes": 562160,
-      "sha256": "8ee8c448cdbd5605c945f36660a7d242f3336acd861b1f9e1bdd43667ec118d8",
+      "triangles": 4511,
+      "bytes": 403648,
+      "sha256": "4ccdf011b7f0fa8c547f6edce372cdeb0ee55dfd4da06a9b00061605ac11a587",
       "bounds": {
         "min": [
-          -6.3926496505737305,
+          -5.8072099685668945,
           -6.997153282165527,
           -4.817061901092529
         ],
         "max": [
           6.922110557556152,
-          5.288127899169922,
+          4.989999771118164,
           5.905253887176514
         ]
       },
@@ -744,9 +744,9 @@
       "id": "royal-island-left-final-v1",
       "file": "royal-island-left-final-v1.glb",
       "tier": "high",
-      "triangles": 48652,
-      "bytes": 3624632,
-      "sha256": "98fcaee5c4c7a0419aba8e6b48d01c2214e87b1f785307d46fa708264a7984bb",
+      "triangles": 38223,
+      "bytes": 2917216,
+      "sha256": "f55bb3087d8d5eb856a7b3fdf71b0c60aa647bfd8b88cfb91e16c2414174700e",
       "bounds": {
         "min": [
           -9.60246753692627,
@@ -834,9 +834,9 @@
       "id": "royal-island-left-final-v1",
       "file": "royal-island-left-final-v1-balanced.glb",
       "tier": "balanced",
-      "triangles": 31755,
-      "bytes": 2443540,
-      "sha256": "b918ada87b1ce17f3c56e9591a06db7e49b821981d668fb4b5cf2fb548db383f",
+      "triangles": 26423,
+      "bytes": 2081456,
+      "sha256": "b85aada2f48df0eee8afd1e2eef83da4b1fcd28008e760185906a921f56848e7",
       "bounds": {
         "min": [
           -9.712185859680176,
@@ -924,9 +924,9 @@
       "id": "royal-island-left-final-v1",
       "file": "royal-island-left-final-v1-low.glb",
       "tier": "low",
-      "triangles": 18495,
-      "bytes": 1434352,
-      "sha256": "d1efce151e018151d669f81bb5f5e5ff4610b209a46a82e79d0a2a4193a249eb",
+      "triangles": 16295,
+      "bytes": 1278736,
+      "sha256": "6afb7b9ea211994f8e8485c19ddb2b1035302074bc6134016a39a96dafbd8f02",
       "bounds": {
         "min": [
           -9.644100189208984,
@@ -1014,9 +1014,9 @@
       "id": "royal-island-right-final-v1",
       "file": "royal-island-right-final-v1.glb",
       "tier": "high",
-      "triangles": 39842,
-      "bytes": 2982856,
-      "sha256": "15b69d9a0ee77dabc7db4dcc3c235f1e0ef49bcab8a337aee86da72cebf0249d",
+      "triangles": 30086,
+      "bytes": 2321524,
+      "sha256": "cf47238f40dc2b45943d6d1051ee79d38b46020077992128087eee8f7b894b3e",
       "bounds": {
         "min": [
           -8.370465278625488,
@@ -1104,9 +1104,9 @@
       "id": "royal-island-right-final-v1",
       "file": "royal-island-right-final-v1-balanced.glb",
       "tier": "balanced",
-      "triangles": 26943,
-      "bytes": 2087588,
-      "sha256": "be1f34d80dc19bff85689ad205fe84176f5869ac9f4e444a87e6535952751e27",
+      "triangles": 21749,
+      "bytes": 1735288,
+      "sha256": "37c0fbc0b860914d4aaab6645913d23c95147d1ff2c4f3f34d8a24b31f80db47",
       "bounds": {
         "min": [
           -8.432138442993164,
@@ -1194,9 +1194,9 @@
       "id": "royal-island-right-final-v1",
       "file": "royal-island-right-final-v1-low.glb",
       "tier": "low",
-      "triangles": 15963,
-      "bytes": 1248464,
-      "sha256": "d3099dadc791d88f452c009393b786bafa7b7e228cdcf0080b8316ef310a1034",
+      "triangles": 13803,
+      "bytes": 1095924,
+      "sha256": "57ea51d372327b21edd17bd8731e2a1d205598617730afaed528f38e9213e3dc",
       "bounds": {
         "min": [
           -8.135527610778809,
@@ -1284,9 +1284,9 @@
       "id": "sky-windmill-final-v1",
       "file": "sky-windmill-final-v1.glb",
       "tier": "high",
-      "triangles": 15450,
-      "bytes": 1274368,
-      "sha256": "e9c80c8dbfdf6667115bb2a19bada38ebe15b8907ea547c3790b0c1c5e7da625",
+      "triangles": 13434,
+      "bytes": 1141260,
+      "sha256": "6099863a0f26c2bddbe7239e8cd9f025b1cb60f94fe645e55dd61577cf33f612",
       "bounds": {
         "min": [
           -8.506719589233398,
@@ -1374,9 +1374,9 @@
       "id": "sky-windmill-final-v1",
       "file": "sky-windmill-final-v1-low.glb",
       "tier": "low",
-      "triangles": 5695,
-      "bytes": 478880,
-      "sha256": "3c110b79c20bacd1ccab241e6487620e121c50dca6450b4852f83bb82e079831",
+      "triangles": 4959,
+      "bytes": 430736,
+      "sha256": "2fbe14ce8feb2b7ad9f29ea7c74605cad69a8df4de132f6e076ba50c9852e705",
       "bounds": {
         "min": [
           -7.829310894012451,

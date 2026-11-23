@@ -17,7 +17,7 @@ from core import arch, box, lathe, make_materials, mesh, reset_scene, tube
 from export_assets import export_glb
 from generate_floating_islands import _surface, _tint, _empty, _path
 from generate_gardens import generate_pavilion
-from generate_vegetation import generate_tree, generate_shrub
+from generate_vegetation import generate_shrub
 from generate_villages import generate_house
 
 DESTINATION = HERE.parents[1] / "public/assets/models/environment"
@@ -96,7 +96,6 @@ def observatory(materials, detail):
                   for a in [i*math.tau/24 for i in range(25)]]
         objects.append(tube("Celestial armillary open ring", points, .045, materials["gold"], sides=4))
     objects.append(lathe("Armillary central spindle", [(.06,4.72),(.06,6.47),(.015,6.68)], 6, materials["gold"]))
-    objects += generate_tree(materials, variant="observatory-west", detail="low", origin=(-3.6,.9,.06), scale=.78, form="windward")
     objects += generate_pavilion(materials, detail="low", origin=(3.7,-.3,.06), scale=.67)
     objects += pine(materials, 2.8, 2.3, .8, detail)
     return objects
@@ -121,7 +120,6 @@ def ruins(materials, detail):
         rubble = box("Fallen carved masonry", (-3.1+i*.83,-2.0 + math.sin(i*2.1)*.45,.22), (.6,.45,.33), materials["stone"], .025)
         rubble.rotation_euler.z = i * .71
         objects.append(rubble)
-    objects += generate_tree(materials, variant="sanctuary-sakura", detail="low", origin=(-3.6,-.8,.06), scale=.82, form="umbrella")
     objects += generate_shrub(materials, detail="low", origin=(3.3,1.3,.06), scale=1.0)
     objects += pine(materials, -4.2, 2.4, .7, detail)
     return objects
@@ -142,7 +140,6 @@ def hamlet(materials, detail):
     for i in range(8):
         angle = i*math.tau/8
         objects.append(tube("Hamlet mill wheel spoke", [center,(center[0]+math.cos(angle)*.84,center[1],center[2]+math.sin(angle)*.84)], .045, materials["wood"], sides=4))
-    objects += generate_tree(materials, variant="millstream-sakura", detail="low", origin=(5.2,-.8,.06), scale=.73, form="upright")
     for x,y,size in ((-5.8,1.5,.75),(1.7,2.0,.85),(6.2,1.4,.66)):
         objects += pine(materials,x,y,size,detail)
     channel = [(-2.8,-.1,.13),(-2.4,-1.5,.12),(-1.4,-2.6,.10),(-.5,-3.6,.08)]
