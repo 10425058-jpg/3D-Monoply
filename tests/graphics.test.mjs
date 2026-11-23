@@ -31,3 +31,14 @@ for (const [width, height] of [[1920, 1080], [1440, 900], [1366, 768], [1024, 76
       'the board should use the available space rather than becoming a small distant object');
   });
 }
+
+test('central castle fallback flags stay blue across initial and upgraded towers', () => {
+  const castle = readFileSync(new URL('../src/components/3d/castle/CentralCastle.tsx', import.meta.url), 'utf8');
+  const modules = readFileSync(new URL('../src/components/3d/castle/CastleModules.tsx', import.meta.url), 'utf8');
+  assert.equal((castle.match(/flagColor=\\{CASTLE_COLORS\\.bannerRed\\}/g) ?? []).length, 0,
+    'no red pennants should remain in the fallback central castle');
+  assert.equal((castle.match(/flagColor=\\{CASTLE_COLORS\\.bannerBlue\\}/g) ?? []).length, 6,
+    'initial central tower, side towers and upgrade towers should use blue pennants');
+  assert.equal((modules.match(/flagColor = CASTLE_COLORS\\.bannerBlue/g) ?? []).length, 2,
+    'SculptedRoof and CastleTower must default to blue for newly unlocked towers');
+});
