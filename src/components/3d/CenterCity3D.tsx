@@ -6,7 +6,7 @@ import {useMotionPreferences} from '../../presentation/useMotionPreferences';
 import {CenterCity3D as ExistingCity} from './CenterCityLegacy';
 import {RoyalCityEffects} from './castle/RoyalCityEffects';
 import {finishCastleMaterial} from './castle/finishCastleMaterial';
-import {blueCafeMansard} from './castle/blueCafeMansard';
+import {recolorCafeRedToBlue} from './castle/blueCafeMansard';
 import {SakuraTree3D, sakuraModelUrl} from '../environment/SakuraTree3D';
 import {BOARD_SAKURA} from '../environment/sakuraLayout';
 import {ContactOcclusion} from './ContactOcclusion';
@@ -62,9 +62,9 @@ function RoyalDistrict({quality,level,animate}:{quality:Quality;level:number;ani
       const material=materials.get(source)??finishCastleMaterial(source);
       if(!materials.has(source)){material.name=source.name;materials.set(source,material);}
       const shadow=['Ivory limestone','Carved sandstone','Royal blue glazed slate','Warm carved timber','Brushed antique gold'].includes(material.name);
-      const roofGeometry=blueCafeMansard(object);
-      if(roofGeometry)recoloredGeometries.push(roofGeometry);
-      parts.push({geometry:roofGeometry??object.geometry,material,matrix:object.matrixWorld.clone(),level:required,shadow,name:object.name});
+      const colorOnlyGeometry=recolorCafeRedToBlue(object);
+      if(colorOnlyGeometry)recoloredGeometries.push(colorOnlyGeometry);
+      parts.push({geometry:colorOnlyGeometry??object.geometry,material,matrix:object.matrixWorld.clone(),level:required,shadow,name:object.name});
     });
     return {parts,anchors,materials:[...materials.values()],recoloredGeometries};
   },[scene]);
