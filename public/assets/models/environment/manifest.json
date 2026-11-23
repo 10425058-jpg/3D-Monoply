@@ -224,9 +224,9 @@
       "id": "royal-island-left",
       "file": "royal-island-left-distant.glb",
       "tier": "distant",
-      "triangles": 6584,
-      "bytes": 570104,
-      "sha256": "f27b24d589500c9d763240dc33fa02fe4abdcb03922fe86382b24c16d9ac7563",
+      "triangles": 5746,
+      "bytes": 516308,
+      "sha256": "cbd1b5355a99a7e2301eb6f932bf342cf90fcb4bb7f0e43e117eb2487e54ec15",
       "bounds": {
         "min": [
           -9.214414596557617,
@@ -508,9 +508,9 @@
       "id": "royal-island-right",
       "file": "royal-island-right-distant.glb",
       "tier": "distant",
-      "triangles": 5693,
-      "bytes": 503096,
-      "sha256": "0b36223e5417db4ddac69685ca9582ef1e363be69632b802706f091181ab5ab6",
+      "triangles": 4869,
+      "bytes": 450260,
+      "sha256": "3d9c5fb2a394a4e26b7b6cc905dbd68a9393a011bc3efdcc5fa85ed32c7f57f5",
       "bounds": {
         "min": [
           -8.094136238098145,

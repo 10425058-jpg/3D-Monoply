@@ -10,9 +10,9 @@
       "id": "sky-observatory",
       "file": "sky-observatory.glb",
       "tier": "high",
-      "triangles": 3808,
-      "bytes": 250788,
-      "sha256": "ea3ab5f55efe53e47c96ff761297fb87945d797b9f18737c1617966d59e4cbf8",
+      "triangles": 3492,
+      "bytes": 229532,
+      "sha256": "b9a08f4ebef3ab55d5540234177e7bd0abb64ef1b2662d9a020d98dd27c3b34d",
       "bounds": {
         "min": [
           -6.098554611206055,
@@ -34,7 +34,6 @@
         "Lavender layered cliff",
         "Meadow and moss",
         "Royal blue glazed slate",
-        "Sakura blossom clusters",
         "Warm carved timber",
         "Warm lit glass"
       ],
@@ -50,9 +49,9 @@
       "id": "sky-observatory",
       "file": "sky-observatory-balanced.glb",
       "tier": "balanced",
-      "triangles": 3314,
-      "bytes": 225548,
-      "sha256": "f3e2e48ce7bb873db11c8df814fb422bdd8af15abd61fafca647bb6bd69ffc4a",
+      "triangles": 2998,
+      "bytes": 204292,
+      "sha256": "3e2565cbeb7cb99d06ba618975a62c4cad3bac5de73bc488954b5407082d7d02",
       "bounds": {
         "min": [
           -5.802138805389404,
@@ -74,7 +73,6 @@
         "Lavender layered cliff",
         "Meadow and moss",
         "Royal blue glazed slate",
-        "Sakura blossom clusters",
         "Warm carved timber",
         "Warm lit glass"
       ],
@@ -90,9 +88,9 @@
       "id": "sky-observatory",
       "file": "sky-observatory-low.glb",
       "tier": "low",
-      "triangles": 2954,
-      "bytes": 204336,
-      "sha256": "ee6fbcb87ec34f0994bd7fb3b41506edd7545e7f257c386897325ae708424962",
+      "triangles": 2638,
+      "bytes": 183076,
+      "sha256": "e298b8f185e4f5842b3a91e6afea7d4c1478f6a5ecfdf452c5b50bc969bc5f34",
       "bounds": {
         "min": [
           -5.543689727783203,
@@ -114,7 +112,6 @@
         "Lavender layered cliff",
         "Meadow and moss",
         "Royal blue glazed slate",
-        "Sakura blossom clusters",
         "Warm carved timber",
         "Warm lit glass"
       ],
@@ -130,9 +127,9 @@
       "id": "sky-ruins",
       "file": "sky-ruins.glb",
       "tier": "high",
-      "triangles": 2660,
-      "bytes": 210420,
-      "sha256": "9d1132cf3ad020900aa48dc209198f2f9d236c427fc6faacb97dfc37ab130edb",
+      "triangles": 2344,
+      "bytes": 189124,
+      "sha256": "47a2480024e7d75c2777585b7de86c3d25815d17e9ef82a6bbf145f7ce185ca0",
       "bounds": {
         "min": [
           -6.680886268615723,
@@ -152,7 +149,6 @@
         "Ivory limestone",
         "Lavender layered cliff",
         "Meadow and moss",
-        "Sakura blossom clusters",
         "Warm carved timber"
       ],
       "origin": [
@@ -167,9 +163,9 @@
       "id": "sky-ruins",
       "file": "sky-ruins-balanced.glb",
       "tier": "balanced",
-      "triangles": 2290,
-      "bytes": 181520,
-      "sha256": "0fcd9ac7a37432844c7bc8e7a045800b469ce31c9fd3d84f25aef8389efad317",
+      "triangles": 1974,
+      "bytes": 160224,
+      "sha256": "fe6e511e85c80aa5fe2795aee9fd51b866d0242c313e1284772455ce49497627",
       "bounds": {
         "min": [
           -6.689067363739014,
@@ -189,7 +185,6 @@
         "Ivory limestone",
         "Lavender layered cliff",
         "Meadow and moss",
-        "Sakura blossom clusters",
         "Warm carved timber"
       ],
       "origin": [
@@ -204,9 +199,9 @@
       "id": "sky-ruins",
       "file": "sky-ruins-low.glb",
       "tier": "low",
-      "triangles": 2090,
-      "bytes": 165584,
-      "sha256": "ac1dc258b5ddc75cc53ff2264710baa355cc68a19e6ad2bd4ad1fe66305115b5",
+      "triangles": 1774,
+      "bytes": 144288,
+      "sha256": "4698231383420343431b7815f91aac2f9bfb6d3567d793dc805a12d13dd7cd7b",
       "bounds": {
         "min": [
           -5.98528528213501,
@@ -226,7 +221,6 @@
         "Ivory limestone",
         "Lavender layered cliff",
         "Meadow and moss",
-        "Sakura blossom clusters",
         "Warm carved timber"
       ],
       "origin": [
@@ -241,9 +235,9 @@
       "id": "sky-hamlet",
       "file": "sky-hamlet.glb",
       "tier": "high",
-      "triangles": 7600,
-      "bytes": 597116,
-      "sha256": "920518f8179de7dee1dc32711859af1621b5f5bd686d5f03f94f631e30715eee",
+      "triangles": 7284,
+      "bytes": 575820,
+      "sha256": "da04e4296e56763563159a3f975c57f5adeac09cb3a6709d7c8fad442ffb41a3",
       "bounds": {
         "min": [
           -8.357283592224121,
@@ -252,7 +246,7 @@
         ],
         "max": [
           9.343746185302734,
-          3.4358954429626465,
+          2.878999948501587,
           5.018514633178711
         ]
       },
@@ -296,7 +290,6 @@
         "Lavender layered cliff",
         "Meadow and moss",
         "Royal blue glazed slate",
-        "Sakura blossom clusters",
         "Warm carved timber",
         "Warm lit glass"
       ],
@@ -312,9 +305,9 @@
       "id": "sky-hamlet",
       "file": "sky-hamlet-balanced.glb",
       "tier": "balanced",
-      "triangles": 3932,
-      "bytes": 325488,
-      "sha256": "551ec144e94dec8f858e85fe7023a37d310f663be79b762f28e98c061c042368",
+      "triangles": 3616,
+      "bytes": 304192,
+      "sha256": "7d5f3bee3234875d8704557af03f2fde1b0c24fce34ecb15fccc7167aa7774d1",
       "bounds": {
         "min": [
           -8.029047966003418,
@@ -323,7 +316,7 @@
         ],
         "max": [
           9.144683837890625,
-          3.4358954429626465,
+          2.878999948501587,
           4.715536117553711
         ]
       },
@@ -367,7 +360,6 @@
         "Lavender layered cliff",
         "Meadow and moss",
         "Royal blue glazed slate",
-        "Sakura blossom clusters",
         "Warm carved timber",
         "Warm lit glass"
       ],
@@ -383,9 +375,9 @@
       "id": "sky-hamlet",
       "file": "sky-hamlet-low.glb",
       "tier": "low",
-      "triangles": 3732,
-      "bytes": 309556,
-      "sha256": "388acf475ee0e322bf3b418369498d3102325e7a02b0bb33b773ee8cff9606f7",
+      "triangles": 3416,
+      "bytes": 288260,
+      "sha256": "b3380d5da8d381e260cd6126a272260db27faee968dde8f770ef5d1b5c99705b",
       "bounds": {
         "min": [
           -7.207022190093994,
@@ -394,7 +386,7 @@
         ],
         "max": [
           9.054665565490723,
-          3.4358954429626465,
+          2.878999948501587,
           4.930677890777588
         ]
       },
@@ -438,7 +430,6 @@
         "Lavender layered cliff",
         "Meadow and moss",
         "Royal blue glazed slate",
-        "Sakura blossom clusters",
         "Warm carved timber",
         "Warm lit glass"
       ],

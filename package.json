@@ -21,7 +21,7 @@
     "test:animations": "node --test tests/animations.test.mjs",
     "preview": "vite preview",
     "test:graphics": "node --test tests/graphics.test.mjs",
-    "test:graphics-v6": "node --import tsx --test tests/graphics-v6-board.test.ts tests/graphics-v6-materials.test.ts tests/board-v5.test.ts tests/arcade-v8-graphics.test.ts && node --test tests/animations.test.mjs",
+    "test:graphics-v6": "node --import tsx --test tests/graphics-v6-board.test.ts tests/graphics-v6-materials.test.ts tests/board-v5.test.ts tests/arcade-v8-graphics.test.ts tests/sakura.test.ts && node --test tests/animations.test.mjs",
     "audit:graphics": "node scripts/graphics-audit.mjs",
     "test:graphics-browser": "node scripts/graphics-regression.mjs",
     "test:environment-assets": "node --test tests/environment-assets.test.mjs tests/final-background-assets.test.mjs tests/cloud-assets-v3.test.mjs",

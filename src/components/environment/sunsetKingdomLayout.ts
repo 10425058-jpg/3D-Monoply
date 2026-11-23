@@ -2,6 +2,10 @@ import type { EnvironmentPlacement } from './GltfEnvironmentModel';
 
 export const LEFT_ISLAND: EnvironmentPlacement = { position: [-29,-24,-20], scale: 1.3, rotation: .6 };
 export const RIGHT_ISLAND: EnvironmentPlacement = { position: [28,-22,-20], scale: 1.3, rotation: .16 };
+export const FAR_LEFT: EnvironmentPlacement[] = [{ position: [-46,-42,-91], scale: .5, rotation: .4 },
+  { position: [35,-51,-115], scale: .36, rotation: -.65 }];
+export const FAR_RIGHT: EnvironmentPlacement[] = [{ position: [71,-54,-104], scale: .48, rotation: -.3 }];
+export const LOW_FAR_LEFT = FAR_LEFT.slice(0, 1);
 
 /** Fixed scenery around the full orbit. The distant upper tier makes a skyline;
  * the lower gardens frame the board without crossing its playable column. */

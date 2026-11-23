@@ -6,6 +6,7 @@ import argparse
 import json
 from pathlib import Path
 import sys
+from tempfile import TemporaryDirectory
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 ROOT = SCRIPT_DIR.parent.parent
@@ -24,6 +25,29 @@ def arguments():
     parser.add_argument("--tiers", default="high,balanced,low,distant")
     parser.add_argument("--only", help="comma-separated asset IDs; update these assets without rebuilding the others")
     return parser.parse_args(sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else [])
+
+
+def export_distant_island(objects, destination, asset_id, seed, metadata):
+    """Keep the archived LOD's decimation of scenery while dropping its trees."""
+    import bpy
+    from final_background_overhaul import cut_faces
+
+    marker = 'sakura_to_remove'
+    for obj in objects:
+        if obj.get('asset_module') == 'cherry_blossom_tree':
+            obj.data = obj.data.copy()
+            tags = obj.data.attributes.new(marker, 'BOOLEAN', 'FACE')
+            tags.data.foreach_set('value', [True] * len(tags.data))
+    with TemporaryDirectory(prefix='distant-sakura-') as staging:
+        export_glb(objects, Path(staging) / destination.name, asset_id, 'distant', seed, metadata)
+    batch = bpy.context.view_layer.objects.active
+    tags = batch.data.attributes[marker]
+    faces = [i for i, tag in enumerate(tags.data) if tag.value]
+    batch.data.attributes.remove(tags)
+    cut_faces(batch.data, faces)
+    anchors = [obj for obj in objects if obj.type == 'EMPTY']
+    record = export_glb([batch, *anchors], destination, asset_id, 'low', seed, {**metadata, 'detail': 'distant'})
+    return {**record, 'tier': 'distant'}
 
 
 def generate(args):
@@ -93,8 +117,13 @@ def generate(args):
                     objects += generate_pavilion(materials, detail=detail, origin=(-4.2,-2.7,.12), scale=.9, rotation=.2)
             asset_id = "foundation-island" if args.milestone == "foundation" else f"royal-island-{variant}"
             suffix = "" if tier == "high" else f"-{tier}"
-            records.append(export_glb(objects, args.out_dir / f"{asset_id}{suffix}.glb", asset_id, tier, args.seed,
-                {"milestone": args.milestone, "role": "background-floating-island"}))
+            destination = args.out_dir / f"{asset_id}{suffix}.glb"
+            metadata = {"milestone": args.milestone, "role": "background-floating-island"}
+            if tier == 'distant' and args.milestone in ('nature', 'final'):
+                record = export_distant_island(objects, destination, asset_id, args.seed, metadata)
+            else:
+                record = export_glb(objects, destination, asset_id, tier, args.seed, metadata)
+            records.append(record)
             print(f"ASSET {records[-1]['file']} {records[-1]['triangles']} triangles {records[-1]['bytes']} bytes", flush=True)
     if args.milestone in ["nature", "final"]:
         from generate_airship import generate_airship

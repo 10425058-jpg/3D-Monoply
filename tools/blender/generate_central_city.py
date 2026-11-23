@@ -15,12 +15,12 @@ import sys
 HERE=Path(__file__).resolve().parent
 sys.path.insert(0,str(HERE))
 import bpy
-from mathutils import Matrix,Vector
+from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 from core import reset_scene,make_materials,box,mesh,lathe,tube,arch,arch_panel,transform_objects,uv_project
 from generate_castles import generate_castle,_tower,_window,_gable_roof,_heraldry
 from generate_villages import generate_house
-from generate_vegetation import generate_tree,generate_shrub,generate_garden_rocks,_cluster
+from generate_vegetation import generate_shrub,generate_garden_rocks,_cluster
 from generate_gardens import generate_pavilion
 from generate_lanterns import generate_lantern
 import generate_castles as castle_modules
@@ -49,7 +49,7 @@ def city_materials():
       ('gold','e3b657',.34,.48),('wood','754c32',.82,0),('window','ffd28c',.35,0),
       ('grass','599044',.96,0),('rock','726b7b',.96,0),('blossom','f19ac3',.92,0),
       ('leaf','2c6844',.95,0),('red','a92f50',.88,0),('paving','d2c7ae',.87,0),
-      ('cream','eee4c8',.80,0),('purple','764e91',.85,0),('petal','ffd3e7',.89,0)]
+      ('cream','eee4c8',.80,0),('purple','764e91',.85,0)]
     atlas=bpy.data.images.new('Central_royal_surface_atlas_256',width=256,height=256)
     atlas.colorspace_settings.name='sRGB';pixels=[.5,.5,.5,1.]*(256*256)
     for index,(key,hexcolor,roughness,metallic) in enumerate(specs):
@@ -151,32 +151,6 @@ def pine(m,position,scale,tier):
     return transform_objects(objects,position,scale)
 
 
-def flowering_tree(m,position,scale,tier,form):
-    objects=generate_tree(m,'large',tier,position,scale,form=form)
-    vertices=[];faces=[]
-    count={'high':8,'balanced':5,'low':2}[tier]
-    for cluster in objects:
-        if 'blossom' not in cluster.name:continue
-        matrix=Matrix.LocRotScale(cluster.location,cluster.rotation_euler.to_quaternion(),cluster.scale)
-        normal_matrix=matrix.to_3x3().inverted().transposed()
-        for j in range(count):
-            a=j*2.399963+cluster.location.x*.91
-            z=-.14+(j+.5)/count*1.08;xy=math.sqrt(max(0,1-z*z));direction=Vector((math.cos(a)*xy,math.sin(a)*xy,z))
-            normal=(normal_matrix@direction).normalized();center=matrix@direction+normal*.018
-            tangent=normal.cross(Vector((0,0,1)))
-            if tangent.length<.1:tangent=Vector((1,0,0))
-            tangent.normalize();bitangent=normal.cross(tangent).normalized()
-            radius=scale*(.095+.014*math.sin(a*3))
-            if max(abs(center.x),abs(center.y))+radius>7.48:continue
-            offset=len(vertices);vertices.append(tuple(center))
-            for k in range(20):
-                theta=k*math.tau/20;r=radius*([1,.84,.48,.84][k%4])
-                vertices.append(tuple(center+tangent*(math.cos(theta)*r)+bitangent*(math.sin(theta)*r)+normal*(.013 if k%4==0 else 0)))
-            faces.extend((offset,offset+k+1,offset+(k+1)%20+1) for k in range(20))
-    objects.append(mesh('Sakura individual five-petal flower sprays',vertices,faces,m['petal']))
-    return objects
-
-
 def castle(m,tier):
     base=generate_castle(m,'left',tier)
     # A real inhabited rear gallery, rather than the unwindowed back of a box.
@@ -266,10 +240,8 @@ def landscape(m,tier):
         p.rotation_euler.z=a;objects.append(p)
     for points,width in [([(0,.1),(0,-.40)],1.85),([(-5.15,-.55),(-2.0,-1.7)],.85),([(5.15,-.55),(2,-1.7)],.85),([(-5.0,-5.1),(-2.0,-4)],.85),([(5,-5.1),(2,-4)],.85),([(-5.4,-6.25),(5.4,-6.25)],.90)]:
         objects+=paver_curve(m,points,width,tier)
-    # Two symmetric but varied garden quarters retain breathing room.
+    # Sakura on these lawns are placed by the game from the shared GLBs.
     for side in [-1,1]:
-        for x,y,scale in [(6.0,2.3,.64),(6.0,-2.8,.68),(6.0,-6.15,.62),(3.05,-5.1,.53)]:
-            objects+=flowering_tree(m,(side*x,y,.30),scale,tier,form='umbrella' if y<0 else 'spreading')
         for x,y,scale in [(3.0,-.75,.80),(2.75,-4.6,.72),(6.8,4.7,.70)]:objects+=pine(m,(side*x,y,.30),scale,tier)
         for x,y,r in [(2.6,-1.1,.55),(2.75,-4.6,.58),(1.0,-5.5,.45),(5.1,1.5,.49),(5.2,-3.2,.46)]:objects+=flower_bed(m,(side*x,y,.30),r,tier,SEED+int(x*9-y*7))
         for y in [-1.8,-2.6,-3.4]:objects+=generate_shrub(m,origin=(side*3.0,y,.31),scale=.57,detail='low',seed=int(y*10)%91)

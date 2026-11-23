@@ -3,7 +3,9 @@ import * as THREE from 'three';
 
 // Ground-local ambient contact: one instanced draw, no depth/scene pass.
 // Castle upgrades retain the footprint; animated canopies remain untouched.
-const CONTACTS = [
+type Contact = readonly [x: number, y: number, z: number, width: number, depth: number];
+
+const CONTACTS: readonly Contact[] = [
   [-4.8, .465, -2.6, 2, 2], [4.8, .465, -2.6, 2, 2],
   [-2.8, .465, -1.8, 1.7, 1.7], [2.8, .465, -1.8, 1.7, 1.7],
   [-3.2, .375, 2, 1.7, 1.7], [3.2, .375, 2, 1.7, 1.7],
@@ -14,19 +16,19 @@ const CONTACTS = [
   [0, .465, -1.8, 10.3, 6.4],
 ];
 
-export function ContactOcclusion() {
+export function ContactOcclusion({ contacts = CONTACTS }: { contacts?: readonly Contact[] }) {
   const mesh = useRef<THREE.InstancedMesh>(null);
   useLayoutEffect(() => {
     const dummy = new THREE.Object3D();
-    CONTACTS.forEach(([x, y, z, width, depth], i) => {
+    contacts.forEach(([x, y, z, width, depth], i) => {
       dummy.position.set(x, y, z); dummy.rotation.x = -Math.PI / 2;
       dummy.scale.set(width, depth, 1); dummy.updateMatrix();
       mesh.current!.setMatrixAt(i, dummy.matrix);
     });
     mesh.current!.instanceMatrix.needsUpdate = true;
     mesh.current!.computeBoundingSphere();
-  }, []);
-  return <instancedMesh ref={mesh} args={[undefined, undefined, CONTACTS.length]} raycast={() => {}}>
+  }, [contacts]);
+  return <instancedMesh ref={mesh} args={[undefined, undefined, contacts.length]} raycast={() => {}}>
     <planeGeometry args={[1, 1]} />
     <shaderMaterial transparent depthWrite={false} polygonOffset polygonOffsetFactor={-1}
       vertexShader={`varying vec2 contactUv;

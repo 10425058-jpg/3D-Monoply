@@ -6,6 +6,9 @@ import {useMotionPreferences} from '../../presentation/useMotionPreferences';
 import {CenterCity3D as ExistingCity} from './CenterCityLegacy';
 import {RoyalCityEffects} from './castle/RoyalCityEffects';
 import {finishCastleMaterial} from './castle/finishCastleMaterial';
+import {SakuraTree3D, sakuraModelUrl} from '../environment/SakuraTree3D';
+import {BOARD_SAKURA} from '../environment/sakuraLayout';
+import {ContactOcclusion} from './ContactOcclusion';
 
 type Quality='low'|'balanced'|'high';
 
@@ -37,12 +40,16 @@ function blueCafeMansard(object:THREE.Mesh):THREE.BufferGeometry|null{
 }
 export const centralCityUrl=(quality:Quality)=>new URL(`assets/models/central-city/central-royal-district${quality==='high'?'':`-${quality}`}.glb`,document.baseURI).href;
 
-class CityAssetBoundary extends React.Component<{children:React.ReactNode},{failed:boolean}>{
+class CityAssetBoundary extends React.Component<{children:React.ReactNode;fallback:React.ReactNode},{failed:boolean}>{
   state={failed:false};
   static getDerivedStateFromError(){return{failed:true};}
   componentDidCatch(error:Error){console.warn('[Central city] district asset unavailable; preserving the existing city.',error.message);}
-  render(){return this.state.failed?<ExistingCity/>:this.props.children;}
+  render(){return this.state.failed?this.props.fallback:this.props.children;}
 }
+
+const FULL_BOARD_TREES = BOARD_SAKURA.filter((_, index) => index % 4 === 1);
+const LITE_BOARD_TREES = BOARD_SAKURA.filter(tree => !FULL_BOARD_TREES.includes(tree));
+const TREE_CONTACTS = BOARD_SAKURA.map(({ position: [x, y, z], scale }) => [x, y + 0.002, z, scale * 2.6, scale * 2.4] as const);
 
 /** Only the decorative city changes. The property ring and all game actors
  * retain their own components, positions, materials and input handlers. */
@@ -50,7 +57,9 @@ export function CenterCity3D({quality='balanced'}:{quality?:Quality}){
   const players=useSceneState(s=>s.players);
   const level=Math.min(5,Math.max(1,...players.map(p=>p.landmarkLevel||0)));
   const {reducedMotion,visible}=useMotionPreferences();
-  return <CityAssetBoundary key={quality}><Suspense fallback={<ExistingCity/>}>
+  if (quality === 'high') useGLTF.preload(sakuraModelUrl('full'));
+  const fallback = <ExistingCity shadows={quality === 'high'} />;
+  return <CityAssetBoundary key={quality} fallback={fallback}><Suspense fallback={fallback}>
     <RoyalDistrict quality={quality} level={level} animate={visible&&!reducedMotion}/>
   </Suspense></CityAssetBoundary>;
 }
@@ -106,6 +115,9 @@ function RoyalDistrict({quality,level,animate}:{quality:Quality;level:number;ani
     {model.parts.map((part,index)=><mesh key={index} name={`royal-city-${part.name}`} geometry={part.geometry} material={part.material}
       matrix={part.matrix} matrixAutoUpdate={false} visible={part.level<=displayedLevel} dispose={null}
       castShadow={part.shadow} receiveShadow raycast={()=>{}}/>) }
+    <ContactOcclusion contacts={TREE_CONTACTS} />
+    <SakuraTree3D name="board-sakura" placements={quality === 'high' ? LITE_BOARD_TREES : BOARD_SAKURA} shadows={quality === 'high'} />
+    {quality === 'high' && <SakuraTree3D name="board-sakura-full" detail="full" placements={FULL_BOARD_TREES} shadows />}
     <RoyalCityEffects anchors={model.anchors} level={displayedLevel} quality={quality} animate={animate}/>
   </group>;
 }
