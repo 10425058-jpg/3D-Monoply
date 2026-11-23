@@ -235,13 +235,13 @@ try {
   const mobileUpgrade = await page.evaluate(() => {
     const action = document.querySelector('.evolution-footer button').getBoundingClientRect();
     const notice = document.querySelector('.match-notice').getBoundingClientRect();
-    const camera = document.querySelector('.camera-toolbar').getBoundingClientRect();
+    const cameraToolbarPresent = document.querySelector('.camera-toolbar') !== null;
     const header = document.querySelector('.resource-bar').getBoundingClientRect();
     return { noticeTop: notice.top, noticeBottom: notice.bottom, actionTop: action.top,
-      cameraTop: camera.top, cameraBottom: camera.bottom, headerBottom: header.bottom };
+      cameraToolbarPresent, headerBottom: header.bottom };
   });
   assert.ok(mobileUpgrade.noticeBottom <= mobileUpgrade.actionTop, JSON.stringify(mobileUpgrade));
-  assert.ok(mobileUpgrade.cameraTop >= mobileUpgrade.headerBottom && mobileUpgrade.cameraBottom <= mobileUpgrade.noticeTop, JSON.stringify(mobileUpgrade));
+  assert.equal(mobileUpgrade.cameraToolbarPresent, false, 'legacy camera toolbar must be removed');
   await capture('12-mobile-upgrade');
   await page.click('.evolution-footer button');
   await wait(() => window.__soloTest.state().properties[6].developmentLevel === 1);
