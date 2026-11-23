@@ -40,6 +40,9 @@ export function CinematicCamera({ request, reducedMotion, propertyPanel }: {
   const outward = useRef(new THREE.Vector3());
   // Preserve the player's viewing angle for user-requested, one-time focus presets.
   const followOffset = useRef(new THREE.Vector3(0, 20, 27));
+  // Snapshot the requested target so turn changes cannot retarget a transition.
+  const focusedPlayerSpace = useRef(position);
+  const focusedPropertySpace = useRef<number | null>(null);
   const fit = useMemo(() => overviewCamera(size.width, size.height, mode === 'top'), [size.width, size.height, mode]);
   const captureFollowAngle = () => {
     const orbit = controls.current;
@@ -50,18 +53,32 @@ export function CinematicCamera({ request, reducedMotion, propertyPanel }: {
   };
 
   useEffect(() => {
-    if (request.preset === 'player' || request.preset === 'movement') captureFollowAngle();
+    if (request.preset === 'player' || request.preset === 'movement') {
+      captureFollowAngle();
+      focusedPlayerSpace.current = position;
+    }
+    if (request.preset === 'property') focusedPropertySpace.current = selected;
     preset.current = request.preset;
     active.current = true;
   }, [request]);
   useEffect(() => {
-    if (mode === 'follow') captureFollowAngle();
+    if (mode === 'follow') {
+      captureFollowAngle();
+      focusedPlayerSpace.current = position;
+    }
     preset.current = mode === 'follow' ? 'player' : mode === 'city' ? 'event' : 'overview';
     active.current = true;
   }, [mode]);
   // Property selection, dice, token movement and turn changes are gameplay events.
   // They must not override a camera angle chosen by the player. Only explicit
   // toolbar requests and camera-mode changes can initiate a new camera transition.
+  useEffect(() => {
+    if (preset.current === 'property' && selected !== focusedPropertySpace.current) {
+      // Closing or changing a property cancels a pending focus without resetting the view.
+      preset.current = 'manual';
+      active.current = false;
+    }
+  }, [selected]);
   useEffect(() => {
     const perspective = camera as THREE.PerspectiveCamera;
     perspective.fov = fit.fov;
@@ -85,14 +102,14 @@ export function CinematicCamera({ request, reducedMotion, propertyPanel }: {
       // Close views retain their existing centered composition and interactions.
       perspective.clearViewOffset();
     }
-    if (preset.current === 'property' && selected !== null) {
-      const [x, , z] = getSpaceTransform(selected).position;
+    if (preset.current === 'property' && focusedPropertySpace.current !== null) {
+      const [x, , z] = getSpaceTransform(focusedPropertySpace.current).position;
       // Retain the existing unobstructed property detail composition.
       outward.current.set(x, 0, z).normalize();
       aim.set(x, 0.5, z);
       dest.set(x + outward.current.x * 10, 17, z + outward.current.z * 10 + 4);
     } else if (preset.current === 'player' || preset.current === 'movement') {
-      const [x, , z] = getSpaceTransform(position).position;
+      const [x, , z] = getSpaceTransform(focusedPlayerSpace.current).position;
       aim.set(x, 0.6, z);
       // A manually selected player preset is a one-time focus, never a tracking mode.
       dest.copy(aim).add(followOffset.current);
