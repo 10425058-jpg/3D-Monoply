@@ -10,7 +10,7 @@ import { overviewCamera } from './overviewCamera';
 export type CameraPreset = 'overview' | 'player' | 'property' | 'dice' | 'movement' | 'event';
 export const CAMERA_PRESETS: Record<CameraPreset, string> = {
   overview: 'Board overview', player: 'Current player', property: 'Selected property',
-  dice: 'Dice roll', movement: 'Player movement', event: 'Castle & special event',
+  dice: 'Dice roll', movement: 'Focus player (once)', event: 'Castle & special event',
 };
 
 export function useReducedMotion() {
