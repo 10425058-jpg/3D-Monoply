@@ -57,9 +57,9 @@ export function BoardTileDetails({hoveredId}:{hoveredId:number|null}){
     for(const space of BOARD_SPACES){
       const tf=getSpaceTransform(space.id),id=space.id,isSelected=selected===id,isHovered=[hoveredId,hovered].includes(id);
       const y=isHovered ? .38 : isSelected ? .34 : .26,property=properties[id],owner=players.find(p=>p.id===property?.ownerId);
-      const place=(mesh:THREE.InstancedMesh|null,index:number,x:number,z:number,width:number,height:number,depth:number,offsetY:number,flip=false)=>{
+      const place=(mesh:THREE.InstancedMesh|null,index:number,x:number,z:number,width:number,height:number,depth:number,offsetY:number)=>{
         local.set(x,offsetY,z).applyAxisAngle(up,tf.rotationY);
-        dummy.position.set(tf.position[0]+local.x,y+local.y,tf.position[2]+local.z);dummy.rotation.set(0,tf.rotationY+(flip?Math.PI:0),0);
+        dummy.position.set(tf.position[0]+local.x,y+local.y,tf.position[2]+local.z);dummy.rotation.set(0,tf.rotationY,0);
         dummy.scale.set(width,height,depth);dummy.updateMatrix();mesh?.setMatrixAt(index,dummy.matrix);
       };
       place(labels.current,id,0,tf.isCorner?0:.27,tf.isCorner?2.65:1.65,1,tf.isCorner?2.65:2.05,.075);
@@ -83,12 +83,12 @@ export function BoardTileDetails({hoveredId}:{hoveredId:number|null}){
           place(ownerHalos.current,haloCount,edge.x,edge.z,edge.width,.004,edge.depth,.078);
           ownerHalos.current?.setColorAt(haloCount++,ownerColor);
         }
-        place(badges.current,badgeCount,-.57,tf.depth/2-.24,.31,1,.31,.091,id>=20);
+        place(badges.current,badgeCount,-.57,tf.depth/2-.24,.31,1,.31,.091);
         ownerBadges.current.set(id,{index:badgeCount,matrix:dummy.matrix.clone()});
         badgeRects.setXYZW(badgeCount++,...badgeAtlasRect(players.findIndex(p=>p.id===owner.id)) as [number,number,number,number]);
       }
       if(property?.isMortgaged){
-        place(badges.current,badgeCount,.57,tf.depth/2-.24,.31,1,.31,.092,id>=20);
+        place(badges.current,badgeCount,.57,tf.depth/2-.24,.31,1,.31,.092);
         badgeRects.setXYZW(badgeCount++,...badgeAtlasRect(6) as [number,number,number,number]);
       }
       const landed=landedId===id;
