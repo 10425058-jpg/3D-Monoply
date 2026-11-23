@@ -8,8 +8,9 @@ import { usePresentationEvents } from '../../presentation/PresentationProvider';
 import type { PresentationEvent } from '../../presentation/effectEvents';
 import { useSceneState } from '../../presentation/SceneStore';
 import { releaseInstanceBuffers } from '../environment/instanceResources';
+import { isArcadeOwnerTintMaterial, prepareArcadeRoofForOwnerTint } from './arcadeOwnerRoofMaterial';
 import {
-  ARCADE_PROPERTY_STAGES, CONSTRUCTION_MS, HOTEL_CONSTRUCTION_MS, OWNER_PENNANT_MATERIAL,
+  ARCADE_PROPERTY_STAGES, CONSTRUCTION_MS, HOTEL_CONSTRUCTION_MS,
   arcadeConstructionPose, arcadePlotPlacement, arcadePropertyAsset,
 } from './arcadePropertyLayout';
 
@@ -35,12 +36,13 @@ let paletteAtlas: THREE.Texture | undefined;
 function sharedMaterial(source: THREE.Material) {
   const cached = palette.get(source.name);
   if (cached) return cached;
-  if (source instanceof THREE.MeshStandardMaterial && source.map) {
-    paletteAtlas ??= source.map;
-    source.map = paletteAtlas;
+  const material = prepareArcadeRoofForOwnerTint(source);
+  if (material instanceof THREE.MeshStandardMaterial && material.map) {
+    paletteAtlas ??= material.map;
+    material.map = paletteAtlas;
   }
-  palette.set(source.name, source);
-  return source;
+  palette.set(source.name, material);
+  return material;
 }
 
 const models = new Map<Stage, StageModel>();
@@ -91,10 +93,10 @@ function LotFallback({ sites, level }: { sites: readonly Site[]; level: ArcadeLe
         </mesh>
         <mesh position={[0, .31 + level * .22, 0]} scale={[1, 1, .50]} raycast={NO_RAYCAST}>
           <cylinderGeometry args={[level === 2 ? .32 : .02, .57, .22 + level * .023, 4]} />
-          <meshStandardMaterial color="#2a59a7" />
+          <meshStandardMaterial color={site.color} />
         </mesh>
         {level === 3 && [-.46, .46].map(x => <mesh key={x} position={[x, 1.04, 0]} raycast={NO_RAYCAST}>
-          <coneGeometry args={[.16, .42, 8]} /><meshStandardMaterial color="#214986" />
+          <coneGeometry args={[.16, .42, 8]} /><meshStandardMaterial color={site.color} />
         </mesh>)}
       </>}
     </group>)}
@@ -135,7 +137,7 @@ function PropertyBatch({ stage, level, sites, quality, active, parts }: Property
     sites.forEach((site, slot) => {
       place(site, slot, settledPose);
       parts.forEach(({ material }, index) => {
-        if (material.name === OWNER_PENNANT_MATERIAL) {
+        if (isArcadeOwnerTintMaterial(material.name)) {
           pose.color.set(site.color);
           if (site.mortgaged) pose.color.lerp(new THREE.Color('#80738d'), .52);
         } else {

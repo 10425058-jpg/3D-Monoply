@@ -2,6 +2,10 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
+import * as THREE from 'three';
+import {
+  ARCADE_OWNER_ROOF_MATERIAL, isArcadeOwnerTintMaterial, prepareArcadeRoofForOwnerTint,
+} from '../src/components/3d/arcadeOwnerRoofMaterial';
 import { BOARD_SPACES, getSpaceTransform } from '../src/data/boardData';
 import {
   ARCADE_PROPERTY_STAGES, CONSTRUCTION_MS, HOTEL_CONSTRUCTION_MS, OWNER_PENNANT_MATERIAL,
@@ -75,4 +79,28 @@ test('construction rises briefly and fully settles after its committed lifetime'
   assert.ok(start.height > 0 && midway.height > start.height);
   assert.ok(HOTEL_CONSTRUCTION_MS > CONSTRUCTION_MS && HOTEL_CONSTRUCTION_MS < 1000);
   assert.deepEqual(arcadeConstructionPose(10_000, CONSTRUCTION_MS), { t: 1, width: 1, height: 1 });
+});
+
+test('house, apartment and hotel use owner-tintable roofs without changing other GLB materials', () => {
+  const atlas = new THREE.Texture();
+  const source = new THREE.MeshStandardMaterial({ map: atlas, color: '#ffffff', roughness: .41, metalness: .08 });
+  source.name = ARCADE_OWNER_ROOF_MATERIAL;
+  const roof = prepareArcadeRoofForOwnerTint(source) as THREE.MeshStandardMaterial;
+  assert.notEqual(roof, source);
+  assert.equal(roof.map, null, 'the original blue atlas must not multiply player colors');
+  assert.equal(roof.color.getHex(), 0xffffff);
+  assert.equal(roof.roughness, source.roughness);
+  assert.equal(roof.metalness, source.metalness);
+  assert.equal(source.map, atlas, 'source GLB material remains unchanged');
+  assert.equal(isArcadeOwnerTintMaterial(OWNER_PENNANT_MATERIAL), true);
+  assert.equal(isArcadeOwnerTintMaterial(ARCADE_OWNER_ROOF_MATERIAL), true);
+  assert.equal(isArcadeOwnerTintMaterial('Arcade Painted limestone'), false);
+  assert.equal(isArcadeOwnerTintMaterial('Arcade Antique brass'), false);
+  for (const stage of ARCADE_PROPERTY_STAGES.slice(1)) {
+    const bytes = readPublic(arcadePropertyAsset(stage, 'glb'));
+    const gltf = JSON.parse(bytes.toString('utf8', 20, 20 + bytes.readUInt32LE(12)));
+    assert.ok(gltf.materials.some(({ name }: { name: string }) => name === ARCADE_OWNER_ROOF_MATERIAL),
+      `${stage} must have an independent roof material to tint`);
+  }
+  roof.dispose(); source.dispose(); atlas.dispose();
 });
