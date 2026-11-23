@@ -69,7 +69,7 @@ try {
   await page.click('[aria-label="Close property card"]');
   await wait(() => window.__graphicsAudit.game().selectedSpaceId === null);
   results.pointerSelection = true;
-  await page.select('select[aria-label="Camera view"]', 'event');
+  await page.evaluate(() => window.__graphicsAudit.camera([14, 17, 24], [0, 2.3, -1.8]));
   await pause(300);
   results.reducedCamera = await page.evaluate(() => window.__graphicsAudit.metadata().camera);
   await page.screenshot({ path: `${out}/reduced-motion-castle-fountain.png` });
@@ -103,7 +103,7 @@ try {
   results.hiddenTabPause = true;
 
   await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
-  await page.click('.camera-toolbar button'); await pause(200);
+  await page.evaluate(() => window.__graphicsAudit.camera([0, 29, 27], [0, 0.7, 0])); await pause(200);
   await page.evaluate(() => {
     let faces = [1, 2]; const original = Math.random;
     Math.random = () => { const value = (faces.shift() - 0.5) / 6; if (!faces.length) Math.random = original; return value; };
