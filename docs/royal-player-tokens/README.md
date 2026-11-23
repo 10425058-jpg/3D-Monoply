@@ -6,7 +6,7 @@ The four miniatures were modeled in Blender 5.2.3 LTS from the supplied concepts
 | --- | --- | --- | --- |
 | `racecar` | [Royal Carriage](master/RoyalCarriage.glb) · 3.91 MB · 204,840 triangles | [GLB](../../public/assets/models/player-tokens/RoyalCarriage.glb) · 848 kB · 36,192 triangles · 8 draws | [Carriage](comparisons/RoyalCarriage.jpg) |
 | `cat` | [Royal Unicorn](master/RoyalUnicorn.glb) · 6.53 MB · 258,152 triangles | [GLB](../../public/assets/models/player-tokens/RoyalUnicorn.glb) · 650 kB · 27,670 triangles · 8 draws | [Unicorn](comparisons/RoyalUnicorn.jpg) |
-| `top_hat` | [Royal Pegasus](master/RoyalPegasus.glb) · 6.96 MB · 284,592 triangles | [GLB](../../public/assets/models/player-tokens/RoyalPegasus.glb) · 794 kB · 34,038 triangles · 10 draws | [Pegasus](comparisons/RoyalPegasus.jpg) |
+| `yacht`, `top_hat` | [Royal Pegasus](master/RoyalPegasus.glb) · 6.96 MB · 284,592 triangles | [GLB](../../public/assets/models/player-tokens/RoyalPegasus.glb) · 794 kB · 34,038 triangles · 10 draws | [Pegasus](comparisons/RoyalPegasus.jpg) |
 | `rubber_duck` | [Royal Griffin](master/RoyalGriffin.glb) · 7.03 MB · 291,792 triangles | [GLB](../../public/assets/models/player-tokens/RoyalGriffin.glb) · 826 kB · 35,524 triangles · 8 draws | [Griffin](comparisons/RoyalGriffin.jpg) |
 
 Sizes are decimal. Draw counts cover the visible material batches before any shadow passes. The [asset inventory](asset-inventory.json) records the exact byte counts, bounds, triangles, atlas dimensions and SHA-256 hashes. The four game GLBs total 3.12 MB and 133,424 triangles.
@@ -24,7 +24,7 @@ The source textures are procedural and the models use embedded PBR materials. Th
 
 Drei loads the game GLBs by URL and shares their geometries, materials and textures between token instances. The fit uses each mesh’s ground plane, height and horizontal radius. The loader places each token inside the existing animated group, with the original token available during loading or if the GLB fails to load. The game adds selective shadow casting to the main surfaces and keeps the existing ring colors.
 
-Solo and online use the same renderer. The stock four-seat lineup uses `yacht` in its fourth seat. Pegasus appears when an existing game uses `top_hat`. The online lobby shows the new display names for mapped IDs and keeps the existing seat assignments.
+Solo and online use the same renderer. The fourth seat displays Royal Pegasus through its existing `yacht` ID. Existing games using `top_hat` also display Pegasus. The online lobby uses the same model names for those IDs.
 
 ## Verify and regenerate
 
@@ -49,15 +49,15 @@ node scripts/royal-tokens-browser.mjs
 
 - TypeScript and the Vite production build passed. The four production GLBs matched their validated source hashes.
 - All eight GLBs passed binary inspection for material and texture references, indexed geometry, normals, and ground-aligned Y-up bounds.
-- The existing Solo, Online, animation and menu suites passed. The V6 graphics suite passed 16 of 17 checks. Its ownership-rail assertion reports `4 !== 2` on both main and the feature branch.
-- Chrome decoded every atlas and loaded all four production URLs. It verified the gold, pink, blue and green identity rings, four actors on GO and four actors on a property tile at 414 × 780. A real dice roll took the Griffin clockwise from GO to tile 8 and captured an airborne frame. A simulated missing Pegasus GLB left its identity ring and the board playable.
+- The existing Solo, Online, animation and menu suites passed. The original asset PR and its base revision both reported `4 !== 2` in the V6 graphics ownership-rail assertion.
+- Chrome loaded all four GLBs in the default match, including Pegasus in the green fourth seat. The legacy `top_hat` fixture also showed Pegasus and verified all four actors on a property tile at 414 × 780. A real dice roll took the Griffin from GO to tile 8 and captured an airborne frame. A simulated missing Pegasus GLB left the fourth ring visible and the default match playable.
 
 | Balanced desktop run | Median frame | 95th-percentile frame | Median draw calls | Median triangles including shadow passes |
 | --- | ---: | ---: | ---: | ---: |
-| Main at `5e6472b`, stock lineup | 45.4 ms | 63.7 ms | 204 | 580,315 |
-| Updated stock lineup | 41.7 ms | 53.6 ms | 191 | 720,315 |
-| All four royal tokens | 48.5 ms | 62.1 ms | 196 | 814,539 |
+| Main at `5e6472b`, stock lineup | 55.0 ms | 82.0 ms | 209 | 618,993 |
+| Updated stock lineup | 58.6 ms | 76.2 ms | 196 | 814,539 |
+| Legacy `top_hat` fixture | 67.7 ms | 92.5 ms | 196 | 814,539 |
 
-Chrome reported an AMD Radeon 610M through Direct3D 11. The baseline and updated stock lineup use the same viewport, camera and four-seat fixture. Timings vary with host load. The final samples and actor bounds are in [runtime.json](browser/runtime.json).
+Chrome reported an AMD Radeon 610M through Direct3D 11. The before and after captures use the same viewport, camera and default four-seat match. Timings vary with host load. The final samples and actor bounds are in [runtime.json](browser/runtime.json).
 
 [Before](browser/baseline-shared-corner.jpg) · [After](browser/updated-shared-corner.jpg) · [All four on GO](browser/all-four-at-go.jpg) · [Board overview](browser/desktop-board-overview.jpg) · [Small viewport](browser/small-viewport-shared-property.jpg)

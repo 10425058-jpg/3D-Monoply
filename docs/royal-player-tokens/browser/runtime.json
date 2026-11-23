@@ -1,19 +1,141 @@
 {
   "baseline": {
     "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
-    "frames": 75,
-    "medianMs": 45.4,
-    "p95Ms": 63.7,
-    "medianCalls": 204,
-    "medianTriangles": 580315
+    "frames": 61,
+    "medianMs": 55,
+    "p95Ms": 82,
+    "medianCalls": 209,
+    "medianTriangles": 618993
   },
+  "defaultLineup": [
+    {
+      "id": 0,
+      "token": "rubber_duck",
+      "ai": false,
+      "tile": 0,
+      "asset": "RoyalGriffin.glb",
+      "position": [
+        9.960121933088198,
+        0.34,
+        9.960121933088198
+      ],
+      "heading": 0,
+      "bounds": {
+        "min": [
+          9.540940284662831,
+          0.34,
+          9.582423781451851
+        ],
+        "max": [
+          10.379303581513565,
+          0.9728938500749678,
+          10.337820084724545
+        ]
+      },
+      "identityColor": "#f59e0b",
+      "triangles": 35524,
+      "drawMeshes": 8,
+      "shadowCasters": 2,
+      "textures": 1
+    },
+    {
+      "id": 1,
+      "token": "cat",
+      "ai": true,
+      "tile": 0,
+      "asset": "RoyalUnicorn.glb",
+      "position": [
+        9.139878066911804,
+        0.34,
+        9.960121933088198
+      ],
+      "heading": 0,
+      "bounds": {
+        "min": [
+          8.979773749232809,
+          0.34,
+          9.543901107333035
+        ],
+        "max": [
+          9.299982384590798,
+          1.011331200302789,
+          10.37634275884336
+        ]
+      },
+      "identityColor": "#ec4899",
+      "triangles": 27670,
+      "drawMeshes": 8,
+      "shadowCasters": 1,
+      "textures": 1
+    },
+    {
+      "id": 2,
+      "token": "racecar",
+      "ai": true,
+      "tile": 0,
+      "asset": "RoyalCarriage.glb",
+      "position": [
+        9.139878066911804,
+        0.34,
+        9.139878066911804
+      ],
+      "heading": 0,
+      "bounds": {
+        "min": [
+          8.838077973478534,
+          0.34,
+          8.812142039699946
+        ],
+        "max": [
+          9.441678160345074,
+          1.2101628471141817,
+          9.467614094123661
+        ]
+      },
+      "identityColor": "#3b82f6",
+      "triangles": 36192,
+      "drawMeshes": 8,
+      "shadowCasters": 2,
+      "textures": 1
+    },
+    {
+      "id": 3,
+      "token": "yacht",
+      "ai": true,
+      "tile": 0,
+      "asset": "RoyalPegasus.glb",
+      "position": [
+        9.960121933088198,
+        0.34,
+        9.139878066911804
+      ],
+      "heading": 0,
+      "bounds": {
+        "min": [
+          9.587196615642425,
+          0.34,
+          8.733166497987348
+        ],
+        "max": [
+          10.333047250533971,
+          1.0007118582903423,
+          9.54658963583626
+        ]
+      },
+      "identityColor": "#10b981",
+      "triangles": 34038,
+      "drawMeshes": 10,
+      "shadowCasters": 2,
+      "textures": 1
+    }
+  ],
   "shippedLineup": {
     "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
-    "frames": 82,
-    "medianMs": 41.7,
-    "p95Ms": 53.6,
-    "medianCalls": 191,
-    "medianTriangles": 720315
+    "frames": 59,
+    "medianMs": 58.6,
+    "p95Ms": 76.2,
+    "medianCalls": 196,
+    "medianTriangles": 814539
   },
   "corner": [
     {
@@ -139,16 +261,16 @@
   ],
   "allFour": {
     "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
-    "frames": 70,
-    "medianMs": 48.5,
-    "p95Ms": 62.1,
+    "frames": 50,
+    "medianMs": 67.7,
+    "p95Ms": 92.5,
     "medianCalls": 196,
     "medianTriangles": 814539
   },
   "movement": {
     "from": 0,
     "to": 8,
-    "hopHeight": 0.7076095568045035,
+    "hopHeight": 0.3980521761664798,
     "finalHeading": -1.5707963267948966
   },
   "property": [
@@ -196,14 +318,14 @@
       "heading": 0,
       "bounds": {
         "min": [
-          -10.101547413704642,
+          -10.120226250767193,
           0.34,
-          -5.3575397963288625
+          -5.406098892666964
         ],
         "max": [
-          -9.818696452471753,
-          0.9330092269341304,
-          -4.6222163374947405
+          -9.800017615409203,
+          1.011331200302789,
+          -4.5736572411566385
         ]
       },
       "identityColor": "#ec4899",
@@ -226,14 +348,14 @@
       "heading": 0,
       "bounds": {
         "min": [
-          -10.226712015620919,
+          -10.261922026521468,
           0.34,
-          -6.099622090458671
+          -6.137857960300054
         ],
         "max": [
-          -9.693531850555477,
-          1.1086438482841938,
-          -5.520621775717722
+          -9.658321839654928,
+          1.2101628471141817,
+          -5.482385905876339
         ]
       },
       "identityColor": "#3b82f6",
@@ -256,14 +378,14 @@
       "heading": 0,
       "bounds": {
         "min": [
-          -9.46929543065557,
+          -9.512803384357577,
           0.34,
-          -6.1693838189714665
+          -6.216833502012653
         ],
         "max": [
-          -8.810460703168037,
-          0.923628808156469,
-          -5.4508600472049284
+          -8.76695274946603,
+          1.0007118582903423,
+          -5.403410364163742
         ]
       },
       "identityColor": "#10b981",

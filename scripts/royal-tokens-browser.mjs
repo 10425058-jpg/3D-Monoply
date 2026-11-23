@@ -33,7 +33,7 @@ await page.setViewport({ width: 1366, height: 900, deviceScaleFactor: 1 });
 async function game(url, fixture) {
   await page.goto(`${url}/?soloTest&graphicsAudit#solo`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => window.__soloTest?.fixture && window.__graphicsAudit?.actors);
-  return page.evaluate(name => window.__soloTest.fixture(name), fixture);
+  if (fixture) await page.evaluate(name => window.__soloTest.fixture(name), fixture);
 }
 
 const readTokens = () => page.evaluate(() => window.__graphicsAudit.royalTokens());
@@ -47,6 +47,9 @@ async function screenshot(name) {
 }
 
 async function closeView(x, z) {
+  const { width, height } = page.viewport();
+  await page.mouse.move(width / 2, height / 2);
+  await page.mouse.wheel({ deltaY: 1 });
   await page.mouse.move(7, 7);
   await page.evaluate(([x, z]) => window.__graphicsAudit.camera([x+4.8, 3.7, z+5.8], [x, .34, z]), [x, z]);
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
@@ -110,12 +113,11 @@ async function checkMissingModel() {
     });
     await tab.goto(`${origin}/?soloTest&graphicsAudit#solo`, { waitUntil: 'domcontentloaded' });
     await tab.waitForFunction(() => window.__soloTest?.fixture && window.__graphicsAudit?.royalTokens);
-    await tab.evaluate(() => window.__soloTest.fixture('royal-tokens'));
     await tab.waitForNetworkIdle();
     await tab.waitForFunction(() => window.__graphicsAudit.royalTokens().filter(token => token.asset).length === 3 &&
       document.querySelector('[aria-label="Roll dice"]:enabled'));
     assert.ok(warnings.some(message => message.includes('Royal Pegasus could not load')));
-    const missing = await tab.evaluate(() => window.__graphicsAudit.royalTokens().find(token => token.token === 'top_hat'));
+    const missing = await tab.evaluate(() => window.__graphicsAudit.royalTokens().find(token => token.token === 'yacht'));
     assert.equal(missing.asset, undefined);
     assert.equal(missing.identityColor, '#10b981');
     assert.deepEqual(errors, []);
@@ -128,15 +130,19 @@ async function checkMissingModel() {
 try {
   const evidence = {};
   if (baseline) {
-    await game(baseline, 'arcade-gallery-empty');
+    await game(baseline);
     await page.waitForFunction(() => window.__centralCityAudit?.ready);
     await closeView(9.55,9.55);
     evidence.baseline = await measure();
     await screenshot('baseline-shared-corner');
   }
-  await game(origin, 'arcade-gallery-empty');
-  await page.waitForFunction(() => window.__centralCityAudit?.ready &&
-    window.__graphicsAudit.royalTokens().filter(token => token.asset).length === 3);
+  await game(origin);
+  await page.waitForFunction(() => window.__centralCityAudit?.ready);
+  await waitForTokens(0);
+  evidence.defaultLineup = await readTokens();
+  assert.deepEqual(evidence.defaultLineup.map(token => token.token), ['rubber_duck', 'cat', 'racecar', 'yacht']);
+  checkPlacement(evidence.defaultLineup, { x: 9.55, z: 9.55, width: 2.9, depth: 2.9, tile: 0 });
+  await screenshot('desktop-board-overview');
   await closeView(9.55,9.55);
   evidence.shippedLineup = await measure();
   await screenshot('updated-shared-corner');
@@ -144,8 +150,8 @@ try {
   await game(origin, 'royal-tokens');
   await waitForTokens(0);
   evidence.corner = await readTokens();
+  assert.equal(evidence.corner[3].token, 'top_hat');
   checkPlacement(evidence.corner, { x: 9.55, z: 9.55, width: 2.9, depth: 2.9, tile: 0 });
-  await screenshot('desktop-board-overview');
   await closeView(9.55,9.55);
   await screenshot('all-four-at-go');
   evidence.allFour = await measure();
