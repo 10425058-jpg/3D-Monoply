@@ -159,7 +159,7 @@ export const SculptedRoof: React.FC<{
   height,
   hasDormer = true,
   dormerAngle = 0,
-  flagColor = CASTLE_COLORS.bannerRed,
+  flagColor = CASTLE_COLORS.bannerBlue,
   flagRef,
 }) => {
   // Stepped scalloped roof tile rings
@@ -710,7 +710,7 @@ export const CastleTower: React.FC<{
   hasWindow = true,
   hasDormer = true,
   dormerAngle = 0,
-  flagColor = CASTLE_COLORS.bannerRed,
+  flagColor = CASTLE_COLORS.bannerBlue,
   flagRef,
   scale = 1,
 }) => {

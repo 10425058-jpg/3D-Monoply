@@ -295,7 +295,7 @@ export const CentralCastle: React.FC<CentralCastleProps> = ({ level = 5 }) => {
         hasWindow
         hasDormer
         dormerAngle={0.2}
-        flagColor={CASTLE_COLORS.bannerRed}
+        flagColor={CASTLE_COLORS.bannerBlue}
         flagRef={flag2Ref}
       />
       <CastleTower
@@ -308,7 +308,7 @@ export const CentralCastle: React.FC<CentralCastleProps> = ({ level = 5 }) => {
         hasWindow
         hasDormer
         dormerAngle={-0.2}
-        flagColor={CASTLE_COLORS.bannerRed}
+        flagColor={CASTLE_COLORS.bannerBlue}
         flagRef={flag3Ref}
       />
 
@@ -386,7 +386,7 @@ export const CentralCastle: React.FC<CentralCastleProps> = ({ level = 5 }) => {
             height={3.0}
             hasDormer
             dormerAngle={0}
-            flagColor={CASTLE_COLORS.bannerRed}
+            flagColor={CASTLE_COLORS.bannerBlue}
             flagRef={flag1Ref}
           />
         </group>
@@ -436,7 +436,7 @@ export const CentralCastle: React.FC<CentralCastleProps> = ({ level = 5 }) => {
                   radius={0.52}
                   height={1.05}
                   hasDormer={false}
-                  flagColor={CASTLE_COLORS.bannerRed}
+                  flagColor={CASTLE_COLORS.bannerBlue}
                 />
               </group>
             </group>
