@@ -165,9 +165,6 @@
 .match-notice-detail p { margin: 3px 0; }
 .match-notice-detail b { color: #ffda8c; }
 .match-notice-detail .activity-transfer { margin-top: 3px; }
-@media (min-width: 1151px) {
-  .monopoly-app:has(.match-notice-detail) .camera-toolbar { top: 132px; }
-}
 @media (max-width: 1150px) {
   .match-activity--solo { top: 114px; right: 84px; }
   .match-notices--solo { top: 136px; width: min(320px, calc(100vw - 28px)); }
