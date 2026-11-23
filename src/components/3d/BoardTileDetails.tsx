@@ -24,7 +24,7 @@ export function BoardTileDetails({hoveredId}:{hoveredId:number|null}){
   const anisotropy=useThree(s=>s.gl.capabilities.getMaxAnisotropy());
   const labels=useRef<THREE.InstancedMesh>(null),bands=useRef<THREE.InstancedMesh>(null),dividers=useRef<THREE.InstancedMesh>(null);
   const badges=useRef<THREE.InstancedMesh>(null),ribbons=useRef<THREE.InstancedMesh>(null),frames=useRef<THREE.InstancedMesh>(null);
-  const ownerEdges=useRef<THREE.InstancedMesh>(null);
+  const ownerEdges=useRef<THREE.InstancedMesh>(null),ownerHalos=useRef<THREE.InstancedMesh>(null);
   const resources=useMemo(()=>{
     const texture=createBoardTileAtlas(anisotropy),box=new THREE.BoxGeometry(1,1,1);
     const plane=(count:number)=>{const g=new THREE.PlaneGeometry(1,1);g.rotateX(-Math.PI/2);g.setAttribute('atlasRect',new THREE.InstancedBufferAttribute(new Float32Array(count*4),4));return g;};
@@ -38,16 +38,20 @@ export function BoardTileDetails({hoveredId}:{hoveredId:number|null}){
     const bandMaterial=new THREE.MeshStandardMaterial({color:'#ffffff',roughness:.6,metalness:.03});
     const goldMaterial=new THREE.MeshStandardMaterial({color:'#d5b06d',roughness:.4,metalness:.56});
     const stateMaterial=new THREE.MeshStandardMaterial({color:'#ffffff',roughness:.52,metalness:.15});
-    return {texture,box,labelGeometry,badgeGeometry,labelMaterial,bandMaterial,goldMaterial,stateMaterial};
+    // Self-lit owner frame plus a wider additive halo, so ownership reads from the overview camera.
+    const glowMaterial=new THREE.MeshBasicMaterial({color:'#ffffff',toneMapped:false});
+    const haloMaterial=new THREE.MeshBasicMaterial({color:'#ffffff',transparent:true,opacity:.38,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false});
+    return {texture,box,labelGeometry,badgeGeometry,labelMaterial,bandMaterial,goldMaterial,stateMaterial,glowMaterial,haloMaterial};
   },[anisotropy]);
   useEffect(()=>()=>{resources.texture.dispose();resources.box.dispose();resources.labelGeometry.dispose();resources.badgeGeometry.dispose();
-    resources.labelMaterial.dispose();resources.bandMaterial.dispose();resources.goldMaterial.dispose();resources.stateMaterial.dispose();},[resources]);
-  useEffect(()=>{const instances=[labels.current,bands.current,dividers.current,badges.current,ribbons.current,frames.current,ownerEdges.current];return()=>instances.forEach(i=>{if(i)releaseInstanceBuffers(i);});},[]);
+    resources.labelMaterial.dispose();resources.bandMaterial.dispose();resources.goldMaterial.dispose();resources.stateMaterial.dispose();
+    resources.glowMaterial.dispose();resources.haloMaterial.dispose();},[resources]);
+  useEffect(()=>{const instances=[labels.current,bands.current,dividers.current,badges.current,ribbons.current,frames.current,ownerEdges.current,ownerHalos.current];return()=>instances.forEach(i=>{if(i)releaseInstanceBuffers(i);});},[]);
   useLayoutEffect(()=>{
     const players=store.getState().players;
     ownerBadges.current.clear();
     animated.current.clear();
-    const dummy=new THREE.Object3D(),local=new THREE.Vector3(),up=new THREE.Vector3(0,1,0);let bandCount=0,badgeCount=0,ribbonCount=0,frameCount=0,edgeCount=0;
+    const dummy=new THREE.Object3D(),local=new THREE.Vector3(),up=new THREE.Vector3(0,1,0);let bandCount=0,badgeCount=0,ribbonCount=0,frameCount=0,edgeCount=0,haloCount=0;
     const labelRects=resources.labelGeometry.getAttribute('atlasRect') as THREE.InstancedBufferAttribute;
     const badgeRects=resources.badgeGeometry.getAttribute('atlasRect') as THREE.InstancedBufferAttribute;
     for(const space of BOARD_SPACES){
@@ -66,11 +70,18 @@ export function BoardTileDetails({hoveredId}:{hoveredId:number|null}){
         place(dividers.current,bandCount,0,-tf.depth/2+.65,tf.width-.15,.014,.025,.086);bandCount++;
       }
       if(owner){
+        // A mortgaged deed keeps its owner colour, faded toward grey.
+        const ownerColor=new THREE.Color(owner.color);
+        if(property?.isMortgaged)ownerColor.lerp(new THREE.Color('#8a8f99'),.6);
         place(ribbons.current,ribbonCount,0,tf.depth/2-.13,tf.width-.17,.025,.14,.073);
-        ribbons.current?.setColorAt(ribbonCount++,new THREE.Color(owner.color));
+        ribbons.current?.setColorAt(ribbonCount++,ownerColor);
         for(const edge of ownerEdgeLayout(tf.width,tf.depth)){
           place(ownerEdges.current,edgeCount,edge.x,edge.z,edge.width,.014,edge.depth,.08);
-          ownerEdges.current?.setColorAt(edgeCount++,new THREE.Color(owner.color));
+          ownerEdges.current?.setColorAt(edgeCount++,ownerColor);
+        }
+        for(const edge of ownerEdgeLayout(tf.width,tf.depth,.17)){
+          place(ownerHalos.current,haloCount,edge.x,edge.z,edge.width,.004,edge.depth,.078);
+          ownerHalos.current?.setColorAt(haloCount++,ownerColor);
         }
         place(badges.current,badgeCount,-.57,tf.depth/2-.24,.31,1,.31,.091,id>=20);
         ownerBadges.current.set(id,{index:badgeCount,matrix:dummy.matrix.clone()});
@@ -92,11 +103,13 @@ export function BoardTileDetails({hoveredId}:{hoveredId:number|null}){
       }
     }
     labelRects.needsUpdate=true;badgeRects.needsUpdate=true;
-    for(const [mesh,count] of [[labels.current,40],[bands.current,bandCount],[dividers.current,bandCount],[badges.current,badgeCount],[ribbons.current,ribbonCount],[frames.current,frameCount],[ownerEdges.current,edgeCount]] as const){
+    for(const [mesh,count] of [[labels.current,40],[bands.current,bandCount],[dividers.current,bandCount],[badges.current,badgeCount],[ribbons.current,ribbonCount],[frames.current,frameCount],[ownerEdges.current,edgeCount],[ownerHalos.current,haloCount]] as const){
       if(!mesh)continue;mesh.count=count;mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;mesh.computeBoundingSphere();
     }
   },[resources,store,properties,seatColors,selected,hoveredId,hovered,auctionId,landedId,landedCash]);
   useFrame(()=>{
+    // Gentle breathing glow on owned tiles; steady when reduced motion is on.
+    resources.haloMaterial.opacity=reducedMotion?.38:.32+Math.sin(performance.now()/650)*.14;
     const mesh=badges.current;
     if(!mesh)return;
     const now=performance.now();
@@ -131,7 +144,8 @@ export function BoardTileDetails({hoveredId}:{hoveredId:number|null}){
     <instancedMesh ref={dividers} args={[resources.box,resources.goldMaterial,22]} name="board-gold-dividers" dispose={null} raycast={()=>{}}/>
     <instancedMesh ref={badges} args={[resources.badgeGeometry,resources.labelMaterial,56]} name="board-owner-mortgage-marks" dispose={null} raycast={()=>{}}/>
     <instancedMesh ref={ribbons} args={[resources.box,resources.stateMaterial,28]} name="board-owner-trim" dispose={null} raycast={()=>{}}/>
-    <instancedMesh ref={ownerEdges} args={[resources.box,resources.stateMaterial,56]} name="board-owner-edges" dispose={null} raycast={()=>{}}/>
+    <instancedMesh ref={ownerHalos} args={[resources.box,resources.haloMaterial,112]} name="board-owner-glow" dispose={null} raycast={()=>{}}/>
+    <instancedMesh ref={ownerEdges} args={[resources.box,resources.glowMaterial,112]} name="board-owner-edges" dispose={null} raycast={()=>{}}/>
     <instancedMesh ref={frames} args={[resources.box,resources.stateMaterial,20]} name="board-interaction-outlines" dispose={null} raycast={()=>{}}/>
   </group>;
 }

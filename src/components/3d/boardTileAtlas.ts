@@ -61,19 +61,28 @@ export function createBoardTileAtlas(anisotropy:number){
       c.font='700 8px Arial';c.fillStyle=gold;if(s.id===0)c.fillText('BASE SALARY $200',0,44);if(s.id===10)c.fillText('JUST VISITING',0,43);
       c.restore();
     }else{
-      const {result,size}=lines(s.name,s.type==='property'?21:19),middle=s.type==='property'?73:43;
+      const {result,size}=lines(s.name,s.type==='property'?26:22),middle=s.type==='property'?73:43;
       result.forEach((line,i)=>text(line,middle+((flip?result.length-1-i:i)-(result.length-1)/2)*(size+3),size,flip));
       if(s.type!=='property')icon(s.type==='utility'?(s.id===12?'electric':'water'):s.type,flip);
       if(s.price!==undefined||s.taxAmount!==undefined){
-        text(s.taxAmount!==undefined?`PAY $${s.taxAmount}`:`$${s.price}`,164,22,flip);
+        text(s.taxAmount!==undefined?`PAY $${s.taxAmount}`:`$${s.price}`,164,28,flip);
       }
       c.strokeStyle='#b68b4844';c.lineWidth=.7;c.beginPath();c.moveTo(25,143);c.lineTo(103,143);c.stroke();
     }
     c.restore();
   }
   for(let i=0;i<7;i++){
-    c.save();c.translate(i*64+32,992);c.fillStyle='#392442';c.strokeStyle='#dbb76c';c.lineWidth=3;
-    c.beginPath();c.arc(0,0,25,0,Math.PI*2);c.fill();c.stroke();c.fillStyle='#fff1c9';c.font='700 23px Arial';c.textAlign='center';c.textBaseline='middle';c.fillText(i===6?'M':`P${i+1}`,0,1);c.restore();
+    c.save();c.translate(i*64+32,992);c.fillStyle=i===6?'#4a4458':'#392442';c.strokeStyle='#dbb76c';c.lineWidth=3;
+    c.beginPath();c.arc(0,0,25,0,Math.PI*2);c.fill();c.stroke();if(i===6){
+      // Mortgage mark: two interlocking chain links.
+      c.rotate(-Math.PI/4);c.lineWidth=4.5;c.lineCap='round';
+      const link=(cx:number,color:string)=>{c.strokeStyle=color;c.beginPath();
+        c.arc(cx-4.5,0,6.5,Math.PI/2,Math.PI*1.5);c.arc(cx+4.5,0,6.5,-Math.PI/2,Math.PI/2);c.closePath();c.stroke();};
+      link(-6,'#c9ced8');link(6,'#fff1c9');
+      // Redraw part of the first link on top so the two links look interlocked.
+      c.save();c.beginPath();c.rect(-5,-10,10,10);c.clip();link(-6,'#c9ced8');c.restore();
+    }else{c.fillStyle='#fff1c9';c.font='700 23px Arial';c.textAlign='center';c.textBaseline='middle';c.fillText(`P${i+1}`,0,1);}
+    c.restore();
   }
   const texture=new THREE.CanvasTexture(canvas);texture.name='Board V6 engraved labels 1024';texture.colorSpace=THREE.SRGBColorSpace;
   texture.anisotropy=Math.min(16,anisotropy);texture.minFilter=THREE.LinearMipmapLinearFilter;texture.magFilter=THREE.LinearFilter;
