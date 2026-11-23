@@ -2,6 +2,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Castle, Check, Copy, Crown, Dice5, Globe2, Loader2, LockKeyhole, Plus, RefreshCw, Settings2, ShieldCheck, UserRound, Users, Wifi, X } from 'lucide-react';
 import { useStore } from 'zustand';
 import { AudioControls } from '../components/ui/AudioControls';
+import { ROYAL_TOKEN_ASSETS } from '../data/royalTokenAssets';
 import { session } from './config';
 import { useSession } from './useSession';
 import { describeError } from './apiClient';
@@ -13,7 +14,13 @@ export const privateInvites = new Map<string, string>();
 export { useSession } from './useSession';
 export const cash = (value: number) => `$${value.toLocaleString('en-US')}`;
 const short = (id: string) => id.slice(0, 8).toUpperCase();
-export const tokenNames: Record<string, string> = { rubber_duck: 'Golden duck', cat: 'Cat', racecar: 'Racecar', yacht: 'Yacht' };
+export const tokenNames: Record<string, string> = {
+  rubber_duck: ROYAL_TOKEN_ASSETS.rubber_duck.name,
+  cat: ROYAL_TOKEN_ASSETS.cat.name,
+  racecar: ROYAL_TOKEN_ASSETS.racecar.name,
+  top_hat: ROYAL_TOKEN_ASSETS.top_hat.name,
+  yacht: 'Yacht',
+};
 
 export function Dialog({ title, children, onClose }: { title: string; children: React.ReactNode; onClose: () => void }) {
   const ref = useRef<HTMLDialogElement>(null);

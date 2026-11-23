@@ -1,11 +1,13 @@
 import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { AnimatedToken } from './AnimatedToken';
+import { RoyalToken } from './RoyalToken';
 import { ArcadePropertyLots } from './ArcadePropertyLots';
 import { useMotionPreferences } from '../../presentation/useMotionPreferences';
 import * as THREE from 'three';
 import { useSceneState as useGameStore, useSceneStore } from '../../presentation/SceneStore';
 import { BOARD_SPACES, getSpaceTransform } from '../../data/boardData';
+import { royalTokenAsset } from '../../data/royalTokenAssets';
 import { TokenType } from '../../types/game';
 import {tileActorHeight, TOKEN_RING_OUTER_RADIUS, tokenRingScale} from '../../presentation/animationMath';
 
@@ -256,11 +258,13 @@ export const TokensAndBuildings: React.FC<{ quality?: string }> = ({ quality = '
       {/* Player Tokens */}
       {players.map((player, index) => {
         if (player.isBankrupt) return null;
+        const asset = royalTokenAsset(player.token);
+        const fallback = <TokenMesh token={player.token} color={player.color} />;
         return (
           <AnimatedToken key={player.id} player={player} index={index} reduced={reducedMotion} visible={visible} trails={quality !== 'low' && !reducedMotion}>
-            <TokenMesh token={player.token} color={player.color} />
+            {asset ? <RoyalToken asset={asset} fallback={fallback} shadows={quality !== 'low'} /> : fallback}
             {/* Coloured Player Ring Indicator */}
-            <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={tokenRingScale(players.length)} raycast={() => {}}>
+            <mesh name="player-identity-ring" position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={tokenRingScale(players.length)} raycast={() => {}}>
               <ringGeometry args={[0.27, TOKEN_RING_OUTER_RADIUS, 32]} />
               <meshPhysicalMaterial color={player.color} emissive={player.color} emissiveIntensity={index === currentPlayerIndex ? 0.38 : 0.08} metalness={0.12} roughness={0.38} clearcoat={.3} side={THREE.DoubleSide} />
             </mesh>

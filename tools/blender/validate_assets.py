@@ -33,6 +33,17 @@ def require(condition, message):
         raise ValueError(message)
 
 
+def validate_token_topology(vertices, indices):
+    used = {index for index, in indices}
+    require(len(used) == len(vertices), "royal token has unreferenced geometry")
+    for a, b, c in zip(indices[::3], indices[1::3], indices[2::3]):
+        start, first, second = vertices[a[0]], vertices[b[0]], vertices[c[0]]
+        ux, uy, uz = (point-origin for point, origin in zip(first, start))
+        vx, vy, vz = (point-origin for point, origin in zip(second, start))
+        x, y, z = uy*vz-uz*vy, uz*vx-ux*vz, ux*vy-uy*vx
+        require(x*x + y*y + z*z > 1e-24, "royal token has a degenerate triangle")
+
+
 def image_dimensions(data):
     if data.startswith(b"\x89PNG\r\n\x1a\n"):
         require(len(data) >= 24 and data[12:16] == b"IHDR", "invalid PNG header")
@@ -220,11 +231,15 @@ class GLB:
 
     def inspect(self, profile="environment"):
         central = profile == "central-city"
+        royal_master = profile == "royal-token-master"
+        royal_token = royal_master or profile == "royal-token-game"
         final_background = profile == "final-background" or '-final-v1' in self.path.stem
         require(not final_background or self.path.stem.split('-final-v1')[0] in
                 {'royal-island-left','royal-island-right','royal-island-citadel','sky-garden','sky-windmill'},
                 "final background profile is restricted to the five authored scenic families")
         require(not central or self.path.name.startswith("central-royal-district"), "central profile is restricted to the authored district family")
+        require(not royal_token or self.path.stem in ("RoyalCarriage", "RoyalUnicorn", "RoyalPegasus", "RoyalGriffin"),
+                "royal token profile requires one of the four authored miniatures")
         doc = self.doc
         require(doc.get("asset", {}).get("version") == "2.0", "glTF version must be 2.0")
         require(len(doc.get("buffers", [])) == 1 and "uri" not in doc["buffers"][0], "GLB must embed its single geometry buffer")
@@ -232,13 +247,14 @@ class GLB:
         require(not doc.get("cameras") and not doc.get("animations") and not doc.get("skins"), "static environment asset contains camera, animation or skin")
         require("KHR_lights_punctual" not in doc.get("extensionsUsed", []), "static asset exports lights")
         require(not doc.get("extensionsRequired"), "unexpected required decoder or extension")
-        require(len(self.raw) <= (8 if central else 4 if final_background else 3) * 1024 * 1024, "asset exceeds selected profile byte budget")
+        require(len(self.raw) <= (10 if royal_master else 8 if central else 4 if final_background else 3) * 1024 * 1024,
+                "asset exceeds selected profile byte budget")
         for index in range(len(doc.get("bufferViews", []))):
             self.view(index)
         for index in range(len(doc.get("accessors", []))):
             self.accessor(index)
         materials = doc.get("materials", [])
-        require(0 < len(materials) <= (15 if central else 12), "material budget exceeded")
+        require(0 < len(materials) <= (16 if royal_token else 15 if central else 12), "material budget exceeded")
         images, decoded_images, used_image_colors = [], [], {}
         for image in doc.get("images", []):
             if "bufferView" in image:
@@ -282,7 +298,10 @@ class GLB:
                         "positions must be float VEC3")
                 require("min" in position_accessor and "max" in position_accessor, "position accessor needs declared bounds")
                 vertices = self.accessor(attributes["POSITION"])
-                require(len(vertices) == len(self.accessor(attributes["NORMAL"])), "normal count mismatch")
+                normals = self.accessor(attributes["NORMAL"])
+                require(len(vertices) == len(normals), "normal count mismatch")
+                if royal_token:
+                    require(all(abs(sum(c*c for c in normal)-1) < .02 for normal in normals), "token has non-unit normals")
                 for attribute in attributes.values():
                     require(len(self.accessor(attribute)) == len(vertices), "vertex attribute count mismatch")
                 material = materials[primitive["material"]]
@@ -312,7 +331,10 @@ class GLB:
                     indices = self.accessor(primitive["indices"])
                     require(all(0 <= value[0] < len(vertices) for value in indices), "index references missing vertex")
                     count = len(indices)
+                    if royal_token:
+                        validate_token_topology(vertices, indices)
                 else:
+                    require(not royal_token, "royal token must use indexed triangles")
                     count = len(vertices)
                 require(count % 3 == 0, "triangle index/vertex count not divisible by 3")
                 triangles += count // 3
@@ -370,7 +392,14 @@ class GLB:
         require(all(math.isfinite(v) for v in bounds_min + bounds_max), "invalid world bounds")
         require(max(abs(v) for v in bounds_min + bounds_max) < 128, "model dimensions exceed local environment scale")
         name = self.path.stem
-        if central:
+        if royal_token:
+            budget = 330000 if royal_master else 44000
+            require(abs(bounds_min[1]) < .001 and abs(bounds_max[1] - 1) < .001,
+                    "royal token must have a one-unit Y-up silhouette with its feet at the origin")
+            require(all(abs(bounds_min[i]+bounds_max[i]) < .002 for i in (0,2)), "royal token pivot is not centered")
+            require(.30 < extent[0] < 1.65 and .45 < extent[2] < 1.75, "royal token footprint is inconsistent")
+            require(len(images) == 1 and 0 in used_image_colors, "royal token needs one embedded, UV-mapped finish atlas")
+        elif central:
             budget = 38000 if "low" in name else 68000 if "balanced" in name else 100000
             require(all(abs(bounds_min[i]) <= 7.651 and abs(bounds_max[i]) <= 7.651 for i in (0, 2)), "central district escapes the existing lawn footprint")
             require(-.5 <= bounds_min[1] < .3 and bounds_max[1] < 10.8, "central district exceeds camera-safe vertical bounds")
@@ -392,7 +421,8 @@ class GLB:
             budget = (12000 if "low" in name else 15000 if "balanced" in name else 18000) if final_background else 12000
             require(.1 <= max(extent) <= 30, "prop has incorrect metre scale")
         require(instance_triangles <= budget, f"triangle budget exceeded: {instance_triangles} > {budget}")
-        require(drawn_primitives <= (64 if central else 24), "asset exceeds selected primitive draw budget")
+        draw_budget = 360 if royal_master else 12 if royal_token else 64 if central else 24
+        require(drawn_primitives <= draw_budget, "asset exceeds selected primitive draw budget")
         return {
             "file": self.path.name, "bytes": len(self.raw), "sha256": hashlib.sha256(self.raw).hexdigest(),
             "triangles": instance_triangles, "triangleBudget": budget, "drawPrimitives": drawn_primitives,
@@ -412,7 +442,8 @@ def main():
     parser.add_argument("files", type=Path, nargs="*", help="GLB files, defaults to generated environment directory")
     parser.add_argument("--output", type=Path, help="write the complete inspection JSON")
     parser.add_argument("--manifest", type=Path, help="verify generation receipt names, byte counts, triangles, hashes and bounds")
-    parser.add_argument("--profile", choices=["environment", "central-city", "final-background"], default="environment", help="explicit bounded asset policy")
+    parser.add_argument("--profile", choices=["environment", "central-city", "final-background", "royal-token-master", "royal-token-game"],
+                        default="environment", help="explicit bounded asset policy")
     args = parser.parse_args()
     files = args.files or sorted(DEFAULT_DIRECTORY.glob("*.glb"))
     require(files, f"no generated GLB artifacts found in {DEFAULT_DIRECTORY}")
