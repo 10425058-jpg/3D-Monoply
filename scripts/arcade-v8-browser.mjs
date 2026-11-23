@@ -209,6 +209,30 @@ try {
   assert.deepEqual(activity.filter(event => event.kind === 'card').map(event => [event.card.id, event.transfers[0].amount]), [['ch_6', 50], ['cc_2', 200]]);
   assert.equal(new Set(activity.filter(event => event.kind === 'roll').map(event => event.actor.id)).size, 4);
 
+  await fixture('ai-chance');
+  await showNotice('card');
+  const chanceWindow = '.match-notice--center[data-deck="chance"]';
+  const otherDraw = await page.$eval(chanceWindow, notice => {
+    window.__aiChanceNotice = notice;
+    const bounds = notice.getBoundingClientRect();
+    return { text: notice.textContent, centered: Math.abs(bounds.x + bounds.width / 2 - innerWidth / 2) < 4 &&
+      Math.abs(bounds.y + bounds.height / 2 - innerHeight / 2) < 4,
+      width: bounds.width, resolve: !!notice.querySelector('.modal-primary') };
+  });
+  assert.match(otherDraw.text, /Chance.*Dividend.*Rival 1 drew this card.*dividend of \$50/s);
+  assert.ok(otherDraw.centered && otherDraw.width >= 440);
+  assert.equal(otherDraw.resolve, false);
+  await wait(() => window.__soloTest.state().currentPlayerIndex === 0 &&
+    window.__soloTest.state().activity.filter(event => event.kind === 'card').length === 1);
+  assert.ok(await page.$eval(chanceWindow, notice => notice === window.__aiChanceNotice));
+  await capture('10a-ai-chance-window');
+  await page.click(`${chanceWindow} .match-notice-close`);
+  await page.waitForFunction(selector => !document.querySelector(selector), {}, chanceWindow);
+  await fixture('go-to-jail');
+  await roll(1, 2, 'END_TURN');
+  await showNotice('jail');
+  assert.match(await page.$eval('.match-notice--center[data-activity-notice="jail"]', notice => notice.textContent), /You went directly to Jail/);
+
   await fixture('arcade-gallery-empty');
   const empty = await sample();
   await fixture('arcade-gallery');

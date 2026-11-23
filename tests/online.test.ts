@@ -101,12 +101,26 @@ test('Online Chance records committed movement, rent and card rewards in the cor
   assert.equal(entries[2].spaceId, 12);
   assert.match(entries[2].details?.join(' ') ?? '', /moved to Electric Company.*paid \$40 to Bob/);
   assert.equal(entries[2].turn, 1);
-  assert.equal(entries[2].silent, true);
+  assert.equal(entries[2].silent, false, 'A live card remains eligible if a newer commit arrived first');
+  assert.equal(entries[4].silent, true, 'Ordinary receipts from earlier versions stay quiet');
   assert.equal(entries[6].turn, 2);
   assert.equal(entries[6].silent, false);
   assert.deepEqual(entries[6].transfers?.map(item => [item.from, item.to?.name, item.amount, item.toBalance]), [[null, 'Bob', 50, 1090]]);
   assert.ok(committedActivity(s, rows, activityLabels, true).every(entry => entry.silent));
 });
+
+test('an Online card that sends a player to Jail announces the outcome once', () => {
+  const match = { ...snapshot(), stateVersion: 1 };
+  const rows = publicEvents(1, [
+    ['game:card_resolved', { playerId: 'uuid-a', cardId: 'go-to-jail', deck: 'chance', effects: [{ type: 'go_to_jail' }] }],
+    ['game:player_moved', { playerId: 'uuid-a', fromPosition: 7, toPosition: 10 }],
+    ['game:jail_changed', { playerId: 'uuid-a', inJail: true, jailTurns: 0 }],
+  ]);
+  const entries = committedActivity(match, rows, activityLabels);
+  assert.deepEqual(entries.map(entry => [entry.kind, entry.silent]), [['card', false], ['jail', true]]);
+  assert.deepEqual(entries[0].details, ['Alice was sent to Jail.']);
+});
+
 test('Online cursors keep history quiet on initial mount and deduplicate repeated reconciliations', async () => {
   const s = { ...snapshot(), stateVersion: 1 };
   const rows = publicEvents(1, [
@@ -133,6 +147,35 @@ test('Online cursors keep history quiet on initial mount and deduplicate repeate
   assert.deepEqual(cursors, ['0', '2']);
   assert.deepEqual(controller.state.getState().activity, [purchase]);
   controller.stop();
+});
+
+test('a connected Online viewer can receive a live card while their tab is hidden', async t => {
+  const oldDocument = Object.getOwnPropertyDescriptor(globalThis, 'document');
+  const document = Object.assign(new EventTarget(), { hidden: true });
+  Object.defineProperty(globalThis, 'document', { configurable: true, value: document });
+  t.after(() => {
+    if (oldDocument) Object.defineProperty(globalThis, 'document', oldDocument);
+    else Reflect.deleteProperty(globalThis, 'document');
+  });
+  let match = snapshot();
+  let rows: PublicActivityEvent[] = [];
+  const manager = new SessionManager('', (async input => String(input).includes('/matches/')
+    ? json({ ...match, activityEvents: rows }) : json({ roomId: match.roomId, roomRevision: 0, members: [] })) as typeof fetch);
+  const controller = new OnlineController(manager, '', { matchId: match.matchId }, () => {});
+  t.after(() => controller.stop());
+  controller.state.setState({ connection: 'connected' });
+  controller.setSpaceNames(new Map(), activityLabels.card);
+  await controller.reconcile();
+  match = { ...match, stateVersion: 1 };
+  rows = publicEvents(1, [['game:card_resolved', {
+    playerId: 'uuid-a', cardId: 'dividend', deck: 'chance', effects: [{ type: 'collect', amount: 50 }],
+  }]]);
+  await controller.reconcile();
+  assert.equal(controller.state.getState().activity[0].card?.instruction, 'Collect $50.');
+  assert.equal(controller.state.getState().activity[0].silent, false);
+  document.hidden = false;
+  await controller.reconcile();
+  assert.equal(controller.state.getState().activity.length, 1);
 });
 function snapshot(): Match {
   return { matchId: 'match-a', roomId: 'room-a', stateVersion: 0, status: 'IN_PROGRESS', mapId: 'central-castle', rulesetId: 'mini-v1', contentVersion: 'central-castle@1',

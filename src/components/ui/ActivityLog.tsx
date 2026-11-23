@@ -1,13 +1,15 @@
 import React, { memo, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowDownUp, ArrowRight, Banknote, Building2, ChevronDown, Coins, Crown, Dice5, DoorClosed,
   Flag, Gavel, Hammer, Handshake, Landmark, List, MapPin, ScrollText, TrainFront, Trophy, Wifi, X,
 } from 'lucide-react';
 import {
-  ACTIVITY_FILTERS, activityActors, activityNoticePriority, matchesActivityFilter,
+  ACTIVITY_FILTERS, activityActors, activityNoticePriority, isCenterActivityNotice, matchesActivityFilter,
   type ActivityActor, type ActivityFilter, type ActivityKind, type ActivityTransfer, type MatchActivityEvent, type NoticeFrequency,
 } from '../../game/matchActivity';
+import { useMotionPreferences } from '../../presentation/useMotionPreferences';
+import type { DeckCard, Player } from '../../types/game';
 import './match-activity.css';
 
 const icons: Record<ActivityKind, typeof Coins> = {
@@ -22,6 +24,16 @@ interface ActivityProps {
   matchId: string;
   layout?: 'solo' | 'online' | 'results';
 }
+
+interface NoticeProps extends ActivityProps {
+  draw?: { id: number; card: DeckCard; player: Pick<Player, 'id' | 'name' | 'color' | 'isAI'> };
+  paused?: boolean;
+  animating?: boolean;
+  animatedCardId?: string;
+}
+
+type NoticeContent = Pick<MatchActivityEvent, 'kind' | 'title' | 'card' | 'actor' | 'details' | 'transfers' | 'amount' | 'emphasis'>;
+type QueuedNotice = { id: string; content: NoticeContent; centered: boolean; priority: number; waiting?: boolean };
 
 const money = (amount: number) => `$${amount.toLocaleString('en-US')}`;
 const clock = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' });
@@ -169,84 +181,122 @@ export const ActivityLog = memo(function ActivityLog(props: ActivityProps) {
   return <ActivityPanel key={props.matchId} {...props} />;
 });
 
-function ActivityNotice({ event, close, reduced }: { event: MatchActivityEvent; close: () => void; reduced: boolean | null }) {
+const announcementLabels: Partial<Record<ActivityKind, string>> = {
+  jail: 'Jail', bankruptcy: 'Bankruptcy', railroad: 'Railroad bonus', upgrade: 'Property milestone', victory: 'Match complete',
+};
+
+function ActivityNotice({ notice, close, reduced }: { notice: QueuedNotice; close: () => void; reduced: boolean }) {
+  const { content: event, centered } = notice;
   const Icon = icons[event.kind];
   const receipt = event.transfers?.length === 1 && (event.kind === 'purchase' || event.kind === 'rent') ? event.transfers[0] : undefined;
   const reason = receipt?.reason;
   const transferLabel = receipt && `${receipt.from?.name ?? 'Bank'} paid ${money(receipt.amount)} to ${receipt.to?.name ?? 'Bank'}${reason ? ` · ${reason}` : ''}`;
-  return <motion.article className={`match-notice${receipt ? ` effect-transaction receipt-${event.kind}` : ''}`} data-activity-notice={event.kind}
-    initial={{ opacity: 0, y: reduced ? 0 : -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: reduced ? 0 : -4 }}
+  const closeButton = <button type="button" className="match-notice-close" aria-label="Dismiss live notice" onClick={close}><X size={18} /></button>;
+  return <motion.article className={`match-notice${centered ? ' match-notice--center' : ''}${receipt ? ` effect-transaction receipt-${event.kind}` : ''}`}
+    data-activity-notice={event.kind} data-deck={event.card?.deck}
+    initial={{ opacity: 0, y: reduced ? 0 : centered ? 8 : -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: reduced ? 0 : -4 }}
     transition={{ duration: reduced ? 0 : .17 }}
     data-emphasis={event.emphasis} data-effect-kind={receipt ? 'transaction' : event.kind} aria-label={transferLabel}>
-    <div className="match-notice-heading">
+    {centered ? <div className="match-announcement-heading">
+      {closeButton}
+      <span className="match-announcement-icon" aria-hidden="true"><Icon size={28} /></span>
+      <span className="match-announcement-label">{event.card ? event.card.deck === 'chance' ? 'Chance' : 'Community Chest' :
+        announcementLabels[event.kind] ?? 'Match milestone'}</span>
+      <h2><ActivityTitle title={event.card?.title ?? event.title} /></h2>
+      {event.card && event.actor && <p className="match-announcement-actor"><ActorSeal actor={event.actor} kind={event.kind} />{event.actor.name} drew this card</p>}
+    </div> : <div className="match-notice-heading">
       <ActorSeal actor={event.actor} kind={event.kind} />
       <strong><ActivityTitle title={event.title} /></strong>
       <Icon className="match-notice-icon" size={20} aria-hidden="true" />
-      <button type="button" className="match-notice-close" aria-label="Dismiss live notice" onClick={close}><X size={16} /></button>
-    </div>
+      {closeButton}
+    </div>}
     {receipt && <div className="match-notice-detail">
       {reason && <p>{reason} <b>{money(receipt.amount)}</b></p>}
       <TransferLine transfer={receipt} />
     </div>}
-    {!receipt && (event.card || event.details?.length || event.kind === 'upgrade') && <div className="match-notice-detail">
+    {!receipt && (event.card || event.details?.length || event.kind === 'upgrade' || (centered && !!event.transfers?.length)) && <div className="match-notice-detail">
       {event.card && <p>{event.card.instruction}</p>}
-      {(event.card || event.kind === 'upgrade' ? event.details : event.details?.slice(0, 1))?.map((detail, index) => <p key={index}>{detail}</p>)}
+      {(centered || event.card || event.kind === 'upgrade' ? event.details : event.details?.slice(0, 1))?.map((detail, index) => <p key={index}>{detail}</p>)}
       {event.kind === 'upgrade' && event.amount !== undefined && <p>Paid <b>{money(event.amount)}</b> for construction.</p>}
-      {event.card && !!event.transfers?.length && <p>{event.transfers.map(transfer =>
+      {centered && event.transfers?.map((transfer, index) => <TransferLine key={index} transfer={transfer} />)}
+      {!centered && event.card && !!event.transfers?.length && <p>{event.transfers.map(transfer =>
         `${transfer.from?.name ?? 'Bank'} → ${transfer.to?.name ?? 'Bank'} ${money(transfer.amount)}`).join(' · ')}</p>}
     </div>}
   </motion.article>;
 }
 
-function NoticeQueue({ events, layout = 'solo' }: ActivityProps) {
+function NoticeQueue({ events, layout = 'solo', draw, paused, animating, animatedCardId }: NoticeProps) {
   const frequency = useFrequency();
-  const reduced = useReducedMotion();
+  const { visible, reducedMotion } = useMotionPreferences();
   const seen = useRef(new Set(events.map(event => event.id)));
-  const [queue, setQueue] = useState<MatchActivityEvent[]>([]);
+  const draws = useRef(new Map<number, 'interactive' | 'announcement'>());
+  const [queue, setQueue] = useState<QueuedNotice[]>([]);
   useEffect(() => {
-    const added = events.filter(event => {
-      if (seen.current.has(event.id)) return false;
+    const added: QueuedNotice[] = [];
+    const outcomes = new Map<string, NoticeContent>();
+    if (draw && !draws.current.has(draw.id)) {
+      draws.current.set(draw.id, draw.player.isAI ? 'announcement' : 'interactive');
+      if (draw.player.isAI) added.push({ id: `draw-${draw.id}`, centered: true, priority: 2, content: {
+        kind: 'card', title: draw.card.title,
+        actor: { id: String(draw.player.id), name: draw.player.name, color: draw.player.color },
+        card: { id: draw.card.id, deck: draw.card.deck, title: draw.card.title, instruction: draw.card.description },
+      } });
+    }
+    for (const event of events) {
+      if (seen.current.has(event.id)) continue;
       seen.current.add(event.id);
-      return activityNoticePriority(event, frequency) > 0;
-    });
-    if (document.hidden || !added.length) return;
+      const priority = activityNoticePriority(event, frequency);
+      if (!priority) continue;
+      const id = event.card?.drawId;
+      const presentation = id === undefined ? undefined : draws.current.get(id);
+      if (presentation === 'announcement') {
+        outcomes.set(`draw-${id}`, event);
+        continue;
+      }
+      const centered = presentation !== 'interactive' && isCenterActivityNotice(event);
+      if (visible || centered) added.push({ id: event.id, content: event, centered, priority,
+        waiting: centered && animating && event.id !== animatedCardId });
+    }
+    if (!added.length && !outcomes.size) return;
     setQueue(current => {
-      const waiting = [...current.slice(1), ...added].sort((a, b) =>
-        activityNoticePriority(b, frequency) - activityNoticePriority(a, frequency));
-      const active = current[0];
-      const top = waiting[0];
-      if (active && activityNoticePriority(active, frequency) >= activityNoticePriority(top, frequency)) waiting.unshift(active);
-      return waiting.slice(0, 6);
+      const next = [...current, ...added].map(notice => {
+        const outcome = outcomes.get(notice.id);
+        return outcome ? { ...notice, content: outcome } : notice;
+      });
+      const compact = next.filter(notice => !notice.centered).sort((a, b) => b.priority - a.priority);
+      return [...next.filter(notice => notice.centered), ...compact.slice(0, 6)];
     });
-  }, [events, frequency]);
+  }, [events, draw, frequency, visible, animating, animatedCardId]);
 
   useEffect(() => {
-    const clearInBackground = () => { if (document.hidden) setQueue([]); };
-    document.addEventListener('visibilitychange', clearInBackground);
-    return () => document.removeEventListener('visibilitychange', clearInBackground);
-  }, []);
+    setQueue(current => current.map(notice => notice.waiting && (!animating || animatedCardId === notice.id)
+      ? { ...notice, waiting: false } : notice));
+  }, [animating, animatedCardId]);
 
   useEffect(() => {
-    setQueue(current => current.filter(event => activityNoticePriority(event, frequency) > 0));
-  }, [frequency]);
+    setQueue(current => current.filter(notice => notice.centered || (visible && (frequency === 'standard' || notice.priority > 1))));
+  }, [frequency, visible]);
 
-  const notice = queue[0];
+  const notice = visible && !paused ? queue.find(entry => !entry.waiting) : undefined;
+  const noticeId = notice?.id;
+  const ttl = notice?.centered ? 7500 : notice?.content.kind === 'card' ? 5200 : 3600;
   useEffect(() => {
-    if (!notice) return;
-    const ttl = notice.kind === 'card' || notice.emphasis === 'milestone' ? 5200 : 3600;
-    const timer = window.setTimeout(() => setQueue(current => current.filter(entry => entry.id !== notice.id)), ttl);
+    if (!noticeId) return;
+    const timer = window.setTimeout(() => setQueue(current => current.filter(entry => entry.id !== noticeId)), ttl);
     return () => window.clearTimeout(timer);
-  }, [notice]);
+  }, [noticeId, ttl]);
 
-  return <div className={`match-notices match-notices--${layout}`} aria-live="polite" aria-atomic="true">
+  return <div aria-live="polite" aria-atomic="true">
     <AnimatePresence mode="wait">
-      {notice && <ActivityNotice key={notice.id} event={notice} reduced={reduced}
-        close={() => setQueue(current => current.filter(entry => entry.id !== notice.id))} />}
+      {notice && <motion.div key={notice.id} className={`match-notices match-notices--${notice.centered ? 'center' : layout}`}>
+        <ActivityNotice notice={notice} reduced={reducedMotion}
+          close={() => setQueue(current => current.filter(entry => entry.id !== notice.id))} />
+      </motion.div>}
     </AnimatePresence>
   </div>;
 }
 
-export const MatchActivityNotices = memo(function MatchActivityNotices(props: ActivityProps) {
+export const MatchActivityNotices = memo(function MatchActivityNotices(props: NoticeProps) {
   return <NoticeQueue key={props.matchId} {...props} />;
 });
 

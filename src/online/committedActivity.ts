@@ -1,11 +1,11 @@
-import { appendMatchActivity, type ActivityActor, type ActivityTransfer, type MatchActivityEvent } from '../game/matchActivity';
+import { appendMatchActivity, isCenterActivityNotice, type ActivityActor, type ActivityTransfer, type MatchActivityEvent } from '../game/matchActivity';
 import type { PresentationLabels } from './committedPresentation';
 import { committedLedger, type CommittedCash } from './committedLedger';
 import type { EventPayloads, Match, PublicActivityEvent } from './types';
 
 const dollars = (amount: number) => `$${amount.toLocaleString('en-US')}`;
 type ActorLookup = (id: unknown) => ActivityActor | undefined;
-type ActivityEntry = Omit<MatchActivityEvent, 'id' | 'matchId' | 'sequence' | 'timestamp' | 'turn' | 'silent'>;
+type ActivityEntry = Omit<MatchActivityEvent, 'id' | 'matchId' | 'sequence' | 'timestamp' | 'turn'>;
 
 function activityTransfer(cash: CommittedCash, actorFor: ActorLookup): ActivityTransfer | undefined {
   const from = cash.from ? actorFor(cash.from.id) : null;
@@ -117,9 +117,13 @@ function commitEntries(events: readonly PublicActivityEvent[], actorFor: ActorLo
         if (!actor) return;
         const { inJail, jailTurns, releaseReason } = payload as EventPayloads['game:jail_changed'];
         const released = { DOUBLES: 'Rolled doubles.', BAIL: 'Paid bail.', CARD: 'Used a Get Out of Jail Free card.' };
+        const sentByCard = inJail && !jailTurns && events.slice(0, index).some(event =>
+          event.type === 'game:card_resolved' && event.payload.playerId === actor.id &&
+          (event.payload as EventPayloads['game:card_resolved']).effects?.[0]?.type === 'go_to_jail');
         return { kind: 'jail', actor, spaceId: 10,
           title: `${actor.name} ${inJail ? jailTurns ? 'stayed in Jail' : 'was sent to Jail' : 'left Jail'}`,
-          details: inJail && jailTurns ? [`Attempt ${jailTurns} of 3.`] : releaseReason ? [released[releaseReason]] : undefined };
+          details: inJail && jailTurns ? [`Attempt ${jailTurns} of 3.`] : releaseReason ? [released[releaseReason]] : undefined,
+          silent: sentByCard };
       }
       case 'game:turn_changed': {
         const next = actorFor(payload.currentPlayerId);
@@ -177,7 +181,8 @@ export function committedActivity(match: Match, rows: readonly PublicActivityEve
     if (!entry) return [];
     const row = events[index];
     return { ...entry, id: row.eventId, matchId: match.matchId, sequence: row.sequence, timestamp: row.occurredAt,
-      turn: turns.get(row.eventId), silent: silent || row.type === 'game:property_declined' || row.stateVersion < match.stateVersion };
+      turn: turns.get(row.eventId), silent: silent || !!entry.silent || row.type === 'game:property_declined' ||
+        (row.stateVersion < match.stateVersion && !isCenterActivityNotice(entry)) };
   }));
 }
 
