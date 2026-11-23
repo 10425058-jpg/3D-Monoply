@@ -109,7 +109,7 @@ try {
   await capture('02-purchased-land');
   await dismiss();
 
-  await page.click('.speed-options button:first-child');
+  await page.evaluate(() => window.__soloTest.setSpeed(1));
   await page.evaluate(() => {
     window.__arcadeConstruction = [];
     const audit = window.__graphicsAudit;
@@ -137,7 +137,7 @@ try {
   assert.equal(await page.$eval('.evolution-footer button', button => button.disabled), true);
   await capture('04-house');
   await closeEvolution();
-  await page.click('.speed-options button:last-child');
+  await page.evaluate(() => window.__soloTest.setSpeed(2));
   await dock('End Turn');
   await wait(() => window.__soloTest.state().turnPhase === 'PRE_ROLL');
 
