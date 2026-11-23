@@ -94,15 +94,6 @@
 .dock-action svg { width: 25px; height: 25px; color: #edc679; stroke-width: 1.7; }
 .dock-action:disabled svg { color: #d0becb; }
 .dice-controls { display: flex; align-items: end; gap: 13px; }
-.roll-options { padding: 12px; border-radius: 18px 7px; margin-bottom: 6px; min-width: 120px; }
-.auto-roll-label { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12px; font-weight: 700; }
-.auto-roll-label button { width: 37px; height: 23px; border: 1px solid #ac7c9a; border-radius: 20px; background: #432549; padding: 3px; }
-.auto-roll-label button i { display: block; background: #fff0d0; width: 15px; height: 15px; border-radius: 50%; transition: transform .15s; }
-.auto-roll-label button[aria-checked=true] { background: #306d56; }
-.auto-roll-label button[aria-checked=true] i { transform: translateX(13px); }
-.speed-options { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 8px; }
-.speed-options button { color: #e6c9e4; background: #281537; min-height: 32px; border: 1px solid #78516c; border-radius: 10px; font-size: 13px; font-weight: 800; }
-.speed-options button[aria-pressed=true] { background: #efc571; color: #382039; border-color: #ffe2a0; }
 .fantasy-roll { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; width: 132px; height: 132px; border: 5px solid #e4b557; border-radius: 50%; color: #fff0d0; background: radial-gradient(circle at 40% 30%, #854586, #431d61 65%, #241235); box-shadow: inset 0 0 0 2px #ffe9a0, inset 0 0 0 8px #9b6a45, 0 5px 18px #15092188; transition: transform .15s, filter .2s; }
 .fantasy-roll::after { content: '✦'; position: absolute; bottom: -16px; left: calc(50% - 9px); color: #ffdf81; font-size: 25px; text-shadow: 0 1px #6e452a; }
 .fantasy-roll:disabled { filter: saturate(.35); color: #dfd1e5; cursor: not-allowed; }
@@ -177,7 +168,6 @@
   .fantasy-dock { left: 14px; right: 14px; gap: 12px; }
   .action-tray { padding: 9px; gap: 4px; }
   .dock-action { min-height: 63px; font-size: 10px; }
-  .roll-options { min-width: 104px; padding: 9px; }
   .dice-controls { gap: 8px; }
   .fantasy-roll { width: 112px; height: 112px; }
   .fantasy-roll strong { font-size: 21px; }
@@ -222,10 +212,6 @@
   .roll-dice-icons svg { width: 23px; height: 23px; }
   .roll-crown { top: -14px; width: 19px; }
   .fantasy-roll::after { bottom: -13px; font-size: 20px; }
-  .roll-options { padding: 7px; min-width: 115px; margin: 0; }
-  .auto-roll-label { font-size: 10px; }
-  .speed-options { margin-top: 5px; }
-  .speed-options button { min-height: 28px; font-size: 11px; }
   .fantasy-deed { top: auto; bottom: 178px; left: 10px; right: 10px; width: auto; max-height: min(32dvh, 300px); border-radius: 20px 7px; }
   .deed-header { padding: 7px 24px; }
   .deed-header h2 { font-size: 16px; margin-top: 1px; }
