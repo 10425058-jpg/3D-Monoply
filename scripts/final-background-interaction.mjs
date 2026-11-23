@@ -76,15 +76,10 @@ try {
   assert.equal((await page.evaluate(() => window.__graphicsAudit.tiles())).filter(p => p.occludedByEnvironment).length, 0);
   await page.screenshot({ path: path.join(out, 'top-view.png') });
   await page.click('button[aria-label="Toggle overhead camera"]'); await pause(500);
-  const presets = [];
-  for (const preset of ['player', 'dice', 'movement', 'event', 'overview']) {
-    await page.select('select[aria-label="Camera view"]', preset); await pause(250);
-    const camera = await page.evaluate(() => window.__graphicsAudit.metadata().camera);
-    assert.equal(!!camera.view?.enabled, preset === 'overview', `projection for ${preset}`);
-    assert.equal((await page.evaluate(() => window.__graphicsAudit.tiles())).filter(p => p.occludedByEnvironment).length, 0, `environment clear in ${preset}`);
-    presets.push({ preset, position: camera.position });
-  }
-  await page.click('.camera-toolbar button'); await pause(250);
+  // Camera toolbar removed; verify the unobstructed view and free orbit.
+  assert.equal(await page.$('.camera-toolbar'), null, 'camera toolbar should not render');
+  const overview = await page.evaluate(() => window.__graphicsAudit.metadata().camera);
+  assert.equal(!!overview.view?.enabled, true, 'overview projection');
   const before = await page.evaluate(() => window.__graphicsAudit.metadata().camera.position);
   await page.mouse.move(800, 450); await page.mouse.down(); await page.mouse.move(900, 490, { steps: 12 }); await page.mouse.up();
   await pause(600); const orbit = await page.evaluate(() => window.__graphicsAudit.metadata().camera.position);
@@ -104,7 +99,7 @@ try {
   assert.equal(game.players[0].money, 1440); assert.equal(game.turnPhase, 'END_TURN');
   await clickFooter(page, 'End Turn');
   await page.waitForFunction(() => window.__graphicsAudit.game().currentPlayerIndex === 1);
-  results.push({ selection: true, topToggle: true, presets, resetView: true, orbit: true, zoom: true, dice: [1, 2], movement: 'GO -> Baltic Avenue',
+  results.push({ selection: true, topToggle: true, cameraToolbarRemoved: true, orbit: true, zoom: true, dice: [1, 2], movement: 'GO -> Baltic Avenue',
     purchase: { owner: 0, balance: 1440 }, endTurn: true });
   assert.deepEqual(errors, []);
   await writeFile(path.join(out, 'results.json'), JSON.stringify({ results, errors }, null, 2));
