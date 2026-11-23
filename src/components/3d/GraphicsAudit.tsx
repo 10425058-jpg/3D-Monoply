@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { getSpaceTransform } from '../../data/boardData';
+import { royalTokenAsset } from '../../data/royalTokenAssets';
 import { useSceneStore } from '../../presentation/SceneStore';
 import { OWNER_PENNANT_MATERIAL } from './arcadePropertyLayout';
 
@@ -101,6 +102,33 @@ export function GraphicsAudit({ quality }: { quality: string }) {
             const group=scene.getObjectByName(`buildings-${p.spaceId}`);return {spaceId:p.spaceId,level:p.houses,models:group?.children.length,
               position:group?.getWorldPosition(new THREE.Vector3()).toArray()};
           })};
+      },
+      royalTokens() {
+        return store.getState().players.map(player => {
+          const actor = scene.getObjectByName(`token-${player.id}`);
+          const asset = royalTokenAsset(player.token);
+          const model = asset && actor?.getObjectByName(asset.file);
+          const ring = actor?.getObjectByName('player-identity-ring');
+          actor?.updateWorldMatrix(true, false);
+          const bounds = model && new THREE.Box3().setFromObject(model, true);
+          let triangles = 0, drawMeshes = 0, shadowCasters = 0;
+          const maps = new Set<THREE.Texture>();
+          model?.traverse(object => {
+            if (!(object instanceof THREE.Mesh)) return;
+            drawMeshes++;
+            if (object.castShadow) shadowCasters++;
+            triangles += (object.geometry.index?.count ?? object.geometry.getAttribute('position').count) / 3;
+            const material = object.material as THREE.MeshStandardMaterial;
+            if (material.map) maps.add(material.map);
+          });
+          return {
+            id: player.id, token: player.token, ai: player.isAI, tile: player.position,
+            asset: model?.name, position: actor?.position.toArray(), heading: actor?.rotation.y,
+            bounds: bounds && { min: bounds.min.toArray(), max: bounds.max.toArray() },
+            identityColor: ring instanceof THREE.Mesh ? `#${ring.material.color.getHexString()}` : null,
+            triangles, drawMeshes, shadowCasters, textures: maps.size,
+          };
+        });
       },
       arcade() {
         const root = scene.getObjectByName('arcade-property-buildings');
