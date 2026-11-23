@@ -19,7 +19,7 @@ export const tokenNames: Record<string, string> = {
   cat: ROYAL_TOKEN_ASSETS.cat.name,
   racecar: ROYAL_TOKEN_ASSETS.racecar.name,
   top_hat: ROYAL_TOKEN_ASSETS.top_hat.name,
-  yacht: 'Yacht',
+  yacht: ROYAL_TOKEN_ASSETS.yacht.name,
 };
 
 export function Dialog({ title, children, onClose }: { title: string; children: React.ReactNode; onClose: () => void }) {

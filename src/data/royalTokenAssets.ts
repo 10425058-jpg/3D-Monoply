@@ -2,10 +2,13 @@ import type { TokenType } from '../types/game';
 
 export type RoyalTokenAsset = { name: string; file: string };
 
+const royalPegasus = { name: 'Royal Pegasus', file: 'RoyalPegasus.glb' };
+
 export const ROYAL_TOKEN_ASSETS = {
   racecar: { name: 'Royal Carriage', file: 'RoyalCarriage.glb' },
   cat: { name: 'Royal Unicorn', file: 'RoyalUnicorn.glb' },
-  top_hat: { name: 'Royal Pegasus', file: 'RoyalPegasus.glb' },
+  top_hat: royalPegasus,
+  yacht: royalPegasus,
   rubber_duck: { name: 'Royal Griffin', file: 'RoyalGriffin.glb' },
 } as const satisfies Partial<Record<TokenType, RoyalTokenAsset>>;
 
