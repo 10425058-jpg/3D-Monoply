@@ -23,8 +23,15 @@ function siteMatrix(site: SakuraPlacement) {
   const seed = Math.imul(hash ^ (hash >>> 16), 0x45d9f3b) >>> 0;
   const scale = site.scale * (site.id ? 0.92 + ((seed >>> 8) % 1024) / 1023 * 0.16 : 1);
   const rotation = (site.rotation ?? 0) + (site.id ? (seed % 1024) / 1024 * Math.PI * 2 : 0);
-  return new THREE.Matrix4().makeRotationY(rotation).scale(new THREE.Vector3(scale, scale, scale))
-    .setPosition(...site.position);
+  const lean = site.id ? .025 + (seed >>> 24) / 255 * .05 : 0;
+  const direction = ((seed >>> 10) % 1024) / 1024 * Math.PI * 2;
+  const orientation = new THREE.Quaternion().setFromEuler(new THREE.Euler(
+    Math.cos(direction) * lean, rotation, Math.sin(direction) * lean, 'YXZ',
+  ));
+  const ground = new THREE.Vector3(...site.position);
+  // Seat the slightly tilted root in the same lawn at every angle.
+  ground.y -= .18 * lean * scale;
+  return new THREE.Matrix4().compose(ground, orientation, new THREE.Vector3(scale, scale, scale));
 }
 
 interface SakuraTreeProps {
