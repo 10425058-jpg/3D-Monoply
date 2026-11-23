@@ -61,13 +61,6 @@ const closeEvolution = async () => {
 };
 const waitForStage = level => wait(value => window.__graphicsAudit.arcade().buildings.some(model =>
   model.spaceId === 6 && model.level === value && model.source === 'gltf'), level);
-const openActivity = async () => {
-  await page.evaluate(() => {
-    const button = document.querySelector('.match-activity-toggle');
-    if (button.getAttribute('aria-expanded') === 'false') button.click();
-  });
-  await wait(() => !!document.querySelector('.match-activity-toggle[aria-expanded="true"]'));
-};
 const summarize = ({ samples, metadata }) => {
   assert.ok(samples.length >= 5, 'Measured real rendered frames');
   const p = (field, percentile) => {
@@ -170,15 +163,14 @@ try {
   await wait(() => document.querySelector('[data-activity-notice="upgrade"]')?.textContent.includes('Level 3 Hotel'));
   await capture('06-hotel');
   await closeEvolution();
-  await openActivity();
+  assert.equal(await page.$('.match-activity'), null, 'floating match activity removed from Solo game');
   const evolution = (await state()).activity.filter(event => event.kind === 'upgrade').map(event => ({
     level: event.level, cost: event.amount, turn: event.turn, details: event.details,
   }));
   assert.deepEqual(evolution.map(event => [event.level, event.cost]), [[1, 50], [2, 100], [3, 150]]);
-  await capture('07-match-activity');
-  await page.click('.activity-filters button:nth-child(3)');
-  assert.equal(await page.$$eval('.match-activity-row[data-activity-kind="upgrade"]', rows => rows.length), 3);
-  assert.equal(await page.$('.match-activity-row[data-activity-kind="roll"]'), null);
+  await capture('07-gameplay-clear-view');
+  assert.equal((await state()).activity.filter(event => event.kind === 'upgrade').length, 3,
+    'match history is still recorded without the floating panel');
 
   await fixture('arcade-activity');
   await roll(1, 2, 'CARD_DRAWN');
@@ -275,20 +267,16 @@ try {
   await page.click('.card-reveal .modal-primary');
   await showNotice('card');
   await dismiss();
-  await openActivity();
-  await page.click('.activity-filters button:nth-child(4)');
-  await page.select('select[aria-label="Filter by player"], .activity-selects label:first-child select', '0');
-  assert.equal(await page.$$eval('.match-activity-row', rows => rows.length), 1);
-  const layout = await page.evaluate(() => {
-    const feed = document.querySelector('.match-activity').getBoundingClientRect();
-    const dock = document.querySelector('.fantasy-dock').getBoundingClientRect();
-    return { feedBottom: feed.bottom, dockTop: dock.top, withinScreen: feed.right <= innerWidth && feed.left >= 0 };
-  });
-  assert.ok(layout.withinScreen && layout.feedBottom <= layout.dockTop, JSON.stringify(layout));
-  await capture('13-mobile-activity');
-  await page.focus('.match-activity-toggle');
-  await page.keyboard.press('Escape');
-  assert.equal(await page.$eval('.match-activity-toggle', button => button.getAttribute('aria-expanded')), 'false');
+  const layout = await page.evaluate(() => ({
+    floatingActivityRemoved: document.querySelector('.match-activity') === null,
+    noticesMounted: document.querySelector('.match-notices') !== null,
+    pageWithinScreen: document.documentElement.scrollWidth <= innerWidth,
+  }));
+  assert.equal(layout.floatingActivityRemoved, true, 'no Match Activity HUD panel on mobile');
+  assert.equal(layout.pageWithinScreen, true, JSON.stringify(layout));
+  assert.ok((await state()).activity.some(event => event.kind === 'card'),
+    'recorded card activity is retained on mobile');
+  await capture('13-mobile-gameplay-clear-view');
 
   await page.click('[aria-label="Game Settings & New Game"]');
   assert.equal(await page.$eval('input[value="arcade"]', radio => radio.checked), true);

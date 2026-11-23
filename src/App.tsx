@@ -249,7 +249,6 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
         onOpenAlbum={() => { setMetaTab('album'); setShowMetaHub(true); }}
         onOpenMissions={() => { setMetaTab('missions'); setShowMetaHub(true); }}
       />
-      {!game.winner && <ActivityLog matchId={matchId} events={game.activity} />}
 
       {/* 4. BOTTOM ACTION DOCK */}
       <BottomActionDock
