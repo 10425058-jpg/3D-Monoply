@@ -47,7 +47,7 @@ export const PlayerSidebar: React.FC = () => {
         const count = Object.values(properties).filter(p => p.ownerId === player.id).length;
         return <article key={player.id} className={`kingdom-player ${activeTurn ? 'is-active' : ''} ${player.isBankrupt ? 'is-bankrupt' : ''} ${player.inJail ? 'is-jailed' : ''}`}
           aria-current={activeTurn ? 'true' : undefined} style={{ '--player-color': player.color } as React.CSSProperties}>
-          <div className="player-portrait"><CharacterAvatar character={player.name} size={48} hasCrown={activeTurn} /></div>
+          <div className="player-portrait"><CharacterAvatar character={player.name} color={player.color} size={48} hasCrown={activeTurn} /></div>
           <div className="player-details"><div className="player-name">{player.name}{activeTurn && <Crown size={13} />}</div>
             <strong className="player-money" key={player.money}>${player.money.toLocaleString()}</strong>
             <span className="player-status">{player.isBankrupt ? 'Bankrupt' : player.inJail ? 'In jail' : `${count} ${count === 1 ? 'property' : 'properties'} · ${player.isAI ? 'AI' : 'Player'}`}</span>
