@@ -214,3 +214,28 @@ test('victory takes sound priority over simultaneous bankruptcy and transfers', 
   assert.equal(primaryEffect([{ kind: 'money' }, { kind: 'ownership' }]).kind, 'ownership');
   assert.equal(primaryEffect([]), undefined);
 });
+
+test('four royal tokens grow 30 percent without exceeding the fitted tile clearance', () => {
+  assert.equal(math.PLAYER_TOKEN_SCALE, 1.3);
+  const cornerScale = math.tokenRenderScale(4, true, true);
+  assert.ok(Math.abs(cornerScale / 1.2 - 1.3) < 1e-10);
+  const offsets = Array.from({length:4}, (_,i) => math.tokenOffset(i,4,true));
+  // RoyalToken fits its silhouette within radius .35 in local coordinates.
+  const radius = .35 * cornerScale;
+  for (const p of offsets) {
+    assert.ok(Math.abs(p.x) + radius < 2.9 / 2);
+    assert.ok(Math.abs(p.z) + radius < 2.9 / 2);
+  }
+  for (let i=0;i<4;i++) for (let j=i+1;j<4;j++) {
+    assert.ok(Math.hypot(offsets[i].x-offsets[j].x,offsets[i].z-offsets[j].z) > radius*2);
+  }
+  const streetScale = math.tokenRenderScale(4,false,false);
+  assert.ok(Math.abs(streetScale / 1.06 - 1.3) < 1e-10);
+  for (let i=0;i<4;i++) {
+    const p = math.tokenOffset(i,4,false);
+    assert.ok(Math.max(Math.abs(p.x),Math.abs(p.z)) + .35*streetScale < 1.8/2);
+  }
+  assert.equal(math.tokenRenderScale(4,false,true),1.06);
+  assert.equal(math.tokenRenderScale(6,true,true),1.2*.78);
+  assert.equal(math.tokenRenderScale(6,false,false),1.06*.78);
+});
