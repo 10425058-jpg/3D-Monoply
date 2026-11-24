@@ -42,9 +42,17 @@ export function diceResultScale(rolling: boolean, landingAge: number, reduced: b
   return reduced || landingAge <= 1.9 ? 1 : Math.max(0, (2.2 - landingAge) / 0.3);
 }
 
-export function tokenOffset(index:number,count:number){
-  if(count<=4){const angle=index*Math.PI/2+Math.PI/4;return {x:Math.cos(angle)*.58,z:Math.sin(angle)*.58,scale:1};}
+export const PLAYER_TOKEN_SCALE = 1.3;
+
+export function tokenOffset(index:number,count:number,isCorner=false){
+  // Wider corners can accommodate four enlarged tokens without overlapping.
+  if(count<=4){const angle=index*Math.PI/2+Math.PI/4;const radius=isCorner?.80:.58;return {x:Math.cos(angle)*radius,z:Math.sin(angle)*radius,scale:1};}
   return {x:(index%3-1)*.52,z:(Math.floor(index/3)-.5)*.72,scale:.78};
+}
+
+/** Keep the existing clearance on narrow shared streets and five/six-seat boards. */
+export function tokenRenderScale(count:number,isCorner:boolean,shared:boolean){
+  return (isCorner?1.2:1.06)*(count>4?.78:1)*(count<=4&&(isCorner||!shared)?PLAYER_TOKEN_SCALE:1);
 }
 
 export const TOKEN_RING_OUTER_RADIUS = .34;
