@@ -42,19 +42,19 @@
 .panel-heading h2 { flex: 1; font: 600 17px 'Cinzel', Georgia, serif; margin: 0; }
 .panel-heading > span { color: #e4cce9; font-size: 12px; }
 .kingdom-player-list { display: grid; gap: 10px; }
-.kingdom-player { display: flex; align-items: center; gap: 10px; position: relative; min-width: 0; padding: 12px 9px; border: 1px solid #78527d; border-radius: 17px 7px; background: linear-gradient(115deg, #452353, #301a44); box-shadow: inset 0 1px #f3d4e00a; transition: border-color .2s, box-shadow .2s, background .2s; }
-.kingdom-player.is-active { border-color: var(--royal-bright); box-shadow: inset 3px 0 #e7bd67, inset 0 0 0 1px #ffd76a44, 0 2px 10px #11082233; background: linear-gradient(115deg, #64315c, #442151); }
+.kingdom-player { display: flex; align-items: center; gap: 10px; position: relative; min-width: 0; padding: 12px 9px; border: 1px solid color-mix(in srgb, var(--player-color) 48%, #78527d); border-radius: 17px 7px; background: linear-gradient(115deg, #452353, #301a44); box-shadow: inset 0 1px #f3d4e00a; transition: border-color .2s, box-shadow .2s, background .2s; }
+.kingdom-player.is-active { border-color: var(--player-color); box-shadow: inset 3px 0 var(--player-color), inset 0 0 0 1px color-mix(in srgb, var(--player-color) 28%, transparent), 0 2px 10px #11082233; background: linear-gradient(115deg, #64315c, #442151); }
 .kingdom-player.is-bankrupt { opacity: .6; filter: grayscale(.7); }
 .player-portrait { display: grid; place-items: center; flex: 0 0 48px; width: 48px; height: 48px; border-radius: 50%; box-shadow: 0 0 0 2px var(--player-color), 0 0 0 4px #251530; }
 .player-portrait > div { width: 48px; height: 48px; }
 .player-portrait svg { display: block; }
 .player-details { min-width: 0; flex: 1; }
 .player-name { display: flex; gap: 6px; align-items: center; font-weight: 700; font-size: 15px; line-height: 1.35; overflow-wrap: anywhere; }
-.player-name svg { color: var(--royal-bright); flex-shrink: 0; }
+.player-name svg { color: color-mix(in srgb, var(--player-color) 65%, white); flex-shrink: 0; }
 .player-money { display: block; color: var(--royal-emerald); font-size: 17px; line-height: 1.5; font-variant-numeric: tabular-nums; animation: royal-value .25s ease-out; }
 .player-status { display: block; color: #dfcde2; font-size: 10px; line-height: 1.4; }
 .is-jailed .player-status { color: #f0c994; }
-.turn-badge { position: absolute; right: 9px; top: -7px; border-radius: 20px; background: #f0c96f; color: #3a1c40; font-size: 9px; font-weight: 800; padding: 1px 7px; }
+.turn-badge { position: absolute; right: 9px; top: -7px; border-radius: 20px; background: color-mix(in srgb, var(--player-color) 62%, white); color: #3a1c40; font-size: 9px; font-weight: 800; padding: 1px 7px; }
 .panel-seal { display: flex; gap: 8px; align-items: center; justify-content: center; color: #dcb676; margin-top: 12px; }
 .panel-seal span { width: 40px; height: 1px; background: #98704e; }
 .players-collapse { display: none; }
