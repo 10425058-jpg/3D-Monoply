@@ -7,6 +7,7 @@ import { CenterCity3D } from './CenterCity3D';
 import { TokensAndBuildings } from './TokensAndBuildings';
 import { Dice3D } from './Dice3D';
 import { GameplayEffects } from './GameplayEffects';
+import { PlayerIslands3D } from './PlayerIslands3D';
 import { FantasySkyBackground } from './FantasySkyBackground';
 import { CinematicCamera, useReducedMotion } from './CinematicCamera';
 import { GraphicsAudit, graphicsAuditEnabled } from './GraphicsAudit';
@@ -50,6 +51,7 @@ export const Scene3D = React.memo<{ quality?: GraphicsQuality; propertyPanel?: b
       <TokensAndBuildings quality={quality} />
       <Dice3D quality={quality} />
       <GameplayEffects quality={quality} />
+      <PlayerIslands3D reducedMotion={reducedMotion} quality={quality} />
       {graphicsAuditEnabled() && <GraphicsAudit quality={quality} />}
     </Canvas>
   </div>;

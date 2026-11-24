@@ -1,0 +1,68 @@
+[
+  {
+    "name": "baseline",
+    "frames": 96,
+    "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "frameMedianMs": 12.4,
+    "p95FrameMs": 35.8,
+    "cpuMedianMs": 1.6,
+    "gpuMedianMs": 10.8,
+    "drawCalls": 191,
+    "triangles": 786525
+  },
+  {
+    "name": "islands",
+    "frames": 96,
+    "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "frameMedianMs": 10.6,
+    "p95FrameMs": 15.7,
+    "cpuMedianMs": 1.9,
+    "gpuMedianMs": 9.07,
+    "drawCalls": 235,
+    "triangles": 982191
+  },
+  {
+    "name": "islands",
+    "frames": 96,
+    "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "frameMedianMs": 10.6,
+    "p95FrameMs": 13.2,
+    "cpuMedianMs": 2.3,
+    "gpuMedianMs": 9.2,
+    "drawCalls": 235,
+    "triangles": 982191
+  },
+  {
+    "name": "baseline",
+    "frames": 96,
+    "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "frameMedianMs": 12.2,
+    "p95FrameMs": 30.5,
+    "cpuMedianMs": 1.4,
+    "gpuMedianMs": 10.77,
+    "drawCalls": 191,
+    "triangles": 786525
+  },
+  {
+    "name": "baseline",
+    "frames": 96,
+    "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "frameMedianMs": 12.5,
+    "p95FrameMs": 30.2,
+    "cpuMedianMs": 1.9,
+    "gpuMedianMs": 10.96,
+    "drawCalls": 191,
+    "triangles": 786525
+  },
+  {
+    "name": "islands",
+    "frames": 96,
+    "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "frameMedianMs": 10.3,
+    "p95FrameMs": 22.2,
+    "cpuMedianMs": 2,
+    "gpuMedianMs": 8.91,
+    "drawCalls": 235,
+    "triangles": 982191
+  }
+]

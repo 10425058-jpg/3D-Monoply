@@ -6,6 +6,7 @@ import { SessionManager } from '../src/online/sessionManager';
 import { mapMatch, MatchPresenter } from '../src/online/gamePresentationAdapter';
 import { committedFeedback, committedMove, type CommittedEvent } from '../src/online/committedPresentation';
 import { committedActivity } from '../src/online/committedActivity';
+import { collectIslandMoneyChanges } from '../src/presentation/islandMoney';
 import { EventTracker } from '../src/online/eventTracker';
 import { SocketClient, GAME_EVENTS } from '../src/online/socketClient';
 import { OnlineController } from '../src/online/onlineController';
@@ -371,6 +372,47 @@ test('restoring or reapplying Online snapshots does not replay a purchase', () =
   assert.deepEqual(presenter.store.getState().committedEffects, []);
   assert.equal(presenter.store.getState().properties[1].ownerId, 1);
   presenter.dispose();
+});
+
+test('Online island effects follow confirmed seats, including offsetting transfers and receipt gaps', t => {
+  const presenter = new MatchPresenter(() => {});
+  t.after(() => presenter.dispose());
+  const changes: ReturnType<typeof collectIslandMoneyChanges> = [];
+  t.after(presenter.store.subscribe((next, before) => changes.push(...collectIslandMoneyChanges(before, next))));
+  const initial = snapshot();
+  presenter.apply(initial, false);
+  assert.deepEqual(changes, []);
+
+  const rent = structuredClone(initial);
+  rent.stateVersion++;
+  rent.players[0].money = 1070;
+  rent.players[1].money = 1430;
+  presenter.apply(rent, true, [
+    committedEvent('game:money_changed', { playerId: 'uuid-a', amount: -70, balance: 1430, reason: 'RENT' }),
+    committedEvent('game:money_changed', { playerId: 'uuid-b', amount: 70, balance: 1070, reason: 'RENT' }),
+    committedEvent('game:rent_paid', { payerPlayerId: 'uuid-a', ownerPlayerId: 'uuid-b', spaceId: 3, amount: 70 }),
+  ]);
+  assert.deepEqual(changes.splice(0), [{ playerId: 1, amount: -70 }, { playerId: 3, amount: 70 }]);
+
+  const compound = { ...rent, stateVersion: rent.stateVersion + 1, players: [...rent.players].reverse() };
+  presenter.apply(compound, true, [
+    committedEvent('game:money_changed', { playerId: 'uuid-a', amount: 200, balance: 1630, reason: 'GO_SALARY' }),
+    committedEvent('game:money_changed', { playerId: 'uuid-a', amount: -200, balance: 1430, reason: 'TAX' }),
+  ]);
+  assert.deepEqual(changes.splice(0), [{ playerId: 1, amount: 200 }, { playerId: 1, amount: -200 }]);
+
+  const mortgage = structuredClone(compound);
+  mortgage.stateVersion++;
+  mortgage.players[0].money += 30;
+  presenter.apply(mortgage, true, [
+    committedEvent('game:money_changed', { playerId: 'uuid-a', amount: 30, balance: 1460, reason: 'MORTGAGE' }),
+  ]);
+  assert.deepEqual(changes.splice(0), [{ playerId: 1, amount: 30 }]);
+
+  presenter.reconcile();
+  presenter.apply(mortgage, true);
+  presenter.apply({ ...initial, stateVersion: 8 }, false);
+  assert.deepEqual(changes, [], 'replays, resyncs and snapshot installs stay quiet');
 });
 
 test('proactive expiry refresh is single-flight and also reconciles cross-tab identity', async () => {
