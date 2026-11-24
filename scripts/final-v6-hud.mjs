@@ -44,9 +44,40 @@ try {
         ...rect(element),
         visible: (() => { const r = element.getBoundingClientRect(); const at = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2); return at === element || element.contains(at); })(),
       })).filter(element => element.width > 0 && element.height > 0);
-      return { panel, tray, buttons, horizontalOverflow: document.documentElement.scrollWidth > innerWidth };
+      const actionTray = document.querySelector('.action-tray');
+      const dock = document.querySelector('.fantasy-dock');
+      const desktop = innerWidth > 760;
+      const centerTrack = desktop ? parseFloat(getComputedStyle(dock).gridTemplateColumns.split(/\s+/)[1]) : null;
+      const originalWidth = desktop ? Math.min(centerTrack, innerWidth >= 1600 ? 900 : Infinity) : null;
+      const actionButtons = [...actionTray.querySelectorAll('.dock-action')];
+      return { panel, tray, buttons, horizontalOverflow: document.documentElement.scrollWidth > innerWidth,
+        compactTray: {
+          desktop, originalWidth, count: actionButtons.length,
+          actualWidth: tray.width,
+          minHeight: parseFloat(getComputedStyle(actionButtons[0]).minHeight),
+          fontSize: parseFloat(getComputedStyle(actionButtons[0]).fontSize),
+          labelsFit: actionButtons.every(button => {
+            const label = button.querySelector('span').getBoundingClientRect();
+            const bounds = button.getBoundingClientRect();
+            return label.left >= bounds.left - 1 && label.right <= bounds.right + 1;
+          }),
+        },
+      };
     });
     assert.equal(layout.horizontalOverflow, false, `${width}×${height}: horizontal overflow`);
+    assert.equal(layout.compactTray.count, 6, 'all six actions remain');
+    assert.ok(layout.compactTray.labelsFit, `${width}×${height}: action labels clipped`);
+    if (layout.compactTray.desktop) {
+      const expected = layout.compactTray.originalWidth * .85;
+      assert.ok(Math.abs(layout.compactTray.actualWidth - expected) <= 2,
+        `${width}×${height}: expected 85% action-tray width, got ${layout.compactTray.actualWidth} vs ${expected}`);
+      const oldHeight = width >= 1600 ? 78 : width <= 1150 ? 63 : 67;
+      assert.ok(Math.abs(layout.compactTray.minHeight - oldHeight * .85) <= 1,
+        `${width}×${height}: expected approximately 15% smaller action buttons`);
+    } else {
+      assert.equal(layout.compactTray.minHeight, 51, 'original mobile hit target retained');
+      assert.equal(layout.compactTray.fontSize, 9, 'original mobile text retained');
+    }
     assert.ok(layout.panel.bottom <= layout.tray.y, `${width}×${height}: player panel intersects dock`);
     // Expanded mobile players intentionally cover their shortcuts; verify those
     // after collapsing. Every essential action must remain available meanwhile.
