@@ -26,7 +26,10 @@ function MoneySignal({ cue, reduced, paired }: { cue: Signal; reduced: boolean; 
   useFrame(() => {
     const now = performance.now();
     const t = THREE.MathUtils.clamp((now - cue.from) / (cue.until - cue.from), 0, 1);
-    if (label.current && !reduced) label.current.position.y = restY + .51 * (1 - (1 - t) ** 3);
+    if (label.current) {
+      label.current.visible = now >= cue.from;
+      if (!reduced) label.current.position.y = restY + .51 * (1 - (1 - t) ** 3);
+    }
     if (!ring.current) return;
     const wave = THREE.MathUtils.clamp((now - cue.emphasisAt) / (gain ? 630 : 370), 0, 1);
     ring.current.scale.setScalar(ISLAND_SCALE * (1.04 + wave * (gain ? .30 : .17)));
@@ -34,7 +37,7 @@ function MoneySignal({ cue, reduced, paired }: { cue: Signal; reduced: boolean; 
   });
   return <group position={islandPosition(PLAYER_ISLANDS[cue.playerId])} name="island-money-signal"
     userData={{ seat: cue.playerId, amount: cue.amount, label: text }}>
-    <group ref={label} position={[labelX, restY, labelDepth * ISLAND_SCALE]}>
+    <group ref={label} position={[labelX, restY, labelDepth * ISLAND_SCALE]} visible={false}>
       <IslandPlaque title={text} accent={gain ? color : undefined} tone={gain ? 'gain' : 'loss'}
         size={[paired ? 2.03 + magnitude * .18 : 2.62 + magnitude * .31, paired ? .83 : .93]} />
     </group>

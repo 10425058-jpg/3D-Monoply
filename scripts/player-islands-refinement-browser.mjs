@@ -184,6 +184,11 @@ try {
   await boardsClear(showcase);
   report.layout.after = (await auditIslands(showcase)).islands;
   const colors = ['#f59e0b', '#ec4899', '#3b82f6', '#10b981'];
+  report.layout.hudColors = await showcase.$$eval('.kingdom-player', cards => cards.map(card => ({
+    card: card.style.getPropertyValue('--player-color').trim(),
+    portrait: card.querySelector('.player-portrait circle[r="46"]')?.getAttribute('stroke'),
+  })));
+  assert.deepEqual(report.layout.hudColors, colors.map(color => ({ card: color, portrait: color })));
   for (const island of report.layout.after) {
     const earlier = report.layout.before.find(before => before.seat === island.seat);
     assert.deepEqual(island.position, earlier.position);
@@ -207,7 +212,7 @@ try {
     await aim(showcase, [x - 5.15, 1.73, z + 10.9], [x, -.97, z]);
     await shot(showcase, `${edge}-island`);
   }
-  await aim(showcase, [22.96, 1.23, -2.85], [17.82, -.40, -.12]);
+  await aim(showcase, [17.90, .74, -6.75], [17.82, -.32, -.20]);
   await shot(showcase, 'pedestal');
   await aim(showcase, [13.65, .28, 3.25], [13.5, -.52, 0]);
   await shot(showcase, 'chain-anchors');
@@ -255,14 +260,43 @@ try {
   const hydrated = await demo.evaluate(() => window.__graphicsAudit.islands());
   assert.deepEqual(hydrated.transactions, []);
 
+  const focusTreasury = () => aim(demo, [23.85, 5.3, 10.1], [18.96, -.13, .47]);
   await fixture(demo, 'chest');
-  await roll(demo, 1, 2);
+  await focusTreasury();
+  await roll(demo, 1, 1);
   await demo.waitForFunction(() => window.__graphicsAudit.islands().transactions.some(transaction => transaction.fromId === null && transaction.toId === 0 && transaction.amount === 200) &&
     window.__graphicsAudit.islands().flights.some(flight => flight.value === 100));
+  assert.equal(await demo.evaluate(() => window.__soloTest.state().players[0].money), 1700);
   await delay(205);
   await shot(demo, 'go-money-gain');
   report.effects.gain = (await auditIslands(demo)).transactions;
+
+  await fixture(demo, 'chest');
+  await focusTreasury();
+  await roll(demo, 1, 2);
+  await demo.waitForSelector('.card-reveal-backdrop', { visible: true });
+  const duringCard = await demo.evaluate(() => ({
+    cash: window.__soloTest.state().players[0].money,
+    flights: window.__graphicsAudit.islands().flights,
+    transactions: window.__graphicsAudit.islands().transactions,
+  }));
+  assert.deepEqual(duringCard, { cash: 1700, flights: [], transactions: [] });
+  await button(demo, 'Resolve this card');
+  await demo.waitForSelector('.card-reveal-backdrop', { hidden: true });
+  await demo.waitForFunction(() => {
+    const audit = window.__graphicsAudit.islands();
+    return audit.transactions.length === 2 && audit.flights.some(flight => flight.value === 100);
+  });
+  const afterCard = await auditIslands(demo);
+  assert.deepEqual(afterCard.transactions.map(({ fromId, toId, amount, pieces }) => ({ fromId, toId, amount, pieces })),
+    Array.from({ length: 2 }, () => ({ fromId: null, toId: 0, amount: 200, pieces: [100, 100] })));
+  assert.equal(await demo.evaluate(() => window.__soloTest.state().players[0].money), 1900);
+  await delay(160);
+  await shot(demo, 'card-and-go-gain');
+  report.effects.card = { duringCard, transactions: afterCard.transactions };
+
   await fixture(demo, 'opening');
+  await focusTreasury();
   await roll(demo, 1, 2);
   await demo.waitForFunction(() => window.__soloTest.state().turnPhase === 'LANDED_ACTION');
   await demo.click('footer button[title^="Buy Baltic"]');

@@ -523,18 +523,36 @@
           ]
         }
       }
+    ],
+    "hudColors": [
+      {
+        "card": "#f59e0b",
+        "portrait": "#f59e0b"
+      },
+      {
+        "card": "#ec4899",
+        "portrait": "#ec4899"
+      },
+      {
+        "card": "#3b82f6",
+        "portrait": "#3b82f6"
+      },
+      {
+        "card": "#10b981",
+        "portrait": "#10b981"
+      }
     ]
   },
   "timing": {
     "before": {
       "idle": {
         "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
-        "frames": 63,
-        "fps": 54.3,
-        "medianFrameMs": 18.4,
-        "p95FrameMs": 26.1,
-        "cpuMedianMs": 5.3,
-        "gpuMedianMs": 15.49,
+        "frames": 98,
+        "fps": 80.6,
+        "medianFrameMs": 12.4,
+        "p95FrameMs": 13.8,
+        "cpuMedianMs": 1.2,
+        "gpuMedianMs": 10.38,
         "drawCalls": 237,
         "p95DrawCalls": 237,
         "triangles": 982191,
@@ -548,15 +566,15 @@
       },
       "simultaneous": {
         "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
-        "frames": 90,
-        "fps": 56.2,
-        "medianFrameMs": 17.8,
-        "p95FrameMs": 31.6,
-        "cpuMedianMs": 4.4,
-        "gpuMedianMs": 15.62,
+        "frames": 115,
+        "fps": 79.4,
+        "medianFrameMs": 12.6,
+        "p95FrameMs": 18,
+        "cpuMedianMs": 1.8,
+        "gpuMedianMs": 10.68,
         "drawCalls": 247,
         "p95DrawCalls": 251,
-        "triangles": 985083,
+        "triangles": 986427,
         "textures": 34,
         "geometries": 226,
         "approximateMemory": {
@@ -569,12 +587,12 @@
     "after": {
       "idle": {
         "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
-        "frames": 83,
-        "fps": 65.8,
-        "medianFrameMs": 15.2,
-        "p95FrameMs": 18.1,
-        "cpuMedianMs": 2,
-        "gpuMedianMs": 13.05,
+        "frames": 102,
+        "fps": 82.6,
+        "medianFrameMs": 12.1,
+        "p95FrameMs": 13.4,
+        "cpuMedianMs": 1.4,
+        "gpuMedianMs": 10.2,
         "drawCalls": 251,
         "p95DrawCalls": 251,
         "triangles": 1002175,
@@ -588,13 +606,13 @@
       },
       "simultaneous": {
         "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
-        "frames": 110,
-        "fps": 67.1,
-        "medianFrameMs": 14.9,
-        "p95FrameMs": 41.6,
-        "cpuMedianMs": 2.3,
-        "gpuMedianMs": 13.84,
-        "drawCalls": 269,
+        "frames": 149,
+        "fps": 92.6,
+        "medianFrameMs": 10.8,
+        "p95FrameMs": 27.4,
+        "cpuMedianMs": 1.8,
+        "gpuMedianMs": 9.52,
+        "drawCalls": 270,
         "p95DrawCalls": 270,
         "triangles": 1004439,
         "textures": 41,
@@ -759,9 +777,38 @@
         ]
       }
     ],
+    "card": {
+      "duringCard": {
+        "cash": 1700,
+        "flights": [],
+        "transactions": []
+      },
+      "transactions": [
+        {
+          "id": 2,
+          "fromId": null,
+          "toId": 0,
+          "amount": 200,
+          "pieces": [
+            100,
+            100
+          ]
+        },
+        {
+          "id": 3,
+          "fromId": null,
+          "toId": 0,
+          "amount": 200,
+          "pieces": [
+            100,
+            100
+          ]
+        }
+      ]
+    },
     "loss": [
       {
-        "id": 2,
+        "id": 4,
         "fromId": 0,
         "toId": null,
         "amount": 60,
