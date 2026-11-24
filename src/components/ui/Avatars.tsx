@@ -2,26 +2,32 @@ import React from 'react';
 
 export const CharacterAvatar: React.FC<{
   character: 'You' | 'Victoria' | 'Arthur' | 'Elena' | string;
+  color: string;
   size?: number;
   hasCrown?: boolean;
-}> = ({ character, size = 44, hasCrown = false }) => {
+}> = ({ character, color, size = 44, hasCrown = false }) => {
+  // Identity comes from the player, not the portrait's character name.
+  const gradientId = `avatar-${React.useId()}`;
+  const light = `color-mix(in srgb, ${color} 72%, white)`;
+  const dark = `color-mix(in srgb, ${color} 78%, black)`;
+  const clothing = `color-mix(in srgb, ${color} 65%, black)`;
+  const gradient = <defs><linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stopColor={light} />
+    <stop offset="100%" stopColor={dark} />
+  </linearGradient></defs>;
+  const portraitBackground = <circle cx="50" cy="50" r="46" fill={`url(#${gradientId})`} stroke={color} strokeWidth="4" />;
   const getAvatarSvg = () => {
     switch (character.toLowerCase()) {
       case 'you':
       case 'you (tycoon)':
-        // Smiling boy with brown hair in blue hoodie
+        // Smiling boy with brown hair
         return (
           <svg viewBox="0 0 100 100" width={size} height={size} className="overflow-visible">
-            <defs>
-              <linearGradient id="bg-you" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#60a5fa" />
-                <stop offset="100%" stopColor="#2563eb" />
-              </linearGradient>
-            </defs>
-            <circle cx="50" cy="50" r="46" fill="url(#bg-you)" stroke="#fbbf24" strokeWidth="4" />
+            {gradient}
+            {portraitBackground}
             {/* Body / Shirt */}
-            <path d="M22 88 Q50 68 78 88 Z" fill="#1e40af" />
-            <path d="M38 78 L50 88 L62 78 Z" fill="#f87171" />
+            <path d="M22 88 Q50 68 78 88 Z" fill={clothing} />
+            <path d="M38 78 L50 88 L62 78 Z" fill={light} />
             {/* Head & Neck */}
             <circle cx="50" cy="46" r="23" fill="#fed7aa" />
             {/* Hair */}
@@ -42,15 +48,10 @@ export const CharacterAvatar: React.FC<{
         // Cool girl with pink cap, stylish sunglasses and pink jacket
         return (
           <svg viewBox="0 0 100 100" width={size} height={size} className="overflow-visible">
-            <defs>
-              <linearGradient id="bg-vic" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#f472b6" />
-                <stop offset="100%" stopColor="#db2777" />
-              </linearGradient>
-            </defs>
-            <circle cx="50" cy="50" r="46" fill="url(#bg-vic)" stroke="#fbcfe8" strokeWidth="4" />
+            {gradient}
+            {portraitBackground}
             {/* Body */}
-            <path d="M22 88 Q50 68 78 88 Z" fill="#9d174d" />
+            <path d="M22 88 Q50 68 78 88 Z" fill={clothing} />
             {/* Blonde Hair below cap */}
             <path d="M24 46 Q20 72 32 76" stroke="#fcd34d" strokeWidth="7" fill="none" strokeLinecap="round" />
             <path d="M76 46 Q80 72 68 76" stroke="#fcd34d" strokeWidth="7" fill="none" strokeLinecap="round" />
@@ -70,19 +71,14 @@ export const CharacterAvatar: React.FC<{
 
       case 'arthur':
       case 'arthur ai':
-        // Smart boy with dark hair, glasses and green sweater matching concept art
+        // Smart boy with dark hair and glasses
         return (
           <svg viewBox="0 0 100 100" width={size} height={size} className="overflow-visible">
-            <defs>
-              <linearGradient id="bg-art" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#34d399" />
-                <stop offset="100%" stopColor="#059669" />
-              </linearGradient>
-            </defs>
-            <circle cx="50" cy="50" r="46" fill="url(#bg-art)" stroke="#a7f3d0" strokeWidth="4" />
-            {/* Green Sweater */}
-            <path d="M22 88 Q50 68 78 88 Z" fill="#047857" />
-            <path d="M38 78 L50 88 L62 78 Z" fill="#6ee7b7" />
+            {gradient}
+            {portraitBackground}
+            {/* Sweater */}
+            <path d="M22 88 Q50 68 78 88 Z" fill={clothing} />
+            <path d="M38 78 L50 88 L62 78 Z" fill={light} />
             {/* Face */}
             <circle cx="50" cy="46" r="23" fill="#fed7aa" />
             {/* Dark Hair */}
@@ -105,19 +101,14 @@ export const CharacterAvatar: React.FC<{
       case 'elena':
       case 'elena ai':
       default:
-        // Cute blonde girl with golden hair and green sweater matching concept art
+        // Cute blonde girl with golden hair
         return (
           <svg viewBox="0 0 100 100" width={size} height={size} className="overflow-visible">
-            <defs>
-              <linearGradient id="bg-ele" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#fbbf24" />
-                <stop offset="100%" stopColor="#d97706" />
-              </linearGradient>
-            </defs>
-            <circle cx="50" cy="50" r="46" fill="url(#bg-ele)" stroke="#fde68a" strokeWidth="4" />
-            {/* Green Sweater */}
-            <path d="M22 88 Q50 68 78 88 Z" fill="#15803d" />
-            <path d="M38 78 L50 88 L62 78 Z" fill="#86efac" />
+            {gradient}
+            {portraitBackground}
+            {/* Sweater */}
+            <path d="M22 88 Q50 68 78 88 Z" fill={clothing} />
+            <path d="M38 78 L50 88 L62 78 Z" fill={light} />
             {/* Blonde Hair */}
             <circle cx="50" cy="45" r="26" fill="#facc15" />
             {/* Face */}
