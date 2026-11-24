@@ -136,14 +136,14 @@
 }
 .match-notices--online { top: 118px; width: min(415px, calc(100vw - 32px)); }
 .match-notice {
-  border: 1px solid #efb966;
+  border: 1px solid var(--ui-gold);
   border-radius: 16px 7px;
   background: linear-gradient(134deg, #542b60fa, #2a1739fc 72%);
-  box-shadow: inset 0 0 10px #d49f5740, 0 0 13px #f7b55e65, 0 9px 22px #250b3c77;
+  box-shadow: inset 0 0 0 2px #c2976033, 0 6px 15px #1b102b66;
 }
 .match-notice[data-emphasis="milestone"] {
   border-color: #ffe5a0;
-  box-shadow: inset 0 0 13px #f9bc6770, 0 0 19px #ffcf6fb0, 0 9px 22px #250b3c90;
+  box-shadow: inset 0 0 0 2px #e6bd794f, 0 8px 22px #250b3c80;
 }
 .match-notice-heading { display: flex; gap: 8px; align-items: center; padding: 8px 9px; }
 .match-notice-heading strong { flex: 1; font-size: 13px; overflow-wrap: anywhere; }
@@ -239,12 +239,13 @@
   --announcement-accent: #a9dfe2;
   background: radial-gradient(ellipse at 50% 0, #48778372, transparent 66%), #24233a;
 }
+.match-notice--center[data-activity-notice="bankruptcy"] { --announcement-accent: #efa6b3; }
 .match-notice--center .match-notice-close {
   position: absolute;
   top: 12px;
   right: 12px;
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   color: var(--announcement-accent);
 }
 .match-announcement-heading { display: grid; justify-items: center; gap: 9px; }

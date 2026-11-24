@@ -45,7 +45,7 @@ async function tradeOffer(page) {
   for (const [index, value] of ['500', '35'].entries()) {
     await page.locator(`.trade-cash-grid label:nth-child(${index + 1}) input`).fill(value);
   }
-  await page.locator('.trade-modal-actions .primary:not([disabled])').click();
+  await page.locator('dialog[open].trade-modal .royal-dialog-footer button[data-variant="primary"]:enabled').click();
   await page.waitForFunction(() => !!window.__soloTest.state().pendingTrade && !document.querySelector('.trade-modal'));
 }
 

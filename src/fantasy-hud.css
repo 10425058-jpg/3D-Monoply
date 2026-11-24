@@ -232,7 +232,6 @@
   .deed-crown svg { width: 17px; }
   /* Lift the selected tile above the bottom sheet while retaining the scene. */
   .monopoly-app:has(.fantasy-deed) { background: #433068; }
-  .monopoly-app:has(.fantasy-deed) .world-layer { transform: translateY(-110px); }
 }
 @media (min-width: 761px) and (max-height: 600px) {
   .fantasy-shortcuts { grid-template-columns: repeat(2, 1fr); gap: 7px; }

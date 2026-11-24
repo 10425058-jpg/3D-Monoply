@@ -1,0 +1,164 @@
+/* Object and decision layouts share the frame, materials and controls in royal-ui.css. */
+.auction-stage,.card-spread { display: grid; grid-template-columns: minmax(140px,.8fr) minmax(0,1.35fr); gap: clamp(16px,3vw,30px); align-items: center; }
+.auction-deed,.card-parchment { border: 2px solid #c49853; border-radius: 16px 6px; padding: 20px; color: #432439; background: radial-gradient(ellipse at center,#fff6df,#efd1a3); box-shadow: inset 0 0 0 3px #f9e4bc,inset 0 0 0 4px #cba069,0 4px 10px #1a0d243f; text-align: center; }
+.auction-deed { position: relative; display: grid; justify-items: center; align-content: center; padding-top: 27px; }
+.auction-deed::before { content: ''; position: absolute; inset: 7px 9px auto; height: 11px; background: var(--deed-color); border-radius: 8px 2px 0 0; }
+.auction-deed h3,.card-parchment h3 { color: #45233c; font-size: clamp(20px,2vw,30px); }
+.auction-deed img { width: min(100%,162px); height: 112px; object-fit: contain; }
+.auction-deed strong { font-size: 24px; }
+.auction-offer { display: grid; justify-items: center; text-align: center; }
+.auction-offer .royal-art { width: clamp(100px,12vw,158px); }
+.auction-offer > strong { font: 700 clamp(34px,4vw,54px)/1.2 var(--ui-display); color: var(--ui-bright); }
+.auction-offer p { margin-top: 10px; color: var(--ui-muted); }
+.auction-offer b { color: var(--ui-paper); }
+.bidder-list { display: grid; grid-template-columns: repeat(auto-fit,minmax(105px,1fr)); gap: 7px; }
+.bidder-seat { min-width: 0; display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 12px 6px; border: 1px solid color-mix(in srgb,var(--seat) 56%,#543552); background: #2b1938; }
+.bidder-seat[data-current] { box-shadow: inset 0 0 0 2px var(--ui-gold); }
+.bidder-seat span { display: grid; overflow-wrap: anywhere; }
+.bidder-seat strong { color: var(--ui-green); }
+.trade-modal-actions,.evolution-purchase-actions { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.trade-sides,.portfolio-grid,.trade-comparison { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.trade-side,.trade-comparison > div,.setup-facts > div,.debt-holding,.reward-day,.mission-card,.sticker-set,.wheel-layout,.daily-streak-card,.album-footer,.pack-reveal { background:linear-gradient(135deg,#4c2c51,#302039); border:1px solid #86607b; border-radius:14px 6px; padding:14px; min-width:0; }
+.trade-side,.trade-comparison > div,.trade-field,.debt-holdings,.meta-content,.mission-list,.rule-list,.royal-ledger,.solo-results,.sticker-set { display:grid; gap:9px; }
+.trade-side h3,.portfolio-grid h3,.raid-list-title,.royal-facts > div,.rule-list > div,.setup-facts,.sticker-set-heading,.meta-section-title,.mission-summary,.album-summary,.album-footer,.daily-streak-card,.debt-holding,.audio-settings,.royal-ledger li,.solo-results li { display:flex; align-items:center; gap:10px; }
+.trade-field { gap:4px; font-size:14px; }
+.trade-comparison { font-size:14px; }
+.trade-comparison small,.trade-field > span,.debt-holding small,.royal-ledger small { color:var(--ui-muted); }
+.trade-comparison b,.royal-facts dd { font-weight:700; color:var(--ui-bright); }
+.trade-feedback.is-warning { color:#ffd0b0; }
+.trade-feedback.is-success { color:var(--ui-green); }
+.royal-ledger,.solo-results { list-style:none; padding:0; }
+.royal-ledger li,.royal-facts > div,.solo-results li { justify-content:space-between; padding:8px 0; border-bottom:1px solid #95718155; }
+.royal-ledger small { flex:none; }
+.royal-facts dt,.royal-facts dd { font-size:14px; }
+.solo-results li:first-child { color:var(--ui-bright); font-weight:700; }
+.card-spread { grid-template-columns: .7fr 1.3fr; }
+.card-spread .royal-art { width: min(100%,200px); justify-self:center; }
+.card-parchment { display:grid; justify-items:center; gap:14px; padding:24px 18px; }
+.card-parchment p { line-height:1.5; }
+.card-effect { display:inline-flex; align-items:center; gap:7px; padding:5px 10px; border-radius:16px; background:#513554; color:#ffedcd; font-size:13px; }
+.card-effect[data-tone="emerald"] { background:#295d48; }
+.card-effect[data-tone="ruby"] { background:#78364a; }
+.raid-option-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.raid-heist,.vault-choice,.raid-target { color:var(--ui-paper); border:1px solid #bd925f; background:radial-gradient(ellipse at 50% 48%,#6b4257,#33203f 76%); border-radius:16px 7px; padding:12px; display:grid; justify-items:center; gap:4px; }
+.raid-heist:hover,.vault-choice:hover,.raid-target:hover { border-color:var(--ui-bright); background-color:var(--ui-plum); }
+.raid-heist strong,.vault-choice strong,.raid-list-title { color:var(--ui-bright); font:700 19px var(--ui-display); }
+.raid-heist small { max-width:26ch; color:var(--ui-muted); }
+.raid-shutdown-list { display:grid; align-content:center; gap:7px; }
+.raid-target { display:flex; align-items:center; gap:8px; text-align:left; }
+.raid-target-name { flex:1; font-weight:700; overflow-wrap:anywhere; }
+.raid-target-level { color:#f4c6c8; font-size:13px; }
+.vault-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.vault-choice .royal-art { width:min(100%,170px); }
+.vault-choice small { color:var(--ui-muted); }
+.raid-skip { justify-self:center; }
+.royal-dialog .eyebrow { color:var(--ui-bright); font:700 11px var(--ui-body); letter-spacing:.08em; }
+.meta-content { gap:15px; }
+.daily-streak-card,.mission-summary,.album-summary,.meta-section-title,.album-footer,.sticker-set-heading { justify-content:space-between; }
+.daily-streak-card .royal-art { width:86px; }
+.daily-streak-card strong,.album-summary > strong { display:block; font:700 29px var(--ui-display); color:var(--ui-bright); }
+.reward-calendar,.sticker-grid,.pack-reveal-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(76px,1fr)); gap:7px; }
+.reward-day,.sticker-card,.pack-reveal-cards > div { display:grid; place-content:center; justify-items:center; text-align:center; gap:4px; padding:10px 5px; position:relative; overflow-wrap:anywhere; }
+.reward-day span,.sticker-card small,.mission-main small { font-size:12px; color:var(--ui-muted); }
+.reward-day.is-today { border:2px solid var(--ui-gold); }
+.reward-day.is-claimed { border-color:#69b18b; }
+.reward-day i { color:var(--ui-green); }
+.wheel-layout { display:flex; align-items:center; justify-content:center; gap:25px; }
+.wheel-copy,.album-footer > div,.mission-main { display:grid; gap:6px; }
+.wheel-copy { max-width:29ch; }
+.wheel-last-win,.mission-card.is-claimed small { color:var(--ui-green); }
+.mission-card { display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:12px; }
+.mission-icon,.sticker-emoji { font-size:25px; }
+.mission-progress-track,.album-progress-track { height:8px; overflow:hidden; border:1px solid #88687b; border-radius:8px; background:#24152e; }
+.mission-progress-track i,.album-progress-track i { display:block; height:100%; background:linear-gradient(90deg,#af874b,#ffe195); }
+.sticker-card { border:1px solid #785976; border-radius:10px 4px; background:#312039; }
+.sticker-card.is-owned { border-color:#bba272; }
+.sticker-card.rarity-rare.is-owned { border-color:#81c8c6; }
+.sticker-card.rarity-epic.is-owned { border-color:#d5a1e0; }
+.sticker-card.is-locked { color:#d1bed3; }
+.setup-facts { align-items:stretch; }
+.setup-facts > div { flex:1; display:grid; justify-items:center; text-align:center; gap:2px; padding:9px; }
+.setup-facts svg,.setup-facts strong { color:var(--ui-bright); }
+.setup-facts span { font-size:12px; }
+.audio-settings { border:1px solid var(--ui-line); border-radius:12px; padding:10px; }
+.audio-settings button { display:grid; place-items:center; width:44px; height:44px; border:1px solid var(--ui-gold); border-radius:50%; background:var(--ui-purple); color:var(--ui-bright); }
+.audio-settings label { flex:1; }
+.audio-settings label span { float:right; }
+.audio-settings input { display:block; width:100%; height:26px; }
+.rule-list > div { align-items:flex-start; border-top:1px solid #92667b55; padding:9px 0; }
+.rule-list > div > span { color:var(--ui-gold); font:600 18px var(--ui-display); }
+.rule-list strong,.debt-holding small { display:block; }
+.debt-holding { flex-wrap:wrap; }
+.debt-holding > span { flex:1 1 135px; }
+.online-dialog .city-field { display:grid; gap:6px; margin:10px 0; color:var(--ui-paper); }
+.online-dialog .city-field legend,.online-dialog .city-field label,.online-dialog .city-field select { color:var(--ui-paper); }
+.online-dialog .city-choice-row span { background:var(--ui-deep); color:var(--ui-muted); }
+.online-dialog .city-choice-row input:checked + span { background:#eed098; color:#342039; }
+.online-dialog .city-dialog-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+.online-dialog .city-result-row { background:#382340; border-color:var(--ui-line); }
+.online-dialog .city-result-row span,.online-dialog .city-results p,.online-dialog .city-profile-detail p { color:var(--ui-muted); }
+.online-dialog .city-results h2,.online-dialog .city-result-row strong,.online-dialog .city-profile-detail h2 { color:var(--ui-bright); }
+.online-dialog form > .royal-button { margin-top:14px; width:100%; }
+.match-announcement-heading .royal-art { width:84px; }
+.royal-button:disabled { color:#d6c8d9; background:#514357; border-color:#807183; cursor:not-allowed; }
+@media(max-width:600px){
+ .trade-sides,.portfolio-grid,.raid-option-grid { grid-template-columns:1fr; }
+ .card-spread { grid-template-columns:1fr; gap:6px; }
+ .card-spread .royal-art { width:105px; }
+ .auction-stage { grid-template-columns:1fr 1fr; gap:8px; }
+ .auction-deed { padding:24px 8px 10px; }
+ .auction-deed img { height:85px; }
+ .bidder-list { grid-template-columns:1fr 1fr; }
+ .vault-grid,.trade-comparison { gap:6px; }
+ .vault-choice { padding:7px 4px; }
+ .vault-choice strong { font-size:15px; }
+ .raid-heist .royal-art { width:80px; }
+ .wheel-layout { flex-direction:column; gap:12px; }
+ .mission-card { grid-template-columns:minmax(0,1fr) auto; padding:10px; gap:6px; }
+ .mission-icon { display:none; }
+ .album-footer { flex-wrap:wrap; }
+ .trade-modal-actions .royal-button { flex:1 1 auto; }
+}
+.auction-status { display: grid; justify-items: center; gap: 3px; text-align: center; }
+.auction-status strong { color: var(--ui-bright); }
+.auction-status small { color: var(--ui-muted); }
+.solo-decision-strip .royal-button { min-height: 36px; padding: 5px 10px; font-size: 12px; }
+.purchase-details [data-short] { color: var(--ui-ruby); }
+.royal-dialog .city-field :is(input:not([type="radio"]), select) {
+  background: #27182f;
+  border-color: var(--ui-line);
+  color: var(--ui-paper);
+}
+.royal-dialog .city-field :is(input, select):focus { border-color: var(--ui-gold); }
+.royal-dialog .city-field input::placeholder { color: #bfa7c6; }
+.online-dialog .royal-dialog-body p { color: var(--ui-muted); }
+.online-dialog .royal-dialog-body .city-info { color: var(--ui-muted) !important; background: #35213f; border-color: var(--ui-line); }
+.royal-dialog .royal-button { font: 700 14px/1.3 var(--ui-body); }
+.royal-dialog .city-choice-row input:focus-visible + span { outline-color: var(--ui-bright); }
+.royal-dialog .city-choice-row span { min-height: 44px; }
+.city-match :is(.city-reconnect, .city-inspector, .city-last-card, .city-online-dock .city-info) {
+  font-family: var(--ui-body); color: var(--ui-paper) !important; border-color: var(--ui-gold);
+  background: linear-gradient(145deg, #503054, #2b1b38); box-shadow: inset 0 0 0 2px #cda56933, 0 5px 15px #1b112b50;
+}
+.city-match :is(.city-reconnect, .city-inspector, .city-last-card, .city-online-dock .city-info) :is(h2,strong,summary,.city-eyebrow,.city-link,.city-icon) { color: var(--ui-bright); }
+.city-match :is(.city-reconnect, .city-inspector, .city-last-card, .city-online-dock .city-info) :is(p,small) { color: var(--ui-muted); }
+.city-match .city-inspector .city-icon { background: var(--ui-deep); border-color: var(--ui-line); }
+.city-match .city-last-card { border-inline-start: 3px solid var(--ui-gold); }
+.city-match .city-last-card[data-deck="chest"] { border-inline-start-color: #8abebd; }
+.city-invite.royal-ui-panel { color: var(--ui-paper); }
+.city-invite.royal-ui-panel :is(strong,small,.city-eyebrow,.city-link) { color: var(--ui-bright); }
+@media(max-width:760px) {
+  .solo-decision-strip .royal-button { min-height: 44px; }
+}
+
+.trade-side-header { display: flex; align-items: center; gap: 10px; }
+.trade-side-header strong { font-variant-numeric: tabular-nums; font-size: 13px; color: var(--ui-green); }
+.trade-deed { display: flex; align-items: baseline; gap: 6px; padding: 5px 8px; border-radius: 6px; border-inline-start: 3px solid var(--deed-accent, var(--ui-gold)); background: #221529; }
+.trade-deed > svg { flex: none; align-self: center; color: var(--ui-bright); }
+.solo-results li > strong { display: flex; align-items: center; gap: 8px; }
+.solo-results li > span { text-align: right; }
+.raid-payout { color: var(--ui-bright); font: 700 clamp(30px, 4vw, 47px)/1.1 var(--ui-display); }
+.raid-event-copy { color: var(--ui-muted); }
+.raid-target,.vault-choice { transition: transform .12s, filter .12s; }
+.raid-target:active,.vault-choice:active { transform: scale(.98); }
+.wheel-last-win { padding: 8px 10px; border: 1px solid #70a88b; background: #254a3f; border-radius: 8px; }

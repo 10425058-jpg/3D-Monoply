@@ -1,3 +1,4 @@
+import { RoyalButton, RoyalModal, RoyalNotice, RoyalPresence } from '../components/ui/RoyalUI';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Castle, Check, Copy, Crown, Dice5, Globe2, Loader2, LockKeyhole, Plus, RefreshCw, Settings2, ShieldCheck, UserRound, Users, Wifi, X } from 'lucide-react';
 import { useStore } from 'zustand';
@@ -22,28 +23,20 @@ export const tokenNames: Record<string, string> = {
   yacht: ROYAL_TOKEN_ASSETS.yacht.name,
 };
 
-export function Dialog({ title, children, onClose }: { title: string; children: React.ReactNode; onClose: () => void }) {
-  const ref = useRef<HTMLDialogElement>(null);
-  const close = useRef(onClose); close.current = onClose;
-  useEffect(() => {
-    const dialog = ref.current!; const previous = document.activeElement as HTMLElement | null;
-    dialog.showModal();
-    const cancel = (event: Event) => { event.preventDefault(); close.current(); };
-    dialog.addEventListener('cancel', cancel);
-    return () => { dialog.removeEventListener('cancel', cancel); dialog.close(); previous?.focus(); };
-  }, []);
-  return <dialog ref={ref} className="city-dialog" aria-labelledby="city-dialog-title">
-    <div className="city-dialog-header"><h2 id="city-dialog-title">{title}</h2><button className="city-icon" onClick={onClose} aria-label="Close dialog"><X /></button></div>{children}
-  </dialog>;
+export function Dialog({ title, children, onClose, danger = false, result = false }: {
+  title: string; children: React.ReactNode; onClose?: () => void; danger?: boolean; result?: boolean;
+}) {
+  return <RoyalModal title={title} className="online-dialog" size={result ? 'large' : 'small'}
+    tone={danger ? 'ruby' : 'gold'} priority={result ? 'result' : 'utility'} onClose={onClose}>{children}</RoyalModal>;
 }
 export function ErrorNotice({ message }: { message: string | null }) {
-  return message ? <p className="city-error" role="alert">{message}</p> : null;
+  return message ? <RoyalNotice className="city-error" tone="ruby" role="alert">{message}</RoyalNotice> : null;
 }
 export function Busy({ text = 'Loading your city…' }: { text?: string }) { return <p className="city-busy" role="status"><Loader2 className="city-spin" />{text}</p>; }
 export function Settings({ quality, setQuality, onClose }: { quality: Quality; setQuality: (value: Quality) => void; onClose: () => void }) {
-  return <Dialog title="Make yourself at home" onClose={onClose}><p>Choose the right balance for your device.</p>
+  return <Dialog title="Game Settings" onClose={onClose}><p>Choose the right balance for your device.</p>
     <label className="city-field">Graphics quality<select value={quality} onChange={e => setQuality(e.target.value as Quality)}><option value="low">Low · lighter rendering</option><option value="balanced">Balanced</option><option value="high">High · richer detail</option></select></label>
-    <AudioControls /><button className="city-button gold" onClick={onClose}>Done<Check size={18} /></button></Dialog>;
+    <AudioControls /><RoyalButton variant="primary" onClick={onClose}>Done<Check size={18} /></RoyalButton></Dialog>;
 }
 export function Brand() { return <span className="city-brand"><span className="city-brand-mark"><Castle size={24} /></span><span>MINIATURE CITY<small>A little city. A big adventure.</small></span></span>; }
 export function AuthScreen({ onHome, onSuccess }: { onHome: () => void; onSuccess: () => void }) {
@@ -143,7 +136,7 @@ export function Lobby({ enterRoom, resumeMatch }: { enterRoom: (room: Room) => v
       <span className={`city-room-icon tone-${index % 3}`}><Castle size={26} /></span><div><h3>Central Castle <small>#{short(room.roomId)}</small></h3><p><Users size={14} />{room.memberCount} / {room.maxPlayers} players<span>·</span>Miniature City</p></div><span className="city-status">Waiting</span><button className="city-button blue" disabled={pending || room.memberCount >= room.maxPlayers} onClick={() => void run(() => session.api.request<Room>(`/rooms/${room.roomId}/join`, { method: 'POST', body: {} }))}>{room.memberCount >= room.maxPlayers ? 'Full' : 'Join'}<ArrowRight size={18} /></button></article>)}</div>}
     {cursor && <button className="city-button outline city-load-more" disabled={loading} onClick={() => void load(cursor)}>Load more rooms</button>}
     <div className="city-lobby-note"><ShieldCheck size={20} /><p>Your friends, your table.<span>Use a private room to play with an invitation code.</span></p></div>
-    {modal && <Dialog title={modal === 'create' ? 'Start something great.' : 'Your friends saved you a seat.'} onClose={() => { if (!pending) setModal(null); }}><form onSubmit={e => {
+    <RoyalPresence>{modal && <Dialog title={modal === 'create' ? 'Create a room' : 'Join private room'} onClose={pending ? undefined : () => setModal(null)}><form onSubmit={e => {
       e.preventDefault(); const f = new FormData(e.currentTarget);
       void run(async () => {
         if (modal === 'join') return session.api.request<Room>(`/rooms/${String(f.get('roomId')).trim().toLowerCase()}/join`, { method: 'POST', body: { inviteCode: String(f.get('inviteCode')).trim() } });
@@ -152,7 +145,7 @@ export function Lobby({ enterRoom, resumeMatch }: { enterRoom: (room: Room) => v
         return result.room;
       });
     }}>{modal === 'create' ? <><p>One beautiful board. Room for your favorite people.</p><label className="city-field">Map<select name="map"><option value="central-castle">Central Castle</option></select></label><fieldset className="city-field"><legend>Players</legend><div className="city-choice-row">{[2, 3, 4].map(n => <label key={n}><input type="radio" name="players" value={n} defaultChecked={n === 4} /><span>{n} players</span></label>)}</div></fieldset><fieldset className="city-field"><legend>Visibility</legend><div className="city-choice-row"><label><input type="radio" name="visibility" value="public" defaultChecked /><span><Globe2 size={15} />Public</span></label><label><input type="radio" name="visibility" value="private" /><span><LockKeyhole size={15} />Private</span></label></div></fieldset></> : <><p>Ask your host for the room ID and invitation code.</p><label className="city-field">Room ID<input name="roomId" placeholder="Paste the full room ID" required pattern="[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}" /></label><label className="city-field">Invite code<input name="inviteCode" placeholder="Enter your private invite code" autoComplete="off" required maxLength={128} /></label><p className="city-info">Private codes come from your host. They never appear in the public lobby.</p></>}
-      <ErrorNotice message={error} /><button className="city-button gold" disabled={pending}>{pending ? 'One moment…' : modal === 'create' ? 'Create room' : 'Join room'}<ArrowRight size={18} /></button></form></Dialog>}
+      <ErrorNotice message={error} /><RoyalButton type="submit" variant="primary" disabled={pending}>{pending ? 'One moment…' : modal === 'create' ? 'Create room' : 'Join room'}<ArrowRight size={18} /></RoyalButton></form></Dialog>}</RoyalPresence>
   </>;
 }
 
@@ -168,7 +161,7 @@ export function WaitingRoom({ controller, onLeave }: { controller: OnlineControl
     <div className="city-seats">{Array.from({ length: room.maxPlayers }, (_, seat) => { const member = room.members.find(m => m.seatOrder === seat);
       return <article className={`city-seat ${member ? '' : 'empty'}`} key={seat}><span className="city-seat-number">SEAT {seat + 1}</span><span className="city-seat-avatar" style={member ? { background: member.color } : undefined}>{member ? member.avatarUrl ? <img src={member.avatarUrl} alt="" referrerPolicy="no-referrer" /> : <UserRound size={42} /> : <Plus size={38} />}</span><h2>{member?.username ?? 'Open seat'}</h2><p>{member ? tokenNames[member.token] : 'Good company goes here'}</p><div className="city-seat-badges">{member ? <><span className={member.isHost ? 'city-badge host' : 'city-badge'}>{member.isHost ? <Crown size={13} /> : null}{member.isHost ? 'Host' : 'Player'}</span><span className={`city-badge ${member.isReady ? 'ready' : ''}`}>{member.isReady ? <Check size={13} /> : null}{member.isReady ? 'Ready' : 'Not ready'}</span></> : <span className="city-badge">Waiting for a friend</span>}</div></article>;
     })}</div>
-    {room.isPrivate && host && <section className="city-invite"><div><span className="city-eyebrow">INVITE YOUR PEOPLE</span><strong>{invite ?? 'Generate a new invitation code'}</strong><small>Room ID: {room.roomId}</small></div><div><button className="city-button outline" disabled={!invite || !!state.pending} onClick={async () => { try { await navigator.clipboard.writeText(`Room ID: ${room.roomId}\nInvite code: ${invite}`); setCopy('Copied!'); } catch { setCopy('Select and copy the code above'); } }}><Copy size={17} />{copy}</button><button className="city-link" disabled={!!state.pending} onClick={() => void controller.roomAction('rotate', async () => { const result = await session.api.request<{ inviteCode: string }>(`/rooms/${room.roomId}/invite/rotate`, { method: 'POST', body: {} }); if (!controller.isActive) return; privateInvites.set(room.roomId, result.inviteCode); setInvite(result.inviteCode); setCopy('Copy invite'); })}>Replace code</button></div></section>}
+    {room.isPrivate && host && <section className="city-invite royal-ui-panel"><div><span className="city-eyebrow">INVITE YOUR PEOPLE</span><strong>{invite ?? 'Generate a new invitation code'}</strong><small>Room ID: {room.roomId}</small></div><div><RoyalButton disabled={!invite || !!state.pending} onClick={async () => { try { await navigator.clipboard.writeText(`Room ID: ${room.roomId}\nInvite code: ${invite}`); setCopy('Copied!'); } catch { setCopy('Select and copy the code above'); } }}><Copy size={17} />{copy}</RoyalButton><button className="city-link" disabled={!!state.pending} onClick={() => void controller.roomAction('rotate', async () => { const result = await session.api.request<{ inviteCode: string }>(`/rooms/${room.roomId}/invite/rotate`, { method: 'POST', body: {} }); if (!controller.isActive) return; privateInvites.set(room.roomId, result.inviteCode); setInvite(result.inviteCode); setCopy('Copy invite'); })}>Replace code</button></div></section>}
     <ErrorNotice message={state.error} /><div className="city-waiting-footer"><button className="city-link" disabled={!!state.pending} onClick={() => void controller.roomAction('leave', async () => { await session.api.request(`/rooms/${room.roomId}/leave`, { method: 'POST', body: {} }); privateInvites.delete(room.roomId); if (controller.isActive) onLeave(); })}><ArrowLeft size={17} />Leave room</button><span className={`city-connection ${state.connection}`}>{state.connection === 'connected' ? <Wifi size={16} /> : <RefreshCw size={16} />}{state.connection === 'connected' ? 'Everyone’s updates, in real time' : 'Reconnecting to your room…'}</span><div>{host ? <button className="city-button gold" disabled={!ready || !!state.pending || state.connection !== 'connected'} onClick={() => void controller.roomAction('start', async () => { const response = await session.api.request<{ matchId: string }>(`/rooms/${room.roomId}/start`, { method: 'POST', body: { rulesetId: 'mini-v1', contentVersion: 'central-castle@1' } }); if (controller.isActive) location.hash = `online/match/${response.matchId}`; })}>{state.pending === 'start' ? 'Starting…' : 'Start game'}<ArrowRight size={18} /></button> : <button className={`city-button ${me?.isReady ? 'outline' : 'purple'}`} disabled={!!state.pending || room.status !== 'WAITING'} onClick={() => void controller.roomAction('ready', async () => controller.acceptRoom(await session.api.request<Room>(`/rooms/${room.roomId}/ready`, { method: 'PATCH', body: { isReady: !me?.isReady } })))}>{me?.isReady ? 'Not ready' : 'I’m ready'}<Check size={18} /></button>}</div></div>
     <p className="city-waiting-hint">{host ? ready ? 'Your city is ready. Let the adventure begin.' : 'At least two players, and everyone ready. Then it’s game time.' : 'Get ready, then your host can start the game.'}</p></>;
 }

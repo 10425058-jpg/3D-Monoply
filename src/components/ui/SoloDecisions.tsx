@@ -1,87 +1,149 @@
 import React from 'react';
-import {useGameStore} from '../../store/useGameStore';
-import {BOARD_SPACES} from '../../data/boardData';
-import {unmortgageCost} from '../../game/soloRules';
+import { Coins, Flag, Gavel, Handshake, Scale } from 'lucide-react';
+import { useGameStore } from '../../store/useGameStore';
+import { BOARD_SPACES } from '../../data/boardData';
+import { unmortgageCost } from '../../game/soloRules';
 import { ARCADE_STAGES, arcadeLevel, arcadeNextLevel, arcadeRent, arcadeSellRefund, arcadeUpgradeCost } from '../../game/arcadeRules';
-import {TradeTerms} from './TradeTerms';
-import {sounds} from '../../utils/audio';
+import { sounds } from '../../utils/audio';
+import { TradeTerms } from './TradeTerms';
+import { RoyalArt, RoyalButton, RoyalModal, RoyalNotice, RoyalPresence } from './RoyalUI';
+import { CharacterAvatar } from './Avatars';
 
-const money=(n:number)=>`$${n.toLocaleString('en-US')}`;
+const money = (amount: number) => `$${amount.toLocaleString('en-US')}`;
+type Game = ReturnType<typeof useGameStore.getState>;
 
-/** Live Solo decision controls. Online keeps its server allowedActions UI. */
-export function SoloDecisions({onOpenTrade, tradeOpen, onOpenEvolution, evolutionOpen}: {
-  onOpenTrade: () => void; tradeOpen: boolean; onOpenEvolution: (spaceId: number) => void; evolutionOpen: boolean;
-}){
-  const game=useGameStore(),active=game.players[game.currentPlayerIndex];
-  if(game.winner||!active)return null;
-  if(game.pendingTrade){
-    const offer=game.pendingTrade,from=game.players.find(p=>p.id===offer.fromPlayerId)!,to=game.players.find(p=>p.id===offer.toPlayerId)!;
-    return <div className="modal-backdrop"><section className="game-modal" role="dialog" aria-modal="true" aria-labelledby="trade-consent-title">
-      <div className="eyebrow">LOCAL PLAYER DECISION</div><h2 id="trade-consent-title">{to.name}, review this trade</h2>
-      <TradeTerms from={from} to={to} offer={offer} properties={game.properties} ruleset={game.ruleset} />
-      <div className="trade-modal-actions"><button className="console-button secondary" onClick={game.rejectTrade}>Reject trade</button>
-        <button className="console-button primary" onClick={()=>game.acceptTrade(to.id)}>Accept trade</button></div>
-    </section></div>;
-  }
-  if(game.turnPhase==='AUCTION'&&game.auction){
-    const auction=game.auction,bidder=game.players.find(p=>p.id===auction.currentBidderId),highest=game.players.find(p=>p.id===auction.highestBidderId);
-    const space=BOARD_SPACES[auction.spaceId];
-    const minimumBid=auction.currentBid===0?10:auction.currentBid+1;
-    const increments=auction.currentBid===0?[10,50]:[1,10,50];
-    const lastAction=game.logs[0]?.message;
-    const submit=(action:()=>void)=>{if(useGameStore.getState().auction===auction){sounds.playClick();action();}};
-    return <div className="modal-backdrop"><section className="game-modal auction-modal" role="dialog" aria-modal="true" aria-labelledby="auction-title"
-      style={{ '--auction-color': space.colorHex } as React.CSSProperties}>
-      <div className="eyebrow">BANK AUCTION</div><h2 id="auction-title">{space.name}</h2>
-      <p>Listed at {money(space.price ?? 0)}{space.rent?.[0] ? ` · Base rent ${money(space.rent[0])}` : ' · Utility rent follows the dice'}</p>
-      <dl className="auction-bids">
-        <div><dt>Highest bid</dt><dd>{highest ? money(auction.currentBid) : '—'}</dd><small>{highest?.name ?? 'Opening bid'}</small></div>
-        <div><dt>Minimum next bid</dt><dd>{money(minimumBid)}</dd></div>
-        <div><dt>{bidder?.name ?? 'Bidder'}’s cash</dt><dd>{money(bidder?.money ?? 0)}</dd></div>
-      </dl>
-      <p role="status">{lastAction} {bidder?.isAI ? `${bidder.name} is considering a bid.` : `${bidder?.name}, bid or pass.`}</p>
-      {!!bidder && bidder.money < minimumBid && <p className="trade-feedback is-warning">Available cash is below the minimum bid.</p>}
-      <div className="trade-modal-actions">
-        <button className="console-button secondary" disabled={!bidder||bidder.isAI} onClick={event=>{if(event.detail<=1)submit(()=>game.passAuction(bidder!.id));}}>Pass bid</button>
-        {increments.map(increment=><button key={increment} className="console-button primary" disabled={!bidder||bidder.isAI||bidder.money<auction.currentBid+increment}
-          onClick={event=>{if(event.detail<=1)submit(()=>game.placeAuctionBid(increment,bidder!.id,auction.currentBid));}}>Bid {money(auction.currentBid+increment)}</button>)}
+function tradeConsent(game: Game) {
+  const offer = game.pendingTrade!;
+  const from = game.players.find(player => player.id === offer.fromPlayerId)!;
+  const to = game.players.find(player => player.id === offer.toPlayerId)!;
+  return <RoyalModal key="trade-consent" title="Review trade" titleId="trade-consent-title" icon={Handshake} priority="decision"
+    description={`${to.name}, accept or reject the offer from ${from.name}.`}
+    footer={<>
+      <RoyalButton variant="danger" onClick={game.rejectTrade}>Reject trade</RoyalButton>
+      <RoyalButton variant="primary" onClick={() => game.acceptTrade(to.id)}>Accept trade</RoyalButton>
+    </>}>
+    <TradeTerms from={from} to={to} offer={offer} properties={game.properties} ruleset={game.ruleset} />
+  </RoyalModal>;
+}
+
+function auctionDecision(game: Game) {
+  const auction = game.auction!;
+  const bidder = game.players.find(player => player.id === auction.currentBidderId);
+  const highest = game.players.find(player => player.id === auction.highestBidderId);
+  const space = BOARD_SPACES[auction.spaceId];
+  const minimumBid = auction.currentBid === 0 ? 10 : auction.currentBid + 1;
+  const increments = auction.currentBid === 0 ? [10, 50] : [1, 10, 50];
+  const submit = (action: () => void) => {
+    if (useGameStore.getState().auction !== auction) return;
+    sounds.playClick();
+    action();
+  };
+
+  return <RoyalModal key="auction" title="Auction" titleId="auction-title" icon={Gavel} size="large" priority="decision" className="auction-modal"
+    footer={<>
+      <RoyalButton disabled={!bidder || bidder.isAI} onClick={event => {
+        if (event.detail <= 1) submit(() => game.passAuction(bidder!.id));
+      }}><Flag size={17} aria-hidden="true" />Pass bid</RoyalButton>
+      {increments.map((increment, index) => <RoyalButton key={increment} variant={index === 0 ? 'primary' : 'secondary'}
+        disabled={!bidder || bidder.isAI || bidder.money < auction.currentBid + increment}
+        onClick={event => {
+          if (event.detail <= 1) submit(() => game.placeAuctionBid(increment, bidder!.id, auction.currentBid));
+        }}>Bid {money(auction.currentBid + increment)}</RoyalButton>)}
+    </>}>
+      <div className="auction-stage">
+        <div className="auction-deed" style={{ '--deed-color': space.colorHex ?? '#9e8050' } as React.CSSProperties}>
+          <h3>{space.name}</h3>
+          {space.type === 'property' ? <img src={`${import.meta.env.BASE_URL}assets/models/arcade-properties/house.png`} alt="" /> : <Coins aria-hidden="true" size={52} />}
+          <small>Original price</small><strong>{money(space.price ?? 0)}</strong>
+          <small>{space.rent?.[0] ? `Base rent ${money(space.rent[0])}` : space.type === 'utility' ? 'Rent follows the dice' : 'Railroad'}</small>
+        </div>
+        <div className="auction-offer"><RoyalArt prop="gavel" />
+          <span>Highest bid</span><strong>{highest ? money(auction.currentBid) : 'Opening bid'}</strong>
+          <span>{highest ? `Held by ${highest.name}` : 'No bids yet'}</span>
+          <p>Minimum next bid <b>{money(minimumBid)}</b></p>
+        </div>
       </div>
-    </section></div>;
+      <div className="bidder-list">{game.players.filter(player => !player.isBankrupt).map(player =>
+        <div key={player.id} className="bidder-seat" data-current={player.id === bidder?.id || undefined}
+          style={{ '--seat': player.color } as React.CSSProperties}>
+          <CharacterAvatar character={player.name} color={player.color} size={35} />
+          <span><b>{player.name}</b><strong>{money(player.money)}</strong></span>
+        </div>)}</div>
+      <div className="auction-status" role="status">
+        {bidder && <strong>{bidder.isAI ? `${bidder.name} is considering a bid` : `${bidder.name} to bid or pass`}</strong>}
+        <small>{game.logs[0]?.message}</small>
+      </div>
+      {!!bidder && bidder.money < minimumBid && <RoyalNotice tone="ruby">Available cash is below the minimum bid.</RoyalNotice>}
+    </RoyalModal>;
+}
+
+function debtDecision(game: Game, onOpenTrade: () => void) {
+  const debt = game.pendingDebt!;
+  const payer = game.players.find(player => player.id === (debt.debtorId ?? game.players[game.currentPlayerIndex].id))!;
+  const creditor = game.players.find(player => player.id === debt.creditorId);
+  const holdings = BOARD_SPACES.filter(space => game.properties[space.id]?.ownerId === payer.id);
+  const insolvent = game.liquidationValue(payer.id) < debt.amount;
+  return <RoyalModal key="debt" title={`${payer.name} owes ${money(debt.amount)}`} titleId="debt-title" icon={Scale} tone="ruby"
+    priority="decision" className="debt-resolution" footer={<>
+      <RoyalButton disabled={payer.isAI} onClick={onOpenTrade}>Trade to raise funds</RoyalButton>
+      <RoyalButton variant="danger" disabled={payer.isAI || !insolvent}
+        title={insolvent ? 'Insufficient liquidation value to pay' : 'Raise funds from your holdings before declaring bankruptcy'}
+        onClick={game.declareBankruptcy}>Declare bankruptcy</RoyalButton>
+      <RoyalButton variant="primary" disabled={payer.isAI || payer.money < debt.amount}
+        onClick={game.settlePendingDebt}>Settle {money(debt.amount)}</RoyalButton>
+    </>}>
+    <RoyalNotice tone={payer.money < debt.amount ? 'ruby' : 'emerald'}>
+      {debt.reason} · Pay {creditor?.name ?? 'the Bank'}. Cash available <strong>{money(payer.money)}</strong>.
+    </RoyalNotice>
+    <p>{payer.isAI ? 'The AI is raising funds using the same legal actions.' : game.ruleset === 'arcade' ?
+      'Trade, sell development stages or mortgage eligible deeds, then settle the payment.' :
+      'Trade, sell buildings evenly or mortgage eligible deeds, then settle the payment.'}</p>
+    {!!holdings.length && <div className="debt-holdings">{holdings.map(space => {
+      const property = game.properties[space.id];
+      const arcade = game.ruleset === 'arcade' && space.type === 'property';
+      const level = arcadeLevel(property);
+      const sale = arcade ? arcadeSellRefund(space, level) : Math.floor((space.houseCost ?? 0) / 2);
+      const development = arcade ? ARCADE_STAGES[level].name : property.houses === 5 ? 'Hotel' : `${property.houses} houses`;
+      return <div className="debt-holding" key={space.id}><span>{space.name}<small>{development}{property.isMortgaged && ' · Mortgaged'}</small></span>
+        <RoyalButton disabled={payer.isAI || !game.canSellHouse(payer.id, space.id)}
+          onClick={() => game.sellHouse(space.id, arcade ? level : property.houses)}>Sell {money(sale)}</RoyalButton>
+        <RoyalButton disabled={payer.isAI || !game.canToggleMortgage(payer.id, space.id)}
+          onClick={event => { if (event.detail <= 1) game.toggleMortgage(space.id, property.isMortgaged); }}>
+          {property.isMortgaged ? `Release ${money(unmortgageCost(space.mortgageValue ?? 0))}` : `Mortgage ${money(space.mortgageValue ?? 0)}`}
+        </RoyalButton>
+      </div>;
+    })}</div>}
+  </RoyalModal>;
+}
+
+interface DecisionProps {
+  onOpenTrade: () => void;
+  tradeOpen: boolean;
+  onOpenEvolution: (spaceId: number) => void;
+  evolutionOpen: boolean;
+}
+
+export function SoloDecisions({ onOpenTrade, tradeOpen, onOpenEvolution, evolutionOpen }: DecisionProps) {
+  const game = useGameStore();
+  let decision: React.ReactElement | null = null;
+  if (!game.winner && game.players[game.currentPlayerIndex]) {
+    if (game.pendingTrade) decision = tradeConsent(game);
+    else if (game.turnPhase === 'AUCTION' && game.auction) decision = auctionDecision(game);
+    else if (game.turnPhase === 'DEBT_RESOLUTION' && game.pendingDebt && !tradeOpen) decision = debtDecision(game, onOpenTrade);
   }
-  if(game.turnPhase==='DEBT_RESOLUTION'&&game.pendingDebt){
-    if(tradeOpen)return null;
-    const debt=game.pendingDebt,payer=game.players.find(p=>p.id===(debt.debtorId??active.id))!;
-    const creditor=game.players.find(p=>p.id===debt.creditorId);
-    const holdings=BOARD_SPACES.filter(s=>game.properties[s.id]?.ownerId===payer.id);
-    const insolvent=game.liquidationValue(payer.id)<debt.amount;
-    return <div className="modal-backdrop"><section className="game-modal debt-resolution" role="dialog" aria-modal="true" aria-labelledby="debt-title">
-      <div className="eyebrow">RESOLVE PAYMENT</div><h2 id="debt-title">{payer.name} owes {money(debt.amount)}</h2>
-      <p>{debt.reason} · Pay {creditor?.name??'the Bank'}. Cash available: <strong>{money(payer.money)}</strong>.</p>
-      <p>{payer.isAI ? 'The AI is raising funds using the same legal actions.' : game.ruleset === 'arcade' ?
-        'Trade, sell development stages or mortgage eligible deeds, then settle the payment.' :
-        'Trade, sell buildings evenly or mortgage eligible deeds, then settle the payment.'}</p>
-      <div className="debt-holdings">{holdings.map(s=>{
-        const property=game.properties[s.id];
-        const arcade = game.ruleset === 'arcade' && s.type === 'property';
-        const level = arcadeLevel(property);
-        return <div className="debt-holding" key={s.id}><span>{s.name}<small>{arcade ? ARCADE_STAGES[level].name :
-          property.houses === 5 ? 'Hotel' : `${property.houses} houses`}{property.isMortgaged ? ' · Mortgaged' : ''}</small></span>
-          <button className="console-button secondary" disabled={payer.isAI||!game.canSellHouse(payer.id,s.id)}
-            onClick={() => game.sellHouse(s.id, arcade ? level : property.houses)}>Sell {money(arcade ? arcadeSellRefund(s, level) : Math.floor((s.houseCost ?? 0) / 2))}</button>
-          <button className="console-button secondary" disabled={payer.isAI||!game.canToggleMortgage(payer.id,s.id)} onClick={event=>{if(event.detail<=1)game.toggleMortgage(s.id,property.isMortgaged);}}>
-            {property.isMortgaged?`Release ${money(unmortgageCost(s.mortgageValue??0))}`:`Mortgage ${money(s.mortgageValue??0)}`}</button>
-        </div>;
-      })}</div>
-      <div className="trade-modal-actions"><button className="console-button secondary" disabled={payer.isAI} onClick={onOpenTrade}>Trade to raise funds</button>
-        <button className="console-button secondary" disabled={payer.isAI||!insolvent} title={insolvent?'Insufficient liquidation value to pay':'Raise funds from your holdings before declaring bankruptcy'} onClick={game.declareBankruptcy}>Declare bankruptcy</button>
-        <button className="console-button primary" disabled={payer.isAI||payer.money<debt.amount} onClick={game.settlePendingDebt}>Settle {money(debt.amount)}</button></div>
-    </section></div>;
-  }
-  if(active.isAI||active.isBankrupt||game.railroadRaid)return null;
-  if(active.inJail&&game.turnPhase==='PRE_ROLL')return <section className="solo-decision-strip" aria-label="Jail options">
-    <span>In Jail · attempt {active.jailTurns+1} of 3</span>
-    <button className="royal-action" disabled={active.money<50} onClick={game.payJailBail}>Pay $50 bail</button>
-    <button className="royal-action" disabled={active.getOutOfJailCards<1} onClick={game.useJailCard}>Use Jail card</button>
+  return <>
+    <RoyalPresence>{decision}</RoyalPresence>
+    {!game.winner && !decision && boardDecision(game, onOpenEvolution, evolutionOpen)}
+  </>;
+}
+
+function boardDecision(game: Game, onOpenEvolution: DecisionProps['onOpenEvolution'], evolutionOpen: boolean) {
+  const active = game.players[game.currentPlayerIndex];
+  if (!active || active.isAI || active.isBankrupt || game.railroadRaid) return null;
+  if (active.inJail && game.turnPhase === 'PRE_ROLL') return <section className="solo-decision-strip" aria-label="Jail options">
+    <strong>In Jail · attempt {active.jailTurns + 1} of 3</strong>
+    <RoyalButton variant="primary" disabled={active.money < 50} onClick={game.payJailBail}>Pay $50 bail</RoyalButton>
+    <RoyalButton disabled={active.getOutOfJailCards < 1} onClick={game.useJailCard}>Use Jail card</RoyalButton>
     <span>{active.money < 50 && 'Bail requires $50 cash. '}{active.getOutOfJailCards === 0 && 'No Jail card held. '}Roll to try doubles.</span>
   </section>;
   if(game.turnPhase==='LANDED_ACTION'){
@@ -93,7 +155,7 @@ export function SoloDecisions({onOpenTrade, tradeOpen, onOpenEvolution, evolutio
       group.every(candidate => candidate.id === space.id || game.properties[candidate.id]?.ownerId === active.id);
     return <section className="solo-decision-strip" aria-label="Purchase decision">
       <div className="purchase-details"><strong>{space.name} · {money(price)}</strong>
-        <small>{active.money >= price ? `${money(active.money-price)} after purchase` : `${money(price-active.money)} short to buy`}</small></div>
+        <small data-short={active.money < price || undefined}>{active.money >= price ? `${money(active.money-price)} after purchase` : `${money(price-active.money)} short to buy`}</small></div>
       <details className="strategy-details"><summary>Property details</summary><div>
         {space.rent?.[0] ? <p>Base rent {money(space.rent[0])}</p> : <p>Utility rent uses the dice total.</p>}
         {completesGroup && <p>Buying completes your {space.colorGroup} group.</p>}
@@ -103,7 +165,7 @@ export function SoloDecisions({onOpenTrade, tradeOpen, onOpenEvolution, evolutio
           return <li key={deed.id}>{deed.name} · {owner?.name ?? 'Unowned'}{property?.isMortgaged ? ' · Mortgaged' : ''}</li>;
         })}</ul>}
       </div></details>
-      <button className="royal-action" onClick={game.declineProperty}>Decline purchase</button>
+      <RoyalButton onClick={game.declineProperty}>Decline purchase</RoyalButton>
     </section>;
   }
   const landing = game.arcadeLanding;
@@ -112,9 +174,9 @@ export function SoloDecisions({onOpenTrade, tradeOpen, onOpenEvolution, evolutio
     const next = arcadeNextLevel(arcadeLevel(game.properties[space.id]));
     if (next !== undefined) return <section className="solo-decision-strip arcade-upgrade-strip" aria-label="Property development decision">
       <div className="purchase-details"><strong>{space.name}</strong><small>{money(arcadeRent(space, next))} rent after upgrade</small></div>
-      <button type="button" className="royal-action is-primary" onClick={() => onOpenEvolution(space.id)}>
+      <RoyalButton variant="primary" onClick={() => onOpenEvolution(space.id)}>
         Upgrade to {ARCADE_STAGES[next].name} · {money(arcadeUpgradeCost(space, next))}
-      </button>
+      </RoyalButton>
     </section>;
   }
   return null;

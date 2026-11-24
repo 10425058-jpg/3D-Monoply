@@ -1,4 +1,5 @@
 import React from 'react';
+import { RoyalButton } from './RoyalUI';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ChevronRight, Coins, Crown, Hammer, MapPin, X } from 'lucide-react';
 import { ARCADE_STAGES, arcadeLevel, arcadeNextLevel, arcadeRent, arcadeUpgradeCost } from '../../game/arcadeRules';
@@ -28,7 +29,7 @@ export function PropertyEvolution({ space, state, owner, onClose }: {
   const canBuy = purchasePending && player.money >= space.price!;
   const reduced = useReducedMotion();
   const status = !owner ? purchasePending && !canBuy ? `You need ${money(space.price! - player.money)} more to buy this street.` :
-    'Purchase this street to begin development.' :
+    `Buy this street for ${money(space.price ?? 0)} to begin development.` :
     next === undefined ? 'This property has reached its highest rent tier.' :
     state?.isMortgaged ? 'Release the mortgage to resume development.' :
     landing?.upgraded ? 'You’ve used this landing’s upgrade. You can upgrade again on a later visit.' :
@@ -40,7 +41,7 @@ export function PropertyEvolution({ space, state, owner, onClose }: {
     if (current.gameId === game.gameId && current.players[current.currentPlayerIndex]?.position === space.id) current[action]();
   };
 
-  return <motion.section className="fantasy-deed property-evolution" aria-label={`Property Evolution for ${space.name}`}
+  return <motion.section className="fantasy-deed property-evolution" aria-label={`Property Evolution for ${space.name}`} style={{ '--property-color': space.colorHex } as React.CSSProperties}
     initial={{ opacity: 0, y: reduced ? 0 : 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: reduced ? 0 : 8 }}
     transition={{ duration: reduced ? 0 : .18 }} onKeyDown={event => { if (event.key === 'Escape') onClose(); }}>
     <span className="deed-crown" aria-hidden="true"><Crown size={21} /></span>
@@ -65,21 +66,23 @@ export function PropertyEvolution({ space, state, owner, onClose }: {
       </ol>
       {owner && <dl className="evolution-facts">
         <div><dt>Owner</dt><dd>{owner.name}</dd></div>
+        <div><dt>Purchase price</dt><dd>{money(space.price ?? 0)}</dd></div>
         <div><dt>Current rent</dt><dd>{money(game.calculateRent(space.id, 0))}</dd></div>
         {next !== undefined && <div><dt>Next upgrade cost</dt><dd>{money(cost)}</dd></div>}
+        {next !== undefined && <div><dt>Next rent</dt><dd>{money(arcadeRent(space, next))}</dd></div>}
       </dl>}
     </div>
     <footer className="evolution-footer">
       {status && <p>{status}</p>}
       {purchasePending && <div className="evolution-purchase-actions">
-        <button type="button" className="royal-action is-primary" disabled={!canBuy} onClick={() => resolvePurchase('buyCurrentProperty')}>
+        <RoyalButton variant="primary" className="is-primary" disabled={!canBuy} onClick={() => resolvePurchase('buyCurrentProperty')}>
           <Coins size={17} aria-hidden="true" />Buy land for {money(space.price!)}
-        </button>
-        <button type="button" className="royal-action" onClick={() => resolvePurchase('declineProperty')}>Decline purchase</button>
+        </RoyalButton>
+        <RoyalButton variant="secondary" onClick={() => resolvePurchase('declineProperty')}>Decline purchase</RoyalButton>
       </div>}
-      {!!owner && next !== undefined && <button type="button" className="royal-action is-primary" disabled={!canUpgrade} onClick={() => {
+      {!!owner && next !== undefined && <RoyalButton variant="primary" className="is-primary" disabled={!canUpgrade} onClick={() => {
         if (landing) game.upgradeProperty(space.id, landing.id);
-      }}><Hammer size={19} aria-hidden="true" />Upgrade to {ARCADE_STAGES[next].name} · {money(cost)}</button>}
+      }}><Hammer size={19} aria-hidden="true" />Upgrade to {ARCADE_STAGES[next].name} · {money(cost)}</RoyalButton>}
     </footer>
   </motion.section>;
 }

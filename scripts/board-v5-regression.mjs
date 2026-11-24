@@ -95,13 +95,13 @@ try{
   for(const name of ['chance','chest','card-chain']){
     await fixture(name);await roll();await wait(()=>!!document.querySelector('.card-reveal'));await capture(`${name}-reveal`);
     await page.click('.card-reveal .modal-primary');
-    if(name==='card-chain'){await wait(()=>window.__soloTest.state().activeCard?.deck==='chest'||document.querySelector('.card-reveal .eyebrow')?.textContent==='COMMUNITY CHEST');await pause(250);await page.click('.card-reveal .modal-primary');}
+    if(name==='card-chain'){await wait(()=>document.querySelector('dialog[open].card-reveal.deck-chest'));await pause(250);await page.click('.card-reveal .modal-primary');}
     await wait(()=>!['CARD_DRAWN','ROLLING','MOVING'].includes(window.__soloTest.state().turnPhase));
     s=await state();assert.equal(s.players[0].money,name==='chance'?1550:name==='chest'?1900:1700);
   }
   await fixture('debt');await roll();await wait(()=>!!document.querySelector('.debt-resolution'));await capture('debt-resolution');
   await page.click('.debt-holding button:last-of-type');await wait(()=>window.__soloTest.state().players[0].money===220);
-  await page.click('.debt-resolution .console-button.primary');s=await state();assert.equal(s.players[0].money,20);assert.equal(s.pendingDebt,null);
+  await debtAction('Settle $200');s=await state();assert.equal(s.players[0].money,20);assert.equal(s.pendingDebt,null);
   await fixture('opening');await roll();await footer('Auction');await wait(()=>!!document.querySelector('#auction-title'));
   await page.click('[aria-labelledby="auction-title"] button:nth-of-type(2)');await page.click('[aria-labelledby="auction-title"] button:nth-of-type(1)');await page.click('[aria-labelledby="auction-title"] button:nth-of-type(1)');
   s=await state();assert.equal(s.properties[3].ownerId,0);assert.equal(s.players[0].money,1490);await capture('auction-won');
@@ -109,8 +109,8 @@ try{
   await fixture('victory');await roll();await debtAction('Declare bankruptcy');await wait(()=>window.__soloTest.state().turnPhase==='GAME_OVER');await capture('victory');
   assert.equal(await page.$eval('[aria-label="Roll dice"]',e=>e.disabled),true);
   const finishedGameId=(await state()).gameId;
-  await page.click('.winner-modal .modal-primary');
-  await wait(()=>document.querySelector('.setup-modal')&&!document.querySelector('.winner-modal'));
+  await footer('Start a new game');
+  await wait(()=>document.querySelector('dialog[open].setup-modal')&&!document.querySelector('dialog[open].winner-modal'));
   await page.click('.setup-modal .modal-primary');
   await wait(()=>window.__soloTest.state().gameId>0&&window.__soloTest.state().turnPhase==='PRE_ROLL');
   assert.ok((await state()).gameId>finishedGameId);

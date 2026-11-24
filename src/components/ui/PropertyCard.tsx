@@ -1,4 +1,5 @@
 import React, { useId } from 'react';
+import { RoyalButton } from './RoyalUI';
 import { motion, useReducedMotion } from 'framer-motion';
 import { X, Crown, Home, Coins, TrainFront, Zap, Droplets, Castle, Hammer } from 'lucide-react';
 import type { BoardSpace, PropertyState, Player } from '../../types/game';
@@ -66,7 +67,7 @@ export const PropertyCard: React.FC<{
     transition={{ duration: reduced ? 0 : 0.18 }} onKeyDown={event => { if (event.key === 'Escape') onClose(); }}>
     <div className="deed-crown" aria-hidden="true"><Crown size={21} /></div>
     <button className="deed-close royal-icon" aria-label="Close property card" onClick={() => { sounds.playClick(); onClose(); }}><X size={20} /></button>
-    <header className="deed-header"><span>✦ TITLE DEED ✦</span><h2>{space.name}</h2></header>
+    <header className="deed-header"><span>Title deed</span><h2>{space.name}</h2></header>
     <div className="deed-scroll">
       <div className="deed-group"><i />{group}</div>
       <div className="deed-illustration"><PropertyArtwork space={space} /></div>
@@ -74,7 +75,7 @@ export const PropertyCard: React.FC<{
         {state && <div><dt>Owner</dt><dd className={owner ? 'has-owner' : ''}>{owner?.name ?? 'Unowned'}</dd></div>}
         {space.price !== undefined && <div><dt>Purchase price</dt><dd>{money(space.price)}</dd></div>}
         {space.mortgageValue !== undefined && <div><dt>Mortgage value</dt><dd>{money(space.mortgageValue)}</dd></div>}
-        {state && <div><dt>Mortgage status</dt><dd>{state.isMortgaged ? 'Mortgaged' : 'Not mortgaged'}</dd></div>}
+        {state?.isMortgaged && <div><dt>Mortgage status</dt><dd>Mortgaged</dd></div>}
         {arcade && owner && <div><dt>Development</dt><dd>Level {level} · {ARCADE_STAGES[level].name}</dd></div>}
         {space.type === 'property' && !arcade && state && <div><dt>Buildings</dt><dd>{state.houses === 5 ? 'Hotel' : `${state.houses} houses`}</dd></div>}
         {currentRent !== null && <div><dt>Current rent</dt><dd>{money(currentRent)}</dd></div>}
@@ -88,22 +89,22 @@ export const PropertyCard: React.FC<{
       </div>}
       {state?.isMortgaged && <p className="deed-warning">Mortgaged · No rent collected</p>}
       <div className="deed-actions">
-        {canBuy && <button className="royal-action is-primary" onClick={() => { buyCurrentProperty(); }}><Coins size={17} />Buy for {money(space.price!)}</button>}
-        {arcade && <button type="button" className="royal-action deed-evolution" onClick={() => onOpenEvolution(space.id)}>
+        {canBuy && <RoyalButton variant="primary" className="is-primary" onClick={() => { buyCurrentProperty(); }}><Coins size={17} />Buy for {money(space.price!)}</RoyalButton>}
+        {arcade && <RoyalButton variant="secondary" className="deed-evolution" onClick={() => onOpenEvolution(space.id)}>
           <Hammer size={16} aria-hidden="true" />Property Evolution
-        </button>}
-        {arcade && isOwner && isHuman && level > 0 && <button type="button" className="royal-action" disabled={!canSell}
-          onClick={() => sellHouse(space.id, level)}>Sell stage {money(arcadeSellRefund(space, level))}</button>}
+        </RoyalButton>}
+        {arcade && isOwner && isHuman && level > 0 && <RoyalButton variant="secondary" disabled={!canSell}
+          onClick={() => sellHouse(space.id, level)}>Sell stage {money(arcadeSellRefund(space, level))}</RoyalButton>}
         {!arcade && isOwner && isHuman && space.type === 'property' && <>
-          <button className="royal-action" disabled={!canBuild} title={canBuild ? 'Build on this property' : 'Requires a full color group, funds and even building'}
-            onClick={() => { buildHouse(space.id); }}><Home size={16} />Build {space.houseCost !== undefined && money(space.houseCost)}</button>
-          <button className="royal-action" disabled={!canSell} title="Sell a building using the existing even-selling rule"
-            onClick={() => { sellHouse(space.id, state?.houses); }}>Sell {space.houseCost !== undefined && money(Math.floor(space.houseCost / 2))}</button>
+          <RoyalButton variant="secondary" disabled={!canBuild} title={canBuild ? 'Build on this property' : 'Requires a full color group, funds and even building'}
+            onClick={() => { buildHouse(space.id); }}><Home size={16} />Build {space.houseCost !== undefined && money(space.houseCost)}</RoyalButton>
+          <RoyalButton variant="secondary" disabled={!canSell} title="Sell a building using the existing even-selling rule"
+            onClick={() => { sellHouse(space.id, state?.houses); }}>Sell {space.houseCost !== undefined && money(Math.floor(space.houseCost / 2))}</RoyalButton>
         </>}
-        {isOwner && isHuman && space.mortgageValue !== undefined && <button className="royal-action deed-mortgage" disabled={!canMortgage}
+        {isOwner && isHuman && space.mortgageValue !== undefined && <RoyalButton variant="secondary" className="deed-mortgage" disabled={!canMortgage}
           title={canMortgage ? 'Change mortgage status' : state?.isMortgaged ? 'Insufficient cash to unmortgage' :
             arcade ? 'Sell development down to Land first' : 'Sell all buildings in this group first'}
-          onClick={event => { if(event.detail<=1)toggleMortgage(space.id,state?.isMortgaged); }}><Coins size={16} />{state?.isMortgaged ? `Unmortgage ${money(releaseCost!)}` : `Mortgage ${money(space.mortgageValue)}`}</button>}
+          onClick={event => { if(event.detail<=1)toggleMortgage(space.id,state?.isMortgaged); }}><Coins size={16} />{state?.isMortgaged ? `Unmortgage ${money(releaseCost!)}` : `Mortgage ${money(space.mortgageValue)}`}</RoyalButton>}
       </div>
     </div><div className="deed-footer" aria-hidden="true">◇ ✦ ◇</div>
   </motion.section>;

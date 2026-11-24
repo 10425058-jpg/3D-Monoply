@@ -1,10 +1,4 @@
 .solo-decision-strip { position:fixed; z-index:32; left:50%; transform:translateX(-50%); bottom:124px; display:flex; align-items:center; justify-content:center; gap:9px; padding:5px 12px; max-width:740px; color:#f4e8cf; background:#2c193fee; border:1px solid #b99459; border-radius:12px; font-size:11px; box-shadow:0 3px 15px #20112c44; }
 .solo-decision-strip span { line-height:1.35; }
 .solo-decision-strip .royal-action { padding:6px 11px; white-space:nowrap; font-size:11px; }
-.debt-resolution { max-height:86vh; overflow-y:auto; }
-.debt-holdings { display:grid; gap:9px; max-height:42vh; overflow-y:auto; margin-block:14px; }
-.debt-holding { display:flex; align-items:center; flex-wrap:wrap; gap:8px; padding:10px; border:1px solid #a17c5544; border-radius:10px; }
-.debt-holding > span { flex:1; min-width:130px; font-size:13px; }
-.debt-holding small { display:block; color:#d6c1a6; font-size:11px; margin-top:4px; }
-.debt-holding button { padding:7px 10px; font-size:11px; }
-@media(max-width:760px) { .solo-decision-strip { bottom:184px; width:calc(100% - 20px); flex-wrap:wrap; gap:5px 9px; font-size:10px; } .debt-resolution { padding:20px; } }
+@media(max-width:760px) { .solo-decision-strip { bottom:184px; width:calc(100% - 20px); flex-wrap:wrap; gap:5px 9px; font-size:10px; } }
