@@ -12,6 +12,30 @@ type ArcadeAuditBuilding = {
   source: 'gltf' | 'fallback';
 };
 
+function islandScreenBounds(group: THREE.Object3D, camera: THREE.Camera, rect: DOMRect) {
+  const bounds = new THREE.Box2();
+  const vertex = new THREE.Vector3(), point = new THREE.Vector2();
+  const right = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 0);
+  const up = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 1);
+  const add = (world: THREE.Vector3) => {
+    world.project(camera);
+    bounds.expandByPoint(point.set(rect.left + (world.x + 1) * rect.width / 2, rect.top + (1 - world.y) * rect.height / 2));
+  };
+  group.traverseVisible(object => {
+    if (object instanceof THREE.Mesh && object.name !== 'player-island-chain') {
+      const positions = object.geometry.getAttribute('position');
+      for (let i = 0; i < positions.count; i++) add(vertex.fromBufferAttribute(positions, i).applyMatrix4(object.matrixWorld));
+    } else if (object instanceof THREE.Sprite) {
+      const center = object.getWorldPosition(new THREE.Vector3());
+      const half = object.getWorldScale(new THREE.Vector3()).multiplyScalar(.5);
+      for (const x of [-half.x, half.x]) for (const y of [-half.y, half.y]) {
+        add(vertex.copy(center).addScaledVector(right, x).addScaledVector(up, y));
+      }
+    }
+  });
+  return { left: bounds.min.x, top: bounds.min.y, right: bounds.max.x, bottom: bounds.max.y };
+}
+
 /** Explicit opt-in diagnostics. No instrumentation or globals in ordinary play. */
 export const graphicsAuditEnabled = () => new URLSearchParams(window.location.search).has('graphicsAudit');
 
@@ -178,6 +202,45 @@ export function GraphicsAudit({ quality }: { quality: string }) {
         });
         return {meshes,textures:[...textures.values()].map(t=>({uuid:t.uuid,width:t.image.width,height:t.image.height,anisotropy:t.anisotropy,mipmaps:t.generateMipmaps}))};
       },
+      islands(measureLayout = false) {
+        const root = scene.getObjectByName('player-islands');
+        const rect = gl.domElement.getBoundingClientRect();
+        const cameraPoint = new THREE.Vector3();
+        camera.updateMatrixWorld();
+        if (measureLayout) root?.updateWorldMatrix(true, true);
+        const islands = root?.children.filter(group => group.userData.edge).map(group => {
+          const { seat, edge, statue } = group.userData;
+          const model = group.getObjectByName(statue);
+          const statueMount = group.getObjectByName('player-island-statue');
+          const ground = group.getObjectByName('player-island-landscape');
+          const plaque = group.getObjectByName('player-island-balance');
+          const coins = group.getObjectByName('player-island-coins');
+          const chain = group.getObjectByName('player-island-chain');
+          const chainBounds = chain && new THREE.Box3().setFromObject(chain);
+          group.getWorldPosition(cameraPoint).project(camera);
+          const center = [rect.left + (cameraPoint.x + 1) * rect.width / 2, rect.top + (1 - cameraPoint.y) * rect.height / 2];
+          let statueTriangles = 0, statueDraws = 0;
+          model?.traverse(object => {
+            if (!(object instanceof THREE.Mesh)) return;
+            statueTriangles += (object.geometry.index?.count ?? object.geometry.getAttribute('position').count) / 3;
+            statueDraws++;
+          });
+          const layout = measureLayout && ground && statueMount && model && {
+            footprint: new THREE.Box3().setFromObject(ground, true).getSize(new THREE.Vector3()).toArray(),
+            statueScale: statueMount.scale.x,
+            statueHeight: new THREE.Box3().setFromObject(model, true).getSize(new THREE.Vector3()).y,
+            screen: islandScreenBounds(group, camera, rect),
+          };
+          return { seat, edge, statue, statueTriangles, statueDraws, center, position: group.position.toArray(),
+            plaque: plaque?.userData, coins: coins?.userData.denominations, layout,
+            chainBounds: chainBounds && { min: chainBounds.min.toArray(), max: chainBounds.max.toArray() } };
+        }) ?? [];
+        const money = root?.getObjectByName('player-island-money');
+        const signals = money?.children.filter(node => node.name === 'island-money-signal').map(node => node.userData) ?? [];
+        const flights = money?.getObjectByName('island-coin-flights')?.children.flatMap(node =>
+          node instanceof THREE.InstancedMesh && node.visible ? [{ value: Number(node.name.slice('island-flying-coin-'.length)), count: node.count }] : []) ?? [];
+        return { islands, signals, flights };
+      },
       game() {
         const game = store.getState();
         return { turnPhase: game.turnPhase, currentPlayerIndex: game.currentPlayerIndex,
@@ -219,6 +282,7 @@ export function GraphicsAudit({ quality }: { quality: string }) {
         camera.updateMatrixWorld();
         const city = scene.getObjectByName('center-city');
         const environment = scene.getObjectByName('premium-fantasy-world');
+        const islands = scene.getObjectByName('player-islands');
         const ray = new THREE.Raycaster();
         return Array.from({ length: 40 }, (_, id) => {
           const [x, , z] = getSpaceTransform(id).position;
@@ -237,12 +301,19 @@ export function GraphicsAudit({ quality }: { quality: string }) {
             if (object instanceof THREE.InstancedMesh) THREE.InstancedMesh.prototype.raycast.call(object, ray, environmentHits);
             else if (object instanceof THREE.Mesh) THREE.Mesh.prototype.raycast.call(object, ray, environmentHits);
           });
+          const islandHits: THREE.Intersection[] = [];
+          islands?.traverseVisible(object => {
+            if (object instanceof THREE.Mesh && !(object instanceof THREE.InstancedMesh)) {
+              THREE.Mesh.prototype.raycast.call(object, ray, islandHits);
+            }
+          });
           const tileMeshes = ['corner-tile-top', 'edge-tile-top'].map(name => scene.getObjectByName(name)).filter(Boolean) as THREE.Object3D[];
           const tileHit = ray.intersectObjects(tileMeshes)[0];
           const tileIds = tileHit?.object.name === 'corner-tile-top' ? [0, 10, 20, 30] : Array.from({ length: 40 }, (_, n) => n).filter(n => n % 10);
           const rect = gl.domElement.getBoundingClientRect();
           return { id, x: rect.left + (p.x + 1) * state.size.width / 2, y: rect.top + (1 - p.y) * state.size.height / 2, depth: p.z,
             pickableTileId: tileHit?.instanceId === undefined ? null : tileIds[tileHit.instanceId],
+            occludedByPlayerIslands: islandHits.some(hit => hit.distance < camera.position.distanceTo(world) - .15),
             occludedByEnvironment: environmentHits.some(h => h.distance < camera.position.distanceTo(world) - .15),
             occludedByCity: cityHits.some(hit=>hit.distance < camera.position.distanceTo(world) - .15) };
         });

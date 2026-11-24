@@ -9,7 +9,7 @@
     "build": "tsc && vite build",
     "lint": "tsc --noEmit",
     "test:online": "node --import tsx --test tests/online.test.ts",
-    "test:solo": "node --import tsx --test tests/solo-rules.test.ts tests/board-v5.test.ts tests/rules-audit.test.ts tests/arcade-v8-solo.test.ts tests/match-activity.test.ts",
+    "test:solo": "node --import tsx --test tests/solo-rules.test.ts tests/board-v5.test.ts tests/rules-audit.test.ts tests/arcade-v8-solo.test.ts tests/match-activity.test.ts tests/player-islands.test.ts",
     "test:board-browser": "node scripts/board-v5-regression.mjs && node scripts/board-v5-resilience.mjs && node scripts/rules-audit-browser.mjs",
     "test:menu": "node --test tests/menu-loading.test.mjs",
     "test:menu-browser": "node scripts/menu-browser.mjs",

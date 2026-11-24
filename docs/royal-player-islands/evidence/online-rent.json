@@ -1,0 +1,53 @@
+{
+  "rentEvents": [
+    "game:dice_rolled",
+    "game:player_moved",
+    "game:money_changed",
+    "game:money_changed",
+    "game:rent_paid"
+  ],
+  "clients": [
+    {
+      "signals": [
+        {
+          "seat": 0,
+          "amount": -4,
+          "label": "−$4"
+        },
+        {
+          "seat": 1,
+          "amount": 4,
+          "label": "+$4"
+        }
+      ],
+      "balances": [
+        1496,
+        1504,
+        1500,
+        1500
+      ],
+      "covered": []
+    },
+    {
+      "signals": [
+        {
+          "seat": 0,
+          "amount": -4,
+          "label": "−$4"
+        },
+        {
+          "seat": 1,
+          "amount": 4,
+          "label": "+$4"
+        }
+      ],
+      "balances": [
+        1496,
+        1504,
+        1500,
+        1500
+      ],
+      "covered": []
+    }
+  ]
+}

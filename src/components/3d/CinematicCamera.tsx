@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import { useSceneState as useGameStore } from '../../presentation/SceneStore';
 import { getSpaceTransform } from '../../data/boardData';
 import { overviewCamera } from './overviewCamera';
+import { PLAYER_ISLAND_OVERVIEW_POINTS } from './playerIslandLayout';
 
 export type CameraPreset = 'overview' | 'player' | 'property' | 'dice' | 'movement' | 'event';
 export const CAMERA_PRESETS: Record<CameraPreset, string> = {
@@ -43,7 +44,8 @@ export function CinematicCamera({ request, reducedMotion, propertyPanel }: {
   // Snapshot the requested target so turn changes cannot retarget a transition.
   const focusedPlayerSpace = useRef(position);
   const focusedPropertySpace = useRef<number | null>(null);
-  const fit = useMemo(() => overviewCamera(size.width, size.height, mode === 'top'), [size.width, size.height, mode]);
+  const fit = useMemo(() => overviewCamera(size.width, size.height, mode === 'top', PLAYER_ISLAND_OVERVIEW_POINTS),
+    [size.width, size.height, mode]);
   const captureFollowAngle = () => {
     const orbit = controls.current;
     if (!orbit) return;
