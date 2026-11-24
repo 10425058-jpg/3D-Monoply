@@ -239,6 +239,44 @@
   .fantasy-players .players-content { max-height: calc(100dvh - 252px); }
   .fantasy-deed { max-height: calc(100dvh - 252px); }
 }
+/* Compact only the six-button action tray; keep the ROLL and utility controls
+   at their original sizes. Touch layouts retain their existing hit targets. */
+@media (min-width: 761px) {
+  .action-tray {
+    box-sizing: border-box;
+    width: 85%;
+    min-width: 0;
+    justify-self: center;
+    gap: 5.95px;
+    padding: 10.2px;
+    border-radius: 20.4px 8.5px;
+  }
+  .action-tray .dock-action {
+    min-height: 57px;
+    min-width: 0;
+    gap: 5.1px;
+    padding: 5.1px 3.4px;
+    border-radius: 10.2px;
+    font-size: clamp(10px, .765vw, 11.9px);
+  }
+  .action-tray .dock-action svg { width: 21.25px; height: 21.25px; }
+  .action-tray .dock-crest {
+    width: 34px;
+    height: 24.65px;
+    left: calc(50% - 17px);
+    top: -15.3px;
+  }
+  .action-tray .dock-crest svg { width: 17px; height: 17px; }
+}
+@media (min-width: 761px) and (max-width: 1150px) {
+  .action-tray { padding: 7.65px; gap: 3.4px; }
+  .action-tray .dock-action { min-height: 54px; font-size: 10px; }
+}
+@media (min-width: 1600px) {
+  .action-tray { max-width: 765px; padding: 12.75px; }
+  .action-tray .dock-action { min-height: 66.3px; font-size: 12.75px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .fantasy-header *, .fantasy-dock *, .fantasy-players *, .fantasy-shortcuts *, .fantasy-deed * { animation: none !important; transition: none !important; }
 }
