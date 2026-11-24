@@ -5,7 +5,7 @@ import type { Player } from '../../types/game';
 import { BOARD_SPACES, getSpaceTransform } from '../../data/boardData';
 import { useSceneStore } from '../../presentation/SceneStore';
 import { isGameReset } from '../../presentation/effectEvents';
-import { hopPose, isAdjacentTile, movementDuration,tokenOffset,tileActorHeight } from '../../presentation/animationMath';
+import { hopPose, isAdjacentTile, movementDuration,tokenOffset,tokenRenderScale,tileActorHeight } from '../../presentation/animationMath';
 
 type Step = { from: number; to: number; at: number; duration: number };
 const tiles = BOARD_SPACES.map(space => getSpaceTransform(space.id));
@@ -19,9 +19,12 @@ export function AnimatedToken({ player, index, reduced, visible, trails, childre
   const landingRing = useRef<THREE.Mesh>(null);
   const steps = useRef<Step[]>([]);
   const landedAt = useRef(-Infinity);
-  const offset = tokenOffset(index,store.getState().players.length);
-  const ox = offset.x, oz = offset.z;
-  const initial = tiles[player.position].position;
+  const initialTile = tiles[player.position];
+  const initialPlayers = store.getState().players;
+  const initialOffset = tokenOffset(index, initialPlayers.length, initialTile.isCorner);
+  const initialScale = tokenRenderScale(initialPlayers.length, initialTile.isCorner,
+    initialPlayers.some(p => p.id !== player.id && !p.isBankrupt && p.position === player.position));
+  const initial = initialTile.position;
   useLayoutEffect(() => {
     if (!trail.current) return;
     const dummy = new THREE.Object3D();
@@ -76,25 +79,31 @@ export function AnimatedToken({ player, index, reduced, visible, trails, childre
     }
     const step = steps.current[0];
     const destination = tiles[step?.to ?? actual.position];
-    const baseScale = (destination.isCorner ? 1.2 : 1.06)*offset.scale;
+    const count = state.players.length;
+    const shared = (tile: number) => state.players.some(p => p.id !== player.id && !p.isBankrupt && p.position === tile);
+    const offset = tokenOffset(index, count, destination.isCorner);
+    const baseScale = tokenRenderScale(count, destination.isCorner, shared(step?.to ?? actual.position));
     const actorHeight=tileActorHeight(actual.position,state.hoveredSpaceId,state.selectedSpaceId);
     const moving = step && !reduced;
     if (moving) {
       const from = tiles[step.from].position;
       const to = tiles[step.to].position;
       const pose = hopPose((now - step.at) / step.duration);
+      const fromOffset = tokenOffset(index, count, tiles[step.from].isCorner);
+      const fromScale = tokenRenderScale(count, tiles[step.from].isCorner, shared(step.from));
+      const movingScale = THREE.MathUtils.lerp(fromScale, baseScale, pose.blend);
       const startHeight = tileActorHeight(step.from, state.hoveredSpaceId, state.selectedSpaceId);
       const endHeight = tileActorHeight(step.to, state.hoveredSpaceId, state.selectedSpaceId);
       const hopHeight = pose.height * (1 - (index % 3) * .09);
-      group.position.set(THREE.MathUtils.lerp(from[0], to[0], pose.blend) + ox,
+      group.position.set(THREE.MathUtils.lerp(from[0] + fromOffset.x, to[0] + offset.x, pose.blend),
         THREE.MathUtils.lerp(startHeight, endHeight, pose.blend) + hopHeight,
-        THREE.MathUtils.lerp(from[2], to[2], pose.blend) + oz);
+        THREE.MathUtils.lerp(from[2] + fromOffset.z, to[2] + offset.z, pose.blend));
       group.rotation.set(0, Math.atan2(to[0] - from[0], to[2] - from[2]), pose.tilt);
-      group.scale.set(baseScale * (1 - hopHeight * .10), baseScale * (1 + hopHeight * .18), baseScale);
+      group.scale.set(movingScale * (1 - hopHeight * .10), movingScale * (1 + hopHeight * .18), movingScale);
     } else {
       const landingAge = (now - landedAt.current) / 180;
       const landing = !reduced && landingAge >= 0 && landingAge < 1 ? (1 - landingAge) ** 2 : 0;
-      group.position.set(destination.position[0] + ox, actorHeight + landing * 0.025, destination.position[2] + oz);
+      group.position.set(destination.position[0] + offset.x, actorHeight + landing * 0.025, destination.position[2] + offset.z);
       group.rotation.z = 0;
       group.scale.set(baseScale * (1 + landing * .05), baseScale * (1 - landing * .075), baseScale * (1 + landing * .05));
       if (landingRing.current) {
@@ -109,7 +118,7 @@ export function AnimatedToken({ player, index, reduced, visible, trails, childre
     if (trail.current) trail.current.visible = !!moving && trails;
   });
 
-  return <group ref={root} name={`token-${player.id}`} position={[initial[0] + ox, .34, initial[2] + oz]}>
+  return <group ref={root} name={`token-${player.id}`} position={[initial[0] + initialOffset.x, .34, initial[2] + initialOffset.z]} scale={initialScale}>
     {children}
     {trails && <mesh ref={landingRing} visible={false} position={[0, .015, 0]} rotation={[-Math.PI / 2, 0, 0]} raycast={() => {}}>
       <ringGeometry args={[.37, .395, 24]} /><meshBasicMaterial color={player.color} transparent depthWrite={false} />
