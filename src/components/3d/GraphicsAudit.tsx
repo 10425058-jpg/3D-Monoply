@@ -22,7 +22,7 @@ function islandScreenBounds(group: THREE.Object3D, camera: THREE.Camera, rect: D
     bounds.expandByPoint(point.set(rect.left + (world.x + 1) * rect.width / 2, rect.top + (1 - world.y) * rect.height / 2));
   };
   group.traverseVisible(object => {
-    if (object instanceof THREE.Mesh && object.name !== 'player-island-chain') {
+    if (object instanceof THREE.Mesh && object.parent?.name !== 'player-island-chain') {
       const positions = object.geometry.getAttribute('position');
       for (let i = 0; i < positions.count; i++) add(vertex.fromBufferAttribute(positions, i).applyMatrix4(object.matrixWorld));
     } else if (object instanceof THREE.Sprite) {
@@ -34,6 +34,39 @@ function islandScreenBounds(group: THREE.Object3D, camera: THREE.Camera, rect: D
     }
   });
   return { left: bounds.min.x, top: bounds.min.y, right: bounds.max.x, bottom: bounds.max.y };
+}
+
+/** Studio lighting for the actual runtime minted geometry, used by the capture script. */
+function mintPreview(treasury: THREE.Object3D) {
+  const studio = new THREE.Scene();
+  studio.background = new THREE.Color('#e9d9be');
+  studio.add(new THREE.HemisphereLight('#fff9ec', '#937577', 1.8));
+  const key = new THREE.DirectionalLight('#fff3df', 2.6); key.position.set(-4, 7, 11); studio.add(key);
+  const fill = new THREE.DirectionalLight('#dce9ff', 1.25); fill.position.set(6, 3, 5); studio.add(fill);
+  for (const [row, values] of [[1, 5, 10], [20, 50, 100], [500, 1000]].entries()) {
+    values.forEach((value, column) => {
+      const source = treasury.getObjectByName(`island-minted-coin-${value}`);
+      if (!(source instanceof THREE.InstancedMesh)) return;
+      for (const side of [1, -1]) {
+        const coin = new THREE.Mesh(source.geometry, source.material);
+        const x = (column - (values.length - 1) / 2) * 3.94 - side * .965;
+        coin.position.set(x, 2.28 * (1 - row) + .065 * side, side * .12);
+        coin.rotation.set(side * Math.PI / 2 - .07, side * .28, 0, 'YXZ');
+        coin.scale.setScalar(.94);
+        studio.add(coin);
+      }
+    });
+  }
+  const camera = new THREE.OrthographicCamera(-6.20, 6.20, 3.55, -3.55, .1, 50);
+  camera.position.set(0, 0, 14);
+  const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+  renderer.setSize(1610, 922, false);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  try {
+    renderer.render(studio, camera);
+    return renderer.domElement.toDataURL('image/png');
+  } finally { renderer.dispose(); renderer.forceContextLoss(); }
 }
 
 /** Explicit opt-in diagnostics. No instrumentation or globals in ordinary play. */
@@ -204,17 +237,17 @@ export function GraphicsAudit({ quality }: { quality: string }) {
       },
       islands(measureLayout = false) {
         const root = scene.getObjectByName('player-islands');
+        const treasuries = root?.getObjectByName('island-treasuries')?.userData;
         const rect = gl.domElement.getBoundingClientRect();
         const cameraPoint = new THREE.Vector3();
         camera.updateMatrixWorld();
         if (measureLayout) root?.updateWorldMatrix(true, true);
         const islands = root?.children.filter(group => group.userData.edge).map(group => {
-          const { seat, edge, statue } = group.userData;
+          const { seat, edge, statue, color } = group.userData;
           const model = group.getObjectByName(statue);
           const statueMount = group.getObjectByName('player-island-statue');
           const ground = group.getObjectByName('player-island-landscape');
           const plaque = group.getObjectByName('player-island-balance');
-          const coins = group.getObjectByName('player-island-coins');
           const chain = group.getObjectByName('player-island-chain');
           const chainBounds = chain && new THREE.Box3().setFromObject(chain);
           group.getWorldPosition(cameraPoint).project(camera);
@@ -229,17 +262,28 @@ export function GraphicsAudit({ quality }: { quality: string }) {
             footprint: new THREE.Box3().setFromObject(ground, true).getSize(new THREE.Vector3()).toArray(),
             statueScale: statueMount.scale.x,
             statueHeight: new THREE.Box3().setFromObject(model, true).getSize(new THREE.Vector3()).y,
+            rockDepth: group.position.y - new THREE.Box3().setFromObject(ground, true).min.y,
             screen: islandScreenBounds(group, camera, rect),
           };
-          return { seat, edge, statue, statueTriangles, statueDraws, center, position: group.position.toArray(),
-            plaque: plaque?.userData, coins: coins?.userData.denominations, layout,
+          return { seat, edge, statue, color, statueTriangles, statueDraws, center, position: group.position.toArray(),
+            plaque: plaque?.userData, displayedBalance: plaque?.children[0]?.userData.displayedBalance,
+            coins: treasuries?.denominations, stacks: treasuries?.treasuries.find((entry: { seat: number }) => entry.seat === seat)?.stacks,
+            links: chain?.userData.links, layout,
             chainBounds: chainBounds && { min: chainBounds.min.toArray(), max: chainBounds.max.toArray() } };
         }) ?? [];
         const money = root?.getObjectByName('player-island-money');
         const signals = money?.children.filter(node => node.name === 'island-money-signal').map(node => node.userData) ?? [];
-        const flights = money?.getObjectByName('island-coin-flights')?.children.flatMap(node =>
-          node instanceof THREE.InstancedMesh && node.visible ? [{ value: Number(node.name.slice('island-flying-coin-'.length)), count: node.count }] : []) ?? [];
-        return { islands, signals, flights };
+        const flights: { value: number; count: number }[] = [];
+        money?.getObjectByName('island-coin-flights')?.traverse(node => {
+          if (node instanceof THREE.InstancedMesh && node.visible && node.name.startsWith('island-flying-coin-')) {
+            flights.push({ value: Number(node.name.slice('island-flying-coin-'.length)), count: node.count });
+          }
+        });
+        return { islands, signals, flights, transactions: money?.userData.transactions ?? [] };
+      },
+      mintPreview() {
+        const treasury = scene.getObjectByName('island-treasuries');
+        return treasury && mintPreview(treasury);
       },
       game() {
         const game = store.getState();
@@ -271,10 +315,11 @@ export function GraphicsAudit({ quality }: { quality: string }) {
           textures: gl.info.memory.textures, geometries: gl.info.memory.geometries });
         previous = now; renderMs = 0; passes = 0; gl.info.reset();
       },
-      camera(position: number[], target: number[]) {
+      camera(position: number[], target: number[], close = false) {
         const perspective = camera as THREE.PerspectiveCamera;
         perspective.clearViewOffset(); perspective.fov = 40; perspective.updateProjectionMatrix();
-        const controls = state.get().controls as { target: THREE.Vector3; update(): void } | null;
+        const controls = state.get().controls as { target: THREE.Vector3; minDistance: number; maxPolarAngle: number; update(): void } | null;
+        if (controls) { controls.minDistance = close ? .5 : 16; controls.maxPolarAngle = close ? 1.56 : Math.PI / 2.65; }
         camera.position.fromArray(position); controls?.target.fromArray(target);
         camera.lookAt(new THREE.Vector3().fromArray(target)); controls?.update(); camera.updateMatrixWorld();
       },

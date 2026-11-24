@@ -5,16 +5,22 @@ export function coinTier(value: CoinValue) {
   return value < 20 ? 'copper' : value < 500 ? 'silver' : 'gold';
 }
 
+/** Five pieces at most are visible in each physical stack. Counts retain the full decomposition. */
+export function treasuryStacks(balance: number) {
+  let remaining = Number.isFinite(balance) ? Math.max(0, Math.trunc(balance)) : 0;
+  return [...COIN_VALUES].reverse().map(value => {
+    const count = Math.floor(remaining / value);
+    remaining -= value * count;
+    return { value, count, visible: Math.min(5, count) };
+  });
+}
+
 /** Greedy change, retaining the highest value pieces if the visual budget fills. */
 export function coinPieces(amount: number, limit = 7): CoinValue[] {
-  let remaining = Math.trunc(Math.abs(amount));
   const pieces: CoinValue[] = [];
-  if (!Number.isFinite(remaining)) return pieces;
-  for (const value of [...COIN_VALUES].reverse()) {
-    const count = Math.min(Math.floor(remaining / value), limit - pieces.length);
-    for (let i = 0; i < count; i++) pieces.push(value);
-    remaining -= count * value;
-    if (!remaining || pieces.length >= limit) break;
+  for (const { value, count } of treasuryStacks(Math.abs(amount))) {
+    for (let i = 0, available = Math.min(limit - pieces.length, count); i < available; i++) pieces.push(value);
+    if (pieces.length >= limit) break;
   }
   return pieces;
 }
