@@ -50,7 +50,19 @@ try {
       const centerTrack = desktop ? parseFloat(getComputedStyle(dock).gridTemplateColumns.split(/\s+/)[1]) : null;
       const originalWidth = desktop ? Math.min(centerTrack, innerWidth >= 1600 ? 900 : Infinity) : null;
       const actionButtons = [...actionTray.querySelectorAll('.dock-action')];
+      const sidebar = document.querySelector('.fantasy-players');
+      const portraits = [...sidebar.querySelectorAll('.player-portrait')];
+      const landmark = sidebar.querySelector('.landmark-upgrade');
       return { panel, tray, buttons, horizontalOverflow: document.documentElement.scrollWidth > innerWidth,
+        compactPlayers: {
+          brandWidth: rect(document.querySelector('.kingdom-brand')).width,
+          portraitWidths: portraits.map(portrait => rect(portrait).width),
+          count: sidebar.querySelectorAll('.kingdom-player').length,
+          landmarkPresent: !!landmark?.querySelector('button'),
+          landmarkFits: landmark.scrollWidth <= landmark.clientWidth + 1,
+          detailsFit: [...sidebar.querySelectorAll('.player-details')].every(details =>
+            details.scrollWidth <= details.clientWidth + 1),
+        },
         compactTray: {
           desktop, originalWidth, count: actionButtons.length,
           actualWidth: tray.width,
@@ -66,6 +78,19 @@ try {
     });
     assert.equal(layout.horizontalOverflow, false, `${width}×${height}: horizontal overflow`);
     assert.equal(layout.compactTray.count, 6, 'all six actions remain');
+    assert.equal(layout.compactPlayers.count, 6, 'all players remain available');
+    assert.equal(layout.compactPlayers.landmarkPresent, true, 'Landmark upgrade remains available');
+    assert.ok(layout.compactPlayers.landmarkFits && layout.compactPlayers.detailsFit,
+      `${width}×${height}: sidebar text clipped`);
+    if (width > 760) {
+      assert.ok(Math.abs(layout.panel.width - layout.compactPlayers.brandWidth * .8) <= 2,
+        `${width}×${height}: sidebar should be 80% of previous width`);
+      assert.ok(layout.compactPlayers.portraitWidths.every(size => Math.abs(size - 38.4) <= 1),
+        'desktop portraits are 20% smaller');
+    } else {
+      assert.ok(layout.compactPlayers.portraitWidths.every(size => Math.abs(size - 48) <= 1),
+        'mobile portrait sizes remain unchanged');
+    }
     assert.ok(layout.compactTray.labelsFit, `${width}×${height}: action labels clipped`);
     if (layout.compactTray.desktop) {
       const expected = layout.compactTray.originalWidth * .85;
