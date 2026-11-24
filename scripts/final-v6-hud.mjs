@@ -93,12 +93,12 @@ try {
     }
     assert.ok(layout.compactTray.labelsFit, `${width}×${height}: action labels clipped`);
     if (layout.compactTray.desktop) {
-      const expected = layout.compactTray.originalWidth * .85;
+      const expected = layout.compactTray.originalWidth * .765;
       assert.ok(Math.abs(layout.compactTray.actualWidth - expected) <= 2,
-        `${width}×${height}: expected 85% action-tray width, got ${layout.compactTray.actualWidth} vs ${expected}`);
-      const oldHeight = width >= 1600 ? 78 : width <= 1150 ? 63 : 67;
-      assert.ok(Math.abs(layout.compactTray.minHeight - oldHeight * .85) <= 1,
-        `${width}×${height}: expected approximately 15% smaller action buttons`);
+        `${width}×${height}: expected 76.5% action-tray width (10% smaller than the previous 85%), got ${layout.compactTray.actualWidth} vs ${expected}`);
+      const previousHeight = width >= 1600 ? 66.3 : width <= 1150 ? 54 : 57;
+      assert.ok(Math.abs(layout.compactTray.minHeight - previousHeight * .9) <= 1,
+        `${width}×${height}: expected an additional 10% reduction in action button height`);
     } else {
       assert.equal(layout.compactTray.minHeight, 51, 'original mobile hit target retained');
       assert.equal(layout.compactTray.fontSize, 9, 'original mobile text retained');
