@@ -48,3 +48,17 @@ test('all board labels use only the tile world rotation; the atlas must not coun
     assert.ok(top.distanceTo(inside)<1e-9,`space ${s.id} should read toward the center`);
   }
 });
+
+
+test('sidebar uses the same authoritative identity color for the portrait and card',()=>{
+  const sidebar=readFileSync(new URL('../src/components/ui/PlayerSidebar.tsx',import.meta.url),'utf8');
+  const avatars=readFileSync(new URL('../src/components/ui/Avatars.tsx',import.meta.url),'utf8');
+  const css=readFileSync(new URL('../src/fantasy-hud.css',import.meta.url),'utf8');
+  assert.match(sidebar, /<CharacterAvatar character=\{player\.name\} color=\{player\.color\}/);
+  assert.match(sidebar, /'--player-color': player\.color/);
+  assert.match(avatars, /stroke=\{color\} strokeWidth="4"/);
+  assert.equal((avatars.match(/\{portraitBackground\}/g)??[]).length,4);
+  assert.doesNotMatch(avatars,/id="bg-(?:you|vic|art|ele)"/);
+  assert.match(css,/\.kingdom-player\.is-active \{ border-color: var\(--player-color\)/);
+  assert.match(css,/\.player-portrait \{[^\n]*box-shadow: 0 0 0 2px var\(--player-color\)/);
+});
