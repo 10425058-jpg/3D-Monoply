@@ -238,42 +238,42 @@
   .fantasy-players .players-content { max-height: calc(100dvh - 252px); }
   .fantasy-deed { max-height: calc(100dvh - 252px); }
 }
-/* Compact only the six-button action tray; keep the ROLL and utility controls
+/* Compact only the six-button action tray (additional 10% reduction); keep the ROLL and utility controls
    at their original sizes. Touch layouts retain their existing hit targets. */
 @media (min-width: 761px) {
   .action-tray {
     box-sizing: border-box;
-    width: 85%;
+    width: 76.5%;
     min-width: 0;
     justify-self: center;
-    gap: 5.95px;
-    padding: 10.2px;
-    border-radius: 20.4px 8.5px;
+    gap: 5.355px;
+    padding: 9.18px;
+    border-radius: 18.36px 7.65px;
   }
   .action-tray .dock-action {
-    min-height: 57px;
+    min-height: 51.3px;
     min-width: 0;
-    gap: 5.1px;
-    padding: 5.1px 3.4px;
-    border-radius: 10.2px;
-    font-size: clamp(10px, .765vw, 11.9px);
+    gap: 4.59px;
+    padding: 4.59px 3.06px;
+    border-radius: 9.18px;
+    font-size: clamp(10px, .6885vw, 10.71px);
   }
-  .action-tray .dock-action svg { width: 21.25px; height: 21.25px; }
+  .action-tray .dock-action svg { width: 19.125px; height: 19.125px; }
   .action-tray .dock-crest {
-    width: 34px;
-    height: 24.65px;
-    left: calc(50% - 17px);
-    top: -15.3px;
+    width: 30.6px;
+    height: 22.185px;
+    left: calc(50% - 15.3px);
+    top: -13.77px;
   }
-  .action-tray .dock-crest svg { width: 17px; height: 17px; }
+  .action-tray .dock-crest svg { width: 15.3px; height: 15.3px; }
 }
 @media (min-width: 761px) and (max-width: 1150px) {
-  .action-tray { padding: 7.65px; gap: 3.4px; }
-  .action-tray .dock-action { min-height: 54px; font-size: 10px; }
+  .action-tray { padding: 6.885px; gap: 3.06px; }
+  .action-tray .dock-action { min-height: 48.6px; font-size: 10px; }
 }
 @media (min-width: 1600px) {
-  .action-tray { max-width: 765px; padding: 12.75px; }
-  .action-tray .dock-action { min-height: 66.3px; font-size: 12.75px; }
+  .action-tray { max-width: 688.5px; padding: 11.475px; }
+  .action-tray .dock-action { min-height: 59.67px; font-size: 11.475px; }
 }
 
 /* Keep the brand, shortcuts and bottom dock unchanged. Compact the Players
