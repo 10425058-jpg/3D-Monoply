@@ -269,11 +269,14 @@ try {
     const action = document.querySelector('.evolution-footer button').getBoundingClientRect();
     const notice = document.querySelector('.match-notice').getBoundingClientRect();
     const cameraToolbarPresent = document.querySelector('.camera-toolbar') !== null;
+    const inspector = document.querySelector('.property-evolution').getBoundingClientRect();
+    const dice = document.querySelector('.dice-result')?.getBoundingClientRect();
     const header = document.querySelector('.resource-bar').getBoundingClientRect();
     return { noticeTop: notice.top, noticeBottom: notice.bottom, actionTop: action.top,
-      cameraToolbarPresent, headerBottom: header.bottom };
+      cameraToolbarPresent, headerBottom: header.bottom, diceClearsInspector: !dice || dice.top >= inspector.bottom };
   });
   assert.ok(mobileUpgrade.noticeBottom <= mobileUpgrade.actionTop, JSON.stringify(mobileUpgrade));
+  assert.ok(mobileUpgrade.diceClearsInspector, 'The dice receipt sits below the open inspector');
   assert.equal(mobileUpgrade.cameraToolbarPresent, false, 'legacy camera toolbar must be removed');
   await capture('12-mobile-upgrade');
   await page.click('.evolution-footer button');

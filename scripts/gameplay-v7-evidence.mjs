@@ -167,8 +167,8 @@ async function sustainedSolo() {
         if (game.winner || performance.now() >= deadline) { reject(new Error(`Solo soak stopped after ${changes} handoffs`)); return; }
         if (game.turnPhase === 'AUCTION') press('[aria-labelledby="auction-title"] button', 'Pass bid');
         else if (game.turnPhase === 'DEBT_RESOLUTION') {
-          if (!press('.debt-resolution .console-button.primary') && !press('.debt-holding button')) {
-            press('.debt-resolution .console-button.secondary', 'Declare bankruptcy');
+          if (!press('.debt-resolution button[data-variant="primary"]') && !press('.debt-holding button')) {
+            press('.debt-resolution button[data-variant="danger"]', 'Declare bankruptcy');
           }
         } else if (previous === 0) {
           if (game.railroadRaid) press('.raid-skip');
@@ -228,9 +228,9 @@ try {
   await fixture('auction-small-bid');
   await delay(260);
   await shot('auction');
-  await action('Bid $11', '.game-modal button');
-  await action('Pass bid', '.game-modal button');
-  await action('Pass bid', '.game-modal button');
+  await action('Bid $11', '.auction-modal button');
+  await action('Pass bid', '.auction-modal button');
+  await action('Pass bid', '.auction-modal button');
   assert.equal((await state()).properties[3].ownerId, 1);
   await delay(260);
   await shot('auction-won');

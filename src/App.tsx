@@ -3,25 +3,22 @@ import { AnimatePresence } from 'framer-motion';
 import {
   ArrowRight,
   Bot,
-  Coins,
-  Crown,
+  Flag,
   Gift,
   Star,
   PackageOpen,
   RotateCcw,
-  ScrollText,
   ShieldCheck,
   Sparkles,
   Trophy,
   UserRound,
   Wallet,
-  X,
 } from 'lucide-react';
 
 import { Scene3D } from './components/3d/Scene3D';
 import { BOARD_SPACES } from './data/boardData';
 import { useGameStore } from './store/useGameStore';
-import { DAILY_MISSIONS, DAILY_REWARD_CYCLE, LUCKY_WHEEL_REWARDS, STICKER_COLLECTION } from './data/metaGameData';
+import { DAILY_MISSIONS, DAILY_REWARD_CYCLE, STICKER_COLLECTION } from './data/metaGameData';
 import type { BoardSpace, SoloRuleset, TokenType, TradeOffer } from './types/game';
 import { TopHeader } from './components/ui/TopHeader';
 import { PlayerSidebar } from './components/ui/PlayerSidebar';
@@ -30,6 +27,9 @@ import { BottomActionDock } from './components/ui/BottomActionDock';
 import { PropertyCard } from './components/ui/PropertyCard';
 import { PropertyEvolution } from './components/ui/PropertyEvolution';
 import { ActivityLog, MatchActivityNotices } from './components/ui/ActivityLog';
+import { RoyalArt, RoyalButton, RoyalModal, RoyalNotice, RoyalPresence, RoyalTabs } from './components/ui/RoyalUI';
+import { CharacterAvatar } from './components/ui/Avatars';
+import { BookOpen, ClipboardCheck, Disc3, Handshake, Layers, Settings, TrainFront, Vault } from 'lucide-react';
 import { StatsModal } from './components/ui/StatsModal';
 import { sounds } from './utils/audio';
 import './app-ui.css';
@@ -85,7 +85,7 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
   const [showRules, setShowRules] = useState(false);
   const [showStats, setShowStats] = useState(false);
   const [showMetaHub, setShowMetaHub] = useState(false);
-  const [metaTab, setMetaTab] = useState<'daily' | 'missions' | 'album'>('daily');
+  const [metaTab, setMetaTab] = useState<'daily' | 'spin' | 'missions' | 'album'>('daily');
   const [showTradeModal, setShowTradeModal] = useState(false);
   const [tradeTargetId, setTradeTargetId] = useState<number>(1);
   const [tradePropertyId, setTradePropertyId] = useState<string>('');
@@ -102,6 +102,8 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
     ? { id: game.cardDrawId, card: game.activeCard, player: activePlayer } : undefined;
   const decisionCard = cardDraw && !cardDraw.player.isAI ? cardDraw : undefined;
   const finalCard = game.winner ? game.activity.at(-2)?.card : undefined;
+  const bankruptcyMessage = game.logs.find(log => log.message.includes(' declared bankruptcy over '))?.message;
+  const humanDefeat = !!game.winner?.isAI && game.players.some(player => !player.isAI && player.isBankrupt);
   const debtPlayer = game.players.find(p=>p.id===(game.pendingDebt?.debtorId??activePlayer?.id));
   const tradePlayer = game.turnPhase === 'DEBT_RESOLUTION' ? debtPlayer : activePlayer;
   const tradeProposal = useRef('');
@@ -226,7 +228,7 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
       <GameplayFeedback activityNotices />
       <MatchActivityNotices matchId={matchId} events={game.activity} draw={cardDraw}
         paused={!!(decisionCard || game.pendingTrade || game.pendingDebt || game.auction || game.winner ||
-          showSetup || showRules || showTradeModal || showMetaHub || (game.railroadRaid && !activePlayer?.isAI))} />
+          showStats || showSetup || showRules || showTradeModal || showMetaHub || (game.railroadRaid && !activePlayer?.isAI))} />
       <SoloDecisions onOpenTrade={openTrade} tradeOpen={showTradeModal}
         onOpenEvolution={openEvolution} evolutionOpen={evolutionOpen} />
       {/* 3D Scene Layer */}
@@ -244,7 +246,7 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
       {/* 3. RIGHT ACTIVITY NAVIGATION */}
       <RightActivityNav
         onOpenDaily={() => { setMetaTab('daily'); setShowMetaHub(true); }}
-        onOpenSpin={() => { setMetaTab('daily'); setShowMetaHub(true); }}
+        onOpenSpin={() => { setMetaTab('spin'); setShowMetaHub(true); }}
         onOpenAlbum={() => { setMetaTab('album'); setShowMetaHub(true); }}
         onOpenMissions={() => { setMetaTab('missions'); setShowMetaHub(true); }}
       />
@@ -282,14 +284,15 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
       {/* 7. GAME MODALS                                                 */}
       {/* ============================================================== */}
       {/* Trade Modal */}
-      {showTradeModal && tradePlayer && !tradePlayer.isAI && (
-        <div className="modal-backdrop">
-          <section className="game-modal trade-modal" role="dialog" aria-modal="true" aria-labelledby="trade-title">
-            <button className="modal-close" onClick={() => setShowTradeModal(false)} aria-label="Close trade"><X size={18} /></button>
-            <div className="modal-ornament"><Coins size={24} /></div>
-            <div className="eyebrow">NEGOTIATION DESK</div>
-            <h2 id="trade-title">Propose a trade</h2>
-            <p>Exchange cash and up to one clear deed per side. Deeds in groups with buildings are locked until those buildings are sold.</p>
+      <RoyalPresence>{showTradeModal && tradePlayer && !tradePlayer.isAI && (
+        <RoyalModal key="trade" title="Propose a trade" titleId="trade-title" icon={Handshake} size="large" className="trade-modal"
+          onClose={() => setShowTradeModal(false)} closeLabel="Close trade" footer={<>
+            <RoyalButton onClick={() => setShowTradeModal(false)}>Cancel</RoyalButton>
+            {!!rivalPlayers.length && <RoyalButton variant="primary" disabled={!validCash ||
+              (!tradePropertyId && !tradeRequestPropertyId && Number(tradeOfferCash) <= 0 && Number(tradeRequestCash) <= 0)}
+              onClick={handleTradeSubmit}>Send offer <ArrowRight size={14} /></RoyalButton>}
+          </>}
+          description={arcade ? 'Exchange cash and up to one clear deed per player.' : 'Exchange cash and up to one clear deed per player. Sell buildings in a group before trading its deeds.'}>
             {rivalPlayers.length === 0 ? (
               <p>No rival is available to trade with.</p>
             ) : (
@@ -306,114 +309,103 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
                     {rivalPlayers.map((player) => <option key={player.id} value={player.id}>{player.name} · {money(player.money)}</option>)}
                   </select>
                 </label>
-                <label className="trade-field">
-                  <span>Property to offer</span>
-                  <select value={tradePropertyId} onChange={(event) => setTradePropertyId(event.target.value)}>
-                    <option value="">Cash only — no property</option>
-                    {tradeOptions(tradePlayer.id)}
-                  </select>
-                </label>
-                <label className="trade-field">
-                  <span>Property to request</span>
-                  <select value={tradeRequestPropertyId} onChange={(event) => setTradeRequestPropertyId(event.target.value)}>
-                    <option value="">No property requested</option>
-                    {tradeOptions(rival?.id)}
-                  </select>
-                </label>
-                <div className="trade-cash-grid">
-                  <label className="trade-field">
-                    <span>Your cash offer</span>
-                    <input type="number" min="0" step="1" max={tradePlayer.money} value={tradeOfferCash} onChange={(event) => setTradeOfferCash(event.target.value)} />
-                  </label>
-                  <label className="trade-field">
-                    <span>Ask for cash</span>
-                    <input type="number" min="0" step="1" max={rival?.money} value={tradeRequestCash} onChange={(event) => setTradeRequestCash(event.target.value)} />
-                  </label>
+                <div className="trade-sides">
+                  <section className="trade-side">
+                    <header className="trade-side-header">
+                      <CharacterAvatar character={tradePlayer.name} color={tradePlayer.color} size={40} />
+                      <div><h3>{tradePlayer.name === 'You' ? 'You offer' : `${tradePlayer.name} offers`}</h3><strong>{money(tradePlayer.money)}</strong></div>
+                    </header>
+                    <label className="trade-field">
+                      <span>Property to offer</span>
+                      <select value={tradePropertyId} onChange={event => setTradePropertyId(event.target.value)}>
+                        <option value="">Cash only</option>
+                        {tradeOptions(tradePlayer.id)}
+                      </select>
+                    </label>
+                    <label className="trade-field">
+                      <span>Cash to offer</span>
+                      <input type="number" min="0" step="1" max={tradePlayer.money} value={tradeOfferCash} onChange={event => setTradeOfferCash(event.target.value)} />
+                    </label>
+                  </section>
+                  <section className="trade-side">
+                    <header className="trade-side-header">
+                      {rival && <CharacterAvatar character={rival.name} color={rival.color} size={40} />}
+                      <div><h3>Request from {rival?.name}</h3>{rival && <strong>{money(rival.money)}</strong>}</div>
+                    </header>
+                    <label className="trade-field">
+                      <span>Property to request</span>
+                      <select value={tradeRequestPropertyId} onChange={event => setTradeRequestPropertyId(event.target.value)}>
+                        <option value="">No property requested</option>
+                        {tradeOptions(rival?.id)}
+                      </select>
+                    </label>
+                    <div className="trade-cash-grid"><label className="trade-field">
+                      <span>Cash to request</span>
+                      <input type="number" min="0" step="1" max={rival?.money} value={tradeRequestCash} onChange={event => setTradeRequestCash(event.target.value)} />
+                    </label></div>
+                  </section>
                 </div>
                 {offer && rival && <TradeTerms from={tradePlayer} to={rival} offer={offer} properties={game.properties} ruleset={game.ruleset} />}
                 {!validCash && <p className="trade-feedback is-warning">Enter whole-dollar amounts within each player’s available cash.</p>}
                 {tradeFeedback && <div role="status" className={`trade-feedback ${tradeFeedback.includes('accepted') ? 'is-success' : 'is-warning'}`}>{tradeFeedback}</div>}
-                <div className="trade-modal-actions">
-                  <button className="console-button secondary" onClick={() => setShowTradeModal(false)}>Cancel</button>
-                  <button className="console-button primary" disabled={
-                    !validCash || (!tradePropertyId && !tradeRequestPropertyId && Number(tradeOfferCash) <= 0 && Number(tradeRequestCash) <= 0)
-                  } onClick={handleTradeSubmit}>
-                    Send offer <ArrowRight size={14} />
-                  </button>
-                </div>
               </>
             )}
-          </section>
-        </div>
-      )}
+        </RoyalModal>
+      )}</RoyalPresence>
 
       {/* Railroad Raid Modal */}
-      {game.railroadRaid && activePlayer?.id === game.railroadRaid.attackerId && !activePlayer.isAI && (
-        <div className="modal-backdrop">
-          <div className="game-modal raid-modal" role="dialog" aria-modal="true" aria-labelledby="raid-title">
-            <div className="modal-ornament"><Coins size={25} /></div>
-            <div className="eyebrow">RAILROAD BONUS EVENT</div>
+      <RoyalPresence>{game.railroadRaid && activePlayer?.id === game.railroadRaid.attackerId && !activePlayer.isAI && (
+        <RoyalModal key="railroad" title={game.railroadRaid.mode === 'choose' ? 'Railroad bonus' : 'Bank Heist'} titleId="raid-title"
+          icon={game.railroadRaid.mode === 'choose' ? TrainFront : Vault} priority="decision" size="large" className="raid-modal">
             {game.railroadRaid.mode === 'choose' ? (
               <>
-                <h2 id="raid-title">Choose your next move</h2>
+
                 <p>Use your railroad connection to raid the bank or disrupt a rival city landmark.</p>
                 <div className="raid-option-grid">
                   <button className="raid-option raid-heist" onClick={game.startBankHeist}>
-                    <span className="raid-option-icon"><Coins size={25} /></span>
+                    <RoyalArt prop="vault" />
                     <strong>Bank Heist</strong>
                     <small>Pick one of three vaults. Rewards range from $150 to $550.</small>
                   </button>
                   <div className="raid-shutdown-list">
                     <div className="raid-list-title"><ShieldCheck size={15} /> Shutdown a rival</div>
                     {game.players.filter((player) => !player.isBankrupt && player.id !== activePlayer.id).map((player) => (
-                      <button className="raid-target" key={player.id} onClick={() => game.shutdownLandmark(player.id)}>
-                        <span className="raid-target-dot" style={{ background: player.color }} />
+                      <button className="raid-target" key={player.id} aria-label={`Attack ${player.name}’s landmark`} onClick={() => game.shutdownLandmark(player.id)}>
+                        <CharacterAvatar character={player.name} color={player.color} size={36} />
                         <span className="raid-target-name">{player.name}</span>
-                        <span className="raid-target-level">LV {player.landmarkLevel}</span>
+                        <span className="raid-target-level">{player.landmarkLevel ? `Level ${player.landmarkLevel} → ${player.landmarkLevel - 1}` : 'Empty site'}</span>
                         <ArrowRight size={14} />
                       </button>
                     ))}
                   </div>
                 </div>
-                <button className="raid-skip" onClick={game.skipRailroadRaid}>Skip this event</button>
+                <RoyalButton variant="secondary" className="raid-skip" onClick={game.skipRailroadRaid}>Skip this event</RoyalButton>
               </>
             ) : (
               <>
-                <h2 id="raid-title">Choose a vault</h2>
+
                 <p>Three vaults are locked. Choose one to reveal your bank heist reward.</p>
                 <div className="vault-grid">
                   {[0, 1, 2].map((vaultIndex) => (
                     <button className="vault-choice" key={vaultIndex} onClick={() => game.resolveBankHeist(vaultIndex)}>
-                      <span className="vault-door"><span /></span>
-                      <strong>VAULT {vaultIndex + 1}</strong>
-                      <small>Open vault</small>
+                      <RoyalArt prop="vault" />
+                      <strong>Vault {vaultIndex + 1}</strong>
+
                     </button>
                   ))}
                 </div>
               </>
             )}
-          </div>
-        </div>
-      )}
+        </RoyalModal>
+      )}</RoyalPresence>
 
       {/* Meta Hub (Daily, Missions, Album) */}
-      {showMetaHub && (
-        <div className="modal-backdrop meta-backdrop" role="presentation" onClick={() => setShowMetaHub(false)}>
-          <section className="meta-hub game-modal" role="dialog" aria-modal="true" aria-labelledby="meta-hub-title" onClick={(event) => event.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowMetaHub(false)} aria-label="Close events"><X size={18} /></button>
-            <div className="meta-hub-heading">
-              <div className="modal-ornament"><Gift size={24} /></div>
-              <div className="eyebrow">TYCOON REWARDS CLUB</div>
-              <h2 id="meta-hub-title">Daily Events</h2>
-              <p>Collect rewards, complete missions and build your sticker collection.</p>
-            </div>
-
-            <div className="meta-tabs">
-              <button className={metaTab === 'daily' ? 'is-selected' : ''} onClick={() => setMetaTab('daily')}><Gift size={14} /> Daily</button>
-              <button className={metaTab === 'missions' ? 'is-selected' : ''} onClick={() => setMetaTab('missions')}><Star size={14} /> Missions</button>
-              <button className={metaTab === 'album' ? 'is-selected' : ''} onClick={() => setMetaTab('album')}><Star size={14} /> Album <span>{stickerCount}/{STICKER_COLLECTION.length}</span></button>
-            </div>
-
+      <RoyalPresence>{showMetaHub && (
+        <RoyalModal key="journey" title="Journey" icon={Gift} className="meta-hub" size="large" onClose={() => setShowMetaHub(false)} closeLabel="Close events" dismissOnBackdrop>
+          <RoyalTabs label="Journey activities" value={metaTab} onChange={setMetaTab} tabs={[
+            { value: 'daily', label: 'Daily', icon: Gift }, { value: 'spin', label: 'Lucky Spin', icon: Disc3 },
+            { value: 'missions', label: 'Missions', icon: ClipboardCheck }, { value: 'album', label: 'Album', icon: Layers },
+          ]}>
             {metaTab === 'daily' && (
               <div className="meta-content">
                 <div className="daily-streak-card">
@@ -422,7 +414,7 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
                     <strong>{game.metaProgress.dailyStreak} <small>days</small></strong>
                     <span>{dailyClaimedToday ? 'Today’s reward collected' : 'Claim today to keep your streak alive'}</span>
                   </div>
-                  <div className="streak-flame">🔥</div>
+                  <RoyalArt prop="chest" />
                 </div>
 
                 <div className="reward-calendar">
@@ -430,23 +422,26 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
                     const isClaimed = dailyClaimedToday
                       ? reward.day <= ((game.metaProgress.dailyStreak - 1) % 7) + 1
                       : reward.day < rewardDay;
-                    const isToday = reward.day === rewardDay;
+                    const isToday = !dailyClaimedToday && reward.day === rewardDay;
                     return (
                       <div key={reward.day} className={`reward-day ${isToday ? 'is-today' : ''} ${isClaimed ? 'is-claimed' : ''}`}>
                         <span>DAY {reward.day}</span>
                         <strong>{reward.cash ? money(reward.cash) : '—'}</strong>
                         {reward.packs > 0 ? <small>+ {reward.packs} pack</small> : <small>Cash</small>}
-                        {isClaimed && <i>✓</i>}
+                        {isClaimed && <i aria-label="Claimed">✓</i>}
                       </div>
                     );
                   })}
                 </div>
 
-                <button className="meta-primary-button" disabled={dailyClaimedToday} onClick={() => { game.claimDailyReward(); }}>
+                <RoyalButton variant="primary" className="meta-primary-button" disabled={dailyClaimedToday} onClick={() => { game.claimDailyReward(); }}>
                   <Gift size={16} /> {dailyClaimedToday ? 'Daily reward claimed' : `Claim day ${rewardDay} · ${money(nextDailyReward.cash)}${nextDailyReward.packs ? ' + Sticker Pack' : ''}`}
-                </button>
+                </RoyalButton>
 
-                <div className="meta-section-title"><div><span className="eyebrow">ONE FREE SPIN EVERY DAY</span><h3>Lucky Wheel</h3></div><span className="meta-availability">{wheelUsedToday ? 'Come back tomorrow' : 'Ready to spin'}</span></div>
+              </div>
+            )}
+            {metaTab === 'spin' && (<div className="meta-content">
+                <div className="meta-section-title"><h3>Lucky Wheel</h3><span className="meta-availability">{wheelUsedToday ? 'Come back tomorrow' : 'Ready to spin'}</span></div>
                 <div className="wheel-layout">
                   <div className={`lucky-wheel ${isWheelSpinning ? "is-spinning" : ""}`}>
                     <div className="wheel-center"><Star size={25} fill="currentColor" /></div>
@@ -458,12 +453,11 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
                     <span className="wheel-label wheel-label-6">PACK</span>
                   </div>
                   <div className="wheel-copy">
-                    <strong>Try your luck.</strong>
                     <p>Win cash or a Sticker Pack. The wheel resets every day.</p>
-                    <button className="meta-secondary-button" disabled={wheelUsedToday} onClick={handleWheelSpin}>
+                    <RoyalButton variant="primary" className="meta-wheel-button" disabled={wheelUsedToday} onClick={handleWheelSpin}>
                       <Sparkles size={15} /> {wheelUsedToday ? 'Already spun' : 'Spin the wheel'}
-                    </button>
-                    {wheelUsedToday && game.lastWheelReward && <span className="wheel-last-win">Today’s prize: {game.lastWheelReward.label}</span>}
+                    </RoyalButton>
+                    {wheelUsedToday && game.lastWheelReward && <span className="wheel-last-win" role="status">Today’s prize: {game.lastWheelReward.label}</span>}
                   </div>
                 </div>
               </div>
@@ -472,7 +466,7 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
             {metaTab === 'missions' && (
               <div className="meta-content">
                 <div className="mission-summary">
-                  <div><span className="eyebrow">DAILY CHALLENGES</span><h3>Make your moves count.</h3></div>
+                  <h3>Daily missions</h3>
                   <span>{game.metaProgress.missionClaimed.length}/{DAILY_MISSIONS.length} claimed</span>
                 </div>
                 <div className="mission-list">
@@ -486,12 +480,12 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
                         <div className="mission-main">
                           <strong>{mission.title}</strong>
                           <span>{mission.description}</span>
-                          <div className="mission-progress-track"><i style={{ width: `${(progress / mission.target) * 100}%` }} /></div>
+                          <div className="mission-progress-track" role="progressbar" aria-label={mission.title} aria-valuenow={progress} aria-valuemin={0} aria-valuemax={mission.target}><i style={{ width: `${(progress / mission.target) * 100}%` }} /></div>
                           <small>{progress}/{mission.target} complete · Reward {money(mission.cashReward)}{mission.packReward ? ' + Sticker Pack' : ''}</small>
                         </div>
-                        <button className="mission-claim" disabled={!complete || claimed} onClick={() => { game.claimMissionReward(mission.id); }}>
+                        <RoyalButton variant="primary" className="mission-claim" disabled={!complete || claimed} onClick={() => { game.claimMissionReward(mission.id); }}>
                           {claimed ? 'Claimed' : complete ? 'Claim' : 'In progress'}
-                        </button>
+                        </RoyalButton>
                       </article>
                     );
                   })}
@@ -505,7 +499,7 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
                   <div><span className="eyebrow">COLLECTION PROGRESS</span><h3>Miniature City Album</h3><p>Collect all 18 stickers across three themed sets.</p></div>
                   <strong>{stickerCount}<small> / {STICKER_COLLECTION.length}</small></strong>
                 </div>
-                <div className="album-progress-track"><i style={{ width: `${(stickerCount / STICKER_COLLECTION.length) * 100}%` }} /></div>
+                <div className="album-progress-track" role="progressbar" aria-label="Stickers collected" aria-valuenow={stickerCount} aria-valuemin={0} aria-valuemax={STICKER_COLLECTION.length}><i style={{ width: `${(stickerCount / STICKER_COLLECTION.length) * 100}%` }} /></div>
                 {['City Lights', 'Wonder Park', 'Royal Fortune'].map((setName) => {
                   const setStickers = STICKER_COLLECTION.filter((sticker) => sticker.set === setName);
                   const ownedInSet = setStickers.filter((sticker) => (game.metaProgress.stickers[sticker.id] ?? 0) > 0).length;
@@ -528,15 +522,15 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
                   );
                 })}
                 <div className="album-footer">
-                  <div><span className="eyebrow">DUPLICATE EXCHANGE</span><strong><Star size={14} fill="currentColor" /> {game.metaProgress.stickerStars} stars</strong><small>10 stars can be exchanged for 1 Sticker Pack.</small></div>
-                  <button className="meta-secondary-button" disabled={game.metaProgress.stickerStars < 10} onClick={() => { game.redeemStickerStars(); }}>Exchange 10 ★</button>
+                  <div><span className="eyebrow">DUPLICATE EXCHANGE</span><strong><Star size={14} fill="currentColor" /> {game.metaProgress.stickerStars} {game.metaProgress.stickerStars === 1 ? 'star' : 'stars'}</strong><small>10 stars can be exchanged for 1 Sticker Pack.</small></div>
+                  <RoyalButton variant="secondary" className="meta-secondary-button" disabled={game.metaProgress.stickerStars < 10} onClick={() => { game.redeemStickerStars(); }}>Exchange 10 ★</RoyalButton>
                 </div>
-                <button className="meta-primary-button" disabled={game.metaProgress.stickerPacks <= 0} onClick={() => { sounds.playCardDraw(); setLastPackReveal(game.openStickerPack()); }}>
+                <RoyalButton variant="primary" className="meta-primary-button" disabled={game.metaProgress.stickerPacks <= 0} onClick={() => { sounds.playCardDraw(); setLastPackReveal(game.openStickerPack()); }}>
                   <PackageOpen size={16} /> Open Sticker Pack ({game.metaProgress.stickerPacks})
-                </button>
+                </RoyalButton>
                 {lastPackReveal && (
                   <div className="pack-reveal">
-                    <div className="sticker-set-heading"><strong>Pack opened!</strong><span>{lastPackReveal.duplicateCount} duplicates</span></div>
+                    <div className="sticker-set-heading"><strong>Pack opened!</strong><span>{lastPackReveal.duplicateCount} {lastPackReveal.duplicateCount === 1 ? 'duplicate' : 'duplicates'}</span></div>
                     <div className="pack-reveal-cards">
                       {lastPackReveal.stickers.map((id, index) => {
                         const sticker = STICKER_COLLECTION.find((item) => item.id === id);
@@ -547,25 +541,27 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
                   </div>
                 )}
                 {albumComplete && (
-                  <button className="meta-primary-button album-grand-prize" disabled={game.metaProgress.albumBonusClaimed} onClick={() => { game.claimStickerAlbumReward(); }}>
+                  <RoyalButton variant="primary" className="meta-primary-button album-grand-prize" disabled={game.metaProgress.albumBonusClaimed} onClick={() => { game.claimStickerAlbumReward(); }}>
                     <Trophy size={16} /> {game.metaProgress.albumBonusClaimed ? 'Album prize claimed' : 'Claim grand prize · $2,500'}
-                  </button>
+                  </RoyalButton>
                 )}
               </div>
             )}
-          </section>
-        </div>
-      )}
+          </RoyalTabs>
+        </RoyalModal>
+      )}</RoyalPresence>
 
       {/* Setup / New Game Modal */}
-      {showSetup && (
-        <div className="modal-backdrop">
-          <div className="game-modal setup-modal" role="dialog" aria-modal="true" aria-labelledby="setup-title">
-            <button className="modal-close" onClick={() => setShowSetup(false)} aria-label="Close settings"><X size={18} /></button>
-            <div className="modal-ornament"><Crown size={25} /></div>
-            <div className="eyebrow">A CITY OF OPPORTUNITY</div>
-            <h1 id="setup-title">Your empire begins here.</h1>
-            <p>Build your property portfolio, collect rent, and outlast three rival tycoons in a living miniature city.</p>
+      <RoyalPresence>{showSetup && (
+        <RoyalModal key="setup" title="Game Settings" titleId="setup-title" icon={Settings} className="setup-modal"
+          onClose={() => setShowSetup(false)} closeLabel="Close settings" footer={<RoyalButton variant="primary" className="modal-primary" onClick={handleStart}>Restart The Game <ArrowRight size={17} /></RoyalButton>}>
+            <label className="trade-field">Graphics quality
+              <select value={graphicsQuality} onChange={event => {
+                const quality = event.target.value as GraphicsQuality;
+                setGraphicsQuality(quality);
+                try { localStorage.setItem('monopoly-graphics-quality', quality); } catch { /* Session preference still applies. */ }
+              }}><option value="low">Low</option><option value="balanced">Balanced</option><option value="high">High</option></select>
+            </label>
             <AudioControls />
             <div className="setup-facts">
               <div><UserRound size={15} /><strong>1</strong><span>Human player</span></div>
@@ -581,20 +577,14 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
                   <span><strong>Classic</strong>Own a full color group and build houses evenly.</span></label>
               </div>
             </fieldset>
-            <button className="modal-primary" onClick={handleStart}>Restart The Game <ArrowRight size={17} /></button>
-            <span className="modal-caption">The board is set. Fortune favors the bold.</span>
-          </div>
-        </div>
-      )}
+            <RoyalNotice>Restarting begins a new match with the selected ruleset.</RoyalNotice>
+        </RoyalModal>
+      )}</RoyalPresence>
 
       {/* Rulebook Modal */}
-      {showRules && (
-        <div className="modal-backdrop" role="presentation" onClick={() => setShowRules(false)}>
-          <div className="game-modal rules-modal" role="dialog" aria-modal="true" aria-labelledby="rules-title" onClick={(event) => event.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowRules(false)} aria-label="Close rules"><X size={18} /></button>
-            <div className="eyebrow">THE TYCOON'S HANDBOOK</div>
-            <h2 id="rules-title">How to play</h2>
-            <p className="modal-intro">Custom Solo rules · landmark income, railroad bonuses and optional auctions. Online mini-v1 has its own rules.</p>
+      <RoyalPresence>{showRules && (
+        <RoyalModal key="rules" title="How to play" titleId="rules-title" icon={BookOpen} className="rules-modal" onClose={() => setShowRules(false)} closeLabel="Close rules" dismissOnBackdrop
+          description={`Solo · ${arcade ? 'Arcade' : 'Classic'} rules`} footer={<RoyalButton variant="primary" onClick={() => setShowRules(false)}>Back to the board <ArrowRight size={16} /></RoyalButton>}>
             <div className="rule-list">
               <div><span>01</span><p><strong>Roll & move</strong>Roll two dice and travel clockwise around the board.</p></div>
               <div><span>02</span><p><strong>Acquire property</strong>Buy unowned spaces and collect rent when rivals land on your holdings.</p></div>
@@ -612,48 +602,37 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
                 {' '}Release a mortgage for principal plus 10% interest rounded up to whole dollars.</p></div>
               <div><span>10</span><p><strong>Local variations</strong>Solo has unlimited building stock, counts unmortgaged companion railroads/utilities for rent, and permits optional property auctions. It is not a strict G0009 Classic mode.</p></div>
             </div>
-            <button className="modal-primary" onClick={() => setShowRules(false)}>Back to the board <ArrowRight size={16} /></button>
-          </div>
-        </div>
-      )}
+        </RoyalModal>
+      )}</RoyalPresence>
 
       {/* Active Card Modal (Chance & Community Chest) */}
-      <AnimatePresence>
-        {decisionCard && (
+        <RoyalPresence>{decisionCard && (
           <CardReveal key={`${game.gameId}-${decisionCard.id}`} card={decisionCard.card} onResolve={() => {
             const current = useGameStore.getState();
             if (current.gameId === game.gameId) current.applyActiveCard(decisionCard.id);
           }} />
-        )}
-      </AnimatePresence>
+        )}</RoyalPresence>
 
       {/* Winner / Game Over Modal */}
-      {game.winner && !showSetup && (
-        <div className="modal-backdrop winner-backdrop">
-          <div className="game-modal winner-modal" role="dialog" aria-modal="true" aria-labelledby="solo-winner-title">
-            <div className="winner-trophy"><Trophy size={34} /></div>
-            <div className="eyebrow">MATCH COMPLETE</div>
-            <h2 id="solo-winner-title">{game.winner.name === 'You' ? 'You win!' : `${game.winner.name} wins!`}</h2>
+      <RoyalPresence>{game.winner && !showSetup && (
+        <RoyalModal key="result" title={game.winner.name === 'You' ? 'You win!' : `${game.winner.name} wins!`} titleId="solo-winner-title" icon={humanDefeat ? Flag : Trophy} tone={humanDefeat ? "ruby" : "gold"}
+          className="winner-modal" priority="result" footer={<>
+            {onHome && <RoyalButton onClick={onHome}>Main menu</RoyalButton>}
+            <RoyalButton variant="primary" onClick={() => { sounds.playClick(); setShowSetup(true); }}>Start a new game <RotateCcw size={16} /></RoyalButton>
+          </>}>
             <p>Last player standing</p>
-            <p>{game.logs.find(log => log.message.includes(' declared bankruptcy over '))?.message}</p>
+            {bankruptcyMessage && <RoyalNotice tone="ruby">{bankruptcyMessage}</RoyalNotice>}
             {finalCard && <p><strong>{finalCard.deck === 'chance' ? 'Chance' : 'Community Chest'} · {finalCard.title}</strong><br />{finalCard.instruction}</p>}
             <ul className="solo-results" aria-label="Final portfolios">
               {[game.winner, ...game.players.filter(player => player.id !== game.winner?.id)].map(player => {
                 const deeds = Object.values(game.properties).filter(property => property.ownerId === player.id).length;
-                return <li key={player.id}><strong>{player.name}</strong>
+                return <li key={player.id}><strong><CharacterAvatar character={player.name} color={player.color} size={32} />{player.name}</strong>
                   <span>{money(player.money)} · {deeds} {deeds === 1 ? 'deed' : 'deeds'}{player.isBankrupt ? ' · Eliminated' : ''}</span></li>;
               })}
             </ul>
             <ActivityLog matchId={matchId} events={game.activity} layout="results" />
-            <div className="trade-modal-actions">
-              {onHome && <button className="console-button secondary" onClick={onHome}>Main menu</button>}
-              <button className="modal-primary" onClick={() => { sounds.playClick(); setShowSetup(true); }}>
-                Start a new game <RotateCcw size={16} />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        </RoyalModal>
+      )}</RoyalPresence>
     </main>
   );
 };

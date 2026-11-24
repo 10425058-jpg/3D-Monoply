@@ -1,0 +1,1087 @@
+{
+  "browser": "Chrome/158.0.8127.38",
+  "viewports": [
+    [
+      1920,
+      1080
+    ],
+    [
+      1600,
+      900
+    ],
+    [
+      1440,
+      900
+    ],
+    [
+      1366,
+      768
+    ],
+    [
+      1024,
+      768
+    ],
+    [
+      390,
+      844
+    ]
+  ],
+  "checks": [
+    {
+      "name": "settings",
+      "viewport": [
+        1440,
+        900
+      ],
+      "dialogs": 1,
+      "label": "Game Settings",
+      "focus": true,
+      "bounds": [
+        399.0849914550781,
+        152.22900390625,
+        1040.9150695800781,
+        773.8612670898438
+      ],
+      "scroll": [
+        638,
+        638,
+        477,
+        477
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 43.98834228515625
+        }
+      ]
+    },
+    {
+      "name": "camera-shield",
+      "viewport": [
+        1440,
+        900
+      ],
+      "dialogs": 1,
+      "label": "Game Settings",
+      "focus": true,
+      "bounds": [
+        399.0617370605469,
+        152.19198608398438,
+        1040.9382019042969,
+        773.8692321777344
+      ],
+      "scroll": [
+        638,
+        638,
+        477,
+        477
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 43.9915771484375
+        }
+      ]
+    },
+    {
+      "name": "statistics",
+      "viewport": [
+        1440,
+        900
+      ],
+      "dialogs": 1,
+      "label": "Empire Statistics",
+      "focus": true,
+      "bounds": [
+        284.1529846191406,
+        158.28656005859375,
+        1155.8470764160156,
+        767.8538208007812
+      ],
+      "scroll": [
+        868,
+        868,
+        542,
+        542
+      ],
+      "footer": []
+    },
+    {
+      "name": "rules",
+      "viewport": [
+        1440,
+        900
+      ],
+      "dialogs": 1,
+      "label": "How to play",
+      "focus": true,
+      "bounds": [
+        399.08447265625,
+        51.16107177734375,
+        1040.91552734375,
+        874.9442138671875
+      ],
+      "scroll": [
+        638,
+        638,
+        1024,
+        679
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 43.98846435546875
+        }
+      ]
+    },
+    {
+      "name": "trade",
+      "viewport": [
+        1440,
+        900
+      ],
+      "dialogs": 1,
+      "label": "Propose a trade",
+      "focus": true,
+      "bounds": [
+        284.15289306640625,
+        116.3011474609375,
+        1155.84716796875,
+        809.823486328125
+      ],
+      "scroll": [
+        868,
+        868,
+        549,
+        549
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 43.98455810546875
+        },
+        {
+          "reachable": true,
+          "height": 43.98455810546875
+        }
+      ]
+    },
+    {
+      "name": "journey",
+      "viewport": [
+        1440,
+        900
+      ],
+      "dialogs": 1,
+      "label": "Journey",
+      "focus": true,
+      "bounds": [
+        284.1980895996094,
+        240.05162048339844,
+        1155.8018493652344,
+        686.1301116943359
+      ],
+      "scroll": [
+        868,
+        868,
+        379,
+        379
+      ],
+      "footer": []
+    },
+    {
+      "name": "lucky-spin",
+      "viewport": [
+        1440,
+        900
+      ],
+      "dialogs": 1,
+      "label": "Journey",
+      "focus": true,
+      "bounds": [
+        284.1524963378906,
+        254.89279174804688,
+        1155.8475646972656,
+        671.2471313476562
+      ],
+      "scroll": [
+        868,
+        868,
+        349,
+        349
+      ],
+      "footer": []
+    },
+    {
+      "name": "missions",
+      "viewport": [
+        1440,
+        900
+      ],
+      "dialogs": 1,
+      "label": "Journey",
+      "focus": true,
+      "bounds": [
+        284.197509765625,
+        175.62713623046875,
+        1155.802490234375,
+        750.5384521484375
+      ],
+      "scroll": [
+        868,
+        868,
+        507,
+        507
+      ],
+      "footer": []
+    },
+    {
+      "name": "album",
+      "viewport": [
+        1440,
+        900
+      ],
+      "dialogs": 1,
+      "label": "Journey",
+      "focus": true,
+      "bounds": [
+        284.25146484375,
+        51.35296630859375,
+        1155.74853515625,
+        874.8777465820312
+      ],
+      "scroll": [
+        868,
+        868,
+        964,
+        756
+      ],
+      "footer": []
+    },
+    {
+      "name": "auction",
+      "viewport": [
+        1440,
+        900
+      ],
+      "dialogs": 1,
+      "label": "Auction",
+      "focus": true,
+      "bounds": [
+        284.1533203125,
+        154.95999145507812,
+        1155.8466796875,
+        771.1806945800781
+      ],
+      "scroll": [
+        868,
+        868,
+        472,
+        472
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 43.9844970703125
+        },
+        {
+          "reachable": true,
+          "height": 43.9844970703125
+        }
+      ]
+    },
+    {
+      "name": "debt",
+      "viewport": [
+        1440,
+        900
+      ],
+      "dialogs": 1,
+      "label": "You owes $270",
+      "focus": true,
+      "bounds": [
+        399.18426513671875,
+        286.09149169921875,
+        1040.815673828125,
+        640.1381225585938
+      ],
+      "scroll": [
+        638,
+        638,
+        210,
+        210
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 43.97479248046875
+        },
+        {
+          "reachable": true,
+          "height": 43.97479248046875
+        }
+      ]
+    },
+    {
+      "name": "chance",
+      "viewport": [
+        1440,
+        900
+      ],
+      "dialogs": 1,
+      "label": "Chance",
+      "focus": true,
+      "bounds": [
+        399,
+        222.96875,
+        1041,
+        703.03125
+      ],
+      "scroll": [
+        638,
+        638,
+        335,
+        335
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "community-chest",
+      "viewport": [
+        1440,
+        900
+      ],
+      "dialogs": 1,
+      "label": "Community Chest",
+      "focus": true,
+      "bounds": [
+        399.0843505859375,
+        268.07257080078125,
+        1040.9156494140625,
+        658.0325927734375
+      ],
+      "scroll": [
+        638,
+        638,
+        245,
+        245
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 43.98846435546875
+        }
+      ]
+    },
+    {
+      "name": "railroad",
+      "viewport": [
+        1440,
+        900
+      ],
+      "dialogs": 1,
+      "label": "Railroad bonus",
+      "focus": true,
+      "bounds": [
+        284.1532897949219,
+        244.89703369140625,
+        1155.8466491699219,
+        681.2435913085938
+      ],
+      "scroll": [
+        868,
+        868,
+        369,
+        369
+      ],
+      "footer": []
+    },
+    {
+      "name": "bank-heist",
+      "viewport": [
+        1440,
+        900
+      ],
+      "dialogs": 1,
+      "label": "Bank Heist",
+      "focus": true,
+      "bounds": [
+        284,
+        277.25,
+        1156,
+        648.75
+      ],
+      "scroll": [
+        868,
+        868,
+        304,
+        304
+      ],
+      "footer": []
+    },
+    {
+      "name": "mission-claimed",
+      "viewport": [
+        1440,
+        900
+      ],
+      "dialogs": 1,
+      "label": "Journey",
+      "focus": true,
+      "bounds": [
+        284,
+        175.40625,
+        1156,
+        750.578125
+      ],
+      "scroll": [
+        868,
+        868,
+        507,
+        507
+      ],
+      "footer": []
+    },
+    {
+      "name": "pack-reveal",
+      "viewport": [
+        1440,
+        900
+      ],
+      "dialogs": 1,
+      "label": "Journey",
+      "focus": true,
+      "bounds": [
+        284.1153869628906,
+        51.161956787109375,
+        1155.8846740722656,
+        874.9438171386719
+      ],
+      "scroll": [
+        868,
+        868,
+        1138,
+        756
+      ],
+      "footer": []
+    },
+    {
+      "name": "victory",
+      "viewport": [
+        1440,
+        900
+      ],
+      "dialogs": 1,
+      "label": "You win!",
+      "focus": true,
+      "bounds": [
+        399.0617370605469,
+        197.15213012695312,
+        1040.9382019042969,
+        728.9248352050781
+      ],
+      "scroll": [
+        638,
+        638,
+        387,
+        387
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 43.9915771484375
+        },
+        {
+          "reachable": true,
+          "height": 43.9915771484375
+        }
+      ]
+    },
+    {
+      "name": "auction",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "dialogs": 1,
+      "label": "You win!",
+      "focus": true,
+      "bounds": [
+        639,
+        285.671875,
+        1281,
+        820.328125
+      ],
+      "scroll": [
+        638,
+        638,
+        390,
+        390
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 44
+        },
+        {
+          "reachable": true,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "chance",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "dialogs": 1,
+      "label": "Chance",
+      "focus": true,
+      "bounds": [
+        639.0004272460938,
+        311.2662048339844,
+        1280.99951171875,
+        794.7186889648438
+      ],
+      "scroll": [
+        638,
+        638,
+        338,
+        338
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "trade",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "dialogs": 1,
+      "label": "Propose a trade",
+      "focus": true,
+      "bounds": [
+        524.1527099609375,
+        206.129150390625,
+        1395.8472900390625,
+        900.010986328125
+      ],
+      "scroll": [
+        868,
+        868,
+        549,
+        549
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 43.98455810546875
+        },
+        {
+          "reachable": true,
+          "height": 43.98455810546875
+        }
+      ]
+    },
+    {
+      "name": "auction",
+      "viewport": [
+        1600,
+        900
+      ],
+      "dialogs": 1,
+      "label": "Auction",
+      "focus": true,
+      "bounds": [
+        364.1976318359375,
+        154.82421875,
+        1235.8023681640625,
+        771.3414916992188
+      ],
+      "scroll": [
+        868,
+        868,
+        472,
+        472
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 43.98004150390625
+        },
+        {
+          "reachable": true,
+          "height": 43.98004150390625
+        }
+      ]
+    },
+    {
+      "name": "chance",
+      "viewport": [
+        1600,
+        900
+      ],
+      "dialogs": 1,
+      "label": "Chance",
+      "focus": true,
+      "bounds": [
+        479.1129455566406,
+        221.42105102539062,
+        1120.8871154785156,
+        704.7041015625
+      ],
+      "scroll": [
+        638,
+        638,
+        338,
+        338
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 43.98455810546875
+        }
+      ]
+    },
+    {
+      "name": "trade",
+      "viewport": [
+        1600,
+        900
+      ],
+      "dialogs": 1,
+      "label": "Propose a trade",
+      "focus": true,
+      "bounds": [
+        364.2509765625,
+        116.25244140625,
+        1235.7490234375,
+        809.9778442382812
+      ],
+      "scroll": [
+        868,
+        868,
+        549,
+        549
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 43.97467041015625
+        },
+        {
+          "reachable": true,
+          "height": 43.97467041015625
+        }
+      ]
+    },
+    {
+      "name": "auction",
+      "viewport": [
+        1440,
+        900
+      ],
+      "dialogs": 1,
+      "label": "Auction",
+      "focus": true,
+      "bounds": [
+        284.00048828125,
+        154.78182983398438,
+        1155.99951171875,
+        771.2185974121094
+      ],
+      "scroll": [
+        868,
+        868,
+        472,
+        472
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 43.9998779296875
+        },
+        {
+          "reachable": true,
+          "height": 43.9998779296875
+        }
+      ]
+    },
+    {
+      "name": "chance",
+      "viewport": [
+        1440,
+        900
+      ],
+      "dialogs": 1,
+      "label": "Chance",
+      "focus": true,
+      "bounds": [
+        399.0843200683594,
+        223.08433532714844,
+        1040.9156188964844,
+        703.0207366943359
+      ],
+      "scroll": [
+        638,
+        638,
+        335,
+        335
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 43.98846435546875
+        }
+      ]
+    },
+    {
+      "name": "trade",
+      "viewport": [
+        1440,
+        900
+      ],
+      "dialogs": 1,
+      "label": "Propose a trade",
+      "focus": true,
+      "bounds": [
+        284,
+        116.109375,
+        1156,
+        809.875
+      ],
+      "scroll": [
+        868,
+        868,
+        549,
+        549
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 44
+        },
+        {
+          "reachable": true,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "auction",
+      "viewport": [
+        1366,
+        768
+      ],
+      "dialogs": 1,
+      "label": "Auction",
+      "focus": true,
+      "bounds": [
+        247,
+        89.734375,
+        1119,
+        704.265625
+      ],
+      "scroll": [
+        868,
+        868,
+        472,
+        472
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 44
+        },
+        {
+          "reachable": true,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "chance",
+      "viewport": [
+        1366,
+        768
+      ],
+      "dialogs": 1,
+      "label": "Chance",
+      "focus": true,
+      "bounds": [
+        362.1124572753906,
+        159.91879272460938,
+        1003.8876037597656,
+        634.2213134765625
+      ],
+      "scroll": [
+        638,
+        638,
+        332,
+        332
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 43.98455810546875
+        }
+      ]
+    },
+    {
+      "name": "trade",
+      "viewport": [
+        1366,
+        768
+      ],
+      "dialogs": 1,
+      "label": "Propose a trade",
+      "focus": true,
+      "bounds": [
+        247.08370971679688,
+        51.16729736328125,
+        1118.9162292480469,
+        742.8938598632812
+      ],
+      "scroll": [
+        868,
+        868,
+        549,
+        549
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 43.9915771484375
+        },
+        {
+          "reachable": true,
+          "height": 43.9915771484375
+        }
+      ]
+    },
+    {
+      "name": "auction",
+      "viewport": [
+        1024,
+        768
+      ],
+      "dialogs": 1,
+      "label": "Auction",
+      "focus": true,
+      "bounds": [
+        76.15341186523438,
+        114.201171875,
+        947.8465270996094,
+        679.9395751953125
+      ],
+      "scroll": [
+        868,
+        868,
+        432,
+        432
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 43.98455810546875
+        },
+        {
+          "reachable": true,
+          "height": 43.98455810546875
+        }
+      ]
+    },
+    {
+      "name": "chance",
+      "viewport": [
+        1024,
+        768
+      ],
+      "dialogs": 1,
+      "label": "Chance",
+      "focus": true,
+      "bounds": [
+        191.00039672851562,
+        172.67239379882812,
+        832.9996643066406,
+        621.328125
+      ],
+      "scroll": [
+        638,
+        638,
+        315,
+        315
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "trade",
+      "viewport": [
+        1024,
+        768
+      ],
+      "dialogs": 1,
+      "label": "Propose a trade",
+      "focus": true,
+      "bounds": [
+        76.15225219726562,
+        55.61102294921875,
+        947.8478088378906,
+        738.5130615234375
+      ],
+      "scroll": [
+        868,
+        868,
+        549,
+        549
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 43.98468017578125
+        },
+        {
+          "reachable": true,
+          "height": 43.984619140625
+        }
+      ]
+    },
+    {
+      "name": "auction",
+      "viewport": [
+        390,
+        844
+      ],
+      "dialogs": 1,
+      "label": "Auction",
+      "focus": true,
+      "bounds": [
+        11.083328247070312,
+        113.06460571289062,
+        378.9167022705078,
+        757.1166076660156
+      ],
+      "scroll": [
+        364,
+        364,
+        468,
+        468
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 43.9801025390625
+        },
+        {
+          "reachable": true,
+          "height": 43.9801025390625
+        }
+      ]
+    },
+    {
+      "name": "chance",
+      "viewport": [
+        390,
+        844
+      ],
+      "dialogs": 1,
+      "label": "Chance",
+      "focus": true,
+      "bounds": [
+        11.048446655273438,
+        168.01364135742188,
+        378.95152282714844,
+        702.0760192871094
+      ],
+      "scroll": [
+        364,
+        364,
+        411,
+        411
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 43.9884033203125
+        }
+      ]
+    },
+    {
+      "name": "trade",
+      "viewport": [
+        390,
+        844
+      ],
+      "dialogs": 1,
+      "label": "Propose a trade",
+      "focus": true,
+      "bounds": [
+        11.048507690429688,
+        43.15606689453125,
+        378.9514617919922,
+        826.9494018554688
+      ],
+      "scroll": [
+        364,
+        364,
+        843,
+        661
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 43.9884033203125
+        },
+        {
+          "reachable": true,
+          "height": 43.9884033203125
+        }
+      ]
+    },
+    {
+      "name": "reduced-motion",
+      "viewport": [
+        390,
+        844
+      ],
+      "dialogs": 1,
+      "label": "Game Settings",
+      "focus": true,
+      "bounds": [
+        11,
+        121.859375,
+        379,
+        748.140625
+      ],
+      "scroll": [
+        364,
+        364,
+        503,
+        503
+      ],
+      "footer": [
+        {
+          "reachable": true,
+          "height": 44
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

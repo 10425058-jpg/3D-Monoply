@@ -10,6 +10,7 @@ import {
 } from '../../game/matchActivity';
 import { useMotionPreferences } from '../../presentation/useMotionPreferences';
 import type { DeckCard, Player } from '../../types/game';
+import { RoyalArt, useRoyalModalOpen } from './RoyalUI';
 import './match-activity.css';
 
 const icons: Record<ActivityKind, typeof Coins> = {
@@ -32,7 +33,7 @@ interface NoticeProps extends ActivityProps {
   animatedCardId?: string;
 }
 
-type NoticeContent = Pick<MatchActivityEvent, 'kind' | 'title' | 'card' | 'actor' | 'details' | 'transfers' | 'amount' | 'emphasis'>;
+type NoticeContent = Pick<MatchActivityEvent, 'kind' | 'title' | 'card' | 'actor' | 'details' | 'transfers' | 'amount' | 'emphasis' | 'counterparty' | 'previousLevel' | 'level'>;
 type QueuedNotice = { id: string; content: NoticeContent; centered: boolean; priority: number; waiting?: boolean };
 
 const money = (amount: number) => `$${amount.toLocaleString('en-US')}`;
@@ -135,6 +136,7 @@ function ActivityPanel({ events, layout = 'solo' }: ActivityProps) {
 
   return <aside className={`match-activity match-activity--${layout}`} aria-labelledby={labelId} onKeyDown={event => {
     if (event.key !== 'Escape' || !open) return;
+    event.preventDefault();
     event.stopPropagation();
     setOpen(false);
     toggle.current?.focus();
@@ -190,6 +192,8 @@ function ActivityNotice({ notice, close, reduced }: { notice: QueuedNotice; clos
   const Icon = icons[event.kind];
   const receipt = event.transfers?.length === 1 && (event.kind === 'purchase' || event.kind === 'rent') ? event.transfers[0] : undefined;
   const reason = receipt?.reason;
+  const raid = event.kind === 'railroad' ? event.transfers?.[0] : undefined;
+  const heist = raid?.reason === 'Bank heist';
   const transferLabel = receipt && `${receipt.from?.name ?? 'Bank'} paid ${money(receipt.amount)} to ${receipt.to?.name ?? 'Bank'}${reason ? ` · ${reason}` : ''}`;
   const closeButton = <button type="button" className="match-notice-close" aria-label="Dismiss live notice" onClick={close}><X size={18} /></button>;
   return <motion.article className={`match-notice${centered ? ' match-notice--center' : ''}${receipt ? ` effect-transaction receipt-${event.kind}` : ''}`}
@@ -199,10 +203,14 @@ function ActivityNotice({ notice, close, reduced }: { notice: QueuedNotice; clos
     data-emphasis={event.emphasis} data-effect-kind={receipt ? 'transaction' : event.kind} aria-label={transferLabel}>
     {centered ? <div className="match-announcement-heading">
       {closeButton}
-      <span className="match-announcement-icon" aria-hidden="true"><Icon size={28} /></span>
+      {event.card || heist ? <RoyalArt prop={event.card?.deck === 'chance' ? 'chance' : 'chest'} /> :
+        <span className="match-announcement-icon" aria-hidden="true"><Icon size={28} /></span>}
       <span className="match-announcement-label">{event.card ? event.card.deck === 'chance' ? 'Chance' : 'Community Chest' :
-        announcementLabels[event.kind] ?? 'Match milestone'}</span>
-      <h2><ActivityTitle title={event.card?.title ?? event.title} /></h2>
+        raid ? heist ? 'Bank Heist' : 'Shutdown result' : announcementLabels[event.kind] ?? 'Match milestone'}</span>
+      <h2><ActivityTitle title={event.card?.title ?? (raid ? heist ? 'Vault opened' : event.level === undefined ?
+        'Landmark site raided' : 'Landmark downgraded' : event.title)} /></h2>
+      {raid && <strong className="raid-payout">+{money(raid.amount)}</strong>}
+      {raid && event.previousLevel !== undefined && <p>{event.counterparty?.name} · Level {event.previousLevel} → {event.level}</p>}
       {event.card && event.actor && <p className="match-announcement-actor"><ActorSeal actor={event.actor} kind={event.kind} />{event.actor.name} drew this card</p>}
     </div> : <div className="match-notice-heading">
       <ActorSeal actor={event.actor} kind={event.kind} />
@@ -216,6 +224,7 @@ function ActivityNotice({ notice, close, reduced }: { notice: QueuedNotice; clos
     </div>}
     {!receipt && (event.card || event.details?.length || event.kind === 'upgrade' || (centered && !!event.transfers?.length)) && <div className="match-notice-detail">
       {event.card && <p>{event.card.instruction}</p>}
+      {raid && <p className="raid-event-copy">{event.title}</p>}
       {(centered || event.card || event.kind === 'upgrade' ? event.details : event.details?.slice(0, 1))?.map((detail, index) => <p key={index}>{detail}</p>)}
       {event.kind === 'upgrade' && event.amount !== undefined && <p>Paid <b>{money(event.amount)}</b> for construction.</p>}
       {centered && event.transfers?.map((transfer, index) => <TransferLine key={index} transfer={transfer} />)}
@@ -277,7 +286,8 @@ function NoticeQueue({ events, layout = 'solo', draw, paused, animating, animate
     setQueue(current => current.filter(notice => notice.centered || (visible && (frequency === 'standard' || notice.priority > 1))));
   }, [frequency, visible]);
 
-  const notice = visible && !paused ? queue.find(entry => !entry.waiting) : undefined;
+  const modalOpen = useRoyalModalOpen();
+  const notice = visible && !paused && !modalOpen ? queue.find(entry => !entry.waiting) : undefined;
   const noticeId = notice?.id;
   const ttl = notice?.centered ? 7500 : notice?.content.kind === 'card' ? 5200 : 3600;
   useEffect(() => {

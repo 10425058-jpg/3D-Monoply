@@ -55,7 +55,7 @@ async function pageFor(context, width = 1440, height = 900) {
 async function go(page, hash) { await page.goto(`${origin}/?graphicsAudit#${hash}`, { waitUntil: 'domcontentloaded' }); }
 async function shot(page, name) {
   await pause(900);
-  const mask = await page.addStyleTag({ content: '.city-invite strong,.city-invite small,input[name="inviteCode"]{visibility:hidden!important}' });
+  const mask = await page.addStyleTag({ content: '.city-invite strong,.city-invite small{visibility:hidden!important}input[name="inviteCode"]{color:transparent!important;caret-color:transparent!important}' });
   await page.screenshot({ path: path.join(output, `${name}.png`), fullPage: true }); await mask.evaluate(el => el.remove());
 }
 async function replaceInput(page, selector, value) {
@@ -145,7 +145,8 @@ try {
   assert.equal(await a.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
   await a.setViewport({ width: 1440, height: 900 });
   const alice = await register(a, 'Alice');
-  await click(a, 'My profile'); await click(a, 'Sign out'); await a.waitForSelector('.main-menu-panel');
+  await click(a, 'My profile'); await shot(a, '04-profile');
+  await click(a, 'Sign out'); await a.waitForSelector('.main-menu-panel');
   await go(a, 'online/lobby'); await a.waitForSelector('input[name=email]'); await a.type('input[name=email]', alice.email); await a.type('input[name=password]', alice.password); await click(a, 'Sign in');
   await a.waitForSelector('.city-lobby-actions'); await a.reload({ waitUntil: 'domcontentloaded' }); await a.waitForSelector('.city-lobby-actions');
   assert.ok((await ca.cookies()).some(c => c.name === 'refresh_token' && c.httpOnly && c.sameSite === 'Lax'));
@@ -155,7 +156,8 @@ try {
   await assertNoGameplay(a, observations.get(a).requests, 'Authenticated lobby');
   await assertNoGameplay(b, observations.get(b).requests, 'Second player lobby');
   await shot(a, '03-lobby-desktop');
-  await click(a, 'Create a room'); await a.click('input[name=players][value="2"]'); await click(a, 'Create room');
+  await click(a, 'Create a room'); await shot(a, '04-create-room');
+  await a.locator('dialog[open] label:has(input[name=players][value="2"])').click(); await click(a, 'Create room');
   await a.waitForSelector('.city-seats'); const roomId = new URL(a.url()).hash.split('/').at(-1);
   await click(b, 'Refresh'); await b.waitForFunction(id => [...document.querySelectorAll('.city-room-row')].some(r => r.textContent.includes(id.slice(0, 8).toUpperCase())), {}, roomId);
   const row = await b.evaluateHandle(id => [...document.querySelectorAll('.city-room-row')].find(r => r.textContent.includes(id.slice(0, 8).toUpperCase())).querySelector('button'), roomId);
@@ -235,17 +237,37 @@ try {
   await until(() => observations.get(a).match.status === 'IN_PROGRESS' && observations.get(b).match.status === 'IN_PROGRESS', 'original game resumes');
   assert.equal(observations.get(b).match.matchId, beforeDisconnect.matchId); assert.equal(observations.get(b).match.turnPhase, beforeDisconnect.turnPhase);
   await synchronized(a, b); passed('G: real socket loss, authoritative pause, cookie recovery and resume');
-  await click(b, 'Forfeit'); await b.waitForSelector('dialog[open]'); await click(b, 'Forfeit');
+  await click(b, 'Forfeit'); await b.waitForSelector('dialog[open]');
+  await shot(b, '07-forfeit-confirmation');
+  await b.keyboard.press('Escape');
+  await b.waitForSelector('dialog[open]', { hidden: true });
+  await click(b, 'Forfeit'); await click(b, 'Forfeit');
   await until(() => observations.get(a).match?.status === 'FINISHED' && observations.get(b).match?.status === 'FINISHED', 'server declares a common result');
   await a.waitForSelector('.city-results'); await shot(a, '07-results');
   await a.reload({ waitUntil: 'domcontentloaded' }); await a.waitForSelector('.city-result-row');
   assert.equal(await a.$$eval('.city-result-row', rows => rows.length), 2); passed('I: server terminal state, identical results and standings survive reload');
   await click(a, 'Back to lobby'); await b.waitForSelector('.city-results'); await click(b, 'Back to lobby');
-  await click(a, 'Create a room'); await a.click('input[name=visibility][value="private"]'); await click(a, 'Create room'); await a.waitForSelector('.city-invite strong');
+  await click(a, 'Create a room'); await a.locator('dialog[open] label:has(input[name=visibility][value="private"])').click(); await click(a, 'Create room'); await a.waitForSelector('.city-invite strong');
   const privateRoom = new URL(a.url()).hash.split('/').at(-1); const invite = await a.$eval('.city-invite strong', e => e.textContent);
   await click(b, 'Refresh'); assert.equal(await b.evaluate(id => document.querySelector('.city-room-list')?.textContent.includes(id.slice(0, 8).toUpperCase()) ?? false, privateRoom), false);
-  await click(b, 'Join private'); await b.type('input[name=roomId]', privateRoom); await b.type('input[name=inviteCode]', 'wrong-code'); await click(b, 'Join room');
-  await b.waitForFunction(() => document.querySelector('dialog .city-error')?.textContent.includes('incorrect'));
+  await click(b, 'Join private'); await b.type('input[name=roomId]', privateRoom); await b.type('input[name=inviteCode]', 'wrong-code');
+  const heldJoins = [];
+  const holdJoin = request => {
+    if (request.method() === 'POST' && request.url().endsWith(`/rooms/${privateRoom}/join`)) heldJoins.push(request);
+    else void request.continue();
+  };
+  await b.setRequestInterception(true);
+  b.on('request', holdJoin);
+  await click(b, 'Join room');
+  await until(() => heldJoins.length === 1, 'private join is pending');
+  await b.keyboard.press('Escape');
+  assert.ok(await b.$('dialog[open] button:disabled'), 'A pending request keeps its dialog open');
+  await shot(b, '09-join-pending');
+  await heldJoins[0].continue();
+  b.off('request', holdJoin);
+  await b.setRequestInterception(false);
+  await b.waitForFunction(() => document.querySelector('dialog[open] [role="alert"]')?.textContent.includes('incorrect'));
+  await shot(b, '09-join-error');
   await click(a, 'Replace code'); await until(async () => await a.$eval('.city-invite strong', e => e.textContent) !== invite, 'rotated invite');
   const rotated = await a.$eval('.city-invite strong', e => e.textContent);
   await replaceInput(b, 'input[name=inviteCode]', invite);

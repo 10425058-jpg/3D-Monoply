@@ -1,0 +1,26 @@
+﻿# V9 popup audit
+
+Baseline is the verified main revision `f7ee157`. The entry point is `main.tsx → Application.tsx`. Solo and the authorized Online match lazy-load their 3D routes. Existing captures are in [evidence/before](evidence/before/).
+
+| Surface | Live owner | Interactions and dependencies |
+| --- | --- | --- |
+| Property deed and special space inspector | Solo `PropertyCard`, Online match inspector | Tile click selects and closes a nonblocking inspector. Solo exposes legal buy, build, sell, mortgage and release actions from the current property state. Online inspects the server's committed ownership. |
+| Property Evolution | Solo `PropertyEvolution` | Stage artwork, rent and purchase actions follow the Arcade catalog and current landing receipt. Upgrades require the current one-use landing ID. Closing clears selection. |
+| Property purchase, insufficient funds, building and landmark upgrade | Solo decision strip, deed, action tray and landmark HUD. Online action dock | Buy/decline is an existing turn choice. Insufficient funds are shown inline with disabled actions. The landmark sidebar upgrades directly when eligible. |
+| Auction and result | Solo `SoloDecisions`, activity notices | Increment, available cash, current bidder, pass and AI timing come from the store. Existing outcome is a notice. |
+| Trade proposal and local response | Solo `App`, `SoloDecisions`, `TradeTerms` | One deed per side and bounded whole-dollar cash. Store validates mortgages, developed groups, AI decisions, local accept/reject and return to debt. |
+| Railroad bonus, Bank Heist and Shutdown | Solo `App`, activity notices | Choose or skip; three immediate vault choices settle the existing reward. Shutdown directly resolves the chosen opponent and either lowers a built landmark or raids an empty site. Store commits the result before its notice appears. |
+| Chance and Community Chest | Solo `CardReveal`, shared activity notices, Online last-card details | Human Solo draws require resolution once. AI and Online outcomes are read-only and subject to the current notice queue and animation timing. |
+| Daily rewards, Lucky Spin, missions, sticker album and pack reveal | Solo journey hub in `App` | Date streak, wheel availability, reward claims, sticker rarity and exchanges use existing progression data. Spin previously opened the same Daily tab. |
+| Game Settings, restart, audio and graphics | Solo setup in `App`, menu and Online settings in `online/components`, `AudioControls` | Solo restart selects Arcade or Classic and replaces the match. Effects settings apply immediately. Menu and Online graphics persist the selected quality. |
+| Statistics and Rules | Solo `StatsModal`, rulebook in `App` | Statistics expose portfolio and existing recent log. Rules depend on current Solo ruleset. |
+| Jail, debt and bankruptcy | Solo `SoloDecisions`, notices and results. Online player actions and terminal result | Jail is an inline decision so the HUD Roll remains available. Debt holds the turn until payment, trade or legal bankruptcy. Bankruptcy is announced and may lead to terminal standings. |
+| Victory, defeat and final standings | Solo `App`, Online match result | Results use authoritative winners and balances. Existing end-of-match history stays accessible. Solo can return to the menu or set up a new match. |
+| Profile, create room, private join | `Application`, Online lobby | Existing native dialogs wrap logout and room forms. Pending requests lock cancellation. |
+| Waiting room, reconnect, reconciliation and connection alerts | Online room and match | Existing nonblocking panels and status messages expose committed server state, pending confirmation, refresh and retry. |
+| Forfeit, remove absent player, abandon and match results | Online match | Existing confirmation precedes a server action. Terminal display waits for committed animation. |
+| Routine and important notices | `GameplayFeedback`, `MatchActivityNotices` | Dice uses presentation events. Existing cash receipts, event ordering, deduplication and dismissal belong to the activity queue. The floating Match Activity panel is absent from both gameplay routes. |
+
+`PropertyModal`, `TradeModal`, `RulebookModal`, `SetupModal` and `CardPopup` have no runtime imports. The active board uses the royal HUD, parchment deeds and a royal card reveal. Standard Solo modals are restyled again by a later pastel CSS block. Stats uses independent Tailwind styles. Menu and Online dialogs have a white native shell. The property inspector shifts the world layer on mobile, and baseline modals use large backdrop blurs. Focus and Escape behavior differ across implementations. Long trade, statistics and rules content needs a bounded scroll region and reachable actions.
+
+V9 acceptance is one blocking popup at a time, an unchanged board angle and HUD, the same store and network commands, readable financial figures, and matching card and outcome treatments for Solo and Online. Verify at the six specified viewports. Use the HUD's typography and identity colors, a brass double border, a violet ribbon and parchment inserts for important game objects. Keep notices lightweight and reserve the most prominent art for the auction, decks and railroad bonus.
