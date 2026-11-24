@@ -1,14 +1,17 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { PerspectiveCamera, Vector3 } from 'three';
-import { coinPieces, coinTier, COIN_VALUES } from '../src/components/3d/royalCoinValues';
+import { coinPieces, coinTier, COIN_VALUES, treasuryStacks } from '../src/components/3d/royalCoinValues';
+import { coinFlightPath, islandFlight, liveIslandFlights, MAX_ISLAND_TRANSFERS } from '../src/components/3d/islandMoneyMotion';
+import { makeIslandChain, makePlayerIsland } from '../src/components/3d/playerIslandGeometry';
 import { ISLAND_BOARD_DOCK, ISLAND_DISTANCE, ISLAND_DOCK, ISLAND_RADIUS, ISLAND_SCALE,
   PLAYER_ISLAND_OVERVIEW_POINTS, PLAYER_ISLANDS, islandPosition } from '../src/components/3d/playerIslandLayout';
 import { overviewCamera } from '../src/components/3d/overviewCamera';
 import { getSpaceTransform } from '../src/data/boardData';
 import { CHANCE_CARDS } from '../src/data/cardsData';
 import { useGameStore as store } from '../src/store/useGameStore';
-import { collectIslandMoneyChanges } from '../src/presentation/islandMoney';
+import { collectIslandTransfers, type IslandTransfer } from '../src/presentation/islandMoney';
+import type { SceneState } from '../src/presentation/SceneStore';
 
 test('the four board sides use fixed royal statues and do not overlap the board in overview', () => {
   assert.deepEqual(PLAYER_ISLANDS.map(site => [site.seat, site.edge, site.statue]), [
@@ -50,18 +53,67 @@ test('coins use all eight denominations and cap large transfers', () => {
   assert.deepEqual(coinPieces(90_000, 4), [1000, 1000, 1000, 1000]);
 });
 
+test('the mint decomposes the exact balance while keeping visible stacks bounded', () => {
+  const piles = treasuryStacks(1875).filter(stack => stack.count > 0);
+  assert.deepEqual(piles.map(pile => [pile.value, pile.count]), [[1000, 1], [500, 1], [100, 3], [50, 1], [20, 1], [5, 1]]);
+  for (const balance of [0, 1, 99, 1500, 1875, 576_644, 2_147_483_647]) {
+    const stacks = treasuryStacks(balance);
+    assert.equal(stacks.reduce((sum, pile) => sum + pile.count * pile.value, 0), balance);
+    assert.ok(stacks.every(stack => stack.visible <= 5));
+  }
+});
+
+test('direct coin routes clear the board and expired or excess flights are removed', () => {
+  const point = new Vector3();
+  for (let from = 0; from < 4; from++) for (let to = 0; to < 4; to++) {
+    if (from === to) continue;
+    for (const value of COIN_VALUES) {
+      const sample = coinFlightPath(from, to, value, 0);
+      for (let i = 0; i <= 100; i++) {
+        sample(i / 100, point);
+        assert.ok(Math.max(Math.abs(point.x), Math.abs(point.z)) > 13.2, `${from} to ${to}, ${value} at ${i}`);
+      }
+    }
+  }
+  const transfer = { fromId: 1, toId: 3, amount: 1500 };
+  const assets = Array.from({ length: 24 }, (_, id) => islandFlight(transfer, id, 1000, false, false)!);
+  assert.deepEqual(assets[0].pieces, [1000, 500]);
+  assert.ok(assets[0].arrivesAt > assets[0].startedAt);
+  assert.deepEqual(liveIslandFlights(assets, 1100).map(item => item.id), assets.slice(-MAX_ISLAND_TRANSFERS).map(item => item.id));
+  assert.deepEqual(liveIslandFlights(assets, 6000), []);
+  assert.equal(islandFlight(transfer, 1, 1000, true, false)?.arrivesAt, 1000);
+  assert.deepEqual(islandFlight(transfer, 1, 1000, true, false)?.pieces, []);
+});
+
+test('refined islands keep the old shoreline and five links around a deeper slate base', () => {
+  for (const { seat } of PLAYER_ISLANDS) {
+    const assets = makePlayerIsland(seat);
+    assets.painted.computeBoundingBox();
+    const box = assets.painted.boundingBox!;
+    const size = box.getSize(new Vector3());
+    assert.ok(Math.abs(size.x * ISLAND_SCALE - 7.507152929306031) < .008);
+    assert.ok(Math.abs(size.z * ISLAND_SCALE - 7.501699275970459) < .008);
+    assert.ok(-box.min.y / 2.54 >= 1.4 && -box.min.y / 2.54 <= 1.6);
+    Object.values(assets).forEach(mesh => mesh.dispose());
+  }
+  const chain = makeIslandChain();
+  assert.equal(chain.matrices.length, 5);
+  assert.ok(chain.link.parameters.tube / .052 >= 1.15 && chain.link.parameters.tube / .052 <= 1.20);
+  [chain.link, chain.mounts, chain.jewels].forEach(mesh => mesh.dispose());
+});
+
 test('island effects observe real Solo actions without double-counting transfer logs', t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
-  const changes: ReturnType<typeof collectIslandMoneyChanges> = [];
-  const unsubscribe = store.subscribe((next, previous) => changes.push(...collectIslandMoneyChanges(previous, next)));
+  const states: SceneState[] = [store.getState()];
+  const unsubscribe = store.subscribe(next => states.push(next));
   t.after(unsubscribe);
   store.getState().startNewGame([0, 1, 2, 3].map(id => ({ name: `Player ${id}`, isAI: false,
     token: 'cat', color: '#eab356' })));
-  assert.deepEqual(changes, [], 'starting balances do not animate');
-
-  const expect = (...pairs: [number, number][]) => {
-    assert.deepEqual(changes.splice(0), pairs.map(([playerId, amount]) => ({ playerId, amount })));
+  const expect = (...pairs: [IslandTransfer['fromId'], IslandTransfer['toId'], number][]) => {
+    assert.deepEqual(collectIslandTransfers(states), pairs.map(([fromId, toId, amount]) => ({ fromId, toId, amount })));
+    states.splice(0, states.length - 1);
   };
+  expect();
   const position = (tile: number) => store.setState(state => ({ turnPhase: 'PRE_ROLL',
     players: state.players.map(p => p.id === 0 ? { ...p, position: tile } : p) }));
   const roll = () => {
@@ -74,48 +126,56 @@ test('island effects observe real Solo actions without double-counting transfer 
 
   position(38);
   roll();
-  expect([0, 200]);
+  expect([null, 0, 200]);
   store.getState().buyCurrentProperty();
-  expect([0, -60]);
+  expect([0, null, 60]);
   store.getState().toggleMortgage(1);
-  expect([0, 30]);
+  expect([null, 0, 30]);
   store.getState().toggleMortgage(1);
-  expect([0, -33]);
+  expect([0, null, 33]);
 
   const card = CHANCE_CARDS.find(candidate => candidate.id === 'ch_6')!;
   store.setState({ activeCard: card, turnPhase: 'CARD_DRAWN' });
   store.getState().applyActiveCard();
-  expect([0, 50]);
+  expect([null, 0, 50]);
 
   position(1);
   roll();
-  expect([0, -200]);
+  expect([0, null, 200]);
 
   store.setState({ turnPhase: 'PRE_ROLL' });
   store.getState().proposeTrade({ proposalId: 'island-trade', fromPlayerId: 0, toPlayerId: 1,
-    offerCash: 20, requestCash: 0, offerProperties: [], requestProperties: [] });
+    offerCash: 20, requestCash: 5, offerProperties: [], requestProperties: [] });
   expect();
   assert.equal(store.getState().acceptTrade(1).accepted, true);
-  expect([0, -20], [1, 20]);
+  expect([0, 1, 20], [1, 0, 5]);
 
   position(0);
   roll();
   store.getState().auctionCurrentProperty();
   store.getState().placeAuctionBid(10);
   for (let i = 0; i < 4; i++) store.getState().passAuction();
-  expect([0, -10]);
+  expect([0, null, 10]);
 
   position(0);
   store.setState(state => ({ properties: { ...state.properties,
     3: { ...state.properties[3], ownerId: 1 } } }));
   roll();
-  expect([0, -4], [1, 4]);
+  expect([0, 1, 4]);
 
   store.setState({ turnPhase: 'DEBT_RESOLUTION', pendingDebt: { amount: 3000, creditorId: 1, reason: 'Rent' } });
   const cash = store.getState().players[0].money;
   store.getState().declareBankruptcy();
-  expect([0, -cash], [1, cash]);
+  expect([0, 1, cash]);
 
   store.getState().startNewGame(store.getState().players);
   expect();
+});
+
+test('restoring a saved island wallet and its history does not replay earlier payments', () => {
+  const live = store.getState();
+  const restored = { ...live, players: live.players.map(player => ({ ...player, money: 25 })),
+    logs: [{ id: 'persisted-history', timestamp: '', type: 'info' as const, message: '' }] };
+  assert.deepEqual(collectIslandTransfers([live, restored]), []);
+  assert.deepEqual(collectIslandTransfers([restored, restored]), []);
 });

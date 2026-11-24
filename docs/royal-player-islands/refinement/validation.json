@@ -1,0 +1,775 @@
+{
+  "layout": {
+    "before": [
+      {
+        "seat": 0,
+        "edge": "east",
+        "statue": "RoyalGriffin",
+        "statueTriangles": 8524,
+        "statueDraws": 2,
+        "center": [
+          1078.6110376389759,
+          328.49888107105625
+        ],
+        "position": [
+          17.82,
+          -0.78,
+          0
+        ],
+        "plaque": {
+          "player": "You",
+          "balance": 1500
+        },
+        "coins": [
+          1,
+          5,
+          10,
+          20,
+          50,
+          100,
+          500,
+          1000
+        ],
+        "layout": {
+          "footprint": [
+            7.507152929306031,
+            4.0310012102127075,
+            7.501699275970459
+          ],
+          "statueScale": 1.24,
+          "statueHeight": 2.459954047203064,
+          "screen": {
+            "left": 1019.2346306508673,
+            "top": 279.4602632660666,
+            "right": 1137.4798558779983,
+            "bottom": 382.21711274146537
+          }
+        },
+        "chainBounds": {
+          "min": [
+            12.555000133514405,
+            -1.370000033378601,
+            -0.34000000357627985
+          ],
+          "max": [
+            14.345000095367432,
+            -0.09999999284744265,
+            0.3400000035762779
+          ]
+        }
+      },
+      {
+        "seat": 1,
+        "edge": "north",
+        "statue": "RoyalUnicorn",
+        "statueTriangles": 7114,
+        "statueDraws": 2,
+        "center": [
+          742.5193117306685,
+          158.12541771601153
+        ],
+        "position": [
+          0,
+          -0.78,
+          -17.82
+        ],
+        "plaque": {
+          "player": "Victoria",
+          "balance": 1500
+        },
+        "coins": [
+          1,
+          5,
+          10,
+          20,
+          50,
+          100,
+          500,
+          1000
+        ],
+        "layout": {
+          "footprint": [
+            7.507152929306031,
+            4.0310012102127075,
+            7.501699275970459
+          ],
+          "statueScale": 1.24,
+          "statueHeight": 2.613398246765137,
+          "screen": {
+            "left": 688.587593881644,
+            "top": 116.0901594781186,
+            "right": 798.2600265629085,
+            "bottom": 205.62856106757778
+          }
+        },
+        "chainBounds": {
+          "min": [
+            -0.34000000357627935,
+            -1.370000033378601,
+            -14.345000095367432
+          ],
+          "max": [
+            0.34000000357627824,
+            -0.09999999284744265,
+            -12.555000133514405
+          ]
+        }
+      },
+      {
+        "seat": 2,
+        "edge": "west",
+        "statue": "RoyalCarriage",
+        "statueTriangles": 8674,
+        "statueDraws": 2,
+        "center": [
+          512.2327807948714,
+          446.63161390435806
+        ],
+        "position": [
+          -17.82,
+          -0.78,
+          0
+        ],
+        "plaque": {
+          "player": "Arthur",
+          "balance": 1500
+        },
+        "coins": [
+          1,
+          5,
+          10,
+          20,
+          50,
+          100,
+          500,
+          1000
+        ],
+        "layout": {
+          "footprint": [
+            7.507152929306031,
+            4.0310012102127075,
+            7.501699275970459
+          ],
+          "statueScale": 1.24,
+          "statueHeight": 3.3728000354766845,
+          "screen": {
+            "left": 451.581128951652,
+            "top": 392.38291544411817,
+            "right": 576.4570432091593,
+            "bottom": 505.6662056897593
+          }
+        },
+        "chainBounds": {
+          "min": [
+            -14.345000095367432,
+            -1.370000033378601,
+            -0.34000000357627985
+          ],
+          "max": [
+            -12.555000133514405,
+            -0.09999999284744265,
+            0.3400000035762779
+          ]
+        }
+      },
+      {
+        "seat": 3,
+        "edge": "south",
+        "statue": "RoyalPegasus",
+        "statueTriangles": 8786,
+        "statueDraws": 2,
+        "center": [
+          876.55377384892,
+          668.0623335298023
+        ],
+        "position": [
+          0,
+          -0.78,
+          17.82
+        ],
+        "plaque": {
+          "player": "Elena",
+          "balance": 1500
+        },
+        "coins": [
+          1,
+          5,
+          10,
+          20,
+          50,
+          100,
+          500,
+          1000
+        ],
+        "layout": {
+          "footprint": [
+            7.507152929306031,
+            4.0310012102127075,
+            7.501699275970459
+          ],
+          "statueScale": 1.24,
+          "statueHeight": 2.5734952545166014,
+          "screen": {
+            "left": 809.3577844076323,
+            "top": 602.9624163088733,
+            "right": 944.7624559109258,
+            "bottom": 737.7517036447573
+          }
+        },
+        "chainBounds": {
+          "min": [
+            -0.3400000035762787,
+            -1.370000033378601,
+            12.555000133514405
+          ],
+          "max": [
+            0.3400000035762787,
+            -0.09999999284744265,
+            14.345000095367432
+          ]
+        }
+      }
+    ],
+    "after": [
+      {
+        "seat": 0,
+        "edge": "east",
+        "statue": "RoyalGriffin",
+        "color": "#f59e0b",
+        "statueTriangles": 8524,
+        "statueDraws": 2,
+        "center": [
+          1078.6110376389759,
+          328.49888107105625
+        ],
+        "position": [
+          17.82,
+          -0.78,
+          0
+        ],
+        "plaque": {
+          "player": "You",
+          "balance": 1500
+        },
+        "displayedBalance": 1500,
+        "coins": [
+          1,
+          5,
+          10,
+          20,
+          50,
+          100,
+          500,
+          1000
+        ],
+        "stacks": [
+          {
+            "value": 1000,
+            "count": 1,
+            "visible": 1
+          },
+          {
+            "value": 500,
+            "count": 1,
+            "visible": 1
+          }
+        ],
+        "links": 5,
+        "layout": {
+          "footprint": [
+            7.507152929306031,
+            4.369861334562302,
+            7.501699275970459
+          ],
+          "statueScale": 1.24,
+          "statueHeight": 2.459954047203064,
+          "rockDepth": 3.8884613513946533,
+          "screen": {
+            "left": 1019.2346306508673,
+            "top": 279.4602632660666,
+            "right": 1137.4798558779983,
+            "bottom": 385.07128567353595
+          }
+        },
+        "chainBounds": {
+          "min": [
+            12.537999935150147,
+            -1.375835268497467,
+            -0.3552526831626904
+          ],
+          "max": [
+            14.36200005531311,
+            -0.08049258470535281,
+            0.35525268316268843
+          ]
+        }
+      },
+      {
+        "seat": 1,
+        "edge": "north",
+        "statue": "RoyalUnicorn",
+        "color": "#ec4899",
+        "statueTriangles": 7114,
+        "statueDraws": 2,
+        "center": [
+          742.5193117306685,
+          158.12541771601153
+        ],
+        "position": [
+          0,
+          -0.78,
+          -17.82
+        ],
+        "plaque": {
+          "player": "Victoria",
+          "balance": 1500
+        },
+        "displayedBalance": 1500,
+        "coins": [
+          1,
+          5,
+          10,
+          20,
+          50,
+          100,
+          500,
+          1000
+        ],
+        "stacks": [
+          {
+            "value": 1000,
+            "count": 1,
+            "visible": 1
+          },
+          {
+            "value": 500,
+            "count": 1,
+            "visible": 1
+          }
+        ],
+        "links": 5,
+        "layout": {
+          "footprint": [
+            7.507152929306031,
+            4.367858856916428,
+            7.501699275970459
+          ],
+          "statueScale": 1.24,
+          "statueHeight": 2.613398246765137,
+          "rockDepth": 3.8864588737487793,
+          "screen": {
+            "left": 688.587593881644,
+            "top": 116.04079693309677,
+            "right": 798.2600265629085,
+            "bottom": 210.96809033195882
+          }
+        },
+        "chainBounds": {
+          "min": [
+            -0.3552526831626899,
+            -1.375835268497467,
+            -14.36200005531311
+          ],
+          "max": [
+            0.35525268316268876,
+            -0.08049258470535281,
+            -12.537999935150147
+          ]
+        }
+      },
+      {
+        "seat": 2,
+        "edge": "west",
+        "statue": "RoyalCarriage",
+        "color": "#3b82f6",
+        "statueTriangles": 8674,
+        "statueDraws": 2,
+        "center": [
+          512.2327807948714,
+          446.63161390435806
+        ],
+        "position": [
+          -17.82,
+          -0.78,
+          0
+        ],
+        "plaque": {
+          "player": "Arthur",
+          "balance": 1500
+        },
+        "displayedBalance": 1500,
+        "coins": [
+          1,
+          5,
+          10,
+          20,
+          50,
+          100,
+          500,
+          1000
+        ],
+        "stacks": [
+          {
+            "value": 1000,
+            "count": 1,
+            "visible": 1
+          },
+          {
+            "value": 500,
+            "count": 1,
+            "visible": 1
+          }
+        ],
+        "links": 5,
+        "layout": {
+          "footprint": [
+            7.507152929306031,
+            4.37894794344902,
+            7.501699275970459
+          ],
+          "statueScale": 1.24,
+          "statueHeight": 3.3728000354766845,
+          "rockDepth": 3.897547960281372,
+          "screen": {
+            "left": 451.581128951652,
+            "top": 392.38291544411817,
+            "right": 576.4570432091593,
+            "bottom": 507.90451114064706
+          }
+        },
+        "chainBounds": {
+          "min": [
+            -14.36200005531311,
+            -1.375835268497467,
+            -0.3552526831626904
+          ],
+          "max": [
+            -12.537999935150147,
+            -0.08049258470535281,
+            0.35525268316268843
+          ]
+        }
+      },
+      {
+        "seat": 3,
+        "edge": "south",
+        "statue": "RoyalPegasus",
+        "color": "#10b981",
+        "statueTriangles": 8786,
+        "statueDraws": 2,
+        "center": [
+          876.55377384892,
+          668.0623335298023
+        ],
+        "position": [
+          0,
+          -0.78,
+          17.82
+        ],
+        "plaque": {
+          "player": "Elena",
+          "balance": 1500
+        },
+        "displayedBalance": 1500,
+        "coins": [
+          1,
+          5,
+          10,
+          20,
+          50,
+          100,
+          500,
+          1000
+        ],
+        "stacks": [
+          {
+            "value": 1000,
+            "count": 1,
+            "visible": 1
+          },
+          {
+            "value": 500,
+            "count": 1,
+            "visible": 1
+          }
+        ],
+        "links": 5,
+        "layout": {
+          "footprint": [
+            7.507152929306031,
+            4.378153294324875,
+            7.501699275970459
+          ],
+          "statueScale": 1.24,
+          "statueHeight": 2.5734952545166014,
+          "rockDepth": 3.8967533111572266,
+          "screen": {
+            "left": 809.3577844076323,
+            "top": 602.9624163088733,
+            "right": 944.7624559109258,
+            "bottom": 737.7517036447573
+          }
+        },
+        "chainBounds": {
+          "min": [
+            -0.3552526831626892,
+            -1.375835268497467,
+            12.537999935150147
+          ],
+          "max": [
+            0.3552526831626892,
+            -0.08049258470535281,
+            14.36200005531311
+          ]
+        }
+      }
+    ]
+  },
+  "timing": {
+    "before": {
+      "idle": {
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "frames": 63,
+        "fps": 54.3,
+        "medianFrameMs": 18.4,
+        "p95FrameMs": 26.1,
+        "cpuMedianMs": 5.3,
+        "gpuMedianMs": 15.49,
+        "drawCalls": 237,
+        "p95DrawCalls": 237,
+        "triangles": 982191,
+        "textures": 31,
+        "geometries": 220,
+        "approximateMemory": {
+          "geometryAttributeBytes": 23195500,
+          "instanceAttributeBytes": 103188,
+          "textureRgbaBytes": 25968639.999999996
+        }
+      },
+      "simultaneous": {
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "frames": 90,
+        "fps": 56.2,
+        "medianFrameMs": 17.8,
+        "p95FrameMs": 31.6,
+        "cpuMedianMs": 4.4,
+        "gpuMedianMs": 15.62,
+        "drawCalls": 247,
+        "p95DrawCalls": 251,
+        "triangles": 985083,
+        "textures": 34,
+        "geometries": 226,
+        "approximateMemory": {
+          "geometryAttributeBytes": 23201708,
+          "instanceAttributeBytes": 103188,
+          "textureRgbaBytes": 25968639.999999996
+        }
+      }
+    },
+    "after": {
+      "idle": {
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "frames": 83,
+        "fps": 65.8,
+        "medianFrameMs": 15.2,
+        "p95FrameMs": 18.1,
+        "cpuMedianMs": 2,
+        "gpuMedianMs": 13.05,
+        "drawCalls": 251,
+        "p95DrawCalls": 251,
+        "triangles": 1002175,
+        "textures": 36,
+        "geometries": 231,
+        "approximateMemory": {
+          "geometryAttributeBytes": 24023992,
+          "instanceAttributeBytes": 126356,
+          "textureRgbaBytes": 34706773.33333332
+        }
+      },
+      "simultaneous": {
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "frames": 110,
+        "fps": 67.1,
+        "medianFrameMs": 14.9,
+        "p95FrameMs": 41.6,
+        "cpuMedianMs": 2.3,
+        "gpuMedianMs": 13.84,
+        "drawCalls": 269,
+        "p95DrawCalls": 270,
+        "triangles": 1004439,
+        "textures": 41,
+        "geometries": 241,
+        "approximateMemory": {
+          "geometryAttributeBytes": 24033976,
+          "instanceAttributeBytes": 126356,
+          "textureRgbaBytes": 34706773.33333332
+        }
+      }
+    }
+  },
+  "effects": {
+    "trade": {
+      "routes": [
+        {
+          "id": 1,
+          "fromId": 0,
+          "toId": 1,
+          "amount": 500,
+          "pieces": [
+            500
+          ]
+        },
+        {
+          "id": 2,
+          "fromId": 1,
+          "toId": 0,
+          "amount": 35,
+          "pieces": [
+            20,
+            10,
+            5
+          ]
+        }
+      ],
+      "signals": [
+        {
+          "seat": 0,
+          "amount": -500,
+          "label": "−$500"
+        },
+        {
+          "seat": 1,
+          "amount": 500,
+          "label": "+$500"
+        },
+        {
+          "seat": 1,
+          "amount": -35,
+          "label": "−$35"
+        },
+        {
+          "seat": 0,
+          "amount": 35,
+          "label": "+$35"
+        }
+      ],
+      "balances": [
+        {
+          "displayedBalance": 1035,
+          "stacks": [
+            {
+              "value": 1000,
+              "count": 1,
+              "visible": 1
+            },
+            {
+              "value": 20,
+              "count": 1,
+              "visible": 1
+            },
+            {
+              "value": 10,
+              "count": 1,
+              "visible": 1
+            },
+            {
+              "value": 5,
+              "count": 1,
+              "visible": 1
+            }
+          ]
+        },
+        {
+          "displayedBalance": 1965,
+          "stacks": [
+            {
+              "value": 1000,
+              "count": 1,
+              "visible": 1
+            },
+            {
+              "value": 500,
+              "count": 1,
+              "visible": 1
+            },
+            {
+              "value": 100,
+              "count": 4,
+              "visible": 4
+            },
+            {
+              "value": 50,
+              "count": 1,
+              "visible": 1
+            },
+            {
+              "value": 10,
+              "count": 1,
+              "visible": 1
+            },
+            {
+              "value": 5,
+              "count": 1,
+              "visible": 1
+            }
+          ]
+        },
+        {
+          "displayedBalance": 1500,
+          "stacks": [
+            {
+              "value": 1000,
+              "count": 1,
+              "visible": 1
+            },
+            {
+              "value": 500,
+              "count": 1,
+              "visible": 1
+            }
+          ]
+        },
+        {
+          "displayedBalance": 1500,
+          "stacks": [
+            {
+              "value": 1000,
+              "count": 1,
+              "visible": 1
+            },
+            {
+              "value": 500,
+              "count": 1,
+              "visible": 1
+            }
+          ]
+        }
+      ],
+      "recording": true
+    },
+    "gain": [
+      {
+        "id": 1,
+        "fromId": null,
+        "toId": 0,
+        "amount": 200,
+        "pieces": [
+          100,
+          100
+        ]
+      }
+    ],
+    "loss": [
+      {
+        "id": 2,
+        "fromId": 0,
+        "toId": null,
+        "amount": 60,
+        "pieces": [
+          50,
+          10
+        ]
+      }
+    ]
+  }
+}
