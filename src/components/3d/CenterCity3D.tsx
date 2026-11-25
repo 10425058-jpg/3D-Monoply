@@ -1,4 +1,4 @@
-import React,{Suspense,useEffect,useMemo,useRef,useState} from 'react';
+import React,{Suspense,useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react';
 import {useGLTF} from '@react-three/drei';
 import * as THREE from 'three';
 import {useSceneState} from '../../presentation/SceneStore';
@@ -10,6 +10,7 @@ import {recolorCafeRedToBlue} from './castle/blueCafeMansard';
 import {SakuraTree3D, sakuraModelUrl} from '../environment/SakuraTree3D';
 import {BOARD_SAKURA} from '../environment/sakuraLayout';
 import {ContactOcclusion} from './ContactOcclusion';
+import {useInvalidateBoardShadow} from './BoardShadowLight';
 
 type Quality='low'|'balanced'|'high';
 
@@ -29,8 +30,7 @@ const TREE_CONTACTS = BOARD_SAKURA.map(({ position: [x, y, z], scale }) => [x, y
 /** Only the decorative city changes. The property ring and all game actors
  * retain their own components, positions, materials and input handlers. */
 export function CenterCity3D({quality='balanced'}:{quality?:Quality}){
-  const players=useSceneState(s=>s.players);
-  const level=Math.min(5,Math.max(1,...players.map(p=>p.landmarkLevel||0)));
+  const level=useSceneState(s=>Math.min(5,s.players.reduce((highest,p)=>Math.max(highest,p.landmarkLevel||0),1)));
   const {reducedMotion,visible}=useMotionPreferences();
   if (quality === 'high') useGLTF.preload(sakuraModelUrl('full'));
   const fallback = <ExistingCity shadows={quality === 'high'} />;
@@ -44,6 +44,7 @@ function RoyalDistrict({quality,level,animate}:{quality:Quality;level:number;ani
   const root=useRef<THREE.Group>(null);
   const [preview,setPreview]=useState<number|null>(null);
   const displayedLevel=preview??level;
+  const invalidateShadow=useInvalidateBoardShadow();
   const model=useMemo(()=>{
     scene.updateMatrixWorld(true);
     const materials=new Map<THREE.Material,THREE.Material>();
@@ -68,6 +69,10 @@ function RoyalDistrict({quality,level,animate}:{quality:Quality;level:number;ani
     });
     return {parts,anchors,materials:[...materials.values()],recoloredGeometries};
   },[scene]);
+  useLayoutEffect(() => {
+    invalidateShadow();
+    return invalidateShadow;
+  }, [model, displayedLevel, invalidateShadow]);
   useEffect(()=>()=>{model.materials.forEach(material=>material.dispose());model.recoloredGeometries.forEach(geometry=>geometry.dispose());},[model]);
   useEffect(()=>{
     if(!new URLSearchParams(location.search).has('graphicsAudit'))return;

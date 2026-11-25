@@ -5,7 +5,9 @@ import * as THREE from 'three';
 import { EnvironmentAssetBoundary } from './EnvironmentAssetBoundary';
 import type { EnvironmentPlacement } from './GltfEnvironmentModel';
 import { releaseInstanceBuffers } from './instanceResources';
+import { createInstanceVisibility } from './instanceVisibility';
 import { sakuraParts } from './sakuraModel';
+import { useInvalidateBoardShadow } from '../3d/BoardShadowLight';
 
 type SakuraDetail = 'full' | 'lite' | 'scenic';
 
@@ -57,19 +59,15 @@ function SakuraInstances({ name, placements, detail = 'lite', shadows = false, c
   const { scene: liteScene } = useGLTF(sakuraModelUrl('lite'));
   const { scene } = useGLTF(sakuraModelUrl(detail));
   const root = useRef<THREE.Group>(null);
+  const invalidateShadow = useInvalidateBoardShadow();
   const model = useMemo(() => {
     const { parts, bounds } = sakuraParts(liteScene, scene, detail === 'scenic');
     const transforms = placements.map(siteMatrix);
     return {
       parts: parts.map(part => ({ ...part, matrices: transforms.map(matrix => matrix.clone().multiply(part.matrix)) })),
-      spheres: transforms.map(matrix => bounds.clone().applyMatrix4(matrix)),
-      frustum: new THREE.Frustum(),
-      projection: new THREE.Matrix4(),
-      sphere: new THREE.Sphere(),
+      culling: createInstanceVisibility(transforms.map(matrix => bounds.clone().applyMatrix4(matrix))),
     };
   }, [liteScene, scene, detail, placements]);
-  const lastVisible = useRef<string | null>(null);
-
   useLayoutEffect(() => {
     const meshes = [...root.current!.children] as THREE.InstancedMesh[];
     model.parts.forEach(({ matrices }, part) => {
@@ -79,33 +77,30 @@ function SakuraInstances({ name, placements, detail = 'lite', shadows = false, c
       mesh.instanceMatrix.needsUpdate = true;
       mesh.computeBoundingSphere();
     });
-    lastVisible.current = null;
-    return () => meshes.forEach(releaseInstanceBuffers);
-  }, [model]);
+    model.culling.reset();
+    if (shadows) invalidateShadow();
+    return () => {
+      meshes.forEach(releaseInstanceBuffers);
+      if (shadows) invalidateShadow();
+    };
+  }, [model, cullInstances, invalidateShadow, shadows]);
 
   useFrame(({ camera }) => {
     const group = root.current;
     if (!cullInstances || !group) return;
-    group.updateWorldMatrix(true, false);
-    model.projection.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
-    model.frustum.setFromProjectionMatrix(model.projection);
-    const visible: number[] = [];
-    model.spheres.forEach((sphere, index) => {
-      if (model.frustum.intersectsSphere(model.sphere.copy(sphere).applyMatrix4(group.matrixWorld))) visible.push(index);
-    });
-    const signature = visible.join(',');
-    if (lastVisible.current === signature) return;
-    lastVisible.current = signature;
+    const visible = model.culling.update(camera, group);
+    if (!visible) return;
     model.parts.forEach(({ matrices }, part) => {
       const mesh = group.children[part] as THREE.InstancedMesh;
       mesh.count = visible.length;
       visible.forEach((index, slot) => mesh.setMatrixAt(slot, matrices[index]));
       mesh.instanceMatrix.needsUpdate = true;
     });
+    if (shadows) invalidateShadow();
   });
 
   return <group ref={root} name={name}>{model.parts.map(part => (
-    <instancedMesh key={part.name} name={`sakura-${part.name}`} args={[part.geometry, part.material, placements.length]}
+    <instancedMesh key={part.name} name={`sakura-${part.name}`} args={[part.geometry, part.material, placements.length]} matrixAutoUpdate={false}
       castShadow={shadows && part.name === 'bark'} receiveShadow={shadows} dispose={null}
       frustumCulled={!cullInstances} raycast={() => {}} />
   ))}</group>;

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { AnimatedToken } from './AnimatedToken';
 import { RoyalToken } from './RoyalToken';
@@ -10,6 +10,7 @@ import { BOARD_SPACES, getSpaceTransform } from '../../data/boardData';
 import { royalTokenAsset } from '../../data/royalTokenAssets';
 import { TokenType } from '../../types/game';
 import {tileActorHeight, TOKEN_RING_OUTER_RADIUS, tokenRingScale} from '../../presentation/animationMath';
+import { useInvalidateBoardShadow } from './BoardShadowLight';
 
 const PopInGroup: React.FC<{ position: [number, number, number]; reduced: boolean; children: React.ReactNode }> = ({ position, reduced, children }) => {
   const store = useSceneStore();
@@ -17,7 +18,7 @@ const PopInGroup: React.FC<{ position: [number, number, number]; reduced: boolea
   const startedAt = useRef(performance.now());
   const duration = useRef(380 / store.getState().gameSpeed);
   const settled = useRef(false);
-  useFrame(() => {
+  useFrame(({ gl }) => {
     const group = groupRef.current;
     if (!group || settled.current || document.hidden) return;
     const progress = reduced ? 1 : Math.min(1, (performance.now() - startedAt.current) / duration.current);
@@ -25,11 +26,17 @@ const PopInGroup: React.FC<{ position: [number, number, number]; reduced: boolea
     const eased = 1 - (1 - build) ** 3;
     group.scale.set(.18 + eased * .82, .12 + eased * .88 + Math.sin(build * Math.PI) * .12, .18 + eased * .82);
     group.position.y = position[1] * eased;
+    gl.shadowMap.needsUpdate = true;
     if (progress === 1) settled.current = true;
   });
   return <group ref={groupRef} position={position} scale={reduced ? 1 : .18}>{children}</group>;
 };
 const TokenMesh = React.memo(function TokenMesh({ token, color }: { token: TokenType; color: string }) {
+  const invalidateShadow = useInvalidateBoardShadow();
+  useLayoutEffect(() => {
+    invalidateShadow();
+    return invalidateShadow;
+  }, [invalidateShadow, token]);
   const enamel = { metalness: 0.62, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.1 };
   const gold = '#e9c36d';
 
@@ -246,15 +253,13 @@ const TokenMesh = React.memo(function TokenMesh({ token, color }: { token: Token
   }
 });
 
-export const TokensAndBuildings: React.FC<{ quality?: string }> = ({ quality = 'balanced' }) => {
+const PlayerTokens = React.memo(function PlayerTokens({ quality, reducedMotion, visible }: {
+  quality: string; reducedMotion: boolean; visible: boolean;
+}) {
   const players = useGameStore((s) => s.players);
   const currentPlayerIndex = useGameStore((s) => s.currentPlayerIndex);
-  const properties = useGameStore((s) => s.properties);
-  const arcade = useGameStore(s => s.ruleset === 'arcade');
-  const hovered=useGameStore(s=>s.hoveredSpaceId),selected=useGameStore(s=>s.selectedSpaceId);
-  const { reducedMotion, visible } = useMotionPreferences();
   return (
-    <group>
+    <>
       {/* Player Tokens */}
       {players.map((player, index) => {
         if (player.isBankrupt) return null;
@@ -271,13 +276,54 @@ export const TokensAndBuildings: React.FC<{ quality?: string }> = ({ quality = '
           </AnimatedToken>
         );
       })}
+    </>
+  );
+});
 
-      {arcade && <ArcadePropertyLots quality={quality} reduced={reducedMotion} visible={visible} />}
+const HOUSE_WINDOWS = [-.085, .085].map(x => new THREE.Matrix4().makeTranslation(x, .055, .15));
+const HOTEL_WINDOWS = [-.19, .19].map(x => new THREE.Matrix4().makeTranslation(x, .04, .218));
 
+function BuildingWindows({ geometry, material, matrices }: {
+  geometry: THREE.BoxGeometry; material: THREE.MeshStandardMaterial; matrices: readonly THREE.Matrix4[];
+}) {
+  const mesh = useRef<THREE.InstancedMesh>(null);
+  useLayoutEffect(() => {
+    const windows = mesh.current!;
+    matrices.forEach((matrix, index) => windows.setMatrixAt(index, matrix));
+    windows.instanceMatrix.needsUpdate = true;
+    windows.computeBoundingSphere();
+  }, [matrices]);
+  return <instancedMesh ref={mesh} args={[geometry, material, matrices.length]} matrixAutoUpdate={false} />;
+}
+
+function ClassicBuildings({ reduced }: { reduced: boolean }) {
+  const properties = useGameStore(s => s.properties);
+  const hovered = useGameStore(s => s.hoveredSpaceId);
+  const selected = useGameStore(s => s.selectedSpaceId);
+  const invalidateShadow = useInvalidateBoardShadow();
+  useLayoutEffect(() => {
+    invalidateShadow();
+    return invalidateShadow;
+  }, [properties, hovered, selected, invalidateShadow]);
+  const windows = useMemo(() => ({
+    house: { geometry: new THREE.BoxGeometry(.055, .07, .018),
+      material: new THREE.MeshStandardMaterial({ color: '#9bd7ea', emissive: '#5ab5dd', emissiveIntensity: .45 }) },
+    hotel: { geometry: new THREE.BoxGeometry(.09, .12, .018),
+      material: new THREE.MeshStandardMaterial({ color: '#bce8f5', emissive: '#7fc9e8', emissiveIntensity: .55 }) },
+  }), []);
+  useEffect(() => () => {
+    for (const { geometry, material } of Object.values(windows)) {
+      geometry.dispose();
+      material.dispose();
+    }
+  }, [windows]);
+
+  return (
+    <>
       {/* 3D Green Houses & Red Hotels on Color Strips */}
       {BOARD_SPACES.map((space) => {
         const prop = properties[space.id];
-        if (!prop || arcade || prop.houses <= 0) return null;
+        if (!prop || prop.houses <= 0) return null;
         const tf = getSpaceTransform(space.id);
 
         return (
@@ -289,7 +335,7 @@ export const TokensAndBuildings: React.FC<{ quality?: string }> = ({ quality = '
           >
             {prop.houses === 5 ? (
               /* Red 3D Hotel */
-              <PopInGroup reduced={reducedMotion} position={[0, 0.19, -tf.depth / 2 + 0.34]}>
+              <PopInGroup reduced={reduced} position={[0, 0.19, -tf.depth / 2 + 0.34]}>
                 <mesh castShadow receiveShadow>
                   <boxGeometry args={[0.58, 0.38, 0.42]} />
                   <meshPhysicalMaterial color="#a92337" metalness={0.35} roughness={0.24} clearcoat={0.9} />
@@ -302,12 +348,7 @@ export const TokensAndBuildings: React.FC<{ quality?: string }> = ({ quality = '
                   <boxGeometry args={[0.065, 0.19, 0.012]} />
                   <meshStandardMaterial color="#5c2432" roughness={0.35} />
                 </mesh>
-                {[-1, 1].map((side) => (
-                  <mesh key={side} position={[side * 0.19, 0.04, 0.218]}>
-                    <boxGeometry args={[0.09, 0.12, 0.018]} />
-                    <meshStandardMaterial color="#bce8f5" emissive="#7fc9e8" emissiveIntensity={0.55} />
-                  </mesh>
-                ))}
+                <BuildingWindows {...windows.hotel} matrices={HOTEL_WINDOWS} />
                 <mesh position={[0, 0.205, 0]}>
                   <boxGeometry args={[0.64, 0.045, 0.48]} />
                   <meshStandardMaterial color="#e9c36d" metalness={0.86} roughness={0.2} />
@@ -323,7 +364,7 @@ export const TokensAndBuildings: React.FC<{ quality?: string }> = ({ quality = '
                 const spacing = 0.38;
                 const startX = -((prop.houses - 1) * spacing) / 2;
                 return (
-                  <PopInGroup reduced={reducedMotion}
+                  <PopInGroup reduced={reduced}
                     key={hIdx}
                     position={[startX + hIdx * spacing, 0.13, -tf.depth / 2 + 0.34]}
                   >
@@ -335,12 +376,7 @@ export const TokensAndBuildings: React.FC<{ quality?: string }> = ({ quality = '
                       <boxGeometry args={[0.065, 0.15, 0.018]} />
                       <meshStandardMaterial color="#64452f" roughness={0.48} />
                     </mesh>
-                    {[-1, 1].map((side) => (
-                      <mesh key={side} position={[side * 0.085, 0.055, 0.15]}>
-                        <boxGeometry args={[0.055, 0.07, 0.018]} />
-                        <meshStandardMaterial color="#9bd7ea" emissive="#5ab5dd" emissiveIntensity={0.45} />
-                      </mesh>
-                    ))}
+                    <BuildingWindows {...windows.house} matrices={HOUSE_WINDOWS} />
                     <mesh position={[0, 0.19, 0]} rotation={[0, Math.PI / 4, 0]} castShadow>
                       <coneGeometry args={[0.23, 0.2, 4]} />
                       <meshPhysicalMaterial color="#176b4a" metalness={0.28} roughness={0.3} clearcoat={0.75} />
@@ -356,6 +392,16 @@ export const TokensAndBuildings: React.FC<{ quality?: string }> = ({ quality = '
           </group>
         );
       })}
-    </group>
+    </>
   );
+}
+
+export const TokensAndBuildings: React.FC<{ quality?: string }> = ({ quality = 'balanced' }) => {
+  const arcade = useGameStore(s => s.ruleset === 'arcade');
+  const { reducedMotion, visible } = useMotionPreferences();
+  return <group>
+    <PlayerTokens quality={quality} reducedMotion={reducedMotion} visible={visible} />
+    {arcade ? <ArcadePropertyLots quality={quality} reduced={reducedMotion} visible={visible} />
+      : <ClassicBuildings reduced={reducedMotion} />}
+  </group>;
 };

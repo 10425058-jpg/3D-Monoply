@@ -1,16 +1,33 @@
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
+
+const listeners = new Set<() => void>();
+let preference: MediaQueryList | undefined;
+let snapshot = { reducedMotion: false, visible: true };
+const media = () => preference ??= window.matchMedia('(prefers-reduced-motion: reduce)');
+const notify = () => listeners.forEach(listener => listener());
+
+function subscribe(listener: () => void) {
+  if (!listeners.size) {
+    media().addEventListener('change', notify);
+    document.addEventListener('visibilitychange', notify);
+  }
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+    if (!listeners.size) {
+      media().removeEventListener('change', notify);
+      document.removeEventListener('visibilitychange', notify);
+    }
+  };
+}
+
+function getSnapshot() {
+  const reducedMotion = media().matches;
+  const visible = !document.hidden;
+  if (snapshot.reducedMotion !== reducedMotion || snapshot.visible !== visible) snapshot = { reducedMotion, visible };
+  return snapshot;
+}
 
 export function useMotionPreferences() {
-  const [preferences, setPreferences] = useState(() => ({
-    reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-    visible: !document.hidden,
-  }));
-  useEffect(() => {
-    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const update = () => setPreferences({ reducedMotion: media.matches, visible: !document.hidden });
-    media.addEventListener('change', update);
-    document.addEventListener('visibilitychange', update);
-    return () => { media.removeEventListener('change', update); document.removeEventListener('visibilitychange', update); };
-  }, []);
-  return preferences;
+  return useSyncExternalStore(subscribe, getSnapshot);
 }
