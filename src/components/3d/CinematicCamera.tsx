@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
@@ -14,22 +14,12 @@ export const CAMERA_PRESETS: Record<CameraPreset, string> = {
   dice: 'Dice roll', movement: 'Focus player (once)', event: 'Castle & special event',
 };
 
-export function useReducedMotion() {
-  const [reduced, setReduced] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  useEffect(() => {
-    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const update = () => setReduced(query.matches);
-    query.addEventListener('change', update);
-    return () => query.removeEventListener('change', update);
-  }, []);
-  return reduced;
-}
-
 /** Presentation only: never advances a turn or writes a gameplay result. */
 export function CinematicCamera({ request, reducedMotion, propertyPanel }: {
   request: { preset: CameraPreset; sequence: number }; reducedMotion: boolean; propertyPanel: boolean;
 }) {
-  const { size, camera } = useThree();
+  const size = useThree(state => state.size);
+  const camera = useThree(state => state.camera);
   const mode = useGameStore(s => s.cameraMode);
   const selected = useGameStore(s => s.selectedSpaceId);
   const position = useGameStore(s => s.players[s.currentPlayerIndex]?.position ?? 0);
@@ -95,12 +85,18 @@ export function CinematicCamera({ request, reducedMotion, propertyPanel }: {
     const dest = destination.current;
     dest.fromArray(fit.position);
     const perspective = camera as THREE.PerspectiveCamera;
+    const view = perspective.view;
     if (preset.current === 'overview') {
-      perspective.setViewOffset(size.width, size.height, ...fit.offset, size.width, size.height);
+      const [x, y] = fit.offset;
+      if (!view?.enabled || view.width !== size.width || view.height !== size.height || view.offsetX !== x || view.offsetY !== y) {
+        perspective.setViewOffset(size.width, size.height, x, y, size.width, size.height);
+      }
     } else if (preset.current === 'property' && propertyPanel && size.width > 760) {
       const offset = Math.min(size.width * .18, Math.max(0, (1640 - size.width) * .6));
-      perspective.setViewOffset(size.width, size.height, offset, 0, size.width, size.height);
-    } else {
+      if (!view?.enabled || view.width !== size.width || view.height !== size.height || view.offsetX !== offset || view.offsetY !== 0) {
+        perspective.setViewOffset(size.width, size.height, offset, 0, size.width, size.height);
+      }
+    } else if (view?.enabled) {
       // Close views retain their existing centered composition and interactions.
       perspective.clearViewOffset();
     }

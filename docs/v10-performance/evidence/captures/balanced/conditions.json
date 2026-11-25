@@ -1,0 +1,1014 @@
+{
+  "quality": "balanced",
+  "before": {
+    "images": {
+      "01-overview": {
+        "camera": {
+          "position": [
+            -7.851538232493168,
+            66.73147153333113,
+            33.53961494019283
+          ],
+          "fov": 40,
+          "view": {
+            "enabled": true,
+            "fullWidth": 1440,
+            "fullHeight": 900,
+            "offsetX": -82.44162326336178,
+            "offsetY": 75.06370770218882,
+            "width": 1440,
+            "height": 900
+          },
+          "target": [
+            0,
+            0.699829482895042,
+            0
+          ]
+        },
+        "viewport": [
+          1440,
+          900
+        ],
+        "dpr": 1,
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "time": 4520,
+        "phase": "PRE_ROLL",
+        "waterfalls": {
+          "waterfall-left": 3.520000000000001,
+          "waterfall-right": 3.520000000000001,
+          "waterfall-hamlet-0": 3.520000000000001,
+          "waterfall-hamlet-1": 3.520000000000001,
+          "waterfall-hamlet-2": 3.520000000000001,
+          "cascade-royal-island-citadel-0": 3.520000000000001,
+          "cascade-royal-island-citadel-1": 3.520000000000001,
+          "cascade-royal-island-citadel-2": 3.520000000000001,
+          "cascade-sky-windmill-0": 3.520000000000001,
+          "cascade-sky-windmill-1": 3.520000000000001,
+          "cascade-sky-windmill-2": 3.520000000000001,
+          "cascade-sky-garden-0": 3.520000000000001,
+          "cascade-sky-garden-1": 3.520000000000001,
+          "cascade-sky-garden-2": 3.520000000000001,
+          "cascade-sky-garden-3": 3.520000000000001
+        },
+        "fountain": 3.520000000000001
+      },
+      "02-castle": {
+        "camera": {
+          "position": [
+            11,
+            12.000000000000007,
+            15
+          ],
+          "fov": 40,
+          "view": {
+            "enabled": false,
+            "fullWidth": 1440,
+            "fullHeight": 900,
+            "offsetX": -82.44162326336178,
+            "offsetY": 75.06370770218882,
+            "width": 1440,
+            "height": 900
+          },
+          "target": [
+            0,
+            2.2,
+            -1
+          ]
+        },
+        "viewport": [
+          1440,
+          900
+        ],
+        "dpr": 1,
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "time": 4580,
+        "phase": "PRE_ROLL",
+        "waterfalls": {
+          "waterfall-left": 3.5800000000000005,
+          "waterfall-right": 3.5800000000000005,
+          "waterfall-hamlet-0": 3.5800000000000005,
+          "waterfall-hamlet-1": 3.5800000000000005,
+          "waterfall-hamlet-2": 3.5800000000000005,
+          "cascade-royal-island-citadel-0": 3.5800000000000005,
+          "cascade-royal-island-citadel-1": 3.5800000000000005,
+          "cascade-royal-island-citadel-2": 3.5800000000000005,
+          "cascade-sky-windmill-0": 3.5800000000000005,
+          "cascade-sky-windmill-1": 3.5800000000000005,
+          "cascade-sky-windmill-2": 3.5800000000000005,
+          "cascade-sky-garden-0": 3.5800000000000005,
+          "cascade-sky-garden-1": 3.5800000000000005,
+          "cascade-sky-garden-2": 3.5800000000000005,
+          "cascade-sky-garden-3": 3.5800000000000005
+        },
+        "fountain": 3.5800000000000005
+      },
+      "03-tokens-on-go": {
+        "camera": {
+          "position": [
+            13,
+            15,
+            18
+          ],
+          "fov": 40,
+          "view": {
+            "enabled": false,
+            "fullWidth": 1440,
+            "fullHeight": 900,
+            "offsetX": -82.44162326336178,
+            "offsetY": 75.06370770218882,
+            "width": 1440,
+            "height": 900
+          },
+          "target": [
+            9.6,
+            0.4,
+            9.6
+          ]
+        },
+        "viewport": [
+          1440,
+          900
+        ],
+        "dpr": 1,
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "time": 4580,
+        "phase": "PRE_ROLL",
+        "waterfalls": {
+          "waterfall-left": 3.5800000000000005,
+          "waterfall-right": 3.5800000000000005,
+          "waterfall-hamlet-0": 3.5800000000000005,
+          "waterfall-hamlet-1": 3.5800000000000005,
+          "waterfall-hamlet-2": 3.5800000000000005,
+          "cascade-royal-island-citadel-0": 3.5800000000000005,
+          "cascade-royal-island-citadel-1": 3.5800000000000005,
+          "cascade-royal-island-citadel-2": 3.5800000000000005,
+          "cascade-sky-windmill-0": 3.5800000000000005,
+          "cascade-sky-windmill-1": 3.5800000000000005,
+          "cascade-sky-windmill-2": 3.5800000000000005,
+          "cascade-sky-garden-0": 3.5800000000000005,
+          "cascade-sky-garden-1": 3.5800000000000005,
+          "cascade-sky-garden-2": 3.5800000000000005,
+          "cascade-sky-garden-3": 3.5800000000000005
+        },
+        "fountain": 3.5800000000000005
+      },
+      "04-floating-islands-waterfalls": {
+        "camera": {
+          "position": [
+            -7.0000000000000036,
+            -10,
+            9
+          ],
+          "fov": 40,
+          "view": {
+            "enabled": false,
+            "fullWidth": 1440,
+            "fullHeight": 900,
+            "offsetX": -82.44162326336178,
+            "offsetY": 75.06370770218882,
+            "width": 1440,
+            "height": 900
+          },
+          "target": [
+            -30,
+            -30,
+            -18
+          ]
+        },
+        "viewport": [
+          1440,
+          900
+        ],
+        "dpr": 1,
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "time": 4580,
+        "phase": "PRE_ROLL",
+        "waterfalls": {
+          "waterfall-left": 3.5800000000000005,
+          "waterfall-right": 3.5800000000000005,
+          "waterfall-hamlet-0": 3.5800000000000005,
+          "waterfall-hamlet-1": 3.5800000000000005,
+          "waterfall-hamlet-2": 3.5800000000000005,
+          "cascade-royal-island-citadel-0": 3.5800000000000005,
+          "cascade-royal-island-citadel-1": 3.5800000000000005,
+          "cascade-royal-island-citadel-2": 3.5800000000000005,
+          "cascade-sky-windmill-0": 3.5800000000000005,
+          "cascade-sky-windmill-1": 3.5800000000000005,
+          "cascade-sky-windmill-2": 3.5800000000000005,
+          "cascade-sky-garden-0": 3.5800000000000005,
+          "cascade-sky-garden-1": 3.5800000000000005,
+          "cascade-sky-garden-2": 3.5800000000000005,
+          "cascade-sky-garden-3": 3.5800000000000005
+        },
+        "fountain": 3.5800000000000005
+      },
+      "08-late-game": {
+        "camera": {
+          "position": [
+            0,
+            32,
+            32
+          ],
+          "fov": 40,
+          "view": {
+            "enabled": false,
+            "fullWidth": 1440,
+            "fullHeight": 900,
+            "offsetX": -82.44162326336178,
+            "offsetY": 75.06370770218882,
+            "width": 1440,
+            "height": 900
+          },
+          "target": [
+            0,
+            0.5,
+            0
+          ]
+        },
+        "viewport": [
+          1440,
+          900
+        ],
+        "dpr": 1,
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "time": 4580,
+        "phase": "PRE_ROLL",
+        "waterfalls": {
+          "waterfall-left": 3.5800000000000005,
+          "waterfall-right": 3.5800000000000005,
+          "waterfall-hamlet-0": 3.5800000000000005,
+          "waterfall-hamlet-1": 3.5800000000000005,
+          "waterfall-hamlet-2": 3.5800000000000005,
+          "cascade-royal-island-citadel-0": 3.5800000000000005,
+          "cascade-royal-island-citadel-1": 3.5800000000000005,
+          "cascade-royal-island-citadel-2": 3.5800000000000005,
+          "cascade-sky-windmill-0": 3.5800000000000005,
+          "cascade-sky-windmill-1": 3.5800000000000005,
+          "cascade-sky-windmill-2": 3.5800000000000005,
+          "cascade-sky-garden-0": 3.5800000000000005,
+          "cascade-sky-garden-1": 3.5800000000000005,
+          "cascade-sky-garden-2": 3.5800000000000005,
+          "cascade-sky-garden-3": 3.5800000000000005
+        },
+        "fountain": 3.5800000000000005
+      },
+      "05-dice-rolling": {
+        "camera": {
+          "position": [
+            6,
+            7.000000000000001,
+            14.000000000000004
+          ],
+          "fov": 40,
+          "view": {
+            "enabled": false,
+            "fullWidth": 1440,
+            "fullHeight": 900,
+            "offsetX": -82.44162326336178,
+            "offsetY": 75.06370770218882,
+            "width": 1440,
+            "height": 900
+          },
+          "target": [
+            0,
+            0.8,
+            4.2
+          ]
+        },
+        "viewport": [
+          1440,
+          900
+        ],
+        "dpr": 1,
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "time": 4860,
+        "phase": "ROLLING",
+        "waterfalls": {
+          "waterfall-left": 3.86,
+          "waterfall-right": 3.86,
+          "waterfall-hamlet-0": 3.86,
+          "waterfall-hamlet-1": 3.86,
+          "waterfall-hamlet-2": 3.86,
+          "cascade-royal-island-citadel-0": 3.86,
+          "cascade-royal-island-citadel-1": 3.86,
+          "cascade-royal-island-citadel-2": 3.86,
+          "cascade-sky-windmill-0": 3.86,
+          "cascade-sky-windmill-1": 3.86,
+          "cascade-sky-windmill-2": 3.86,
+          "cascade-sky-garden-0": 3.86,
+          "cascade-sky-garden-1": 3.86,
+          "cascade-sky-garden-2": 3.86,
+          "cascade-sky-garden-3": 3.86
+        },
+        "fountain": 3.86
+      },
+      "06-token-moving": {
+        "camera": {
+          "position": [
+            9,
+            6.999999999999999,
+            21
+          ],
+          "fov": 40,
+          "view": {
+            "enabled": false,
+            "fullWidth": 1440,
+            "fullHeight": 900,
+            "offsetX": -82.44162326336178,
+            "offsetY": 75.06370770218882,
+            "width": 1440,
+            "height": 900
+          },
+          "target": [
+            6,
+            0.5,
+            9.6
+          ]
+        },
+        "viewport": [
+          1440,
+          900
+        ],
+        "dpr": 1,
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "time": 5350,
+        "phase": "MOVING",
+        "waterfalls": {
+          "waterfall-left": 4.3500000000000005,
+          "waterfall-right": 4.3500000000000005,
+          "waterfall-hamlet-0": 4.3500000000000005,
+          "waterfall-hamlet-1": 4.3500000000000005,
+          "waterfall-hamlet-2": 4.3500000000000005,
+          "cascade-royal-island-citadel-0": 4.3500000000000005,
+          "cascade-royal-island-citadel-1": 4.3500000000000005,
+          "cascade-royal-island-citadel-2": 4.3500000000000005,
+          "cascade-sky-windmill-0": 4.3500000000000005,
+          "cascade-sky-windmill-1": 4.3500000000000005,
+          "cascade-sky-windmill-2": 4.3500000000000005,
+          "cascade-sky-garden-0": 4.3500000000000005,
+          "cascade-sky-garden-1": 4.3500000000000005,
+          "cascade-sky-garden-2": 4.3500000000000005,
+          "cascade-sky-garden-3": 4.3500000000000005
+        },
+        "fountain": 4.3500000000000005
+      },
+      "07-property-construction": {
+        "camera": {
+          "position": [
+            -1.9999999999999978,
+            6,
+            17
+          ],
+          "fov": 40,
+          "view": {
+            "enabled": false,
+            "fullWidth": 1440,
+            "fullHeight": 900,
+            "offsetX": -82.44162326336178,
+            "offsetY": 75.06370770218882,
+            "width": 1440,
+            "height": 900
+          },
+          "target": [
+            -3.5,
+            0.5,
+            9.9
+          ]
+        },
+        "viewport": [
+          1440,
+          900
+        ],
+        "dpr": 1,
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "time": 6580,
+        "phase": "END_TURN",
+        "waterfalls": {
+          "waterfall-left": 5.579999999999999,
+          "waterfall-right": 5.579999999999999,
+          "waterfall-hamlet-0": 5.579999999999999,
+          "waterfall-hamlet-1": 5.579999999999999,
+          "waterfall-hamlet-2": 5.579999999999999,
+          "cascade-royal-island-citadel-0": 5.579999999999999,
+          "cascade-royal-island-citadel-1": 5.579999999999999,
+          "cascade-royal-island-citadel-2": 5.579999999999999,
+          "cascade-sky-windmill-0": 5.579999999999999,
+          "cascade-sky-windmill-1": 5.579999999999999,
+          "cascade-sky-windmill-2": 5.579999999999999,
+          "cascade-sky-garden-0": 5.579999999999999,
+          "cascade-sky-garden-1": 5.579999999999999,
+          "cascade-sky-garden-2": 5.579999999999999,
+          "cascade-sky-garden-3": 5.579999999999999
+        },
+        "fountain": 5.579999999999999
+      },
+      "09-classic-houses-hotels": {
+        "camera": {
+          "position": [
+            7.000000000000002,
+            7,
+            20
+          ],
+          "fov": 40,
+          "view": {
+            "enabled": false,
+            "fullWidth": 1440,
+            "fullHeight": 900,
+            "offsetX": -82.44162326336178,
+            "offsetY": 75.06370770218882,
+            "width": 1440,
+            "height": 900
+          },
+          "target": [
+            1,
+            0.5,
+            10
+          ]
+        },
+        "viewport": [
+          1440,
+          900
+        ],
+        "dpr": 1,
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "time": 6900,
+        "phase": "PRE_ROLL",
+        "waterfalls": {
+          "waterfall-left": 5.8999999999999995,
+          "waterfall-right": 5.8999999999999995,
+          "waterfall-hamlet-0": 5.8999999999999995,
+          "waterfall-hamlet-1": 5.8999999999999995,
+          "waterfall-hamlet-2": 5.8999999999999995,
+          "cascade-royal-island-citadel-0": 5.8999999999999995,
+          "cascade-royal-island-citadel-1": 5.8999999999999995,
+          "cascade-royal-island-citadel-2": 5.8999999999999995,
+          "cascade-sky-windmill-0": 5.8999999999999995,
+          "cascade-sky-windmill-1": 5.8999999999999995,
+          "cascade-sky-windmill-2": 5.8999999999999995,
+          "cascade-sky-garden-0": 5.8999999999999995,
+          "cascade-sky-garden-1": 5.8999999999999995,
+          "cascade-sky-garden-2": 5.8999999999999995,
+          "cascade-sky-garden-3": 5.8999999999999995
+        },
+        "fountain": 5.8999999999999995
+      }
+    },
+    "shadowPasses": {
+      "stationary": 6,
+      "camera-only": 5,
+      "dice": 4,
+      "movement": 8,
+      "construction": 4,
+      "landmark": 6
+    },
+    "upgradeLabelRendered": true,
+    "hiddenFrames": 13
+  },
+  "after": {
+    "images": {
+      "01-overview": {
+        "camera": {
+          "position": [
+            -7.851538232493168,
+            66.73147153333113,
+            33.53961494019283
+          ],
+          "fov": 40,
+          "view": {
+            "enabled": true,
+            "fullWidth": 1440,
+            "fullHeight": 900,
+            "offsetX": -82.44162326336178,
+            "offsetY": 75.06370770218882,
+            "width": 1440,
+            "height": 900
+          },
+          "target": [
+            0,
+            0.699829482895042,
+            0
+          ]
+        },
+        "viewport": [
+          1440,
+          900
+        ],
+        "dpr": 1,
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "time": 4520,
+        "phase": "PRE_ROLL",
+        "waterfalls": {
+          "waterfall-left": 3.520000000000001,
+          "waterfall-right": 3.520000000000001,
+          "waterfall-hamlet-0": 3.520000000000001,
+          "waterfall-hamlet-1": 3.520000000000001,
+          "waterfall-hamlet-2": 3.520000000000001,
+          "cascade-royal-island-citadel-0": 3.520000000000001,
+          "cascade-royal-island-citadel-1": 3.520000000000001,
+          "cascade-royal-island-citadel-2": 3.520000000000001,
+          "cascade-sky-windmill-0": 3.520000000000001,
+          "cascade-sky-windmill-1": 3.520000000000001,
+          "cascade-sky-windmill-2": 3.520000000000001,
+          "cascade-sky-garden-0": 3.520000000000001,
+          "cascade-sky-garden-1": 3.520000000000001,
+          "cascade-sky-garden-2": 3.520000000000001,
+          "cascade-sky-garden-3": 3.520000000000001
+        },
+        "fountain": 3.520000000000001
+      },
+      "02-castle": {
+        "camera": {
+          "position": [
+            11,
+            12.000000000000007,
+            15
+          ],
+          "fov": 40,
+          "view": {
+            "enabled": false,
+            "fullWidth": 1440,
+            "fullHeight": 900,
+            "offsetX": -82.44162326336178,
+            "offsetY": 75.06370770218882,
+            "width": 1440,
+            "height": 900
+          },
+          "target": [
+            0,
+            2.2,
+            -1
+          ]
+        },
+        "viewport": [
+          1440,
+          900
+        ],
+        "dpr": 1,
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "time": 4580,
+        "phase": "PRE_ROLL",
+        "waterfalls": {
+          "waterfall-left": 3.5800000000000005,
+          "waterfall-right": 3.5800000000000005,
+          "waterfall-hamlet-0": 3.5800000000000005,
+          "waterfall-hamlet-1": 3.5800000000000005,
+          "waterfall-hamlet-2": 3.5800000000000005,
+          "cascade-royal-island-citadel-0": 3.5800000000000005,
+          "cascade-royal-island-citadel-1": 3.5800000000000005,
+          "cascade-royal-island-citadel-2": 3.5800000000000005,
+          "cascade-sky-windmill-0": 3.5800000000000005,
+          "cascade-sky-windmill-1": 3.5800000000000005,
+          "cascade-sky-windmill-2": 3.5800000000000005,
+          "cascade-sky-garden-0": 3.5800000000000005,
+          "cascade-sky-garden-1": 3.5800000000000005,
+          "cascade-sky-garden-2": 3.5800000000000005,
+          "cascade-sky-garden-3": 3.5800000000000005
+        },
+        "fountain": 3.5800000000000005
+      },
+      "03-tokens-on-go": {
+        "camera": {
+          "position": [
+            13,
+            15,
+            18
+          ],
+          "fov": 40,
+          "view": {
+            "enabled": false,
+            "fullWidth": 1440,
+            "fullHeight": 900,
+            "offsetX": -82.44162326336178,
+            "offsetY": 75.06370770218882,
+            "width": 1440,
+            "height": 900
+          },
+          "target": [
+            9.6,
+            0.4,
+            9.6
+          ]
+        },
+        "viewport": [
+          1440,
+          900
+        ],
+        "dpr": 1,
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "time": 4580,
+        "phase": "PRE_ROLL",
+        "waterfalls": {
+          "waterfall-left": 3.5800000000000005,
+          "waterfall-right": 3.5800000000000005,
+          "waterfall-hamlet-0": 3.5800000000000005,
+          "waterfall-hamlet-1": 3.5800000000000005,
+          "waterfall-hamlet-2": 3.5800000000000005,
+          "cascade-royal-island-citadel-0": 3.5800000000000005,
+          "cascade-royal-island-citadel-1": 3.5800000000000005,
+          "cascade-royal-island-citadel-2": 3.5800000000000005,
+          "cascade-sky-windmill-0": 3.5800000000000005,
+          "cascade-sky-windmill-1": 3.5800000000000005,
+          "cascade-sky-windmill-2": 3.5800000000000005,
+          "cascade-sky-garden-0": 3.5800000000000005,
+          "cascade-sky-garden-1": 3.5800000000000005,
+          "cascade-sky-garden-2": 3.5800000000000005,
+          "cascade-sky-garden-3": 3.5800000000000005
+        },
+        "fountain": 3.5800000000000005
+      },
+      "04-floating-islands-waterfalls": {
+        "camera": {
+          "position": [
+            -7.0000000000000036,
+            -10,
+            9
+          ],
+          "fov": 40,
+          "view": {
+            "enabled": false,
+            "fullWidth": 1440,
+            "fullHeight": 900,
+            "offsetX": -82.44162326336178,
+            "offsetY": 75.06370770218882,
+            "width": 1440,
+            "height": 900
+          },
+          "target": [
+            -30,
+            -30,
+            -18
+          ]
+        },
+        "viewport": [
+          1440,
+          900
+        ],
+        "dpr": 1,
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "time": 4580,
+        "phase": "PRE_ROLL",
+        "waterfalls": {
+          "waterfall-left": 3.5800000000000005,
+          "waterfall-right": 3.5800000000000005,
+          "waterfall-hamlet-0": 3.5800000000000005,
+          "waterfall-hamlet-1": 3.5800000000000005,
+          "waterfall-hamlet-2": 3.5800000000000005,
+          "cascade-royal-island-citadel-0": 3.5800000000000005,
+          "cascade-royal-island-citadel-1": 3.5800000000000005,
+          "cascade-royal-island-citadel-2": 3.5800000000000005,
+          "cascade-sky-windmill-0": 3.5800000000000005,
+          "cascade-sky-windmill-1": 3.5800000000000005,
+          "cascade-sky-windmill-2": 3.5800000000000005,
+          "cascade-sky-garden-0": 3.5800000000000005,
+          "cascade-sky-garden-1": 3.5800000000000005,
+          "cascade-sky-garden-2": 3.5800000000000005,
+          "cascade-sky-garden-3": 3.5800000000000005
+        },
+        "fountain": 3.5800000000000005
+      },
+      "08-late-game": {
+        "camera": {
+          "position": [
+            0,
+            32,
+            32
+          ],
+          "fov": 40,
+          "view": {
+            "enabled": false,
+            "fullWidth": 1440,
+            "fullHeight": 900,
+            "offsetX": -82.44162326336178,
+            "offsetY": 75.06370770218882,
+            "width": 1440,
+            "height": 900
+          },
+          "target": [
+            0,
+            0.5,
+            0
+          ]
+        },
+        "viewport": [
+          1440,
+          900
+        ],
+        "dpr": 1,
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "time": 4580,
+        "phase": "PRE_ROLL",
+        "waterfalls": {
+          "waterfall-left": 3.5800000000000005,
+          "waterfall-right": 3.5800000000000005,
+          "waterfall-hamlet-0": 3.5800000000000005,
+          "waterfall-hamlet-1": 3.5800000000000005,
+          "waterfall-hamlet-2": 3.5800000000000005,
+          "cascade-royal-island-citadel-0": 3.5800000000000005,
+          "cascade-royal-island-citadel-1": 3.5800000000000005,
+          "cascade-royal-island-citadel-2": 3.5800000000000005,
+          "cascade-sky-windmill-0": 3.5800000000000005,
+          "cascade-sky-windmill-1": 3.5800000000000005,
+          "cascade-sky-windmill-2": 3.5800000000000005,
+          "cascade-sky-garden-0": 3.5800000000000005,
+          "cascade-sky-garden-1": 3.5800000000000005,
+          "cascade-sky-garden-2": 3.5800000000000005,
+          "cascade-sky-garden-3": 3.5800000000000005
+        },
+        "fountain": 3.5800000000000005
+      },
+      "05-dice-rolling": {
+        "camera": {
+          "position": [
+            6,
+            7.000000000000001,
+            14.000000000000004
+          ],
+          "fov": 40,
+          "view": {
+            "enabled": false,
+            "fullWidth": 1440,
+            "fullHeight": 900,
+            "offsetX": -82.44162326336178,
+            "offsetY": 75.06370770218882,
+            "width": 1440,
+            "height": 900
+          },
+          "target": [
+            0,
+            0.8,
+            4.2
+          ]
+        },
+        "viewport": [
+          1440,
+          900
+        ],
+        "dpr": 1,
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "time": 4860,
+        "phase": "ROLLING",
+        "waterfalls": {
+          "waterfall-left": 3.86,
+          "waterfall-right": 3.86,
+          "waterfall-hamlet-0": 3.86,
+          "waterfall-hamlet-1": 3.86,
+          "waterfall-hamlet-2": 3.86,
+          "cascade-royal-island-citadel-0": 3.86,
+          "cascade-royal-island-citadel-1": 3.86,
+          "cascade-royal-island-citadel-2": 3.86,
+          "cascade-sky-windmill-0": 3.86,
+          "cascade-sky-windmill-1": 3.86,
+          "cascade-sky-windmill-2": 3.86,
+          "cascade-sky-garden-0": 3.86,
+          "cascade-sky-garden-1": 3.86,
+          "cascade-sky-garden-2": 3.86,
+          "cascade-sky-garden-3": 3.86
+        },
+        "fountain": 3.86
+      },
+      "06-token-moving": {
+        "camera": {
+          "position": [
+            9,
+            6.999999999999999,
+            21
+          ],
+          "fov": 40,
+          "view": {
+            "enabled": false,
+            "fullWidth": 1440,
+            "fullHeight": 900,
+            "offsetX": -82.44162326336178,
+            "offsetY": 75.06370770218882,
+            "width": 1440,
+            "height": 900
+          },
+          "target": [
+            6,
+            0.5,
+            9.6
+          ]
+        },
+        "viewport": [
+          1440,
+          900
+        ],
+        "dpr": 1,
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "time": 5350,
+        "phase": "MOVING",
+        "waterfalls": {
+          "waterfall-left": 4.3500000000000005,
+          "waterfall-right": 4.3500000000000005,
+          "waterfall-hamlet-0": 4.3500000000000005,
+          "waterfall-hamlet-1": 4.3500000000000005,
+          "waterfall-hamlet-2": 4.3500000000000005,
+          "cascade-royal-island-citadel-0": 4.3500000000000005,
+          "cascade-royal-island-citadel-1": 4.3500000000000005,
+          "cascade-royal-island-citadel-2": 4.3500000000000005,
+          "cascade-sky-windmill-0": 4.3500000000000005,
+          "cascade-sky-windmill-1": 4.3500000000000005,
+          "cascade-sky-windmill-2": 4.3500000000000005,
+          "cascade-sky-garden-0": 4.3500000000000005,
+          "cascade-sky-garden-1": 4.3500000000000005,
+          "cascade-sky-garden-2": 4.3500000000000005,
+          "cascade-sky-garden-3": 4.3500000000000005
+        },
+        "fountain": 4.3500000000000005
+      },
+      "07-property-construction": {
+        "camera": {
+          "position": [
+            -1.9999999999999978,
+            6,
+            17
+          ],
+          "fov": 40,
+          "view": {
+            "enabled": false,
+            "fullWidth": 1440,
+            "fullHeight": 900,
+            "offsetX": -82.44162326336178,
+            "offsetY": 75.06370770218882,
+            "width": 1440,
+            "height": 900
+          },
+          "target": [
+            -3.5,
+            0.5,
+            9.9
+          ]
+        },
+        "viewport": [
+          1440,
+          900
+        ],
+        "dpr": 1,
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "time": 6580,
+        "phase": "END_TURN",
+        "waterfalls": {
+          "waterfall-left": 5.579999999999999,
+          "waterfall-right": 5.579999999999999,
+          "waterfall-hamlet-0": 5.579999999999999,
+          "waterfall-hamlet-1": 5.579999999999999,
+          "waterfall-hamlet-2": 5.579999999999999,
+          "cascade-royal-island-citadel-0": 5.579999999999999,
+          "cascade-royal-island-citadel-1": 5.579999999999999,
+          "cascade-royal-island-citadel-2": 5.579999999999999,
+          "cascade-sky-windmill-0": 5.579999999999999,
+          "cascade-sky-windmill-1": 5.579999999999999,
+          "cascade-sky-windmill-2": 5.579999999999999,
+          "cascade-sky-garden-0": 5.579999999999999,
+          "cascade-sky-garden-1": 5.579999999999999,
+          "cascade-sky-garden-2": 5.579999999999999,
+          "cascade-sky-garden-3": 5.579999999999999
+        },
+        "fountain": 5.579999999999999
+      },
+      "09-classic-houses-hotels": {
+        "camera": {
+          "position": [
+            7.000000000000002,
+            7,
+            20
+          ],
+          "fov": 40,
+          "view": {
+            "enabled": false,
+            "fullWidth": 1440,
+            "fullHeight": 900,
+            "offsetX": -82.44162326336178,
+            "offsetY": 75.06370770218882,
+            "width": 1440,
+            "height": 900
+          },
+          "target": [
+            1,
+            0.5,
+            10
+          ]
+        },
+        "viewport": [
+          1440,
+          900
+        ],
+        "dpr": 1,
+        "renderer": "ANGLE (AMD, AMD Radeon(TM) 610M (0x0000164E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "time": 6900,
+        "phase": "PRE_ROLL",
+        "waterfalls": {
+          "waterfall-left": 5.8999999999999995,
+          "waterfall-right": 5.8999999999999995,
+          "waterfall-hamlet-0": 5.8999999999999995,
+          "waterfall-hamlet-1": 5.8999999999999995,
+          "waterfall-hamlet-2": 5.8999999999999995,
+          "cascade-royal-island-citadel-0": 5.8999999999999995,
+          "cascade-royal-island-citadel-1": 5.8999999999999995,
+          "cascade-royal-island-citadel-2": 5.8999999999999995,
+          "cascade-sky-windmill-0": 5.8999999999999995,
+          "cascade-sky-windmill-1": 5.8999999999999995,
+          "cascade-sky-windmill-2": 5.8999999999999995,
+          "cascade-sky-garden-0": 5.8999999999999995,
+          "cascade-sky-garden-1": 5.8999999999999995,
+          "cascade-sky-garden-2": 5.8999999999999995,
+          "cascade-sky-garden-3": 5.8999999999999995
+        },
+        "fountain": 5.8999999999999995
+      }
+    },
+    "shadowPasses": {
+      "stationary": 0,
+      "camera-only": 0,
+      "dice": 4,
+      "movement": 7,
+      "construction": 1,
+      "landmark": 1
+    },
+    "upgradeLabelRendered": true,
+    "hiddenFrames": 0
+  },
+  "pixels": {
+    "01-overview": {
+      "hashes": [
+        "9d961b3399c3a6955e06b0f6fd7ddf3914a1d7c636d9708557c9cbd81464455c",
+        "9d961b3399c3a6955e06b0f6fd7ddf3914a1d7c636d9708557c9cbd81464455c"
+      ],
+      "changedPixels": 0,
+      "aboveThree": 0,
+      "maxChannelDelta": 0
+    },
+    "02-castle": {
+      "hashes": [
+        "f414b685209298b4ec130b550dca0080cf1dfd99171713bd120b800627bc57f2",
+        "f414b685209298b4ec130b550dca0080cf1dfd99171713bd120b800627bc57f2"
+      ],
+      "changedPixels": 0,
+      "aboveThree": 0,
+      "maxChannelDelta": 0
+    },
+    "03-tokens-on-go": {
+      "hashes": [
+        "1c2b9f9cdd062be671ddae1cd9cd2056bb332782dc5f3c71b8bfbde41d7cf58b",
+        "1c2b9f9cdd062be671ddae1cd9cd2056bb332782dc5f3c71b8bfbde41d7cf58b"
+      ],
+      "changedPixels": 0,
+      "aboveThree": 0,
+      "maxChannelDelta": 0
+    },
+    "04-floating-islands-waterfalls": {
+      "hashes": [
+        "c3d5fecfdb902a77fc912cc99c8996d3dd8cdb0325c711bf2b70a89a575dba25",
+        "c3d5fecfdb902a77fc912cc99c8996d3dd8cdb0325c711bf2b70a89a575dba25"
+      ],
+      "changedPixels": 0,
+      "aboveThree": 0,
+      "maxChannelDelta": 0
+    },
+    "08-late-game": {
+      "hashes": [
+        "239d69887999f51eb0a6bbecc1e6bb19a2ed225bd82c085118cbb7d8b8f2bd99",
+        "239d69887999f51eb0a6bbecc1e6bb19a2ed225bd82c085118cbb7d8b8f2bd99"
+      ],
+      "changedPixels": 0,
+      "aboveThree": 0,
+      "maxChannelDelta": 0
+    },
+    "05-dice-rolling": {
+      "hashes": [
+        "38376ca0f119839e29ea32d6c5532acd6d66f1c10071186fd26836cfe3129c81",
+        "38376ca0f119839e29ea32d6c5532acd6d66f1c10071186fd26836cfe3129c81"
+      ],
+      "changedPixels": 0,
+      "aboveThree": 0,
+      "maxChannelDelta": 0
+    },
+    "06-token-moving": {
+      "hashes": [
+        "5c152b74f717d7ead9556f327afa4d30326877c2d1cff57aa1a6b71cc0ddb174",
+        "5c152b74f717d7ead9556f327afa4d30326877c2d1cff57aa1a6b71cc0ddb174"
+      ],
+      "changedPixels": 0,
+      "aboveThree": 0,
+      "maxChannelDelta": 0
+    },
+    "07-property-construction": {
+      "hashes": [
+        "729754ff79da2995113bce5c22883a0bcbc289639989b4fee6acad960f3c0864",
+        "729754ff79da2995113bce5c22883a0bcbc289639989b4fee6acad960f3c0864"
+      ],
+      "changedPixels": 0,
+      "aboveThree": 0,
+      "maxChannelDelta": 0
+    },
+    "09-classic-houses-hotels": {
+      "hashes": [
+        "9c42e005a55b79613ce7d5518ee7ce796fb5923a03af172a5d4cee898b6f36f6",
+        "9c42e005a55b79613ce7d5518ee7ce796fb5923a03af172a5d4cee898b6f36f6"
+      ],
+      "changedPixels": 0,
+      "aboveThree": 0,
+      "maxChannelDelta": 0
+    }
+  }
+}

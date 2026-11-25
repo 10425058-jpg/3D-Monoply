@@ -1,0 +1,56 @@
+{
+  "twoPlayer": {
+    "identicalRows": true,
+    "rent": 30,
+    "resultingBalances": [
+      1470,
+      1530
+    ],
+    "restoredQuietly": true
+  },
+  "fourPlayer": {
+    "identicalRows": true,
+    "playersPaid": 3,
+    "amountPerPlayer": 10
+  },
+  "remounts": [
+    {
+      "memory": {
+        "geometries": 253,
+        "textures": 36
+      },
+      "allocationEstimates": {
+        "geometryAttributeBytes": 17923042,
+        "instanceAttributeBytes": 83156,
+        "textureRgbaBytes": 27541504.000000007
+      },
+      "heapUsedBytes": 17234980
+    },
+    {
+      "memory": {
+        "geometries": 253,
+        "textures": 36
+      },
+      "allocationEstimates": {
+        "geometryAttributeBytes": 17923042,
+        "instanceAttributeBytes": 83156,
+        "textureRgbaBytes": 27541504.000000007
+      },
+      "heapUsedBytes": 18309700
+    },
+    {
+      "memory": {
+        "geometries": 253,
+        "textures": 36
+      },
+      "allocationEstimates": {
+        "geometryAttributeBytes": 17923042,
+        "instanceAttributeBytes": 83156,
+        "textureRgbaBytes": 27541504.000000007
+      },
+      "heapUsedBytes": 19328724
+    }
+  ],
+  "source": "Actual Chromium, NestJS, Socket.IO and PostgreSQL with deterministic mini-v1 rolls",
+  "browserErrors": []
+}

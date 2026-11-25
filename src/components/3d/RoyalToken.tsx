@@ -1,9 +1,10 @@
-import { Suspense, useMemo } from 'react';
+import { Suspense, useLayoutEffect, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { useGLTF } from '@react-three/drei';
 import { Box3, Mesh, Object3D, Vector3 } from 'three';
 import type { RoyalTokenAsset } from '../../data/royalTokenAssets';
 import { EnvironmentAssetBoundary } from '../environment/EnvironmentAssetBoundary';
+import { useInvalidateBoardShadow } from './BoardShadowLight';
 
 const standRadius = .35;
 const standHeight = .86;
@@ -35,6 +36,7 @@ function fitToken(scene: Object3D) {
 
 function TokenScene({ url, file, shadows }: { url: string; file: string; shadows: boolean }) {
   const { scene } = useGLTF(url, false, false);
+  const invalidateShadow = useInvalidateBoardShadow();
   const actors = useMemo(() => {
     const { center, scale } = fitToken(scene);
     const instance = scene.clone();
@@ -48,6 +50,11 @@ function TokenScene({ url, file, shadows }: { url: string; file: string; shadows
     });
     return { instance, scale, offset: center.clone().multiplyScalar(-1) };
   }, [scene, shadows]);
+  useLayoutEffect(() => {
+    if (!shadows) return;
+    invalidateShadow();
+    return invalidateShadow;
+  }, [actors, invalidateShadow, shadows]);
   // Token movement already uses +Z forward. The GLB authoring rig exports that heading.
   return <group name={file} scale={actors.scale} dispose={null}>
     <primitive object={actors.instance} position={actors.offset} />

@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useLayoutEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useSceneState as useGameStore } from '../../presentation/SceneStore';
@@ -7,6 +7,7 @@ import { SakuraTree3D } from '../environment/SakuraTree3D';
 import { FALLBACK_SAKURA } from '../environment/sakuraLayout';
 import { CASTLE_COLORS } from './castle/CastleMaterials';
 import { ContactOcclusion } from './ContactOcclusion';
+import { useInvalidateBoardShadow } from './BoardShadowLight';
 import { CentralCastle } from './castle/CentralCastle';
 import { CentralPlazaFountain } from './castle/CentralPlazaFountain';
 import { LeftTownhouseCafe, RightTownhouseBoutique } from './castle/SupportingBuildings';
@@ -34,10 +35,17 @@ export const CenterCity3D: React.FC<{ shadows?: boolean }> = ({ shadows = true }
   }, [players]);
 
   const crystalRef = useRef<THREE.Group>(null);
+  const invalidateShadow = useInvalidateBoardShadow();
+  useLayoutEffect(() => {
+    invalidateShadow();
+    return invalidateShadow;
+  }, [landmarkLevel, invalidateShadow]);
 
   // Floating magic crystal bobbing and rotation above the grand spire
   useFrame(({ clock }) => {
     if (!mayAnimateEnvironment(true)) return;
+    // The procedural fallback has animated descendants of its own.
+    invalidateShadow();
     const t = clock.elapsedTime;
     if (crystalRef.current) {
       crystalRef.current.position.y = 8.1 + Math.sin(t * 1.8) * 0.15;

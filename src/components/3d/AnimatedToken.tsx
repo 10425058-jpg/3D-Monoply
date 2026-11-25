@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { Player } from '../../types/game';
@@ -6,6 +6,7 @@ import { BOARD_SPACES, getSpaceTransform } from '../../data/boardData';
 import { useSceneStore } from '../../presentation/SceneStore';
 import { isGameReset } from '../../presentation/effectEvents';
 import { hopPose, isAdjacentTile, movementDuration,tokenOffset,tokenRenderScale,tileActorHeight } from '../../presentation/animationMath';
+import { useInvalidateBoardShadow, watchShadowPose } from './BoardShadowLight';
 
 type Step = { from: number; to: number; at: number; duration: number };
 const tiles = BOARD_SPACES.map(space => getSpaceTransform(space.id));
@@ -14,17 +15,25 @@ export function AnimatedToken({ player, index, reduced, visible, trails, childre
   player: Player; index: number; reduced: boolean; visible: boolean; trails: boolean; children: React.ReactNode;
 }) {
   const store = useSceneStore();
+  const invalidateShadow = useInvalidateBoardShadow();
+  const updateShadowPose = useMemo(watchShadowPose, []);
   const root = useRef<THREE.Group>(null);
   const trail = useRef<THREE.InstancedMesh>(null);
   const landingRing = useRef<THREE.Mesh>(null);
   const steps = useRef<Step[]>([]);
   const landedAt = useRef(-Infinity);
+  const offsets = useMemo(() => ({ corner: tokenOffset(index, 4, true), street: tokenOffset(index, 4),
+    crowded: tokenOffset(index, 5) }), [index]);
   const initialTile = tiles[player.position];
   const initialPlayers = store.getState().players;
-  const initialOffset = tokenOffset(index, initialPlayers.length, initialTile.isCorner);
+  const initialOffset = initialPlayers.length > 4 ? offsets.crowded : initialTile.isCorner ? offsets.corner : offsets.street;
   const initialScale = tokenRenderScale(initialPlayers.length, initialTile.isCorner,
     initialPlayers.some(p => p.id !== player.id && !p.isBankrupt && p.position === player.position));
   const initial = initialTile.position;
+  useLayoutEffect(() => {
+    invalidateShadow();
+    return invalidateShadow;
+  }, [invalidateShadow]);
   useLayoutEffect(() => {
     if (!trail.current) return;
     const dummy = new THREE.Object3D();
@@ -65,11 +74,12 @@ export function AnimatedToken({ player, index, reduced, visible, trails, childre
     return () => { unsubscribe(); reset(); document.removeEventListener('visibilitychange', reset); };
   }, [player.id, reduced, store]);
 
-  useFrame(() => {
+  useFrame(({ gl }) => {
     const group = root.current;
     if (!group || !visible) return;
     const state=store.getState();
-    const actual = state.players.find(p => p.id === player.id);
+    const seat = state.players[index];
+    const actual = seat?.id === player.id ? seat : state.players.find(p => p.id === player.id);
     if (!actual) return;
     const now = performance.now();
     // Consume expired segments without ever drawing a chord across a corner.
@@ -81,7 +91,7 @@ export function AnimatedToken({ player, index, reduced, visible, trails, childre
     const destination = tiles[step?.to ?? actual.position];
     const count = state.players.length;
     const shared = (tile: number) => state.players.some(p => p.id !== player.id && !p.isBankrupt && p.position === tile);
-    const offset = tokenOffset(index, count, destination.isCorner);
+    const offset = count > 4 ? offsets.crowded : destination.isCorner ? offsets.corner : offsets.street;
     const baseScale = tokenRenderScale(count, destination.isCorner, shared(step?.to ?? actual.position));
     const actorHeight=tileActorHeight(actual.position,state.hoveredSpaceId,state.selectedSpaceId);
     const moving = step && !reduced;
@@ -89,7 +99,7 @@ export function AnimatedToken({ player, index, reduced, visible, trails, childre
       const from = tiles[step.from].position;
       const to = tiles[step.to].position;
       const pose = hopPose((now - step.at) / step.duration);
-      const fromOffset = tokenOffset(index, count, tiles[step.from].isCorner);
+      const fromOffset = count > 4 ? offsets.crowded : tiles[step.from].isCorner ? offsets.corner : offsets.street;
       const fromScale = tokenRenderScale(count, tiles[step.from].isCorner, shared(step.from));
       const movingScale = THREE.MathUtils.lerp(fromScale, baseScale, pose.blend);
       const startHeight = tileActorHeight(step.from, state.hoveredSpaceId, state.selectedSpaceId);
@@ -116,6 +126,7 @@ export function AnimatedToken({ player, index, reduced, visible, trails, childre
     }
     if (moving && landingRing.current) landingRing.current.visible = false;
     if (trail.current) trail.current.visible = !!moving && trails;
+    updateShadowPose(gl, group);
   });
 
   return <group ref={root} name={`token-${player.id}`} position={[initial[0] + initialOffset.x, .34, initial[2] + initialOffset.z]} scale={initialScale}>

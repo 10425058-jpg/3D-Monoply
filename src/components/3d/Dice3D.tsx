@@ -6,6 +6,7 @@ import { useSceneStore } from '../../presentation/SceneStore';
 import { DICE_ROLL_MS, DIE_REST_ROTATIONS, diceResultScale, diceThrow } from '../../presentation/animationMath';
 import { useMotionPreferences } from '../../presentation/useMotionPreferences';
 import { isGameReset } from '../../presentation/effectEvents';
+import { useInvalidateBoardShadow, watchShadowPose } from './BoardShadowLight';
 
 const PIP_LAYOUTS: Record<number, [number, number][]> = {
   1: [[0, 0]], 2: [[-1, -1], [1, 1]], 3: [[-1, -1], [0, 0], [1, 1]],
@@ -30,7 +31,8 @@ const PIP_POSITIONS = DICE_FACES.flatMap(face => PIP_LAYOUTS[face.value].map(([x
 ));
 
 
-const Die: React.FC<{ index: number; reduced: boolean; visible: boolean; impact: boolean }> = ({ index, reduced, visible, impact }) => {
+const Die: React.FC<{ index: number; reduced: boolean; visible: boolean; impact: boolean; pipGeometry: THREE.BufferGeometry }> =
+  ({ index, reduced, visible, impact, pipGeometry }) => {
   const store = useSceneStore();
   const die = useRef<THREE.Group>(null);
   const pips = useRef<THREE.InstancedMesh>(null);
@@ -43,6 +45,8 @@ const Die: React.FC<{ index: number; reduced: boolean; visible: boolean; impact:
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const rest = useMemo(() => new THREE.Quaternion(), []);
   const face = useMemo(() => new THREE.Euler(), []);
+  const updateShadowPose = useMemo(watchShadowPose, []);
+  const invalidateShadow = useInvalidateBoardShadow();
 
   useEffect(() => {
     const setFace = (value: number) => rest.setFromEuler(face.set(...DIE_REST_ROTATIONS[value]));
@@ -73,9 +77,10 @@ const Die: React.FC<{ index: number; reduced: boolean; visible: boolean; impact:
       pips.current?.setMatrixAt(i, dummy.matrix);
     });
     if (pips.current) pips.current.instanceMatrix.needsUpdate = true;
-  }, [dummy]);
+    return invalidateShadow;
+  }, [dummy, invalidateShadow]);
 
-  useFrame(() => {
+  useFrame(({ gl }) => {
     if (!die.current || !visible) return;
     const now = performance.now();
     const actual = store.getState();
@@ -85,6 +90,7 @@ const Die: React.FC<{ index: number; reduced: boolean; visible: boolean; impact:
     if (contact.current) contact.current.visible = die.current.visible;
     if (!die.current.visible) {
       if (halo.current) halo.current.visible = false;
+      updateShadowPose(gl, die.current);
       return;
     }
     let height = 0;
@@ -100,6 +106,7 @@ const Die: React.FC<{ index: number; reduced: boolean; visible: boolean; impact:
     }
     const scale = diceResultScale(rollingNow, age, reduced);
     die.current.scale.setScalar(scale);
+    updateShadowPose(gl, die.current);
     if (contact.current) {
       contact.current.position.x = die.current.position.x;
       contact.current.position.z = die.current.position.z;
@@ -126,8 +133,8 @@ const Die: React.FC<{ index: number; reduced: boolean; visible: boolean; impact:
       <RoundedBox args={[0.82, 0.82, 0.82]} radius={0.11} smoothness={4} castShadow receiveShadow raycast={() => {}}>
         <meshPhysicalMaterial color={index === 0 ? '#fff0dc' : '#225886'} roughness={0.28} metalness={0.04} clearcoat={0.45} />
       </RoundedBox>
-      <instancedMesh ref={pips} args={[undefined, undefined, PIP_COUNT]} castShadow raycast={() => {}}>
-        <sphereGeometry args={[1, 10, 8]} /><meshStandardMaterial color={index === 0 ? '#382737' : '#ffe5a6'} roughness={0.44} />
+      <instancedMesh ref={pips} args={[pipGeometry, undefined, PIP_COUNT]} matrixAutoUpdate={false} castShadow raycast={() => {}}>
+        <meshStandardMaterial color={index === 0 ? '#382737' : '#ffe5a6'} roughness={0.44} />
       </instancedMesh>
     </group>
   </group>;
@@ -135,8 +142,10 @@ const Die: React.FC<{ index: number; reduced: boolean; visible: boolean; impact:
 
 export const Dice3D: React.FC<{ quality?: string }> = ({ quality = 'balanced' }) => {
   const { reducedMotion, visible } = useMotionPreferences();
+  const pipGeometry = useMemo(() => new THREE.SphereGeometry(1, 10, 8), []);
+  useEffect(() => () => pipGeometry.dispose(), [pipGeometry]);
   return <group position={[0, 0, 4.2]} name="authoritative-dice">
-    {[0, 1].map(index => <Die key={index} index={index} reduced={reducedMotion} visible={visible} impact={quality !== 'low'} />)}
+    {[0, 1].map(index => <Die key={index} index={index} reduced={reducedMotion} visible={visible} impact={quality !== 'low'} pipGeometry={pipGeometry} />)}
   </group>;
 };
 

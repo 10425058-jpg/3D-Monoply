@@ -9,6 +9,7 @@ import type { PresentationEvent } from '../../presentation/effectEvents';
 import { useSceneState } from '../../presentation/SceneStore';
 import { releaseInstanceBuffers } from '../environment/instanceResources';
 import { isArcadeOwnerTintMaterial, prepareArcadeRoofForOwnerTint } from './arcadeOwnerRoofMaterial';
+import { useInvalidateBoardShadow } from './BoardShadowLight';
 import {
   ARCADE_PROPERTY_STAGES, CONSTRUCTION_MS, HOTEL_CONSTRUCTION_MS,
   arcadeConstructionPose, arcadePlotPlacement, arcadePropertyAsset,
@@ -123,6 +124,8 @@ function PropertyBatch({ stage, level, sites, quality, active, parts }: Property
   const meshes = useRef<(THREE.InstancedMesh | null)[]>([]);
   const animated = useRef(new Set<number>());
   const pose = useMemo(() => ({ actor: new THREE.Object3D(), matrix: new THREE.Matrix4(), color: new THREE.Color() }), []);
+  const invalidateShadow = useInvalidateBoardShadow();
+  const shadows = quality === 'high';
   const place = (site: Site, slot: number, shape: ReturnType<typeof arcadeConstructionPose>) => {
     pose.actor.position.fromArray(site.position);
     pose.actor.rotation.y = site.rotationY;
@@ -152,7 +155,11 @@ function PropertyBatch({ stage, level, sites, quality, active, parts }: Property
       if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
       mesh.computeBoundingSphere();
     }
-  }, [parts, sites]);
+    if (shadows) invalidateShadow();
+  }, [parts, sites, invalidateShadow, shadows]);
+  useLayoutEffect(() => {
+    if (shadows) return invalidateShadow;
+  }, [invalidateShadow, shadows]);
   useEffect(() => {
     const owned = meshes.current.filter((mesh): mesh is THREE.InstancedMesh => !!mesh);
     return () => owned.forEach(releaseInstanceBuffers);
@@ -172,12 +179,15 @@ function PropertyBatch({ stage, level, sites, quality, active, parts }: Property
       place(site, slot, shape);
       changed = true;
     });
-    if (changed) for (const mesh of meshes.current) if (mesh) mesh.instanceMatrix.needsUpdate = true;
+    if (changed) {
+      for (const mesh of meshes.current) if (mesh) mesh.instanceMatrix.needsUpdate = true;
+      if (shadows) invalidateShadow();
+    }
   });
   return <group name={`arcade-stage-${stage}`} userData={{ level, sites }}>
     {parts.map(({ geometry, material }, index) => <instancedMesh key={index} ref={mesh => { meshes.current[index] = mesh; }}
-      name={material.name} args={[geometry, material, sites.length]} dispose={null} raycast={NO_RAYCAST}
-      castShadow={quality === 'high' && (material.name === 'Arcade Painted limestone' || material.name === 'Arcade Glazed slate')}
+      name={material.name} args={[geometry, material, sites.length]} matrixAutoUpdate={false} dispose={null} raycast={NO_RAYCAST}
+      castShadow={shadows && (material.name === 'Arcade Painted limestone' || material.name === 'Arcade Glazed slate')}
       receiveShadow={quality !== 'low'} />)}
   </group>;
 }
@@ -221,11 +231,11 @@ function ConstructionBurst({ site, construction, quality }: { site: Site; constr
     name={`arcade-construction-${site.spaceId}`} userData={{ spaceId: site.spaceId, level: event.developmentLevel }}>
     <mesh ref={ring} position={[0, .118, 0]} rotation={[-Math.PI / 2, 0, 0]} raycast={NO_RAYCAST}>
       <ringGeometry args={[.92, 1, 32]} />
-      <meshBasicMaterial color={hotel ? '#fff2aa' : '#ffcb61'} transparent opacity={0} depthWrite={false} toneMapped={false} side={THREE.DoubleSide} />
+      <meshBasicMaterial color={hotel ? '#fff2aa' : '#ffcb61'} transparent opacity={0} depthWrite={false} toneMapped={false} side={THREE.DoubleSide} forceSinglePass />
     </mesh>
     {hotel && <mesh ref={crown} rotation={[-Math.PI / 2, 0, 0]} raycast={NO_RAYCAST}>
       <ringGeometry args={[.90, 1, 32]} />
-      <meshBasicMaterial color="#ffe47f" transparent opacity={0} depthWrite={false} toneMapped={false} side={THREE.DoubleSide} />
+      <meshBasicMaterial color="#ffe47f" transparent opacity={0} depthWrite={false} toneMapped={false} side={THREE.DoubleSide} forceSinglePass />
     </mesh>}
     {count > 0 && <instancedMesh ref={sparks} args={[undefined, undefined, count]} frustumCulled={false} raycast={NO_RAYCAST}>
       <octahedronGeometry args={[1, 0]} /><meshBasicMaterial color="#ffe5a4" toneMapped={false} />

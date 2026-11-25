@@ -4,6 +4,7 @@ import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { finishEnvironmentMaterial, isScenicEnvironmentAsset } from './environmentMaterial';
 import { releaseInstanceBuffers } from './instanceResources';
+import { createInstanceVisibility } from './instanceVisibility';
 
 export interface EnvironmentPlacement {
   position: [number, number, number];
@@ -43,21 +44,12 @@ export function GltfEnvironmentModel({ file, placements, name, atmosphere = 0 }:
       transform.scale.setScalar(site.scale);transform.updateMatrix();
       return bounds.clone().applyMatrix4(transform.matrix);
     });
-    return {spheres,frustum:new THREE.Frustum(),projection:new THREE.Matrix4(),sphere:new THREE.Sphere(),previous:'#'};
-  },[scene,placements]);
+    return createInstanceVisibility(spheres);
+  },[scene,placements,parts]);
   useFrame(({camera})=>{
     if(!group.current)return;
-    group.current.updateWorldMatrix(true,false);
-    culling.projection.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);
-    culling.frustum.setFromProjectionMatrix(culling.projection);
-    const visible:number[]=[];
-    culling.spheres.forEach((sphere,index)=>{
-      culling.sphere.copy(sphere).applyMatrix4(group.current!.matrixWorld);
-      if(culling.frustum.intersectsSphere(culling.sphere))visible.push(index);
-    });
-    const signature=visible.join(',');
-    if(signature===culling.previous)return;
-    culling.previous=signature;
+    const visible = culling.update(camera, group.current);
+    if (!visible) return;
     group.current.children.forEach(object=>{
       if(!(object instanceof THREE.InstancedMesh))return;
       const matrices=object.userData.placementMatrices as THREE.Matrix4[]|undefined;
@@ -91,6 +83,6 @@ function ModelPart({ geometry, material, matrix, placements }: {
     // Instance buffers belong to this component; cached geometry/atlas do not.
     return () => { releaseInstanceBuffers(instance); };
   }, [placements, matrix]);
-  return <instancedMesh ref={ref} args={[geometry, material, placements.length]} dispose={null} raycast={() => {}}
+  return <instancedMesh ref={ref} args={[geometry, material, placements.length]} matrixAutoUpdate={false} dispose={null} raycast={() => {}}
     castShadow={false} receiveShadow={false} />;
 }

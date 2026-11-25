@@ -132,6 +132,45 @@ async function focusReady(page) {
     document.querySelector('.city-match-header .city-connection')?.textContent === 'Connected', { timeout });
 }
 
+async function verifyMatchRemounts(page, matchId) {
+  await page.bringToFront();
+  await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
+  const cdp = await page.createCDPSession();
+  const snapshots = [];
+  try {
+    for (let i = 0; i < 3; i++) {
+      await page.evaluate(() => { location.hash = 'home'; });
+      await page.waitForFunction(() => !document.querySelector('canvas[data-engine]') && !window.__graphicsAudit, { timeout });
+      await page.evaluate(id => { location.hash = `online/match/${id}`; }, matchId);
+      await focusReady(page);
+      await page.waitForFunction(() => {
+        const islands = window.__graphicsAudit?.islands().islands;
+        return window.__centralCityAudit?.ready && islands?.length === 4 && islands.every(island => island.statueDraws > 0);
+      }, { timeout, polling: 100 });
+      const scene = await page.evaluate(() => new Promise(resolve => {
+        const audit = window.__graphicsAudit;
+        audit.camera([0, 35, 37], [0, .5, 0]);
+        let frames = 0;
+        const stop = audit.observeRender(() => {
+          if (++frames < 5) return;
+          stop();
+          const { memory, allocationEstimates } = audit.metadata();
+          resolve({ memory, allocationEstimates });
+        });
+      }));
+      await cdp.send('HeapProfiler.collectGarbage');
+      snapshots.push({ ...scene, heapUsedBytes: (await page.metrics()).JSHeapUsedSize });
+    }
+    for (const sample of snapshots.slice(1)) {
+      assert.deepEqual(sample.memory, snapshots[0].memory, 'Same renderer allocation counts after returning to the match');
+      assert.deepEqual(sample.allocationEstimates, snapshots[0].allocationEstimates, 'Same active scene buffers and textures after returning');
+    }
+    return snapshots;
+  } finally {
+    await cdp.detach();
+  }
+}
+
 async function cardNotice(page, deck) {
   await page.bringToFront();
   const selector = `.match-notice--center[data-activity-notice="card"][data-deck="${deck}"]`;
@@ -228,10 +267,13 @@ try {
   assert.equal(await pages[3].evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
   assert.equal(await pages[3].$('.match-activity'), null);
   await shot(pages[3], 'clear-view-mobile');
+  const remounts = await verifyMatchRemounts(pages[0], four.matchId);
+  console.log('Verified renderer allocations across three Home-to-Online match remounts.');
   assert.deepEqual(browserErrors, []);
   await writeFile(`${output}/online-results.json`, JSON.stringify({
     twoPlayer: { identicalRows: true, rent: 30, resultingBalances: [1470, 1530], restoredQuietly: true },
     fourPlayer: { identicalRows: true, playersPaid: 3, amountPerPlayer: 10 },
+    remounts,
     source: 'Actual Chromium, NestJS, Socket.IO and PostgreSQL with deterministic mini-v1 rolls',
     browserErrors,
   }, null, 2));

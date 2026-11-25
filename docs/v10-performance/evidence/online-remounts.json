@@ -1,0 +1,172 @@
+{
+  "conditions": {
+    "quality": "low",
+    "motion": "reduce",
+    "viewport": [
+      1440,
+      900
+    ],
+    "deviceScaleFactor": 1,
+    "solo": false,
+    "players": 4,
+    "returns": 6,
+    "afterHomeMs": 850,
+    "afterFiveFramesMs": 600,
+    "collectGarbage": true,
+    "baseline": "98685215059bc0afbff8bbb06adf6806e6b1266f"
+  },
+  "before": {
+    "remounts": [
+      {
+        "memory": {
+          "geometries": 249,
+          "textures": 36
+        },
+        "allocationEstimates": {
+          "geometryAttributeBytes": 17927050,
+          "instanceAttributeBytes": 83156,
+          "textureRgbaBytes": 27541504.000000007
+        },
+        "heapUsedBytes": 15869580
+      },
+      {
+        "memory": {
+          "geometries": 249,
+          "textures": 36
+        },
+        "allocationEstimates": {
+          "geometryAttributeBytes": 17927050,
+          "instanceAttributeBytes": 83156,
+          "textureRgbaBytes": 27541504.000000007
+        },
+        "heapUsedBytes": 16881784
+      },
+      {
+        "memory": {
+          "geometries": 249,
+          "textures": 36
+        },
+        "allocationEstimates": {
+          "geometryAttributeBytes": 17927050,
+          "instanceAttributeBytes": 83156,
+          "textureRgbaBytes": 27541504.000000007
+        },
+        "heapUsedBytes": 18068040
+      },
+      {
+        "memory": {
+          "geometries": 249,
+          "textures": 36
+        },
+        "allocationEstimates": {
+          "geometryAttributeBytes": 17927050,
+          "instanceAttributeBytes": 83156,
+          "textureRgbaBytes": 27541504.000000007
+        },
+        "heapUsedBytes": 19108812
+      },
+      {
+        "memory": {
+          "geometries": 249,
+          "textures": 36
+        },
+        "allocationEstimates": {
+          "geometryAttributeBytes": 17927050,
+          "instanceAttributeBytes": 83156,
+          "textureRgbaBytes": 27541504.000000007
+        },
+        "heapUsedBytes": 20175900
+      },
+      {
+        "memory": {
+          "geometries": 249,
+          "textures": 36
+        },
+        "allocationEstimates": {
+          "geometryAttributeBytes": 17927050,
+          "instanceAttributeBytes": 83156,
+          "textureRgbaBytes": 27541504.000000007
+        },
+        "heapUsedBytes": 21224980
+      }
+    ],
+    "browserErrors": []
+  },
+  "after": {
+    "remounts": [
+      {
+        "memory": {
+          "geometries": 249,
+          "textures": 36
+        },
+        "allocationEstimates": {
+          "geometryAttributeBytes": 17923042,
+          "instanceAttributeBytes": 83156,
+          "textureRgbaBytes": 27541504.000000007
+        },
+        "heapUsedBytes": 16114248
+      },
+      {
+        "memory": {
+          "geometries": 249,
+          "textures": 36
+        },
+        "allocationEstimates": {
+          "geometryAttributeBytes": 17923042,
+          "instanceAttributeBytes": 83156,
+          "textureRgbaBytes": 27541504.000000007
+        },
+        "heapUsedBytes": 17106088
+      },
+      {
+        "memory": {
+          "geometries": 249,
+          "textures": 36
+        },
+        "allocationEstimates": {
+          "geometryAttributeBytes": 17923042,
+          "instanceAttributeBytes": 83156,
+          "textureRgbaBytes": 27541504.000000007
+        },
+        "heapUsedBytes": 18292184
+      },
+      {
+        "memory": {
+          "geometries": 249,
+          "textures": 36
+        },
+        "allocationEstimates": {
+          "geometryAttributeBytes": 17923042,
+          "instanceAttributeBytes": 83156,
+          "textureRgbaBytes": 27541504.000000007
+        },
+        "heapUsedBytes": 19327916
+      },
+      {
+        "memory": {
+          "geometries": 249,
+          "textures": 36
+        },
+        "allocationEstimates": {
+          "geometryAttributeBytes": 17923042,
+          "instanceAttributeBytes": 83156,
+          "textureRgbaBytes": 27541504.000000007
+        },
+        "heapUsedBytes": 20464964
+      },
+      {
+        "memory": {
+          "geometries": 249,
+          "textures": 36
+        },
+        "allocationEstimates": {
+          "geometryAttributeBytes": 17923042,
+          "instanceAttributeBytes": 83156,
+          "textureRgbaBytes": 27541504.000000007
+        },
+        "heapUsedBytes": 21506604
+      }
+    ],
+    "browserErrors": []
+  }
+}

@@ -117,9 +117,9 @@ const IslandChain = memo(function IslandChain({ assets, site, accent }: { assets
 const IslandLandmark = memo(function IslandLandmark({ site, assets, balance, flash, reduced }: {
   site: PlayerIslandSite; assets: Resources; balance?: TreasuryBalance; flash?: number; reduced: boolean;
 }) {
-  const player = useSceneState(scene => scene.players.find(candidate => candidate.id === site.seat));
-  const name = player?.name;
-  const color = player?.color ?? fallbackColor;
+  const name = useSceneState(scene => scene.players.find(candidate => candidate.id === site.seat)?.name);
+  const color = useSceneState(scene => scene.players.find(candidate => candidate.id === site.seat)?.color ?? fallbackColor);
+  const money = useSceneState(scene => scene.players.find(candidate => candidate.id === site.seat)?.money);
   const accent = useMemo(() => new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .39,
     metalness: .18, side: THREE.DoubleSide }), []);
   useLayoutEffect(() => {
@@ -142,8 +142,8 @@ const IslandLandmark = memo(function IslandLandmark({ site, assets, balance, fla
     </group>
     <IslandChain assets={assets} site={site} accent={accent} />
     <IslandStatue {...site} />
-    <group name="player-island-balance" userData={{ player: name, balance: player?.money }}>
-      <IslandPlaque title={player ? formatIslandMoney(player.money) : 'Open seat'} detail={name} accent={color} balance={balance}
+    <group name="player-island-balance" userData={{ player: name, balance: money }}>
+      <IslandPlaque title={money === undefined ? 'Open seat' : formatIslandMoney(money)} detail={name} accent={color} balance={balance}
         position={[0, .49, 2.05 * ISLAND_SCALE]} size={[3.4, 1.21]} />
     </group>
   </group>;
