@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import type { SceneState } from '../../presentation/SceneStore';
 import { useSceneStore } from '../../presentation/SceneStore';
 import { collectIslandTransfers, isIslandMoneyReset, type IslandTransfer } from '../../presentation/islandMoney';
+import { didEndGame } from '../../presentation/effectEvents';
 import { islandFlight, liveIslandFlights, MAX_ISLAND_TRANSFERS, type IslandFlight } from './islandMoneyMotion';
 import { PLAYER_ISLANDS } from './playerIslandLayout';
+import { sounds } from '../../utils/audio';
 
 export type TreasuryBalance = { value: number; animate: boolean };
 type Snapshot = { flights: IslandFlight[]; balances: ReadonlyMap<number, TreasuryBalance> };
@@ -23,6 +25,7 @@ export function useIslandTreasuryMotion(reduced: boolean, low: boolean) {
     let publishedBalances = new Map(balances);
     let balanceChanged = false;
     const pending = new Map<number, { at: number; value: number }>();
+    let collections: Pick<IslandFlight, 'id' | 'arrivesAt' | 'fromId'>[] = [];
     let timer: ReturnType<typeof setTimeout> | undefined;
     let states: SceneState[] = [];
     let deferred: IslandTransfer[] = [];
@@ -33,6 +36,11 @@ export function useIslandTreasuryMotion(reduced: boolean, low: boolean) {
     const publish = () => {
       clearTimeout(timer);
       const now = performance.now();
+      const arrived = collections.filter(flight => flight.arrivesAt <= now);
+      collections = collections.filter(flight => flight.arrivesAt > now);
+      if (arrived.some(flight => now - flight.arrivesAt < 160)) {
+        sounds.playCollection(arrived.some(flight => flight.fromId !== null));
+      }
       flights = liveIslandFlights(flights, now);
       for (const [seat, target] of pending) if (target.at <= now) {
         balances.set(seat, { value: target.value, animate: !reduced });
@@ -41,12 +49,13 @@ export function useIslandTreasuryMotion(reduced: boolean, low: boolean) {
       }
       if (balanceChanged) { publishedBalances = new Map(balances); balanceChanged = false; }
       setSnapshot({ flights, balances: publishedBalances });
-      const next = Math.min(...flights.map(flight => flight.expiresAt), ...Array.from(pending.values(), target => target.at));
+      const next = Math.min(...flights.map(flight => flight.expiresAt), ...Array.from(pending.values(), target => target.at),
+        ...collections.map(flight => flight.arrivesAt));
       if (Number.isFinite(next)) timer = setTimeout(publish, Math.max(8, next - now));
     };
 
     const clear = () => {
-      states = []; flights = []; deferred = []; cardExitAt = 0;
+      states = []; flights = []; deferred = []; collections = []; cardExitAt = 0;
       pending.clear(); balances = currentBalances(store.getState()); balanceChanged = true; publish();
     };
 
@@ -67,20 +76,30 @@ export function useIslandTreasuryMotion(reduced: boolean, low: boolean) {
         return flight ? [flight] : [];
       });
       deferred = [];
+      const direct = additions.filter(flight => flight.fromId !== null && flight.toId !== null);
+      const directSeats = new Set(direct.flatMap(flight => [flight.fromId, flight.toId]));
+      const directArrival = Math.max(start,
+        ...additions.filter(flight => directSeats.has(flight.toId)).map(flight => flight.arrivesAt),
+        ...Array.from(directSeats, seat => seat === null ? 0 : pending.get(seat)?.at ?? 0));
       for (const { seat } of PLAYER_ISLANDS) {
         const next = latest.players.find(player => player.id === seat);
         if (!next) { balanceChanged = balances.delete(seat) || balanceChanged; pending.delete(seat); continue; }
         const previous = pending.get(seat)?.value ?? balances.get(seat)?.value;
         if (previous === next.money) continue;
-        const due = additions.reduce((when, flight) => flight.toId === seat ? Math.max(when, flight.arrivesAt) : when, start);
+        const due = additions.reduce((when, flight) => flight.toId === seat ? Math.max(when, flight.arrivesAt) : when,
+          Math.max(directSeats.has(seat) ? directArrival : start, pending.get(seat)?.at ?? 0));
         pending.set(seat, { at: due, value: next.money });
       }
-      flights = [...flights, ...additions];
+      flights = liveIslandFlights([...flights, ...additions], performance.now());
+      const queued = new Set([...collections.map(flight => flight.id),
+        ...additions.filter(flight => flight.toId !== null).map(flight => flight.id)]);
+      collections = flights.filter(flight => queued.has(flight.id));
       publish();
     };
 
     const unsubscribe = store.subscribe((next, previous) => {
-      if (isIslandMoneyReset(previous, next) || document.hidden) { clear(); return; }
+      if (isIslandMoneyReset(previous, next) || didEndGame(previous, next) || document.hidden) { clear(); return; }
+      if (next.turnPhase === 'GAME_OVER') return;
       if (!reduced && cardCoversBoard(previous) && !cardCoversBoard(next)) cardExitAt = performance.now() + CARD_EXIT_MS;
       const releaseDeferred = deferred.length > 0 && waitForBoard(previous) && !waitForBoard(next);
       const balancesChanged = next.players.length !== previous.players.length || next.players.some(player =>

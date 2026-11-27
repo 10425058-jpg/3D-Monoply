@@ -1,7 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
-import { ArrowRight, Building2, Coins, DoorClosed, Hammer, Landmark, Sparkles } from 'lucide-react';
+import { ArrowRight, Building2, Coins, Crown, DoorClosed, Hammer, Landmark, Sparkles } from 'lucide-react';
 import { usePresentationEvents } from '../../presentation/PresentationProvider';
+import { useMotionPreferences } from '../../presentation/useMotionPreferences';
+import { useSceneState } from '../../presentation/SceneStore';
 import { BOARD_SPACES } from '../../data/boardData';
 import type { CashReceipt } from '../../presentation/effectEvents';
 
@@ -20,17 +22,35 @@ function Receipt({ cash }: { cash: CashReceipt }) {
   </div>;
 }
 
-export function GameplayFeedback({ online = false, activityNotices = false }: { online?: boolean; activityNotices?: boolean }) {
+export function VictoryCelebration() {
+  const victory = usePresentationEvents().find(event => event.kind === 'victory')?.id;
+  const { reducedMotion, visible } = useMotionPreferences();
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const played = useRef<string>();
+  useEffect(() => {
+    if (!victory || !visible || reducedMotion || !canvas.current || played.current === victory) return;
+    played.current = victory;
+    try {
+      const burst = confetti.create(canvas.current, { resize: true });
+      void burst({ particleCount: 42, spread: 72, ticks: 72, startVelocity: 28, gravity: .7, scalar: .78,
+        origin: { y: .63 }, colors: ['#ffdd8b', '#ffeeb9', '#eabb53', '#f6ae9b', '#bda9e9'], disableForReducedMotion: true });
+      return () => burst.reset();
+    } catch { /* The celebration is optional. */ }
+  }, [victory, visible, reducedMotion]);
+  return victory && visible && !reducedMotion ? <canvas ref={canvas} className="victory-confetti" aria-hidden="true" /> : null;
+}
+
+export function GameplayFeedback({ online = false, activityNotices = false, localSeat }: {
+  online?: boolean; activityNotices?: boolean; localSeat?: number;
+}) {
   const events = usePresentationEvents();
   const latest = [...events].reverse();
   const landed = latest.find(e => e.kind === 'dice-land');
-  const victoryId = latest.find(e => e.kind === 'victory')?.id;
-  useEffect(() => {
-    if (victoryId === undefined || document.hidden) return;
-    try { void confetti({ particleCount: 46, spread: 58, ticks: 100, origin: { y: .58 }, disableForReducedMotion: true }); }
-    catch { /* Optional animation never controls the results dialog. */ }
-    return () => { confetti.reset(); };
-  }, [victoryId]);
+  const dice = landed?.dice;
+  const doubles = dice && dice[0] === dice[1];
+  const turn = latest.find(e => e.kind === 'turn');
+  const color = useSceneState(state => state.players.find(player => player.id === turn?.playerId)?.color);
+  const yours = online ? localSeat !== undefined && localSeat === turn?.playerId : turn?.isAI === false;
   const receipts = events.filter(event => event.cash).slice(-2);
   const notice = latest.find(event => event.kind === 'bankrupt') ?? latest.find(event => {
     if (!['ownership', 'build', 'trade', 'mortgage', 'auction', 'jail', 'raid', 'landmark', 'transaction', 'card'].includes(event.kind) || event.cash) return false;
@@ -43,8 +63,15 @@ export function GameplayFeedback({ online = false, activityNotices = false }: { 
   const change = latest.find(e => e.kind === 'money');
   const standalone = change && !receipts.length && notice?.kind !== 'transaction' && notice?.kind !== 'bankrupt';
   return <div className={`gameplay-feedback${online ? ' gameplay-feedback-online' : ''}`} aria-live="polite" aria-atomic="false">
-    {!online && landed && <div key={landed.id} className="dice-result" data-effect-kind="dice-land">
-      <span>Dice result</span><strong>{landed.label}</strong>
+    {landed && dice && <div key={landed.id} className="dice-result" data-effect-kind="dice-land" data-doubles={doubles || undefined}>
+      <span>{doubles ? 'Doubles' : 'Dice result'}</span>
+      <strong><i>{dice[0]}</i> + <i>{dice[1]}</i> = <b>{dice[0] + dice[1]}</b></strong>
+    </div>}
+    {turn && <div key={turn.id} className="turn-announcement" data-effect-kind="turn" data-ai={turn.isAI || undefined}
+      style={{ '--turn-color': color } as React.CSSProperties}>
+      <Crown size={17} aria-hidden="true" />
+      <span>{yours ? 'Your turn' : `${turn.label}’s turn`}</span>
+      {turn.isAI && <small>AI</small>}
     </div>}
     {!activityNotices && <div className="feedback-notices">
       {notice && <div key={notice.id} className={`effect-notice effect-${notice.kind}`} data-effect-kind={notice.kind}>

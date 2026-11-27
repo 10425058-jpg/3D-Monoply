@@ -158,6 +158,29 @@
 .solo-results li > strong { display: flex; align-items: center; gap: 8px; }
 .solo-results li > span { text-align: right; }
 .raid-payout { color: var(--ui-bright); font: 700 clamp(30px, 4vw, 47px)/1.1 var(--ui-display); }
+.match-notice .notice-gavel { width: 28px; height: 28px; flex: none; animation: gavel-strike .36s ease-out both; }
+.match-notice[data-raid-effect="vault"] .royal-art { animation: vault-reveal .47s ease-out both; }
+.match-notice[data-raid-effect="vault"] .raid-payout { animation: outcome-reveal .31s .13s ease-out both; }
+.match-notice[data-raid-effect="damage"] .match-announcement-icon { animation: landmark-impact .38s ease-out both; color: #ffb392; }
+.match-notice[data-activity-notice="jail"] .match-announcement-icon { animation: lock-drop .32s ease-out both; }
+.card-spread .card-parchment, .match-notice[data-deck] .royal-art { animation: card-turn .32s cubic-bezier(.2,.75,.38,1) both; }
+.card-spread .card-effect { animation: outcome-reveal .21s .1s ease-out both; }
+@keyframes gavel-strike {
+  from { transform: rotate(-35deg) translateY(-4px); }
+  48% { transform: rotate(12deg) translateY(2px); filter: brightness(1.55); }
+}
+@keyframes vault-reveal {
+  from { transform: scale(.83) rotate(-11deg); filter: brightness(.77); }
+  58% { transform: scale(1.08) rotate(4deg); filter: brightness(1.38); }
+}
+@keyframes landmark-impact { 34% { transform: translateX(-4px) rotate(-8deg); } 62% { transform: translateX(3px) rotate(5deg); } }
+@keyframes lock-drop { from { transform: translateY(-9px); opacity: .36; } 64% { transform: translateY(2px); } }
+@keyframes card-turn { from { transform: perspective(550px) rotateY(-32deg) translateY(5px); opacity: .45; } }
+@keyframes outcome-reveal { from { opacity: 0; transform: translateY(4px) scale(.94); } }
+@media (prefers-reduced-motion: reduce) {
+  .match-notice :is(.notice-gavel,.royal-art,.raid-payout,.match-announcement-icon),
+  .card-spread :is(.card-parchment,.card-effect) { animation: none !important; }
+}
 .raid-event-copy { color: var(--ui-muted); }
 .raid-target,.vault-choice { transition: transform .12s, filter .12s; }
 .raid-target:active,.vault-choice:active { transform: scale(.98); }

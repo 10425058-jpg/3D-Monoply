@@ -1,4 +1,4 @@
-import { transactionEffect, type EffectChange } from '../presentation/effectEvents';
+import { transactionEffect, turnEffect, type EffectChange } from '../presentation/effectEvents';
 import type { DeckCard, Player } from '../types/game';
 import { committedLedger } from './committedLedger';
 import type { ActionReceipt, EventPayloads, Match } from './types';
@@ -11,6 +11,13 @@ export interface PresentationLabels {
 }
 
 export type MoveBeat = { seat: number; positions: number[]; jail?: boolean } | { card: EffectChange };
+const effectSource = (match: Match, event: CommittedEvent, index: number) =>
+  event.eventId ?? `${match.matchId}:${match.stateVersion}:${index}`;
+
+function cardEffect(match: Match, event: CommittedEvent, index: number, labels: PresentationLabels): EffectChange | undefined {
+  const card = labels.card(String(event.payload.cardId));
+  if (card) return { kind: 'card', label: card.title, detail: card.description, activityId: effectSource(match, event, index) };
+}
 
 /** The roll's destination can differ from the final snapshot after a card or Jail. */
 export function committedMove(before: Match, match: Match, events: readonly CommittedEvent[], labels: PresentationLabels) {
@@ -29,8 +36,8 @@ export function committedMove(before: Match, match: Match, events: readonly Comm
         (payload.effects[0] as { type?: string } | undefined)?.type;
       redirect = { playerId: payload.playerId, steps: effect === 'move_relative' ? card?.steps : undefined };
       if (effect === 'move_relative' && redirect.steps === undefined) return { rolls, beats: [] };
-      if (card) beats.push({ card: { kind: 'card', label: card.title, detail: card.description,
-        ...(event.eventId && { activityId: event.eventId }) } });
+      const cue = cardEffect(match, event, index, labels);
+      if (cue) beats.push({ card: cue });
     }
     if (event.type !== 'game:player_moved') continue;
     const { playerId, fromPosition, toPosition, passedGo } = event.payload as EventPayloads['game:player_moved'];
@@ -62,18 +69,24 @@ export function committedFeedback(before: Match, match: Match, events: readonly 
   const properties = new Map(match.properties.map(property => [property.spaceId, property]));
   const ledger = committedLedger(events, labels);
   for (let index = 0; index < events.length; index++) {
-    const { type, payload } = events[index];
+    const entry = events[index];
+    const { type, payload } = entry;
+    const activityId = effectSource(match, entry, index);
     const actor = player(payload.playerId);
     if (type === 'game:property_purchased' && actor && properties.get(Number(payload.spaceId))?.ownerPlayerId === actor.playerId) {
       const spaceId = Number(payload.spaceId);
       const name = labels.spaceName(spaceId);
-      effects.push({ kind: 'ownership', spaceId, playerId: actor.seatOrder, label: `${actor.username} purchased ${name}` });
+      effects.push({ kind: 'ownership', spaceId, playerId: actor.seatOrder, label: `${actor.username} purchased ${name}`, activityId });
+    } else if (type === 'game:card_resolved') {
+      const cue = cardEffect(match, entry, index, labels);
+      if (cue) effects.push(cue);
     } else if (type === 'game:jail_changed' && actor) {
       const jail = payload as EventPayloads['game:jail_changed'];
       const old = before.players.find(candidate => candidate.playerId === actor.playerId);
       const release = old && old.heldJailCardIds.length > actor.heldJailCardIds.length ? 'Jail card used' :
         events.some(event => event.type === 'game:money_changed' && event.payload.reason === 'JAIL_BAIL') ? 'Bail paid' : 'Escaped with doubles';
       effects.push({ kind: 'jail', playerId: actor.seatOrder, spaceId: jail.inJail && !jail.jailTurns ? 10 : undefined,
+        activityId,
         label: jail.inJail ? `${actor.username} ${jail.jailTurns ? 'stays in Jail' : 'was sent to Jail'}` : `${actor.username} left Jail`,
         detail: jail.inJail ? jail.jailTurns ? `Attempt ${jail.jailTurns} of 3 · Doubles required` : undefined : release });
     } else if (type === 'game:player_bankrupt' && actor) {
@@ -81,10 +94,10 @@ export function committedFeedback(before: Match, match: Match, events: readonly 
       const deeds = before.properties.filter(property => property.ownerPlayerId === actor.playerId);
       const reason = { VOLUNTARY_FORFEIT: 'Forfeit', HOST_FORFEIT_ABSENT: 'Disconnected player removed', INSOLVENT_TO_PLAYER: 'Could not pay another player',
         INSOLVENT_TO_BANK: 'Could not pay the Bank' }[String(payload.reason)] ?? 'Eliminated';
-      effects.push({ kind: 'bankrupt', playerId: actor.seatOrder, label: `${actor.username} was eliminated`,
+      effects.push({ kind: 'bankrupt', playerId: actor.seatOrder, label: `${actor.username} was eliminated`, activityId,
         detail: `${reason} · ${deeds.length} deeds and eligible assets go to ${creditor?.username ?? 'the Bank'}.` });
       for (const deed of deeds) if (properties.get(deed.spaceId)?.ownerPlayerId !== actor.playerId) {
-        effects.push({ kind: 'ownership', spaceId: deed.spaceId, playerId: creditor?.seatOrder, label: 'Ownership transferred' });
+        effects.push({ kind: 'ownership', spaceId: deed.spaceId, playerId: creditor?.seatOrder, label: 'Ownership transferred', activityId });
       }
     }
     const cash = ledger.get(index);
@@ -95,17 +108,21 @@ export function committedFeedback(before: Match, match: Match, events: readonly 
       effects.push(transactionEffect({
         fromId: payer?.seatOrder ?? null, toId: recipient?.seatOrder ?? null, amount: cash.amount,
         reason: cash.reason, category: cash.category, spaceId: cash.spaceId ?? payer?.position ?? recipient?.position,
-      }, players, { fromBalance: cash.from?.balance, toBalance: cash.to?.balance }));
+      }, players, { fromBalance: cash.from?.balance, toBalance: cash.to?.balance }, activityId));
     }
   }
-  if (match.currentPlayerId && match.currentPlayerId !== before.currentPlayerId) effects.push({ kind: 'turn', label: 'Turn changed' });
+  if (match.currentPlayerId && match.currentPlayerId !== before.currentPlayerId && !match.winnerPlayerId) {
+    const active = players.find(p => p.id === player(match.currentPlayerId)?.seatOrder);
+    if (active) effects.push({ ...turnEffect(active), activityId: `${match.matchId}:${match.stateVersion}:turn` });
+  }
   const winner = player(match.winnerPlayerId);
-  if (winner && match.winnerPlayerId !== before.winnerPlayerId) effects.push({ kind: 'victory', label: `${winner.username} wins`, playerId: winner.seatOrder });
-  for (const { cash } of [...effects]) if (cash) {
+  if (winner && match.winnerPlayerId !== before.winnerPlayerId) effects.push({ kind: 'victory', label: `${winner.username} wins`, playerId: winner.seatOrder,
+    activityId: `${match.matchId}:${match.stateVersion}:victory` });
+  for (const { cash, activityId } of [...effects]) if (cash) {
     const payer = players.find(p => p.id === cash.fromId);
     const recipient = players.find(p => p.id === cash.toId);
-    if (payer) effects.push({ kind: 'money', playerId: payer.id, spaceId: payer.position, amount: -cash.amount, label: payer.name });
-    if (recipient) effects.push({ kind: 'money', playerId: recipient.id, spaceId: cash.category === 'salary' ? 0 : recipient.position, amount: cash.amount, label: recipient.name });
+    if (payer) effects.push({ kind: 'money', playerId: payer.id, spaceId: payer.position, amount: -cash.amount, label: payer.name, activityId });
+    if (recipient) effects.push({ kind: 'money', playerId: recipient.id, spaceId: cash.category === 'salary' ? 0 : recipient.position, amount: cash.amount, label: recipient.name, activityId });
   }
   return effects;
 }

@@ -16,6 +16,9 @@ const viewport = { width: 1440, height: 900, deviceScaleFactor: 1 };
 const overview = [[0, 35, 37], [0, 0.5, 0]];
 const streets = [1, 3, 6, 8, 9, 11, 13, 14, 16, 18, 19, 21, 23, 24, 26, 27, 29, 31, 32, 34, 37, 39];
 const baselineOnly = process.argv.includes('--baseline');
+const warmDice = process.argv.includes('--warm-dice');
+const rollSamples = warmDice ? 6 : 1;
+const constructionSamples = warmDice ? 3 : 1;
 const software = process.env.V10_SOFTWARE === '1';
 const browser = await puppeteer.launch({
   executablePath: process.env.CHROME_PATH ?? 'C:/Program Files/Google/Chrome/Application/chrome.exe',
@@ -28,8 +31,8 @@ function percentile(values, fraction) {
   return sorted.length ? sorted[Math.floor((sorted.length - 1) * fraction)] : null;
 }
 
-function summarize({ samples, wallMs, longTasks }) {
-  assert.ok(samples.length >= 3, 'Scenario submitted at least three measured frames');
+function summarize({ samples, wallMs, longTasks }, scenario) {
+  assert.ok(samples.length >= 3, `${scenario} submitted only ${samples.length} measured frames`);
   const metric = (name, p = .5) => percentile(samples.map(frame => frame[name]), p);
   const mean = samples.reduce((total, frame) => total + frame.frameMs, 0) / samples.length;
   return {
@@ -38,6 +41,15 @@ function summarize({ samples, wallMs, longTasks }) {
     calls: metric('calls'), triangles: metric('triangles'), textures: metric('textures'), geometries: metric('geometries'),
     longTasks: longTasks.length, longTaskMs: longTasks.reduce((sum, task) => sum + task.duration, 0),
   };
+}
+
+function combine(parts) {
+  if (parts.length === 1) return parts[0];
+  const { metadata } = parts.at(-1);
+  const shader = Object.fromEntries(Object.keys(parts[0].shader)
+    .map(key => [key, parts.reduce((total, part) => total + part.shader[key], 0)]));
+  return { metadata, shader, samples: parts.flatMap(part => part.samples),
+    longTasks: parts.flatMap(part => part.longTasks), wallMs: parts.reduce((total, part) => total + part.wallMs, 0) };
 }
 
 async function run(label, round) {
@@ -111,7 +123,42 @@ async function run(label, round) {
     const render = async () => page.evaluate(() => new Promise(resolve => {
       const unsubscribe = window.__graphicsAudit.observeRender(() => { unsubscribe(); resolve(); });
     }));
+    const visitOrientalAvenue = async (track = false) => {
+      await page.evaluate(() => {
+        window.__soloTest.fixture('arcade-evolution');
+        window.__soloTest.setSpeed(1);
+      });
+      await when(() => document.querySelector('.fantasy-roll:enabled'));
+      await page.evaluate(track => {
+        if (track) {
+          const measure = window.__v10;
+          window.__v10Turn = new Promise(resolve => {
+            const phases = {};
+            let previous;
+            const stop = window.__soloTest.observeTurn(({ phase }) => {
+              if (phase === previous) return;
+              if (previous === 'ROLLING' || previous === 'MOVING') phases[previous] = measure.stop();
+              previous = phase;
+              if (phase === 'ROLLING' || phase === 'MOVING') measure.start();
+              if (phase === 'LANDED_ACTION') { stop(); resolve(phases); }
+            });
+          });
+        }
+        const random = Math.random, faces = [2, 4];
+        try {
+          Math.random = () => faces.length ? (faces.shift() - .5) / 6 : random();
+          document.querySelector('.fantasy-roll').click();
+        } finally { Math.random = random; }
+      }, track);
+      await when(() => window.__soloTest.state().turnPhase === 'LANDED_ACTION');
+    };
     const workloads = {};
+    if (warmDice) {
+      // Compile roll and token materials outside the measured windows on both builds.
+      await visitOrientalAvenue();
+      await page.evaluate(() => window.__soloTest.fixture('arcade-gallery-empty'));
+      await wait(900);
+    }
     await camera(...overview);
     await page.mouse.move(7, 7);
     await render();
@@ -162,44 +209,31 @@ async function run(label, round) {
     assert.ok(await canvas.evaluate(element => element.isConnected), 'Popup kept the same canvas');
     assert.equal(requests.length, beforePopup, 'Popup issued no additional GLB requests');
 
-    await page.evaluate(() => {
-      window.__soloTest.fixture('arcade-evolution');
-      window.__soloTest.setSpeed(1);
-      const measure = window.__v10;
-      window.__v10Turn = new Promise(resolve => {
-        const phases = {};
-        let previous;
-        const stop = window.__soloTest.observeTurn(({ phase }) => {
-          if (phase === previous) return;
-          if (previous === 'ROLLING' || previous === 'MOVING') phases[previous] = measure.stop();
-          previous = phase;
-          if (phase === 'ROLLING' || phase === 'MOVING') measure.start();
-          if (phase === 'LANDED_ACTION') { stop(); resolve(phases); }
-        });
-      });
-      const random = Math.random, faces = [2, 4];
-      try {
-        Math.random = () => faces.length ? (faces.shift() - .5) / 6 : random();
-        document.querySelector('.fantasy-roll').click();
-      } finally { Math.random = random; }
-    });
-    await when(() => window.__soloTest.state().turnPhase === 'LANDED_ACTION');
-    const turn = await page.evaluate(() => window.__v10Turn);
-    workloads.dice = turn.ROLLING;
-    workloads.token = turn.MOVING;
+    const turns = [];
+    for (let index = 0; index < rollSamples; index++) {
+      await visitOrientalAvenue(true);
+      turns.push(await page.evaluate(() => window.__v10Turn));
+    }
+    workloads.dice = combine(turns.map(turn => turn.ROLLING));
+    workloads.token = combine(turns.map(turn => turn.MOVING));
     assert.equal(await page.evaluate(() => window.__soloTest.state().players[0].position), 6);
 
-    await page.evaluate(() => [...document.querySelectorAll('.action-tray button')]
-      .find(button => button.textContent.trim() === 'Build').click());
-    await when(() => document.querySelector('.evolution-footer button')?.textContent.includes('Buy'));
-    await page.click('.evolution-footer button');
-    await when(() => window.__graphicsAudit.arcade().buildings.some(building => building.level === 0 && building.source === 'gltf'));
-    await when(() => document.querySelector('.evolution-footer button')?.textContent.includes('House'));
-    workloads.construction = await measure(async () => {
+    const upgrades = [];
+    for (let index = 0; index < constructionSamples; index++) {
+      if (index > 0) await visitOrientalAvenue();
+      await page.evaluate(() => [...document.querySelectorAll('.action-tray button')]
+        .find(button => button.textContent.trim() === 'Build').click());
+      await when(() => document.querySelector('.evolution-footer button')?.textContent.includes('Buy'));
       await page.click('.evolution-footer button');
-      await when(() => window.__graphicsAudit.arcade().buildings.some(building => building.level === 1 && building.source === 'gltf'));
-    }, 1300);
-    assert.equal(await page.evaluate(() => window.__soloTest.state().players[0].money), 1350);
+      await when(() => window.__graphicsAudit.arcade().buildings.some(building => building.level === 0 && building.source === 'gltf'));
+      await when(() => document.querySelector('.evolution-footer button')?.textContent.includes('House'));
+      upgrades.push(await measure(async () => {
+        await page.click('.evolution-footer button');
+        await when(() => window.__graphicsAudit.arcade().buildings.some(building => building.level === 1 && building.source === 'gltf'));
+      }, 1300));
+      assert.equal(await page.evaluate(() => window.__soloTest.state().players[0].money), 1350);
+    }
+    workloads.construction = combine(upgrades);
 
     await page.evaluate(() => {
       const { properties } = window.__soloTest.fixture('hotel');
@@ -215,7 +249,7 @@ async function run(label, round) {
 
     const memory = await page.metrics();
     const shader = await page.evaluate(() => window.__v10.shader);
-    const summaries = Object.fromEntries(Object.entries(workloads).map(([name, sample]) => [name, summarize(sample)]));
+    const summaries = Object.fromEntries(Object.entries(workloads).map(([name, sample]) => [name, summarize(sample, name)]));
     console.log(JSON.stringify({ label, round, renderer: initial.metadata.renderer,
       gpuTimer: initial.metadata.gpuTimerAvailable, shader, summaries }));
     assert.deepEqual(errors, []);
@@ -225,7 +259,7 @@ async function run(label, round) {
   }
 }
 
-const report = { conditions: { quality, viewport, motion: 'normal', seed: 10425058, software,
+const report = { conditions: { quality, viewport, motion: 'normal', seed: 10425058, software, warmDice, rollSamples, constructionSamples,
   browser: await browser.version(), node: process.version, platform: os.platform(), cpu: os.cpus()[0].model,
   logicalCores: os.cpus().length, ramBytes: os.totalmem(), urls }, runs: [] };
 try {

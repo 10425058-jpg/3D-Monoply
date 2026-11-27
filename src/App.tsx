@@ -36,7 +36,7 @@ import './app-ui.css';
 import './fantasy-hud.css';
 import './game-effects.css';
 import './board-v5.css';
-import { GameplayFeedback } from './components/ui/GameplayFeedback';
+import { GameplayFeedback, VictoryCelebration } from './components/ui/GameplayFeedback';
 import { CardReveal } from './components/ui/CardReveal';
 import { AudioControls } from './components/ui/AudioControls';
 import {SoloDecisions} from './components/ui/SoloDecisions';
@@ -620,6 +620,7 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
             {onHome && <RoyalButton onClick={onHome}>Main menu</RoyalButton>}
             <RoyalButton variant="primary" onClick={() => { sounds.playClick(); setShowSetup(true); }}>Start a new game <RotateCcw size={16} /></RoyalButton>
           </>}>
+            {!humanDefeat && <VictoryCelebration />}
             <p>Last player standing</p>
             {bankruptcyMessage && <RoyalNotice tone="ruby">{bankruptcyMessage}</RoyalNotice>}
             {finalCard && <p><strong>{finalCard.deck === 'chance' ? 'Chance' : 'Community Chest'} · {finalCard.title}</strong><br />{finalCard.instruction}</p>}

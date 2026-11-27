@@ -5,7 +5,8 @@ import { useStore } from 'zustand';
 import { Scene3D } from '../components/3d/Scene3D';
 import { SceneStoreProvider, useSceneState } from '../presentation/SceneStore';
 import { PresentationProvider } from '../presentation/PresentationProvider';
-import { GameplayFeedback } from '../components/ui/GameplayFeedback';
+import { GameplayFeedback, VictoryCelebration } from '../components/ui/GameplayFeedback';
+import { BalanceText } from '../components/ui/BalanceText';
 import { ActivityLog, MatchActivityNotices } from '../components/ui/ActivityLog';
 import { BOARD_SPACES } from '../data/boardData';
 import { CHANCE_CARDS, COMMUNITY_CHEST_CARDS } from '../data/cardsData';
@@ -25,6 +26,7 @@ export function OnlineMatch({ controller, quality, settings, onLobby }: { contro
   const speed = useSceneState(s => s.gameSpeed);
   const scenePlayers = useSceneState(s => s.players);
   const sceneProperties = useSceneState(s => s.properties);
+  const sceneEpoch = useSceneState(s => s.gameId);
   const presentationPhase = useSceneState(s => s.turnPhase);
   const animatedCardId = useSceneState(s => s.committedEffects?.find(effect => effect.kind === 'card')?.activityId);
   const [confirm, setConfirm] = useState<{ action: ActionName; target?: string } | null>(null);
@@ -51,16 +53,16 @@ export function OnlineMatch({ controller, quality, settings, onLobby }: { contro
       match.turnPhase === 'PRE_ROLL' ? viewer?.inJail ? 'Choose how to leave Jail' : match.pendingExtraRoll ? 'Doubles · Roll again' : 'Your roll' :
       match.turnPhase === 'LANDED_ACTION' ? 'Choose whether to buy' : 'End your turn' : `${active?.username ?? 'The active player'} is playing`;
   return <main className="city-match"><div className="world-layer"><Scene3D quality={quality} /></div><div className="city-match-vignette" />
-    <GameplayFeedback online activityNotices />
-    <MatchActivityNotices events={state.activity} matchId={match.matchId} layout="online"
-      animating={state.animating} animatedCardId={animatedCardId} paused={!!confirm || (terminal && !state.animating)} />
+    <GameplayFeedback online activityNotices localSeat={viewer?.seatOrder} />
+    <MatchActivityNotices key={state.connection} events={state.activity} matchId={match.matchId} layout="online"
+      animating={state.animating} animatedCardId={animatedCardId} paused={!!confirm || state.syncing || state.connection !== 'connected' || (terminal && !state.animating)} />
     <header className="city-match-header"><Brand /><div className="city-match-turn"><span className="city-eyebrow">ONLINE · MINI-V1 · TURN {match.turnNumber}</span>
       <strong>{terminal && !state.animating ? 'Match complete' : match.status === 'PAUSED' ? 'Game paused' : `${active?.username ?? 'Player'}’s turn`}</strong>
       <span className="city-game-cue" role="status">{cue}</span></div><span className={`city-connection ${state.connection}`} role="status"><Wifi size={17} />{state.syncing || state.connection !== 'connected' ? state.connection === 'offline' ? 'Offline' : 'Reconnecting…' : 'Connected'}</span><button className="city-icon" onClick={settings} aria-label="Settings"><Settings2 /></button></header>
     <details className="city-match-players" open={playersOpen} onToggle={event => setPlayersOpen(event.currentTarget.open)}><summary><Users size={18} />Players <span>{match.players.length}</span></summary><div>{[...match.players].sort((left, right) => left.seatOrder - right.seatOrder).map(p => {
       const shown = scenePlayers.find(player => player.id === p.seatOrder) ?? p;
       return <article className={`city-match-player ${p.playerId === match.currentPlayerId ? 'active' : ''} ${shown.isBankrupt ? 'eliminated' : ''}`} aria-current={p.playerId === match.currentPlayerId ? 'true' : undefined} key={p.playerId}>
-      <span className="city-avatar" style={{ background: p.color }}>{p.username[0].toUpperCase()}</span><div><strong>{p.username}{p.userId === auth.user?.id ? ' (you)' : ''}</strong><b>{cash(shown.money)}</b><small>{tokenNames[p.token]} · {Object.values(sceneProperties).filter(v => v.ownerId === p.seatOrder).length} properties{shown.inJail ? ' · In Jail' : ''}</small><span>{shown.isBankrupt ? 'Eliminated' : p.connectionStatus === 'DISCONNECTED' ? 'Disconnected' : p.playerId === match.currentPlayerId ? 'Taking a turn' : 'Waiting'}</span></div></article>;
+      <span className="city-avatar" style={{ background: p.color }}>{p.username[0].toUpperCase()}</span><div><strong>{p.username}{p.userId === auth.user?.id ? ' (you)' : ''}</strong><BalanceText as="b" value={shown.money} epoch={sceneEpoch} /><small>{tokenNames[p.token]} · {Object.values(sceneProperties).filter(v => v.ownerId === p.seatOrder).length} properties{shown.inJail ? ' · In Jail' : ''}</small><span>{shown.isBankrupt ? 'Eliminated' : p.connectionStatus === 'DISCONNECTED' ? 'Disconnected' : p.playerId === match.currentPlayerId ? 'Taking a turn' : 'Waiting'}</span></div></article>;
     })}</div></details>
     {(state.connection !== 'connected' || match.status === 'PAUSED') && !terminal && <aside className="city-reconnect" role="status"><RefreshCw className="city-spin" size={23} /><div><strong>{state.connection !== 'connected' ? 'Finding our way back…' : 'Waiting for friends to reconnect'}</strong><p>Your last committed state is safe on the server. {match.status === 'PAUSED' ? 'The same game resumes when everyone returns.' : 'We’ll continue as soon as the connection returns.'}</p></div><button className="city-link" onClick={() => void controller.reconcile()}>Refresh</button></aside>}
     {selected && !terminal && <aside className="city-inspector"><button className="city-icon" aria-label="Close property" onClick={() => select(null)}><X size={17} /></button><span className="city-eyebrow">AROUND THE BOARD</span><h2 style={{ borderTopColor: selected.colorHex }}>{selected.name}</h2><p>{selected.price ? `${cash(selected.price)} · ${owner?.username ?? 'Unowned'}` : selected.type.replace(/_/g, ' ')}</p>{selected.rent && <small>Base rent {cash(selected.rent[0])}</small>}</aside>}
@@ -82,6 +84,7 @@ export function OnlineMatch({ controller, quality, settings, onLobby }: { contro
     </section>
     <RoyalPresence>{confirm && !terminal && <Dialog key="confirm" danger title={confirm.action === 'forfeit' ? 'Leave this adventure?' : confirm.action === 'abandon' ? 'End the match for everyone?' : 'Remove the absent player?'} onClose={() => setConfirm(null)}><p>{confirm.action === 'forfeit' ? 'You’ll forfeit your cash and properties. The other players can continue.' : confirm.action === 'abandon' ? 'This paused match will end without a winner.' : 'The server will check the player’s disconnect grace period before forfeiting them.'}</p><div className="city-dialog-actions"><RoyalButton onClick={() => setConfirm(null)}>Keep playing</RoyalButton><RoyalButton variant="danger" onClick={() => { void controller.act(confirm.action, confirm.target ? { targetPlayerId: confirm.target } : {}); setConfirm(null); }}>{labels[confirm.action]}</RoyalButton></div></Dialog>}</RoyalPresence>
     <RoyalPresence>{terminal && !state.animating && <Dialog key="standings" result title={match.status === 'ABANDONED' ? 'Match abandoned' : 'Final standings'} onClose={onLobby}><div className="city-results"><Trophy size={55} aria-hidden="true" /><h2>{match.status === 'ABANDONED' ? 'This match has ended.' : `${match.players.find(p => p.playerId === match.winnerPlayerId)?.username} wins!`}</h2>
+      <VictoryCelebration />
       {match.status === 'FINISHED' && <p>{match.finishReason === 'TURN_LIMIT' ? 'Highest net worth after 80 completed turns' : 'Last player standing'}</p>}
       {card && match.lastCardResolved?.stateVersion === match.stateVersion &&
         <p><strong>{card.deck === 'chance' ? 'Chance' : 'Community Chest'} · {card.title}</strong><br />{card.description}</p>}

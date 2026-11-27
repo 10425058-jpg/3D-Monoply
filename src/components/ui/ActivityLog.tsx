@@ -2,7 +2,7 @@ import React, { memo, useEffect, useId, useLayoutEffect, useMemo, useRef, useSta
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowDownUp, ArrowRight, Banknote, Building2, ChevronDown, Coins, Crown, Dice5, DoorClosed,
-  Flag, Gavel, Hammer, Handshake, Landmark, List, MapPin, ScrollText, TrainFront, Trophy, Wifi, X,
+  Flag, Gavel, Hammer, Handshake, Landmark, List, LockKeyhole, MapPin, ScrollText, TrainFront, Trophy, Wifi, X,
 } from 'lucide-react';
 import {
   ACTIVITY_FILTERS, activityActors, activityNoticePriority, isCenterActivityNotice, matchesActivityFilter,
@@ -194,17 +194,20 @@ function ActivityNotice({ notice, close, reduced }: { notice: QueuedNotice; clos
   const reason = receipt?.reason;
   const raid = event.kind === 'railroad' ? event.transfers?.[0] : undefined;
   const heist = raid?.reason === 'Bank heist';
+  const auctionWon = event.kind === 'auction' && !!event.transfers?.length;
+  const damage = !!raid && !heist && event.level !== undefined && event.previousLevel !== undefined && event.level < event.previousLevel;
   const transferLabel = receipt && `${receipt.from?.name ?? 'Bank'} paid ${money(receipt.amount)} to ${receipt.to?.name ?? 'Bank'}${reason ? ` · ${reason}` : ''}`;
   const closeButton = <button type="button" className="match-notice-close" aria-label="Dismiss live notice" onClick={close}><X size={18} /></button>;
   return <motion.article className={`match-notice${centered ? ' match-notice--center' : ''}${receipt ? ` effect-transaction receipt-${event.kind}` : ''}`}
-    data-activity-notice={event.kind} data-deck={event.card?.deck}
+    data-activity-notice={event.kind} data-deck={event.card?.deck} data-auction-win={auctionWon || undefined}
+    data-raid-effect={heist ? 'vault' : damage ? 'damage' : raid ? 'raid' : undefined}
     initial={{ opacity: 0, y: reduced ? 0 : centered ? 8 : -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: reduced ? 0 : -4 }}
     transition={{ duration: reduced ? 0 : .17 }}
     data-emphasis={event.emphasis} data-effect-kind={receipt ? 'transaction' : event.kind} aria-label={transferLabel}>
     {centered ? <div className="match-announcement-heading">
       {closeButton}
-      {event.card || heist ? <RoyalArt prop={event.card?.deck === 'chance' ? 'chance' : 'chest'} /> :
-        <span className="match-announcement-icon" aria-hidden="true"><Icon size={28} /></span>}
+      {event.card || heist ? <RoyalArt prop={heist ? 'vault' : event.card?.deck === 'chance' ? 'chance' : 'chest'} /> :
+        <span className="match-announcement-icon" aria-hidden="true">{event.kind === 'jail' ? <LockKeyhole size={28} /> : <Icon size={28} />}</span>}
       <span className="match-announcement-label">{event.card ? event.card.deck === 'chance' ? 'Chance' : 'Community Chest' :
         raid ? heist ? 'Bank Heist' : 'Shutdown result' : announcementLabels[event.kind] ?? 'Match milestone'}</span>
       <h2><ActivityTitle title={event.card?.title ?? (raid ? heist ? 'Vault opened' : event.level === undefined ?
@@ -215,7 +218,7 @@ function ActivityNotice({ notice, close, reduced }: { notice: QueuedNotice; clos
     </div> : <div className="match-notice-heading">
       <ActorSeal actor={event.actor} kind={event.kind} />
       <strong><ActivityTitle title={event.title} /></strong>
-      <Icon className="match-notice-icon" size={20} aria-hidden="true" />
+      {auctionWon ? <RoyalArt prop="gavel" className="notice-gavel" /> : <Icon className="match-notice-icon" size={20} aria-hidden="true" />}
       {closeButton}
     </div>}
     {receipt && <div className="match-notice-detail">

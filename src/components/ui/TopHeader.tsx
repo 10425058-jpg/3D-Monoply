@@ -3,9 +3,11 @@ import { Camera, Settings, Mail, Banknote, Gem, Crown } from 'lucide-react';
 import { useGameStore } from '../../store/useGameStore';
 import { sounds } from '../../utils/audio';
 import { AudioControls } from './AudioControls';
+import { BalanceText } from './BalanceText';
 
 export const TopHeader: React.FC<{ onOpenSettings: () => void }> = ({ onOpenSettings }) => {
   const activePlayer = useGameStore(s => s.players[s.currentPlayerIndex] || s.players[0]);
+  const gameId = useGameStore(s => s.gameId);
   const cameraMode = useGameStore(s => s.cameraMode);
   const setCameraMode = useGameStore(s => s.setCameraMode);
   const stars = useGameStore(s => s.metaProgress.stickerStars);
@@ -15,7 +17,8 @@ export const TopHeader: React.FC<{ onOpenSettings: () => void }> = ({ onOpenSett
     <div className="resource-bar">
       <button className="resource-pill" onClick={() => sounds.playCash()} title="Current player cash balance"
         aria-label={`Cash balance: $${activePlayer?.money.toLocaleString() ?? 0}`}>
-        <Banknote aria-hidden="true" /><span key={activePlayer?.money} className="resource-value">${activePlayer?.money.toLocaleString() ?? 0}</span>
+        <Banknote aria-hidden="true" /><BalanceText as="span" key={activePlayer?.id} value={activePlayer?.money ?? 0}
+          epoch={gameId} className="resource-value" />
       </button>
       <button className="resource-pill stars" onClick={() => sounds.playPurchase()} title="Sticker stars"
         aria-label={`Sticker stars: ${stars}`}><Gem aria-hidden="true" /><span className="resource-value">{stars}</span><small>Stars</small></button>

@@ -10,8 +10,9 @@ import { useSceneState } from '../../presentation/SceneStore';
 import { releaseInstanceBuffers } from '../environment/instanceResources';
 import { isArcadeOwnerTintMaterial, prepareArcadeRoofForOwnerTint } from './arcadeOwnerRoofMaterial';
 import { useInvalidateBoardShadow } from './BoardShadowLight';
+import { smoothStep } from '../../presentation/animationMath';
 import {
-  ARCADE_PROPERTY_STAGES, CONSTRUCTION_MS, HOTEL_CONSTRUCTION_MS,
+  ARCADE_PROPERTY_STAGES, ARCADE_CONSTRUCTION_MS, CONSTRUCTION_MS,
   arcadeConstructionPose, arcadePlotPlacement, arcadePropertyAsset,
 } from './arcadePropertyLayout';
 
@@ -23,7 +24,7 @@ type Site = ReturnType<typeof arcadePlotPlacement> & {
 };
 type Stage = typeof ARCADE_PROPERTY_STAGES[number];
 type Construction = { event: PresentationEvent; duration: number };
-type ModelPart = { geometry: THREE.BufferGeometry; material: THREE.Material; matrix: THREE.Matrix4 };
+type ModelPart = { geometry: THREE.BufferGeometry; material: THREE.Material; matrix: THREE.Matrix4; roof: boolean };
 type StageModel = { parts: ModelPart[] | null; request: Promise<ModelPart[] | null> };
 const STREET_IDS = BOARD_SPACES.filter(space => space.type === 'property').map(space => space.id);
 const NO_RAYCAST = () => {};
@@ -59,7 +60,8 @@ function loadStage(stage: Stage) {
       scene.updateMatrixWorld(true);
       scene.traverse(node => {
         if (node instanceof THREE.Mesh && !Array.isArray(node.material)) {
-          parts.push({ geometry: node.geometry, material: sharedMaterial(node.material), matrix: node.matrixWorld.clone() });
+          parts.push({ geometry: node.geometry, material: sharedMaterial(node.material), matrix: node.matrixWorld.clone(),
+            roof: isArcadeOwnerTintMaterial(node.material.name) });
         }
       });
       if (!parts.length) throw new Error(`Missing Arcade geometry for ${stage}`);
@@ -131,8 +133,11 @@ function PropertyBatch({ stage, level, sites, quality, active, parts }: Property
     pose.actor.rotation.y = site.rotationY;
     pose.actor.scale.set(shape.width, shape.height, shape.width);
     pose.actor.updateMatrix();
+    const roofDelay = level === 2 ? .13 * Math.sin(shape.t * Math.PI) * (1 - shape.t) : 0;
     parts.forEach((part, index) => {
-      meshes.current[index]?.setMatrixAt(slot, pose.matrix.multiplyMatrices(pose.actor.matrix, part.matrix));
+      pose.matrix.multiplyMatrices(pose.actor.matrix, part.matrix);
+      if (part.roof) pose.matrix.elements[13] -= roofDelay;
+      meshes.current[index]?.setMatrixAt(slot, pose.matrix);
     });
   };
   useLayoutEffect(() => {
@@ -170,7 +175,8 @@ function PropertyBatch({ stage, level, sites, quality, active, parts }: Property
     let changed = false;
     sites.forEach((site, slot) => {
       const construction = active.get(site.spaceId);
-      const shape = construction ? arcadeConstructionPose(now - construction.event.createdAt, construction.duration) : settledPose;
+      const elapsed = construction ? now - construction.event.createdAt : Infinity;
+      const shape = construction && elapsed < construction.duration ? arcadeConstructionPose(elapsed, construction.duration, level) : settledPose;
       if (shape.t < 1) {
         animated.current.add(site.spaceId);
       } else if (!animated.current.delete(site.spaceId)) {
@@ -194,33 +200,42 @@ function PropertyBatch({ stage, level, sites, quality, active, parts }: Property
 
 function ConstructionBurst({ site, construction, quality }: { site: Site; construction: Construction; quality: string }) {
   const { event, duration } = construction;
-  const hotel = event.developmentLevel === 3;
-  const count = quality === 'low' ? 0 : hotel ? (quality === 'high' ? 16 : 12) : (quality === 'high' ? 10 : 7);
+  const level = event.developmentLevel!;
+  const hotel = level === 3;
+  const count = quality === 'low' || level === 0 ? 0 : (quality === 'high' ? 6 : 4) + level * 2;
   const group = useRef<THREE.Group>(null);
   const ring = useRef<THREE.Mesh<THREE.RingGeometry, THREE.MeshBasicMaterial>>(null);
   const crown = useRef<THREE.Mesh<THREE.RingGeometry, THREE.MeshBasicMaterial>>(null);
   const sparks = useRef<THREE.InstancedMesh>(null);
   const dummy = useMemo(() => new THREE.Object3D(), []);
+  useLayoutEffect(() => {
+    const mesh = sparks.current;
+    if (!mesh) return;
+    mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    return () => releaseInstanceBuffers(mesh);
+  }, [count]);
   useFrame(() => {
     const progress = (performance.now() - event.createdAt) / duration;
-    const strength = Math.sin(Math.min(progress, 1) * Math.PI);
     if (!group.current || !ring.current) return;
     group.current.visible = progress < 1;
     if (progress >= 1) return;
-    ring.current.scale.set(.66 + progress * .19, .28 + progress * .074, 1);
-    ring.current.material.opacity = strength * .85;
+    const strength = level === 1 ? 1 - smoothStep(progress) : Math.sin(progress * Math.PI);
+    ring.current.scale.set(.68 + progress * .22, .28 + progress * .16, 1);
+    ring.current.material.opacity = strength * (level === 0 ? .46 : .84);
     if (crown.current) {
-      crown.current.position.y = .14 + progress * 1.48;
-      crown.current.scale.set(.57 - progress * .27, .34 - progress * .18, 1);
-      crown.current.material.opacity = strength * .54;
+      const reveal = smoothStep((progress - .38) / .62);
+      crown.current.position.y = .37 + reveal * 1.32;
+      crown.current.scale.set(.43 + reveal * .34, .27 + reveal * .22, 1);
+      crown.current.material.opacity = Math.sin(reveal * Math.PI) * .74;
     }
     if (sparks.current) {
       for (let i = 0; i < count; i++) {
-        const angle = i * Math.PI * 2 / count + progress * 1.2;
-        dummy.position.set(Math.cos(angle) * (.33 + progress * .31), .09 + strength * (.33 + (i % 4) * .13),
-          Math.sin(angle) * (.16 + progress * .15));
+        const angle = i * Math.PI * 2 / count + progress * (level > 1 ? 1.2 : .45);
+        const loft = level === 1 ? .31 * Math.sin(Math.PI * progress) : (level === 2 ? .62 : 1.3) * smoothStep(progress);
+        dummy.position.set(Math.cos(angle) * (.27 + progress * .58), .09 + loft * (.65 + (i % 4) * .14),
+          Math.sin(angle) * (.15 + progress * .29));
         dummy.rotation.set(progress * 2, angle, i);
-        dummy.scale.setScalar(strength * (i % 3 === 0 ? .052 : .032));
+        dummy.scale.setScalar(strength * (i % 3 === 0 ? .076 : .043));
         dummy.updateMatrix();
         sparks.current.setMatrixAt(i, dummy.matrix);
       }
@@ -238,7 +253,7 @@ function ConstructionBurst({ site, construction, quality }: { site: Site; constr
       <meshBasicMaterial color="#ffe47f" transparent opacity={0} depthWrite={false} toneMapped={false} side={THREE.DoubleSide} forceSinglePass />
     </mesh>}
     {count > 0 && <instancedMesh ref={sparks} args={[undefined, undefined, count]} frustumCulled={false} raycast={NO_RAYCAST}>
-      <octahedronGeometry args={[1, 0]} /><meshBasicMaterial color="#ffe5a4" toneMapped={false} />
+      <octahedronGeometry args={[1, 0]} /><meshBasicMaterial color={level === 1 ? '#dfb994' : '#ffe5a4'} toneMapped={false} />
     </instancedMesh>}
   </group>;
 }
@@ -272,10 +287,10 @@ export function ArcadePropertyLots({ quality, reduced, visible }: { quality: str
     if (reduced || !visible) return result;
     const now = performance.now();
     for (const event of events) {
-      if (event.createdAt < mountedAt.current || event.spaceId === undefined || event.developmentLevel === undefined) continue;
+      if (event.kind !== 'construction' || event.createdAt < mountedAt.current || event.spaceId === undefined || event.developmentLevel === undefined) continue;
       const property = properties[event.spaceId];
       if (!property || property.ownerId !== event.playerId || property.developmentLevel !== event.developmentLevel) continue;
-      const duration = (event.developmentLevel === 3 ? HOTEL_CONSTRUCTION_MS : CONSTRUCTION_MS) / speed;
+      const duration = ARCADE_CONSTRUCTION_MS[event.developmentLevel] / speed;
       if (now - event.createdAt >= duration) continue;
       result.set(event.spaceId, { event, duration });
     }
