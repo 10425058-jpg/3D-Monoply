@@ -147,13 +147,18 @@ async function verifyMatchRemounts(page, matchId) {
         const islands = window.__graphicsAudit?.islands().islands;
         return window.__centralCityAudit?.ready && islands?.length === 4 && islands.every(island => island.statueDraws > 0);
       }, { timeout, polling: 100 });
-      const scene = await page.evaluate(() => new Promise(resolve => {
+      const scene = await page.evaluate(() => new Promise((resolve, reject) => {
         const audit = window.__graphicsAudit;
         audit.camera([0, 35, 37], [0, .5, 0]);
         let frames = 0;
+        const deadline = setTimeout(() => {
+          stop();
+          reject(new Error('Remounted board did not submit five frames'));
+        }, 15_000);
         const stop = audit.observeRender(() => {
           if (++frames < 5) return;
           stop();
+          clearTimeout(deadline);
           const { memory, allocationEstimates } = audit.metadata();
           resolve({ memory, allocationEstimates });
         });
@@ -194,6 +199,7 @@ try {
   browser = await puppeteer.launch({
     executablePath: process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe',
     headless: true,
+    protocolTimeout: 45_000,
     args: ['--disable-background-timer-throttling', '--no-sandbox', '--disable-dev-shm-usage',
       '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
   });
@@ -267,6 +273,8 @@ try {
   assert.equal(await pages[3].evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
   assert.equal(await pages[3].$('.match-activity'), null);
   await shot(pages[3], 'clear-view-mobile');
+  // Isolate GPU allocation measurements from the other live 3D contexts.
+  await Promise.all(pages.slice(1).map(page => page.close()));
   const remounts = await verifyMatchRemounts(pages[0], four.matchId);
   console.log('Verified renderer allocations across three Home-to-Online match remounts.');
   assert.deepEqual(browserErrors, []);
