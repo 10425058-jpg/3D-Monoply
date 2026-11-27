@@ -3,7 +3,8 @@ import type { ArcadeLevel, CashTransfer, Player } from '../types/game';
 
 export type GameSnapshot = SceneState;
 export type EffectKind = 'roll' | 'dice-land' | 'move' | 'money' | 'ownership' | 'build' | 'construction' |
-  'mortgage' | 'turn' | 'card' | 'auction' | 'trade' | 'jail' | 'bankrupt' | 'victory' | 'raid' | 'transaction' | 'landmark';
+  'mortgage' | 'turn' | 'card' | 'auction' | 'trade' | 'jail' | 'bankrupt' | 'victory' | 'raid' | 'transaction' | 'landmark' |
+  'heist' | 'shutdown';
 export type CashReceipt = CashTransfer & { fromBalance?: number; toBalance?: number; fromName: string; toName: string };
 export interface EffectChange {
   kind: EffectKind;
@@ -17,23 +18,38 @@ export interface EffectChange {
   cash?: CashReceipt;
   detail?: string;
   developmentLevel?: ArcadeLevel;
+  dice?: readonly [number, number];
+  auctionWon?: boolean;
+  buildingCount?: number;
+  isAI?: boolean;
+  quiet?: boolean;
+  damaged?: boolean;
 }
-export interface PresentationEvent extends EffectChange { id: number; createdAt: number; expiresAt: number }
+export interface PresentationEvent extends EffectChange { id: string; createdAt: number; expiresAt: number }
+
+export function effectKey(change: EffectChange, revision: number, index: number) {
+  return change.activityId !== undefined
+    ? `commit:${change.activityId}:${change.kind}:${change.spaceId ?? ''}:${change.playerId ?? ''}`
+    : `scene:${revision}:${index}`;
+}
 
 /** Localized feedback reuses receipts; it never invents or duplicates a payment. */
 export function tilePulseEvents(events: PresentationEvent[]) {
   const bySpace = new Map<number, PresentationEvent>();
   for (const event of events) {
     if (event.spaceId === undefined) continue;
-    if (['ownership', 'build', 'mortgage', 'jail'].includes(event.kind) || event.cash?.category === 'rent' ||
-      (event.kind === 'money' && event.spaceId === 0 && (event.amount ?? 0) > 0)) {
+    const salary = event.cash?.category === 'salary';
+    const property = event.kind === 'ownership' && event.playerId !== undefined ||
+      event.kind === 'build' && (event.developmentLevel === undefined || (event.amount ?? 0) < 0);
+    if (property || event.kind === 'mortgage' || event.kind === 'jail' || event.cash?.category === 'rent' || salary) {
       bySpace.set(event.spaceId, event);
     }
   }
   return [...bySpace.values()].slice(-4);
 }
 
-const SOUND_PRIORITY: EffectKind[] = ['victory', 'bankrupt', 'jail', 'dice-land', 'roll', 'landmark', 'trade', 'ownership', 'build', 'card', 'auction', 'raid', 'mortgage', 'transaction', 'turn', 'money', 'move'];
+const SOUND_PRIORITY: EffectKind[] = ['victory', 'bankrupt', 'jail', 'dice-land', 'roll', 'heist', 'shutdown', 'landmark',
+  'trade', 'ownership', 'construction', 'build', 'card', 'auction', 'raid', 'mortgage', 'transaction', 'turn', 'money', 'move'];
 export function primaryEffect(changes: EffectChange[]) {
   for (const kind of SOUND_PRIORITY) {
     const event = changes.find(change => change.kind === kind && (kind !== 'transaction' || change.cash));
@@ -46,13 +62,22 @@ export function isGameReset(previous: GameSnapshot, next: GameSnapshot) {
   return next.logs[0] !== previous.logs[0] && next.logs[0]?.id.startsWith('start-') === true;
 }
 
-export function transactionEffect(transfer: CashTransfer, players: Player[], balances?: Pick<CashReceipt, 'fromBalance' | 'toBalance'>): EffectChange {
+export function didEndGame(previous: GameSnapshot, next: GameSnapshot) {
+  return (next.turnPhase === 'GAME_OVER' && previous.turnPhase !== 'GAME_OVER') || (!!next.winner && !previous.winner);
+}
+
+export function transactionEffect(transfer: CashTransfer, players: Player[], balances?: Pick<CashReceipt, 'fromBalance' | 'toBalance'>,
+  activityId?: string): EffectChange {
   const from = players.find(p => p.id === transfer.fromId);
   const to = players.find(p => p.id === transfer.toId);
-  return { kind: 'transaction', label: transfer.reason, spaceId: transfer.spaceId, cash: {
+  return { kind: 'transaction', label: transfer.reason, spaceId: transfer.spaceId, activityId, cash: {
     ...transfer, fromName: from?.name ?? 'Bank', toName: to?.name ?? 'Bank',
     fromBalance: from?.money, toBalance: to?.money, ...balances,
   } };
+}
+
+export function turnEffect(player: Player, prior?: Player): EffectChange {
+  return { kind: 'turn', playerId: player.id, label: player.name, isAI: player.isAI, quiet: player.isAI && prior?.isAI };
 }
 
 /** One adapter for confirmed changes. It never calls an action or adjusts results. */
@@ -60,10 +85,12 @@ export function collectEffectChanges(previous: GameSnapshot, next: GameSnapshot)
   if (isGameReset(previous, next)) return [];
   const events: EffectChange[] = [];
   if (previous.turnPhase !== 'ROLLING' && next.turnPhase === 'ROLLING') events.push({ kind: 'roll', label: 'Rolling dice' });
-  if (previous.turnPhase === 'ROLLING' && next.turnPhase !== 'ROLLING') events.push({ kind: 'dice-land', label: `${next.dice[0]} + ${next.dice[1]} = ${next.dice[0] + next.dice[1]}` });
+  if (previous.turnPhase === 'ROLLING' && next.turnPhase !== 'ROLLING') events.push({
+    kind: 'dice-land', dice: next.dice, label: `${next.dice[0]} + ${next.dice[1]} = ${next.dice[0] + next.dice[1]}`,
+  });
   const online = next.committedEffects !== undefined;
   if (online && next.committedEffects !== previous.committedEffects) events.push(...next.committedEffects!);
-  for (const player of next.players) {
+  for (const player of previous.players === next.players ? [] : next.players) {
     const before = previous.players.find(p => p.id === player.id);
     if (!before) continue;
     if (before.position !== player.position) events.push({ kind: 'move', playerId: player.id, spaceId: player.position, from: before.position, to: player.position, label: player.name });
@@ -87,28 +114,32 @@ export function collectEffectChanges(previous: GameSnapshot, next: GameSnapshot)
       label: `${player.name} upgraded their Landmark`, detail: `Level ${player.landmarkLevel} · +$${player.landmarkLevel * 50} when passing GO` });
   }
   if (online) return events;
-  for (const property of Object.values(next.properties)) {
+  for (const property of previous.properties === next.properties ? [] : Object.values(next.properties)) {
     const before = previous.properties[property.spaceId];
     if (!before) continue;
+    const auctionWon = property.ownerId !== null && previous.auction?.spaceId === property.spaceId;
     if (before.ownerId !== property.ownerId) events.push({
       kind: 'ownership', playerId: property.ownerId ?? undefined, spaceId: property.spaceId,
       label: property.ownerId === null ? 'Deed returned to the Bank' :
-        previous.auction?.spaceId === property.spaceId ? 'Auction won' : before.ownerId === null ? 'Property purchased' : 'Ownership transferred',
+        auctionWon ? 'Auction won' : before.ownerId === null ? 'Property purchased' : 'Ownership transferred',
+      auctionWon,
     });
     if (property.developmentLevel !== undefined && property.ownerId !== null && before.ownerId === property.ownerId) {
       const from = before.developmentLevel ?? 0;
       const to = property.developmentLevel;
       if (to !== from) events.push({
-        kind: 'build', playerId: property.ownerId, spaceId: property.spaceId, amount: to - from,
+        kind: 'build', playerId: property.ownerId, spaceId: property.spaceId, amount: to - from, developmentLevel: to,
         label: to > from ? `Property upgraded · Level ${to}` : 'Building sold',
       });
     }
-    if (before.houses !== property.houses) events.push({ kind: 'build', playerId: property.ownerId ?? undefined, spaceId: property.spaceId,
+    if (before.houses !== property.houses) events.push({ kind: 'build', playerId: property.ownerId ?? undefined, spaceId: property.spaceId, buildingCount: property.houses,
       amount: property.houses - before.houses, label: property.houses > before.houses ? (property.houses === 5 ? 'Hotel built' : 'House built') : 'Building sold' });
     if (before.isMortgaged !== property.isMortgaged) events.push({ kind: 'mortgage', spaceId: property.spaceId, label: property.isMortgaged ? 'Property mortgaged' : 'Mortgage released' });
   }
   const active = next.players[next.currentPlayerIndex];
-  if (previous.currentPlayerIndex !== next.currentPlayerIndex && active && !active.isBankrupt) events.push({ kind: 'turn', playerId: active.id, label: active.isAI ? `${active.name}'s turn` : `${active.name} · Your turn` });
+  if (active && !active.isBankrupt && previous.players[previous.currentPlayerIndex]?.id !== active.id) {
+    events.push(turnEffect(active, previous.players[previous.currentPlayerIndex]));
+  }
   if (next.activeCard && next.activeCard !== previous.activeCard) events.push({ kind: 'card', label: next.activeCard.title });
   if (next.auction && !previous.auction) events.push({ kind: 'auction', spaceId: next.auction.spaceId, label: 'Auction started' });
   if (previous.auction && !next.auction && next.properties[previous.auction.spaceId]?.ownerId === null) events.push({ kind: 'auction',
@@ -116,17 +147,26 @@ export function collectEffectChanges(previous: GameSnapshot, next: GameSnapshot)
   if (next.railroadRaid && !previous.railroadRaid) events.push({ kind: 'raid', label: 'Railroad bonus unlocked' });
   if (next.winner && next.winner.id !== previous.winner?.id) events.push({ kind: 'victory', playerId: next.winner.id, label: `${next.winner.name} wins!` });
   // Construction is a committed action beat. Installing an owned board snapshot alone does not play it.
-  if (next.ruleset === 'arcade' && next.activity && next.activity !== previous.activity) {
+  if (next.activity && next.activity !== previous.activity) {
     const known = new Set(previous.activity?.map(event => event.id));
     for (const entry of next.activity) {
-      if (known.has(entry.id) || entry.silent || entry.spaceId === undefined) continue;
+      if (known.has(entry.id) || entry.silent) continue;
+      if (entry.kind === 'railroad' && entry.transfers?.length) {
+        const reason = entry.transfers[0].reason;
+        if (reason === 'Bank heist') events.push({ kind: 'heist', activityId: entry.id, label: entry.title });
+        if ((reason === 'Landmark shutdown' || reason === 'Landmark raid') && entry.counterparty) {
+          events.push({ kind: 'shutdown', activityId: entry.id, label: entry.title, playerId: Number(entry.counterparty.id),
+            damaged: entry.level !== undefined && entry.previousLevel !== undefined && entry.level < entry.previousLevel });
+        }
+      }
+      if (next.ruleset !== 'arcade' || entry.spaceId === undefined) continue;
       const purchase = entry.kind === 'purchase' || (entry.kind === 'auction' && !!entry.transfers?.length);
       const property = next.properties[entry.spaceId];
       const level = property?.developmentLevel;
       if (level === undefined || property.ownerId === null || String(property.ownerId) !== entry.actor?.id) continue;
       if (!(purchase && level === 0) && !(entry.kind === 'upgrade' && entry.level === level && level > 0)) continue;
       events.push({ kind: 'construction', playerId: property.ownerId, spaceId: entry.spaceId,
-        developmentLevel: level, label: entry.title });
+        developmentLevel: level, label: entry.title, activityId: entry.id });
     }
   }
   // Trades have no dedicated result field. Consume only newly confirmed log IDs.
@@ -134,7 +174,7 @@ export function collectEffectChanges(previous: GameSnapshot, next: GameSnapshot)
     const known = new Set(previous.logs.map(log => log.id));
     for (const log of [...next.logs].reverse()) if (!known.has(log.id)) {
       if(log.message.startsWith('Trade completed between '))events.push({kind:'trade',label:log.message});
-      if (log.transfers) events.push(...log.transfers.map(transfer => transactionEffect(transfer, next.players)));
+      if (log.transfers) events.push(...log.transfers.map((transfer, index) => transactionEffect(transfer, next.players, undefined, `${log.id}:${index}`)));
       else if (log.type === 'money') events.push({kind:'transaction',label:log.message});
       else if (log.message.includes(' passed on buying ')) events.push({ kind: 'auction', label: log.message });
       else if (log.message.includes(' kept a "Get Out of Jail Free" card')) events.push({ kind: 'card', label: log.message });

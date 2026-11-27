@@ -1,35 +1,44 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { AnimatedToken } from './AnimatedToken';
+import { AnimatedToken, type TokenEffectGeometry } from './AnimatedToken';
 import { RoyalToken } from './RoyalToken';
 import { ArcadePropertyLots } from './ArcadePropertyLots';
 import { useMotionPreferences } from '../../presentation/useMotionPreferences';
+import { usePresentationEvents } from '../../presentation/PresentationProvider';
+import type { PresentationEvent } from '../../presentation/effectEvents';
 import * as THREE from 'three';
 import { useSceneState as useGameStore, useSceneStore } from '../../presentation/SceneStore';
 import { BOARD_SPACES, getSpaceTransform } from '../../data/boardData';
 import { royalTokenAsset } from '../../data/royalTokenAssets';
 import { TokenType } from '../../types/game';
-import {tileActorHeight, TOKEN_RING_OUTER_RADIUS, tokenRingScale} from '../../presentation/animationMath';
+import { tileActorHeight, TOKEN_RING_OUTER_RADIUS } from '../../presentation/animationMath';
 import { useInvalidateBoardShadow } from './BoardShadowLight';
 
-const PopInGroup: React.FC<{ position: [number, number, number]; reduced: boolean; children: React.ReactNode }> = ({ position, reduced, children }) => {
+const PopInGroup: React.FC<{
+  position: [number, number, number]; reduced: boolean; event?: PresentationEvent; children: React.ReactNode;
+}> = ({ position, reduced, event, children }) => {
   const store = useSceneStore();
   const groupRef = useRef<THREE.Group>(null);
-  const startedAt = useRef(performance.now());
-  const duration = useRef(380 / store.getState().gameSpeed);
-  const settled = useRef(false);
+  const finished = useRef<string>();
+  const duration = 440 / store.getState().gameSpeed;
   useFrame(({ gl }) => {
     const group = groupRef.current;
-    if (!group || settled.current || document.hidden) return;
-    const progress = reduced ? 1 : Math.min(1, (performance.now() - startedAt.current) / duration.current);
+    if (!group || !event || finished.current === event.id || document.hidden) return;
+    const progress = reduced ? 1 : Math.min(1, (performance.now() - event.createdAt) / duration);
     const build = Math.max(0, (progress - .12) / .88);
     const eased = 1 - (1 - build) ** 3;
     group.scale.set(.18 + eased * .82, .12 + eased * .88 + Math.sin(build * Math.PI) * .12, .18 + eased * .82);
     group.position.y = position[1] * eased;
     gl.shadowMap.needsUpdate = true;
-    if (progress === 1) settled.current = true;
+    if (progress === 1) finished.current = event.id;
   });
-  return <group ref={groupRef} position={position} scale={reduced ? 1 : .18}>{children}</group>;
+  useLayoutEffect(() => {
+    if (!event && groupRef.current) {
+      groupRef.current.scale.setScalar(1);
+      groupRef.current.position.y = position[1];
+    }
+  }, [event, position]);
+  return <group ref={groupRef} position={position}>{children}</group>;
 };
 const TokenMesh = React.memo(function TokenMesh({ token, color }: { token: TokenType; color: string }) {
   const invalidateShadow = useInvalidateBoardShadow();
@@ -257,22 +266,27 @@ const PlayerTokens = React.memo(function PlayerTokens({ quality, reducedMotion, 
   quality: string; reducedMotion: boolean; visible: boolean;
 }) {
   const players = useGameStore((s) => s.players);
-  const currentPlayerIndex = useGameStore((s) => s.currentPlayerIndex);
+  const events = usePresentationEvents();
+  const geometry = useMemo<TokenEffectGeometry>(() => ({
+    identity: new THREE.RingGeometry(.27, TOKEN_RING_OUTER_RADIUS, 32),
+    ripple: new THREE.RingGeometry(.88, 1, 24),
+    trail: new THREE.OctahedronGeometry(1, 0),
+  }), []);
+  useEffect(() => () => Object.values(geometry).forEach(shape => shape.dispose()), [geometry]);
   return (
     <>
       {/* Player Tokens */}
       {players.map((player, index) => {
-        if (player.isBankrupt) return null;
+        const elimination = player.isBankrupt && !reducedMotion
+          ? events.find(event => event.kind === 'bankrupt' && event.playerId === player.id)
+          : undefined;
+        if (player.isBankrupt && !elimination) return null;
         const asset = royalTokenAsset(player.token);
         const fallback = <TokenMesh token={player.token} color={player.color} />;
         return (
-          <AnimatedToken key={player.id} player={player} index={index} reduced={reducedMotion} visible={visible} trails={quality !== 'low' && !reducedMotion}>
+          <AnimatedToken key={player.id} player={player} index={index} reduced={reducedMotion} visible={visible}
+            trails={quality !== 'low' && !reducedMotion} eliminatedAt={elimination?.createdAt} geometry={geometry}>
             {asset ? <RoyalToken asset={asset} fallback={fallback} shadows={quality !== 'low'} /> : fallback}
-            {/* Coloured Player Ring Indicator */}
-            <mesh name="player-identity-ring" position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={tokenRingScale(players.length)} raycast={() => {}}>
-              <ringGeometry args={[0.27, TOKEN_RING_OUTER_RADIUS, 32]} />
-              <meshPhysicalMaterial color={player.color} emissive={player.color} emissiveIntensity={index === currentPlayerIndex ? 0.38 : 0.08} metalness={0.12} roughness={0.38} clearcoat={.3} side={THREE.DoubleSide} />
-            </mesh>
           </AnimatedToken>
         );
       })}
@@ -298,6 +312,7 @@ function BuildingWindows({ geometry, material, matrices }: {
 
 function ClassicBuildings({ reduced }: { reduced: boolean }) {
   const properties = useGameStore(s => s.properties);
+  const events = usePresentationEvents();
   const hovered = useGameStore(s => s.hoveredSpaceId);
   const selected = useGameStore(s => s.selectedSpaceId);
   const invalidateShadow = useInvalidateBoardShadow();
@@ -325,6 +340,9 @@ function ClassicBuildings({ reduced }: { reduced: boolean }) {
         const prop = properties[space.id];
         if (!prop || prop.houses <= 0) return null;
         const tf = getSpaceTransform(space.id);
+        const construction = events.find(event => event.kind === 'build' && event.spaceId === space.id &&
+          event.buildingCount === prop.houses && (event.amount ?? 0) > 0 && events.some(receipt =>
+            receipt.spaceId === space.id && receipt.createdAt === event.createdAt && receipt.cash?.category === 'construction'));
 
         return (
           <group
@@ -335,7 +353,7 @@ function ClassicBuildings({ reduced }: { reduced: boolean }) {
           >
             {prop.houses === 5 ? (
               /* Red 3D Hotel */
-              <PopInGroup reduced={reduced} position={[0, 0.19, -tf.depth / 2 + 0.34]}>
+              <PopInGroup reduced={reduced} event={construction} position={[0, 0.19, -tf.depth / 2 + 0.34]}>
                 <mesh castShadow receiveShadow>
                   <boxGeometry args={[0.58, 0.38, 0.42]} />
                   <meshPhysicalMaterial color="#a92337" metalness={0.35} roughness={0.24} clearcoat={0.9} />
@@ -365,6 +383,7 @@ function ClassicBuildings({ reduced }: { reduced: boolean }) {
                 const startX = -((prop.houses - 1) * spacing) / 2;
                 return (
                   <PopInGroup reduced={reduced}
+                    event={hIdx >= prop.houses - (construction?.amount ?? 0) ? construction : undefined}
                     key={hIdx}
                     position={[startX + hIdx * spacing, 0.13, -tf.depth / 2 + 0.34]}
                   >

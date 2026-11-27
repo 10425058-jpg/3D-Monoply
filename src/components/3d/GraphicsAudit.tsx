@@ -150,7 +150,8 @@ export function GraphicsAudit({ quality }: { quality: string }) {
         return [0,1].map(index=>{
           const die=scene.getObjectByName(`die-${index}`),q=die?.getWorldQuaternion(new THREE.Quaternion());
           const top=q?faces.map(([face,normal])=>({face,y:new THREE.Vector3().fromArray(normal).applyQuaternion(q).y})).sort((a,b)=>b.y-a.y)[0]:null;
-          return {index,visible:die?.visible,scale:die?.scale.toArray(),face:top?.face,up:top?.y,position:die?.getWorldPosition(new THREE.Vector3()).toArray()};
+          return {index,visible:die?.visible,scale:die?.scale.toArray(),face:top?.face,up:top?.y,position:die?.getWorldPosition(new THREE.Vector3()).toArray(),
+            highlighted: scene.getObjectByName(`die-face-highlight-${index}`)?.visible === true};
         });
       },
       actors() {
@@ -181,6 +182,9 @@ export function GraphicsAudit({ quality }: { quality: string }) {
           return {
             id: player.id, token: player.token, ai: player.isAI, tile: player.position,
             asset: model?.name, position: actor?.position.toArray(), heading: actor?.rotation.y,
+            visible: actor?.visible === true,
+            rippling: scene.getObjectByName(`token-ripple-${player.id}`)?.visible === true,
+            trailing: scene.getObjectByName(`token-trail-${player.id}`)?.visible === true,
             bounds: bounds && { min: bounds.min.toArray(), max: bounds.max.toArray() },
             identityColor: ring instanceof THREE.Mesh ? `#${ring.material.color.getHexString()}` : null,
             triangles, drawMeshes, shadowCasters, textures: maps.size,
@@ -294,6 +298,11 @@ export function GraphicsAudit({ quality }: { quality: string }) {
           properties: game.properties };
       },
       start() { samples.length = 0; collecting = true; previous = 0; },
+      cues() {
+        return scene.getObjectByName('presentation-effects')?.children
+          .filter(object => object.visible && object.name.startsWith('effect-'))
+          .map(object => object.name) ?? [];
+      },
       stop() { collecting = false; return { samples: [...samples], metadata: audit.metadata() }; },
       observeRender(listener: (frame: { at: number; renderMs: number }) => void) {
         renderListeners.add(listener);

@@ -15,7 +15,7 @@ export const TREASURY_LAYOUT: Record<CoinValue, { x: number; z: number; radius: 
 
 export const MAX_ISLAND_TRANSFERS = 10;
 export const MAX_FLIGHT_COINS = 7;
-export const COIN_STAGGER_MS = 60;
+export const COIN_STAGGER_MS = 46;
 
 export type IslandFlight = IslandTransfer & {
   id: number;
@@ -34,10 +34,10 @@ export function islandFlight(transfer: IslandTransfer, id: number, now: number, 
   const direct = fromId !== null && toId !== null;
   const across = direct && Math.abs(toId - fromId) === 2;
   const pieces = reduced ? [] : coinPieces(transfer.amount, low ? 4 : MAX_FLIGHT_COINS);
-  const duration = direct ? (across ? 1530 : 1280) : 920;
+  const duration = direct ? (across ? 1160 : 960) : 720;
   const arrivesAt = pieces.length ? now + duration + (pieces.length - 1) * COIN_STAGGER_MS : now;
   return { fromId, toId, amount: transfer.amount, id, startedAt: now, duration, arrivesAt,
-    expiresAt: Math.max(now + 1740, arrivesAt + 780), pieces };
+    expiresAt: Math.max(now + 1320, arrivesAt + 820), pieces };
 }
 
 export function liveIslandFlights(flights: readonly IslandFlight[], now: number) {

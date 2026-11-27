@@ -16,23 +16,36 @@ export const movementDuration = (speed: number) => 0.145 / speed;
 export const DICE_ROLL_MS = 680;
 export const TOKEN_STEP_MS = 155;
 
-/** Anticipation, a long throw, and two short bounces. Progress is shared with the committed roll. */
-export function diceThrow(progress: number, index: number) {
-  const windup = smoothStep(progress / .14);
-  const travel = Math.max(0, Math.min(1, (progress - .14) / .86));
+const DICE_RELEASE = .135;
+export const DICE_IMPACTS = [[.61, .805, .94], [.652, .835, .953]] as const;
+type DicePose = { x: number; z: number; height: number; pitch: number; yaw: number; bank: number };
+export const createDicePose = (): DicePose => ({ x: 0, z: 0, height: 0, pitch: 0, yaw: 0, bank: 0 });
+
+export const diceRestYaw = (roll: number, index: number) =>
+  (index === 0 ? -.18 : .24) + ((roll + index * 3) % 5 - 2) * .08;
+
+/** Three diminishing flights. Relative spin is zero at rest, so yaw can vary independently of the upward face. */
+export function diceThrow(progress: number, index: number, roll = 0, pose = createDicePose()) {
+  const [first, second, third] = DICE_IMPACTS[index === 0 ? 0 : 1];
   const direction = index === 0 ? -1 : 1;
-  const flight = travel < .57 ? [0, .57, .86] : travel < .83 ? [.57, .83, .24] : [.83, 1, .07];
-  const bounce = (travel - flight[0]) / (flight[1] - flight[0]);
-  const height = 4 * bounce * (1 - bounce) * flight[2];
-  const turn = 2 * Math.PI * (1 - (1 - travel) ** 2);
-  return {
-    x: direction * (1 - smoothStep(travel)) * (.28 * windup - .1 * Math.sin(travel * Math.PI)),
-    z: -.52 * windup * (1 - travel) ** 2 + .11 * Math.sin(travel * Math.PI),
-    height: height * (index === 0 ? 1 : .85),
-    pitch: 2 * turn,
-    yaw: direction * turn,
-    bank: direction * (turn + Math.sin(windup * Math.PI) * .17),
-  };
+  const variant = ((roll * 3 + index * 5) % 7 - 3) / 3;
+  const t = Math.max(0, Math.min(third, progress));
+  const windup = smoothStep(t / DICE_RELEASE);
+  const flight = Math.max(0, (t - DICE_RELEASE) / (third - DICE_RELEASE));
+  const ground = 1 - (1 - flight) ** 2;
+  const start = t < first ? DICE_RELEASE : t < second ? first : second;
+  const end = t < first ? first : t < second ? second : third;
+  const bounce = Math.max(0, (t - start) / (end - start));
+  const arc = t < first ? 1.02 + variant * .11 - index * .09 : t < second ? .28 : .085;
+  const spin = 2 * Math.PI * (1 - flight) ** 2;
+  const load = windup * (1 - flight);
+  pose.x = direction * (.24 * load + (.5 + variant * .14) * Math.sin(ground * Math.PI));
+  pose.z = -.58 * (1 - ground) * windup + (.29 + variant * .2) * Math.sin(ground * Math.PI);
+  pose.height = 4 * bounce * (1 - bounce) * arc;
+  pose.pitch = spin * (roll % 2 ? -2 : 2) * (index ? -1 : 1) + .18 * load;
+  pose.yaw = direction * spin - variant * .32 * load;
+  pose.bank = direction * (spin + .14 * load);
+  return pose;
 }
 
 /** A new roll has no landing age yet. Keep it full size until it settles. */
@@ -61,7 +74,15 @@ export const tokenRingScale = (count: number) => count > 4 ? .8 : 1;
 /** Align actors above the same lifted top surface used by Board3D. */
 export const tileActorHeight=(id:number,hovered:number|null,selected:number|null)=>.34+(hovered===id ? .12 : selected===id ? .08 : 0);
 
-export function hopPose(progress: number) {
+export const createHopPose = () => ({ blend: 0, height: 0, tilt: 0 });
+
+export function hopPose(progress: number, pose = createHopPose()) {
   const t = Math.max(0, Math.min(1, progress));
-  return { blend: smoothStep(t), height: Math.sin(t * Math.PI) * 0.42, tilt: Math.sin(t * Math.PI) * 0.12 };
+  const arc = t < .5 ? Math.max(0, (t - .12) / .38) : (1 - t) / .5;
+  pose.blend = smoothStep((t - .12) / .88);
+  pose.height = Math.sin(Math.PI * .5 * arc) * .42;
+  pose.tilt = t < .12 ? -.095 * Math.sin(t / .12 * Math.PI) : .12 * Math.sin(2 * Math.PI * (t - .12) / .88);
+  return pose;
 }
+
+export const turnAngle = (from: number, to: number) => Math.atan2(Math.sin(to - from), Math.cos(to - from));

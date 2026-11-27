@@ -79,6 +79,11 @@ test('construction rises briefly and fully settles after its committed lifetime'
   assert.ok(start.height > 0 && midway.height > start.height);
   assert.ok(HOTEL_CONSTRUCTION_MS > CONSTRUCTION_MS && HOTEL_CONSTRUCTION_MS < 1000);
   assert.deepEqual(arcadeConstructionPose(10_000, CONSTRUCTION_MS), { t: 1, width: 1, height: 1 });
+  const stages = [0, 1, 2, 3].map(level => arcadeConstructionPose(80, CONSTRUCTION_MS, level).height);
+  assert.equal(new Set(stages).size, 4);
+  for (const level of [0, 1, 2, 3]) {
+    assert.deepEqual(arcadeConstructionPose(10_000, CONSTRUCTION_MS, level), { t: 1, width: 1, height: 1 });
+  }
 });
 
 test('house, apartment and hotel use owner-tintable roofs without changing other GLB materials', () => {

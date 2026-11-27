@@ -327,6 +327,10 @@ test('a committed Online roll walks each space and then follows the ordered back
   assert.equal(motion.rolls, true);
   assert.deepEqual(motion.beats.map(beat => 'card' in beat ? beat.card.label : beat.positions),
     [[1, 2, 3, 4, 5, 6, 7], 'Go Back Three Spaces', [6, 5, 4]]);
+  const timelineCard = motion.beats.find(beat => 'card' in beat);
+  const resultCard = committedFeedback(before, after, events, mapMatch(after).players, presentationLabels).find(effect => effect.kind === 'card');
+  assert.ok(timelineCard && 'card' in timelineCard && resultCard?.activityId);
+  assert.equal(timelineCard.card.activityId, resultCard.activityId, 'commit and card reveal share one presentation identity');
   assert.deepEqual(committedMove(before, after, events.slice(0, -1), presentationLabels).beats, []);
 });
 

@@ -11,7 +11,7 @@ async function loadTS(path) {
   return import(`data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`);
 }
 const math = await loadTS('../src/presentation/animationMath.ts');
-const { collectEffectChanges: diff, isGameReset, primaryEffect, tilePulseEvents } = await loadTS('../src/presentation/effectEvents.ts');
+const { collectEffectChanges: diff, effectKey, isGameReset, primaryEffect, tilePulseEvents } = await loadTS('../src/presentation/effectEvents.ts');
 const snapshot = () => ({
   players: [{ id: 0, name: 'You', money: 1500, position: 0, isAI: false, inJail: false, isBankrupt: false },
     { id: 1, name: 'Rival', money: 1500, position: 0, isAI: true, inJail: false, isBankrupt: false }],
@@ -69,11 +69,19 @@ test('each throw winds up, bounces, and settles on the authoritative orientation
       assert.ok(moving.height > .4);
       assert.ok(Math.hypot(rest.x, rest.z, rest.height) < 1e-10);
       const rotation = math.DIE_REST_ROTATIONS[die];
-      const q = new Quaternion().setFromEuler(new Euler(rotation[0] + rest.pitch, rotation[1] + rest.yaw, rotation[2] + rest.bank));
-      assert.ok(new Vector3(...normals[die]).applyQuaternion(q).distanceTo(new Vector3(0, 1, 0)) < 1e-10);
+      for (let roll = 0; roll < 5; roll++) {
+        const up = new Vector3(0, 1, 0);
+        const q = new Quaternion().setFromEuler(new Euler(...rotation))
+          .premultiply(new Quaternion().setFromAxisAngle(up, math.diceRestYaw(roll, index)));
+        assert.ok(new Vector3(...normals[die]).applyQuaternion(q).distanceTo(up) < 1e-10);
+      }
     });
   }
   assert.notEqual(math.diceThrow(.39, 0).yaw, math.diceThrow(.39, 1).yaw);
+  assert.notEqual(math.diceThrow(.39, 1, 1).pitch, math.diceThrow(.39, 1, 2).pitch);
+  for (const [index, impacts] of math.DICE_IMPACTS.entries()) {
+    for (const moment of impacts) assert.equal(math.diceThrow(moment, index).height, 0);
+  }
 });
 
 test('dice remain full size throughout tumbling and consecutive rolls, then fade only after landing', () => {
@@ -102,14 +110,14 @@ test('four to six shared-space player rings remain separate at the largest corne
 
 test('tile pulses reuse exact committed GO receipts and coalesce property changes without new rewards', () => {
   const events = [
-    {id: 1, kind: 'money', spaceId: 0, amount: 350, playerId: 0},
+    {id: 1, kind: 'transaction', spaceId: 0, cash: { category: 'salary', amount: 350, toId: 0, fromId: null }},
     {id: 2, kind: 'money', spaceId: 3, amount: 20, playerId: 1},
-    {id: 3, kind: 'money', spaceId: 0, amount: -60, playerId: 2},
+    {id: 3, kind: 'money', spaceId: 0, amount: 60, playerId: 2},
     {id: 4, kind: 'ownership', spaceId: 1, playerId: 0},
     {id: 5, kind: 'build', spaceId: 1, playerId: 0},
   ];
   assert.deepEqual(tilePulseEvents(events), [events[0], events[4]]);
-  assert.equal(tilePulseEvents(events)[0].amount, 350);
+  assert.equal(tilePulseEvents(events)[0].cash.amount, 350);
   assert.equal(events.length, 5);
   assert.deepEqual(tilePulseEvents([]), []);
 });
@@ -118,6 +126,9 @@ test('hop starts and ends on the actual tile, with eased endpoints', () => {
   assert.ok(Math.abs(math.hopPose(1).height) < 1e-10);
   assert.equal(math.hopPose(.5).height, .42);
   assert.ok(math.hopPose(.001).blend < .00001);
+  assert.equal(math.hopPose(.06).height, 0);
+  assert.ok(math.hopPose(.06).tilt < 0);
+  assert.ok(Math.abs(math.turnAngle(Math.PI - .1, -Math.PI + .1) - .2) < 1e-10);
   assert.equal(math.smoothStep(-1), 0); assert.equal(math.smoothStep(2), 1);
 });
 test('corner wrapping and backwards steps are adjacent; jail jumps are not', () => {
@@ -154,6 +165,7 @@ test('roll/landing events follow phase changes and exact stored dice', () => {
   assert.equal(diff(a, b).filter(e => e.kind === 'roll').length, 1);
   const c = copy(b); c.turnPhase = 'MOVING';
   assert.equal(diff(b, c).find(e => e.kind === 'dice-land').label, '6 + 4 = 10');
+  assert.deepEqual(diff(b, c).find(e => e.kind === 'dice-land').dice, [6, 4]);
   assert.deepEqual(diff(c, c), []);
 });
 test('turn announcements do not replay on money or property updates', () => {
@@ -161,6 +173,18 @@ test('turn announcements do not replay on money or property updates', () => {
   assert.equal(diff(a, b).filter(e => e.kind === 'turn').length, 1);
   const c = copy(b); c.players[1].money -= 20;
   assert.equal(diff(b, c).some(e => e.kind === 'turn'), false);
+  b.players.push({ ...b.players[1], id: 2, name: 'Rival 2' });
+  const anotherAI = { ...b, currentPlayerIndex: 2 };
+  assert.equal(diff(b, anotherAI).find(e => e.kind === 'turn').quiet, true);
+});
+
+test('committed identities distinguish transfers and coalesce repeated delivery of the same event', () => {
+  const card = { kind: 'card', activityId: 'match-3:19:2' };
+  assert.equal(effectKey(card, 3, 1), effectKey({ ...card }, 5, 4));
+  assert.notEqual(effectKey(card, 3, 1), effectKey({ ...card, kind: 'transaction' }, 3, 1));
+  const money = { kind: 'money', activityId: 'rent-3', playerId: 0 };
+  assert.notEqual(effectKey(money, 3, 1), effectKey({ ...money, playerId: 1 }, 3, 1));
+  assert.notEqual(effectKey({ kind: 'dice-land' }, 4, 1), effectKey({ kind: 'dice-land' }, 5, 1));
 });
 test('restart cancels effects rather than showing refunds or purchases', () => {
   const a = snapshot(); a.players[0].money = 10; a.properties[1].ownerId = 0;

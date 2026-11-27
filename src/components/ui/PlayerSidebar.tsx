@@ -3,9 +3,11 @@ import { Users, Crown, ChevronDown, Castle } from 'lucide-react';
 import { useGameStore } from '../../store/useGameStore';
 import { CharacterAvatar } from './Avatars';
 import { sounds } from '../../utils/audio';
+import { BalanceText } from './BalanceText';
 
 export const PlayerSidebar: React.FC = () => {
   const players = useGameStore(s => s.players);
+  const gameId = useGameStore(s => s.gameId);
   const currentPlayerIndex = useGameStore(s => s.currentPlayerIndex);
   const properties = useGameStore(s => s.properties);
   const phase = useGameStore(s => s.turnPhase);
@@ -28,7 +30,7 @@ export const PlayerSidebar: React.FC = () => {
   return <aside className={`fantasy-players royal-panel ${expanded ? 'is-expanded' : ''}`} aria-label="Players">
     <button className="players-collapse" aria-expanded={expanded} aria-controls="kingdom-players"
       onClick={() => { sounds.playClick(); setExpanded(v => !v); }}>
-      <Crown size={17} /><span>{active.name}'s turn</span><strong>${active.money.toLocaleString()}</strong><ChevronDown size={15} />
+      <Crown size={17} /><span>{active.name}'s turn</span><BalanceText key={active.id} value={active.money} epoch={gameId} /><ChevronDown size={15} />
     </button>
     <div className="players-content" id="kingdom-players">
       <div className="panel-heading"><Users size={18} /><h2>Players</h2><span>{players.filter(p => !p.isBankrupt).length}/{players.length}</span></div>
@@ -49,7 +51,7 @@ export const PlayerSidebar: React.FC = () => {
           aria-current={activeTurn ? 'true' : undefined} style={{ '--player-color': player.color } as React.CSSProperties}>
           <div className="player-portrait"><CharacterAvatar character={player.name} color={player.color} size={48} hasCrown={activeTurn} /></div>
           <div className="player-details"><div className="player-name">{player.name}{activeTurn && <Crown size={13} />}</div>
-            <strong className="player-money" key={player.money}>${player.money.toLocaleString()}</strong>
+            <BalanceText value={player.money} epoch={gameId} className="player-money" />
             <span className="player-status">{player.isBankrupt ? 'Bankrupt' : player.inJail ? 'In jail' : `${count} ${count === 1 ? 'property' : 'properties'} · ${player.isAI ? 'AI' : 'Player'}`}</span>
           </div>
           {activeTurn && <span className="turn-badge">{player.isAI ? 'AI turn' : 'Your turn'}</span>}

@@ -64,7 +64,7 @@ function plaqueTitle(ctx: CanvasRenderingContext2D, title: string, named: boolea
   ctx.textAlign = 'center';
   ctx.font = `bold ${named ? 75 : 84}px Georgia, serif`;
   ctx.shadowColor = '#0009'; ctx.shadowOffsetY = 3;
-  ctx.fillStyle = tone === 'loss' ? '#ffd4bd' : '#fff6d4';
+  ctx.fillStyle = tone === 'loss' ? '#ffb8b5' : tone === 'gain' ? '#bff2c8' : '#fff6d4';
   ctx.fillText(title, 256, named ? 119 : 98, 361);
   ctx.shadowOffsetY = 0;
 }

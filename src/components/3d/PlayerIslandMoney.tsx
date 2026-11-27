@@ -29,6 +29,8 @@ function MoneySignal({ cue, reduced, paired }: { cue: Signal; reduced: boolean; 
     if (label.current) {
       label.current.visible = now >= cue.from;
       if (!reduced) label.current.position.y = restY + .51 * (1 - (1 - t) ** 3);
+      const plaque = label.current.children[0];
+      if (plaque instanceof THREE.Sprite) plaque.material.opacity = reduced ? 1 : Math.min(1, (1 - t) * 4);
     }
     if (!ring.current) return;
     const wave = THREE.MathUtils.clamp((now - cue.emphasisAt) / (gain ? 630 : 370), 0, 1);
@@ -83,7 +85,7 @@ function CoinFlights({ flights, coins, low }: { flights: IslandFlight[]; coins: 
       const reveal = Math.min(1, t * 13, (1 - t) * 12);
       transform.position.copy(point);
       transform.rotation.set(.85 + 8.6 * t + .61 * item.index, t * 9 + .8 * item.index, .32 + .22 * Math.sin(t * Math.PI));
-      transform.scale.setScalar((item.value >= 500 ? .43 : item.value >= 20 ? .37 : .31) * reveal);
+      transform.scale.setScalar((item.value >= 500 ? .54 : item.value >= 20 ? .47 : .39) * reveal);
       transform.updateMatrix();
       mesh.setMatrixAt(mesh.count++, transform.matrix);
       if (!streaks || t < .045) continue;
@@ -129,7 +131,8 @@ export function PlayerIslandMoney({ coins, flights, reduced, low }: {
       const key = `${playerId}-${sign}`;
       const before = combined.get(key);
       combined.set(key, { playerId, amount: (before?.amount ?? 0) + sign * flight.amount,
-        from: before?.from ?? flight.startedAt, emphasisAt: Math.max(before?.emphasisAt ?? 0, when), until: Math.max(before?.until ?? 0, flight.expiresAt) });
+        from: Math.min(before?.from ?? Infinity, when), emphasisAt: Math.max(before?.emphasisAt ?? 0, when),
+        until: Math.max(before?.until ?? 0, flight.expiresAt) });
     }
     return [...combined.entries()];
   }, [flights]);

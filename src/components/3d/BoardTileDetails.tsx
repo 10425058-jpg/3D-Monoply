@@ -8,6 +8,7 @@ import {useMotionPreferences} from '../../presentation/useMotionPreferences';
 import {releaseInstanceBuffers} from '../environment/instanceResources';
 import {createBoardTileAtlas,tileAtlasRect,badgeAtlasRect} from './boardTileAtlas';
 import {ownerEdgeLayout,tileOutline} from './boardVisualState';
+import {smoothStep} from '../../presentation/animationMath';
 
 /** Presentation only: original catalog, ownership and gameplay coordinates. */
 export function BoardTileDetails({hoveredId}:{hoveredId:number|null}){
@@ -122,15 +123,14 @@ export function BoardTileDetails({hoveredId}:{hoveredId:number|null}){
     previous.clear();
     if(reducedMotion)return;
     for(const event of events){
-      if(event.kind!=='ownership'||event.spaceId===undefined)continue;
-      const progress=(now-event.createdAt)/540;
+      if(event.kind!=='ownership'||event.spaceId===undefined||properties[event.spaceId]?.ownerId!==event.playerId)continue;
+      const progress=(now-event.createdAt)/520;
       const badge=ownerBadges.current.get(event.spaceId);
       if(!badge||progress>=1)continue;
-      const bounce=Math.sin(progress*Math.PI)*(1-progress);
       badgePose.copy(badge.matrix);
-      const lift=badgePose.elements[13]+bounce*.16;
-      const scale=1+bounce*.5;
-      badgePose.elements[13]=lift;
+      const reveal=smoothStep(progress*1.5);
+      const scale=.22+.78*reveal+.19*Math.sin(progress*Math.PI)**2;
+      badgePose.elements[13]+=.22*Math.sin(progress*Math.PI)**2;
       badgePose.elements[0]*=scale;badgePose.elements[2]*=scale;
       badgePose.elements[8]*=scale;badgePose.elements[10]*=scale;
       mesh.setMatrixAt(badge.index,badgePose);
