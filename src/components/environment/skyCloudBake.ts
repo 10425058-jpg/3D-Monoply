@@ -50,7 +50,7 @@ vec4 cloudPatch(vec3 direction,vec3 center,vec3 right,vec3 up,float radius,float
   vec3 color=sRGBTransferOETF(vec4(relief,1.)).rgb;
   color=mix(color,vec3(.86,.78,.88),.13);
   float lower=1.-smoothstep(-.85,-.18,center.y);
-  float alpha=volume.a*(.45+lower*.12)*smoothstep(0.,.10,volume.a);
+  float alpha=volume.a*(.43-lower*.15)*smoothstep(0.,.10,volume.a);
   return vec4(color,alpha);
 }
 void main(){

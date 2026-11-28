@@ -19,13 +19,32 @@ test('mountain massifs are deterministic, separated from gameplay and span four 
     assert.equal(atmosphere.MOUNTAIN_LAYERS.length,4);
     for(const patch of patches){
       assert.ok(patch.radius-patch.depth/2>115);
-      assert.ok(patch.width>60&&patch.width<100&&patch.depth>35&&patch.depth<65);
+      assert.ok(patch.width>90&&patch.width<155&&patch.depth>35&&patch.depth<65);
+      assert.ok(Math.hypot(patch.radius+patch.depth/2,patch.width/2,patch.base)<380);
     }
     for(let layer=1;layer<4;layer++){
       assert.ok(atmosphere.MOUNTAIN_LAYERS[layer].radius<atmosphere.MOUNTAIN_LAYERS[layer-1].radius);
       assert.ok(atmosphere.MOUNTAIN_LAYERS[layer].opacity>atmosphere.MOUNTAIN_LAYERS[layer-1].opacity);
     }
   }finally{Math.random=original;}
+});
+
+test('the cloud deck and distant islets stay below gameplay at every quality tier', () => {
+  const { CLOUD_DECK_CENTER, CLOUD_DECK_RADII, CLOUD_DECK_STEPS, DISTANT_ISLETS } = atmosphere;
+  const [x, y, z] = CLOUD_DECK_CENTER;
+  const [width, height, depth] = CLOUD_DECK_RADII;
+  assert.ok(y + height < -45);
+  assert.ok(Math.hypot(Math.abs(x) + width, Math.abs(y) + height, Math.abs(z) + depth) < 300);
+  assert.ok(CLOUD_DECK_STEPS.low < CLOUD_DECK_STEPS.balanced && CLOUD_DECK_STEPS.balanced < CLOUD_DECK_STEPS.high);
+  assert.ok(CLOUD_DECK_STEPS.high <= 5);
+  assert.ok(DISTANT_ISLETS.some(({position: [, y]}) => y < CLOUD_DECK_CENTER[1]));
+  assert.ok(DISTANT_ISLETS.some(({position: [, y]}) => y > CLOUD_DECK_CENTER[1]));
+  for (const {position: [x, y, z], size} of DISTANT_ISLETS) {
+    assert.ok(size > 0 && size < 7);
+    assert.ok(y + size < -36);
+    assert.ok(Math.hypot(x, z) - size > 25);
+    assert.ok(Math.hypot(x, y, z) + size < 200);
+  }
 });
 
 test('actual terrain height function has asymmetric relief and tapers every patch edge into haze',()=>{
