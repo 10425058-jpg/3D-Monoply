@@ -110,7 +110,7 @@ test('Online Chance records committed movement, rent and card rewards in the cor
   assert.ok(committedActivity(s, rows, activityLabels, true).every(entry => entry.silent));
 });
 
-test('an Online card that sends a player to Jail announces the outcome once', () => {
+test('an Online Jail card preserves its instructions and emits a priority Jail announcement', () => {
   const match = { ...snapshot(), stateVersion: 1 };
   const rows = publicEvents(1, [
     ['game:card_resolved', { playerId: 'uuid-a', cardId: 'go-to-jail', deck: 'chance', effects: [{ type: 'go_to_jail' }] }],
@@ -118,7 +118,8 @@ test('an Online card that sends a player to Jail announces the outcome once', ()
     ['game:jail_changed', { playerId: 'uuid-a', inJail: true, jailTurns: 0 }],
   ]);
   const entries = committedActivity(match, rows, activityLabels);
-  assert.deepEqual(entries.map(entry => [entry.kind, entry.silent]), [['card', false], ['jail', true]]);
+  assert.deepEqual(entries.map(entry => [entry.kind, entry.silent]), [['card', false], ['jail', false]]);
+  assert.equal(entries[1].emphasis, 'important');
   assert.deepEqual(entries[0].details, ['Alice was sent to Jail.']);
 });
 

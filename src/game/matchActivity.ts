@@ -75,7 +75,7 @@ export function matchesActivityFilter(event: MatchActivityEvent, filter: Activit
 }
 
 export function isCenterActivityNotice(event: Pick<MatchActivityEvent, 'card' | 'kind' | 'emphasis'>): boolean {
-  return !!event.card || event.emphasis === 'milestone' ||
+  return event.kind === 'rent' || !!event.card || event.emphasis === 'milestone' ||
     event.kind === 'jail' || event.kind === 'bankruptcy' || event.kind === 'victory' || event.kind === 'railroad';
 }
 

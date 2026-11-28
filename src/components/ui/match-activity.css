@@ -151,10 +151,7 @@
 }
 .match-notices--dialog {
   position: fixed;
-  top: max(8px, env(safe-area-inset-top));
-  width: min(470px, calc(100vw - 20px));
 }
-.match-notices--dialog .match-notice-detail { display: none; }
 .match-notice-heading { display: flex; gap: 8px; align-items: center; padding: 8px 9px; }
 .match-notice-heading strong { flex: 1; font-size: 13px; overflow-wrap: anywhere; }
 .match-notice-icon { flex-shrink: 0; color: #ffe196; }
@@ -229,7 +226,7 @@
 .match-notices--center {
   top: 50%;
   z-index: 35;
-  width: min(520px, calc(100% - 28px));
+  width: min(520px, calc(100vw - 28px));
   transform: translate(-50%, -50%);
 }
 .match-notice--center {

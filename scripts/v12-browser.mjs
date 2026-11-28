@@ -109,18 +109,28 @@ try {
   assert.deepEqual(money(await state()), [1500, 1500]);
   assert.equal((await state()).railroadRaid, null);
   await click(rent, 'Pay $25');
-  await page.waitForSelector('dialog[open].raid-modal', { visible: true });
-  await page.waitForSelector('dialog[open].raid-modal .receipt-rent', { visible: true });
-  assert.match(await textOf('dialog[open].raid-modal .receipt-rent'), /You paid \$25 rent to Rival 1 for Pennsylvania Railroad/);
+  await page.waitForSelector('dialog[open].raid-modal', { visible: true, timeout: 8000 })
+    .catch(async error => {
+      console.error(await page.$$eval('dialog', nodes => nodes.map(node => [node.className, node.open])));
+      throw error;
+    });
+  await page.waitForSelector('dialog[open].raid-modal .match-notice--center.receipt-rent', { visible: true });
+  assert.match(await textOf('dialog[open].raid-modal .match-notice--center.receipt-rent'), /You paid \$25 rent to Rival 1 for Pennsylvania Railroad/);
   assert.equal(await page.$$('.receipt-rent').then(receipts => receipts.length), 1);
   assert.equal(recorded(await state(), 'rent').length, 1);
   assert.equal(recorded(await state(), 'card')[0].spaceId, 15);
+  await page.locator('dialog[open].raid-modal .receipt-rent .match-notice-close').click();
   await page.locator('dialog[open] .raid-skip').click();
   await page.waitForSelector('dialog[open].raid-modal', { hidden: true });
   await click('.action-tray', 'End Turn');
   assert.equal((await state()).currentPlayerIndex, 0);
   assert.equal((await state()).turnPhase, 'PRE_ROLL');
   checks.push('Face-down Chance, draw audio, card-directed railroad rent notice over the raid dialog, and doubles');
+
+  await fixture('go-to-jail');
+  await roll();
+  await page.waitForSelector('.match-notice--center[data-activity-notice="jail"]', { visible: true });
+  assert.equal((await state()).players[0].inJail, true);
 
   await fixture('card-chain');
   await roll();

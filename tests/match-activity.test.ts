@@ -34,13 +34,13 @@ test('quiet mode retains critical notices and restored entries never produce one
   assert.equal(activityNoticePriority(event(5, { kind: 'upgrade', emphasis: 'milestone' }), 'important'), 3);
 });
 
-test('card instructions, Jail and milestones get a centered window while routine receipts stay compact', () => {
+test('card instructions, Jail and milestones get a centered window while rent gets the same centered treatment', () => {
   const chance = event(1, { kind: 'card',
     card: { id: 'dividend', deck: 'chance', title: 'Dividend', instruction: 'Collect $50.' } });
   assert.equal(isCenterActivityNotice(chance), true);
   assert.equal(isCenterActivityNotice(event(2, { kind: 'jail' })), true);
   assert.equal(isCenterActivityNotice(event(3, { kind: 'bankruptcy' })), true);
   assert.equal(isCenterActivityNotice(event(4, { kind: 'upgrade', emphasis: 'milestone' })), true);
-  assert.equal(isCenterActivityNotice(event(5, { kind: 'rent' })), false);
+  assert.equal(isCenterActivityNotice(event(5, { kind: 'rent' })), true);
   assert.equal(activityNoticePriority(event(6, { kind: 'railroad' }), 'important'), 2);
 });
