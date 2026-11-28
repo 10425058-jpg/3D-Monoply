@@ -66,6 +66,7 @@ try{
     });};
   });
   await page.click('[aria-label="Roll dice"]');
+  await page.locator('dialog[open].rent-payment [data-variant="primary"]').click();
   await wait(()=>window.__moneyWarmupFrames>=3);
   assert.deepEqual((await state()).players.map(player=>player.money),[1496,1504,1500]);
   results.rendererWarmup={renderedFrames:await page.evaluate(()=>window.__moneyWarmupFrames),verifiedRent:4};
@@ -77,7 +78,7 @@ try{
   await wait(()=>window.__graphicsAudit.board().meshes['board-owner-trim']===1);await capture('purchase');
   await page.evaluate(()=>window.__soloTest.state());assert.equal((await state()).players[0].position,3);
   const token=(await page.evaluate(()=>window.__graphicsAudit.actors())).tokens[0];assert.ok(Math.abs(token.position[0]-3.6)<.6&&Math.abs(token.position[2]-9.55)<.6&&token.position[1]>=.34);
-  await fixture('rent');await roll();s=await state();assert.equal(s.players[0].money,1496);assert.equal(s.players[1].money,1504);
+  await fixture('rent');await roll();await debtAction('Pay $4');s=await state();assert.equal(s.players[0].money,1496);assert.equal(s.players[1].money,1504);
   await wait(()=>document.querySelector('.receipt-rent')?.getAttribute('aria-label')==='You paid $4 to Rival 1 · Rent on Baltic Avenue');
   const rentReceipt=await page.$eval('.receipt-rent',element=>element.textContent);
   assert.match(rentReceipt,/You.*1,496.*Rival 1.*1,504/);
@@ -92,11 +93,15 @@ try{
   await fixture('go-to-jail');await roll();s=await state();assert.equal(s.players[0].position,10);assert.equal(s.players[0].inJail,true);assert.equal(s.players[0].money,1500);await capture('jail-entry');
   await fixture('jail');await capture('jail-options');await page.click('.solo-decision-strip button:nth-of-type(1)');s=await state();assert.equal(s.players[0].inJail,false);assert.equal(s.players[0].money,1450);
   await fixture('jail');await page.click('.solo-decision-strip button:nth-of-type(2)');s=await state();assert.equal(s.players[0].inJail,false);assert.equal(s.players[0].getOutOfJailCards,0);
+  const drawCard = async (deck = '.card-reveal') => {
+    await page.locator(`dialog[open]${deck} .modal-primary`).filter('button => button.textContent.trim() === "Draw Card"').click();
+    await page.waitForSelector(`dialog[open]${deck} .card-parchment`);
+  };
   for(const name of ['chance','chest','card-chain']){
-    await fixture(name);await roll();await wait(()=>!!document.querySelector('.card-reveal'));await capture(`${name}-reveal`);
+    await fixture(name);await roll();await drawCard();await capture(`${name}-reveal`);
     await page.click('.card-reveal .modal-primary');
-    if(name==='card-chain'){await wait(()=>document.querySelector('dialog[open].card-reveal.deck-chest'));await pause(250);await page.click('.card-reveal .modal-primary');}
-    await wait(()=>!['CARD_DRAWN','ROLLING','MOVING'].includes(window.__soloTest.state().turnPhase));
+    if(name==='card-chain'){await drawCard('.card-reveal.deck-chest');await page.click('.card-reveal.deck-chest .modal-primary');}
+    await wait(()=>!['CARD_PENDING','CARD_DRAWN','ROLLING','MOVING'].includes(window.__soloTest.state().turnPhase));
     s=await state();assert.equal(s.players[0].money,name==='chance'?1550:name==='chest'?1900:1700);
   }
   await fixture('debt');await roll();await wait(()=>!!document.querySelector('.debt-resolution'));await capture('debt-resolution');

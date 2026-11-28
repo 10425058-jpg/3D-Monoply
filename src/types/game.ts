@@ -110,6 +110,7 @@ export type TurnPhase =
   | 'ROLLING'
   | 'MOVING'
   | 'LANDED_ACTION'
+  | 'CARD_PENDING'
   | 'CARD_DRAWN'
   | 'DEBT_RESOLUTION'
   | 'AUCTION'

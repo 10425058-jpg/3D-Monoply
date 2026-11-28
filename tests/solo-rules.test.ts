@@ -54,22 +54,100 @@ test('Solo creates a single receipt only after a committed purchase or rent paym
   player(0, { position: 0 });
   store.setState({ turnPhase: 'PRE_ROLL' });
   roll(t, 1, 2);
+  const pending = store.getState();
+  assert.deepEqual(pending.players.map(candidate => candidate.money), [1440, 1500, 1500]);
+  assert.equal(pending.pendingDebt?.creditorId, 1);
+  assert.equal(pending.activity.filter(event => event.kind === 'rent').length, 0);
+  pending.endTurn();
+  pending.rollDice();
+  assert.equal(store.getState(), pending);
+  let commits = 0;
+  const unsubscribe = store.subscribe((next, previous) => {
+    if (next.players[0].money === previous.players[0].money) return;
+    commits++;
+    assert.equal(next.pendingDebt, null);
+    assert.equal(next.logs[0].transfers?.[0].category, 'rent');
+    assert.deepEqual(next.players.map(candidate => candidate.money), [1436, 1504, 1500]);
+  });
+  pending.settlePendingDebt(pending.pendingDebt!);
+  pending.settlePendingDebt(pending.pendingDebt!);
+  unsubscribe();
+  assert.equal(commits, 1);
   assert.deepEqual(store.getState().logs[0].transfers, [
     { fromId: 0, toId: 1, amount: 4, reason: 'Rent on Baltic Avenue', category: 'rent', spaceId: 3 },
   ]);
   assert.deepEqual(store.getState().players.map(candidate => candidate.money), [1436, 1504, 1500]);
+  assert.equal(store.getState().activity.filter(event => event.kind === 'rent').length, 1);
 });
 
-test('a stale Solo card control cannot resolve a later draw', t => {
+test('a human landing keeps the card face down until a single draw, then waits for confirmation', t => {
   setup(t);
   const card = CHANCE_CARDS.find(candidate => candidate.id === 'ch_6')!;
-  store.setState({ activeCard: card, cardDrawId: 2, turnPhase: 'CARD_DRAWN' });
-  store.getState().applyActiveCard(1);
-  assert.equal(store.getState().players[0].money, 1500);
-  assert.equal(store.getState().activeCard, card);
-  store.getState().applyActiveCard(2);
-  store.getState().applyActiveCard(2);
+  const deck = [card, ...CHANCE_CARDS.filter(candidate => candidate !== card)];
+  store.setState({ chanceDeck: deck });
+  own(5, 0);
+  player(0, { position: 4 });
+  roll(t, 1, 2);
+
+  const pending = store.getState();
+  assert.equal(pending.turnPhase, 'CARD_PENDING');
+  assert.equal(pending.activeCard, null);
+  assert.equal(pending.chanceDeck, deck);
+  assert.ok(!pending.logs.some(log => log.message.includes(card.title)));
+  pending.applyActiveCard(pending.cardDrawId);
+  pending.drawPendingCard(pending.cardDrawId - 1);
+  pending.endTurn();
+  pending.toggleMortgage(5);
+  assert.equal(pending.claimDailyReward(), false);
+  assert.equal(store.getState(), pending);
+
+  pending.drawPendingCard(pending.cardDrawId);
+  pending.drawPendingCard(pending.cardDrawId);
+  const drawn = store.getState();
+  assert.equal(drawn.activeCard, card);
+  assert.equal(drawn.turnPhase, 'CARD_DRAWN');
+  assert.deepEqual(drawn.chanceDeck, [...deck.slice(1), card]);
+  assert.equal(drawn.players[0].money, 1500);
+  drawn.applyActiveCard(drawn.cardDrawId - 1);
+  assert.equal(store.getState(), drawn);
+  drawn.applyActiveCard(drawn.cardDrawId);
+  drawn.applyActiveCard(drawn.cardDrawId);
   assert.equal(store.getState().players[0].money, 1550);
+  assert.equal(store.getState().activity.filter(event => event.kind === 'card').length, 1);
+});
+
+test('a chained Chest draw has a fresh decision and restart invalidates both old controls', t => {
+  const game = setup(t);
+  const backwards = CHANCE_CARDS.find(card => card.id === 'ch_8')!;
+  const chest = COMMUNITY_CHEST_CARDS.find(card => card.id === 'cc_2')!;
+  store.setState({ chanceDeck: [backwards], chestDeck: [chest] });
+  player(0, { position: 33 });
+  roll(t, 1, 2);
+  const chanceId = store.getState().cardDrawId;
+  game.drawPendingCard(chanceId);
+  game.applyActiveCard(chanceId);
+  flush(t);
+  const next = store.getState();
+  assert.equal(next.players[0].position, 33);
+  assert.equal(next.turnPhase, 'CARD_PENDING');
+  assert.equal(next.activeCard, null);
+  assert.equal(next.chestDeck[0], chest);
+  game.drawPendingCard(chanceId);
+  assert.equal(store.getState(), next);
+  game.drawPendingCard(next.cardDrawId);
+  game.applyActiveCard(chanceId);
+  assert.equal(store.getState().activeCard, chest);
+  game.applyActiveCard(next.cardDrawId);
+  assert.equal(store.getState().players[0].money, 1700);
+  assert.deepEqual(store.getState().activity.flatMap(event => event.card ? [event.card.id] : []), [backwards.id, chest.id]);
+
+  game.startNewGame(game.players);
+  roll(t, 1, 1);
+  game.drawPendingCard(next.cardDrawId);
+  assert.equal(store.getState().activeCard, null);
+  game.drawPendingCard(store.getState().cardDrawId);
+  game.applyActiveCard(next.cardDrawId);
+  assert.equal(store.getState().turnPhase, 'CARD_DRAWN');
 });
 
 test('the Solo heist AI selects a vault without reading its hidden payout', t => {
@@ -121,6 +199,7 @@ test('even construction, hotel upgrade and even sale preserve costs and rents',t
 });
 test('held Jail card leaves the deck and returns to its original source once',t=>{
   setup(t);player(0,{position:4});const jail=CHANCE_CARDS.find(c=>c.id==='ch_7')!;store.setState({chanceDeck:[jail,...CHANCE_CARDS.filter(c=>c.id!==jail.id)]});roll(t,1,2);
+  store.getState().drawPendingCard(store.getState().cardDrawId);
   store.getState().applyActiveCard();assert.ok(!store.getState().chanceDeck.some(c=>c.id==='ch_7'));
   player(0,{position:10,inJail:true});store.setState({turnPhase:'PRE_ROLL'});store.getState().useJailCard();store.getState().useJailCard();
   assert.equal(store.getState().chanceDeck.at(-1)?.id,'ch_7');assert.equal(store.getState().players[0].getOutOfJailCards,0);
@@ -163,10 +242,16 @@ test('Solo rents preserve its documented street, railroad and utility variations
   own(28,1,0,true);assert.equal(store.getState().calculateRent(12,7),28);
 });
 test('rent transfers once on a legal landing and own/mortgaged deeds charge none',t=>{
-  setup(t);own(3,1);roll(t,1,2);assert.deepEqual(store.getState().players.map(p=>p.money),[1496,1504,1500]);
-  store.getState().applyActiveCard();store.getState().settlePendingDebt();assert.equal(store.getState().players[0].money,1496);
-  own(3,0);player(0,{position:0});store.setState({turnPhase:'PRE_ROLL'});roll(t,1,2);assert.equal(store.getState().players[0].money,1496);
-  own(3,1,0,true);player(0,{position:0});store.setState({turnPhase:'PRE_ROLL'});roll(t,1,2);assert.equal(store.getState().players[0].money,1496);
+  setup(t);own(3,1);roll(t,1,2);assert.deepEqual(store.getState().players.map(p=>p.money),[1500,1500,1500]);
+  const oldRent = store.getState().pendingDebt!;
+  store.getState().settlePendingDebt(oldRent);assert.equal(store.getState().players[0].money,1496);
+  player(0,{position:0});store.setState({turnPhase:'PRE_ROLL'});roll(t,1,2);
+  store.getState().settlePendingDebt(oldRent);assert.ok(store.getState().pendingDebt);assert.equal(store.getState().players[0].money,1496);
+  store.getState().settlePendingDebt();assert.equal(store.getState().players[0].money,1492);
+  player(0,{position:2});store.setState({turnPhase:'PRE_ROLL'});roll(t,1,2);
+  assert.equal(store.getState().pendingDebt,null);assert.equal(store.getState().players[0].money,1492);
+  own(3,0);player(0,{position:0});store.setState({turnPhase:'PRE_ROLL'});roll(t,1,2);assert.equal(store.getState().players[0].money,1492);
+  own(3,1,0,true);player(0,{position:0});store.setState({turnPhase:'PRE_ROLL'});roll(t,1,2);assert.equal(store.getState().players[0].money,1492);
 });
 test('tax, Free Parking, Just Visiting and Go To Jail have distinct outcomes',t=>{
   setup(t);roll(t,1,3);assert.equal(store.getState().players[0].money,1300);
@@ -182,8 +267,8 @@ test('ordinary collect/pay and repair cards commit exactly their printed amounts
 });
 test('movement cards resolve destinations and use Solo card rent overrides',t=>{
   setup(t);player(0,{position:36});draw('ch_1');flush(t);assert.equal(store.getState().players[0].position,0);assert.equal(store.getState().players[0].money,1700);
-  player(0,{position:7});own(12,1);draw('ch_4');flush(t);assert.equal(store.getState().players[0].position,12);assert.equal(store.getState().players[0].money,1680);
-  player(0,{position:7});own(15,1);draw('ch_5');flush(t);assert.equal(store.getState().players[0].position,15);assert.equal(store.getState().players[0].money,1655);
+  player(0,{position:7});own(12,1);draw('ch_4');flush(t);assert.equal(store.getState().players[0].position,12);store.getState().settlePendingDebt();assert.equal(store.getState().players[0].money,1680);
+  player(0,{position:7});own(15,1);draw('ch_5');flush(t);assert.equal(store.getState().players[0].position,15);store.getState().settlePendingDebt();assert.equal(store.getState().players[0].money,1655);
   store.setState({railroadRaid:null});draw('ch_9');assert.equal(store.getState().players[0].position,10);assert.equal(store.getState().players[0].money,1655);
 });
 test('AI liquidates legal buildings before bankruptcy and ignores a stale game callback',t=>{
@@ -211,8 +296,35 @@ test('birthday bankruptcy transfers to drawer, completes remaining obligations, 
 test('daily and wheel rewards cannot modify the terminal match',t=>{
   setup(t);store.setState({turnPhase:'GAME_OVER'});const before=economy();store.getState().claimDailyReward();store.getState().spinLuckyWheel();store.getState().claimStickerAlbumReward();assert.deepEqual(economy(),before);
 });
-test('nearest railroad charges the rent due in the current card text, without an undocumented multiplier',t=>{
-  setup(t);player(0,{position:7});own(15,1);draw('ch_5');flush(t);assert.equal(store.getState().players[0].money,1475);
+test('nearest railroad preserves the committed rent, raid and doubles after confirmation', t => {
+  setup(t);
+  player(0, { position: 3 });
+  own(15, 1);
+  store.setState({ chanceDeck: [CHANCE_CARDS.find(card => card.id === 'ch_5')!] });
+  roll(t, 2, 2);
+  const id = store.getState().cardDrawId;
+  store.getState().drawPendingCard(id);
+  store.getState().applyActiveCard(id);
+  flush(t);
+  const landed = store.getState();
+  assert.equal(landed.players[0].position, 15);
+  assert.equal(landed.players[0].money, 1500);
+  assert.equal(landed.pendingDebt?.amount, 25);
+  assert.equal(landed.railroadRaid, null);
+  assert.equal(landed.activity.filter(event => event.kind === 'card').length, 0);
+  landed.settlePendingDebt(landed.pendingDebt!);
+  let resolved = store.getState();
+  assert.equal(resolved.players[0].money, 1475);
+  assert.equal(resolved.railroadRaid?.attackerId, 0);
+  assert.equal(resolved.activity.filter(event => event.kind === 'rent').length, 1);
+  assert.equal(resolved.activity.find(event => event.kind === 'card')?.spaceId, 15);
+  resolved.endTurn();
+  assert.equal(store.getState(), resolved);
+  resolved.skipRailroadRaid();
+  resolved.endTurn();
+  resolved = store.getState();
+  assert.equal(resolved.turnPhase, 'PRE_ROLL');
+  assert.equal(resolved.currentPlayerIndex, 0);
 });
 test('auctioning a railroad still resolves the lander railroad bonus',t=>{
   setup(t);player(0,{position:5});store.setState({turnPhase:'LANDED_ACTION'});store.getState().auctionCurrentProperty();store.getState().placeAuctionBid(10);store.getState().passAuction();store.getState().passAuction();assert.equal(store.getState().railroadRaid?.attackerId,0);
@@ -223,6 +335,7 @@ test('seeded legal Solo play keeps cash, deeds, buildings, turn order and held c
     let s=store.getState(),actor=s.players.find(p=>p.id===(s.pendingDebt?.debtorId??s.players[s.currentPlayerIndex].id))!;
     switch(s.turnPhase){
       case 'PRE_ROLL':s.rollDice();flush(t);break;
+      case 'CARD_PENDING':s.drawPendingCard(s.cardDrawId);break;
       case 'CARD_DRAWN':s.applyActiveCard();flush(t);break;
       case 'LANDED_ACTION':{const price=BOARD_SPACES[actor.position].price!;if(actor.money>=price&&Math.random()<.8)s.buyCurrentProperty();else s.auctionCurrentProperty();break;}
       case 'AUCTION':{const a=s.auction!,bidder=s.players.find(p=>p.id===a.currentBidderId)!;if(bidder.money>=a.currentBid+10&&a.currentBid<BOARD_SPACES[a.spaceId].price!*.7)s.placeAuctionBid(10,bidder.id);else s.passAuction(bidder.id);break;}

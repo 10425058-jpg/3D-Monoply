@@ -133,32 +133,38 @@ export function AnimatedWaterfall({ file, variant, animate, low, name }: {
             float x=vUv.x+sin(vUv.y*8.-uTime*1.1)*.012;
             float sheets=noise(vec2(x*7.,flow*2.8));
             float ripples=noise(vec2(x*17.+sheets,flow*24.));
-            // Three noise fields replace four: softly separated flow lanes,
-            // short traveling glints and a coherent crest, all in this pass.
+            // The sheet fields define the flow lanes and their traveling glints.
             float lanes=.5+.5*sin(x*48.+sheets*3.);
-            float filaments=pow(lanes,9.);
-            float glints=smoothstep(.69,.92,ripples)*smoothstep(.55,.88,lanes);
+            float lanes2=lanes*lanes;
+            float filaments=lanes2*lanes2*lanes2*lanes;
+            float glints=smoothstep(.65,.91,ripples)*smoothstep(.51,.87,lanes);
             float feather=.055+vUv.y*.05;
             float edges=smoothstep(0.,feather,vUv.x)*smoothstep(0.,feather,1.-vUv.x);
-            float crest=exp(-vUv.y*23.)*(.72+noise(vec2(x*19.,uTime*.65))*.28);
-            vec3 normal=normalize(vNormal),view=normalize(cameraPosition-vWorld);
-            float rim=pow(clamp(1.-abs(dot(normal,view)),0.,1.),3.);
-            float sun=.72+.28*abs(dot(normal,normalize(vec3(-.48,.72,.56))));
-            vec3 color=mix(vec3(.035,.25,.34),vec3(.24,.66,.75),.30+sheets*.50+ripples*.16)*sun;
-            color+=vec3(.15,.23,.25)*rim;
-            float foam=clamp(crest*.96+glints*.28+filaments*.12*vCascade,0.,.96);
-            color=mix(color,vec3(1.03,1.16,1.10),foam);
+            // The crest's exponential has faded below visible precision here.
+            float crest=0.;
+            if(vUv.y<.38)crest=exp(-vUv.y*23.)*(.72+noise(vec2(x*19.,uTime*.65))*.28);
+            vec3 color;
+            float body;
             if(vLayer>.5){
               float silver=pow(sin(vUv.x*3.14159),1.2);
-              color=mix(vec3(.27,.63,.74),vec3(1.10,1.19,1.12),silver*(.32+ripples*.43));
+              color=mix(vec3(.035,.49,.59),vec3(1.10,1.19,1.12),silver*(.35+ripples*.43));
+              body=.18+ripples*.19;
+            }else{
+              vec3 normal=normalize(vNormal),view=normalize(cameraPosition-vWorld);
+              float grazing=clamp(1.-abs(dot(normal,view)),0.,1.);
+              float rim=grazing*grazing*grazing;
+              float sun=.72+.28*abs(dot(normal,normalize(vec3(-.48,.72,.56))));
+              color=mix(vec3(.006,.19,.24),vec3(.035,.61,.72),.22+sheets*.56+ripples*.16)*sun;
+              color+=vec3(.07,.17,.20)*rim;
+              float foam=clamp(crest*.96+glints*.31+filaments*mix(.12,.19,vCascade),0.,.96);
+              color=mix(color,vec3(1.03,1.16,1.10),foam);
+              body=mix(.88,.63+sheets*.14+filaments*.13,vCascade);
             }
             // Unequal lane lengths dissolve into the same cloud depth; they
             // avoid the hard rectangular end of a translucent cyan sheet.
             float tailStart=.73+.09*sin(x*18.+sheets*3.+vLayer);
             float tail=1.-smoothstep(tailStart,1.,vUv.y)*vCascade;
-            float body=mix(.81,.51+sheets*.14+filaments*.13,vCascade);
-            if(vLayer>.5)body=.16+ripples*.16;
-            gl_FragColor=vec4(color,edges*tail*min(.91,body+crest*.15+glints*.09));
+            gl_FragColor=vec4(color,edges*tail*min(.94,body+crest*.15+glints*.09));
             #include <tonemapping_fragment>
             #include <colorspace_fragment>
           }`} />

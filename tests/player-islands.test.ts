@@ -161,6 +161,8 @@ test('island effects observe real Solo actions without double-counting transfer 
   store.setState(state => ({ properties: { ...state.properties,
     3: { ...state.properties[3], ownerId: 1 } } }));
   roll();
+  expect();
+  store.getState().settlePendingDebt();
   expect([0, 1, 4]);
 
   store.setState({ turnPhase: 'DEBT_RESOLUTION', pendingDebt: { amount: 3000, creditorId: 1, reason: 'Rent' } });

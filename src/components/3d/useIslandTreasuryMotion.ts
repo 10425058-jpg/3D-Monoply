@@ -10,8 +10,8 @@ import { sounds } from '../../utils/audio';
 export type TreasuryBalance = { value: number; animate: boolean };
 type Snapshot = { flights: IslandFlight[]; balances: ReadonlyMap<number, TreasuryBalance> };
 const currentBalances = (scene: SceneState) => new Map(scene.players.map(player => [player.id, { value: player.money, animate: false }]));
-const cardCoversBoard = (scene: SceneState) => scene.turnPhase === 'CARD_DRAWN' && !!scene.activeCard &&
-  !scene.players[scene.currentPlayerIndex]?.isAI;
+const cardCoversBoard = (scene: SceneState) => !scene.players[scene.currentPlayerIndex]?.isAI &&
+  (scene.turnPhase === 'CARD_PENDING' || (scene.turnPhase === 'CARD_DRAWN' && !!scene.activeCard));
 const waitForBoard = (scene: SceneState) => scene.turnPhase === 'MOVING' || cardCoversBoard(scene);
 const CARD_EXIT_MS = 300;
 

@@ -190,9 +190,10 @@ try {
     'match history is still recorded without the floating panel');
 
   await fixture('arcade-activity');
-  await roll(1, 2, 'CARD_DRAWN');
+  await roll(1, 2, 'CARD_PENDING');
   assert.equal((await state()).activity.filter(event => event.kind === 'card').length, 0);
-  await page.click('.card-reveal .modal-primary');
+  await page.locator('dialog[open].card-reveal .modal-primary').filter('button => button.textContent.trim() === "Draw Card"').click();
+  await page.locator('dialog[open].card-reveal .modal-primary').filter('button => button.textContent.trim() === "Confirm"').click();
   await showNotice('card');
   await capture('08-chance');
   await dismiss();
@@ -283,8 +284,9 @@ try {
   await wait(() => window.__soloTest.state().properties[6].developmentLevel === 1);
   await closeEvolution();
   await fixture('arcade-activity');
-  await roll(1, 2, 'CARD_DRAWN');
-  await page.click('.card-reveal .modal-primary');
+  await roll(1, 2, 'CARD_PENDING');
+  await page.locator('dialog[open].card-reveal .modal-primary').filter('button => button.textContent.trim() === "Draw Card"').click();
+  await page.locator('dialog[open].card-reveal .modal-primary').filter('button => button.textContent.trim() === "Confirm"').click();
   await showNotice('card');
   await dismiss();
   const layout = await page.evaluate(() => ({

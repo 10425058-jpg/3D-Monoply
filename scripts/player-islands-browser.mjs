@@ -124,6 +124,7 @@ async function roll(page, faces) {
 async function rent(page, name, reduce) {
   await page.evaluate(() => window.__soloTest.fixture('rent'));
   await roll(page, [1, 2]);
+  await page.locator('dialog[open].rent-payment [data-variant="primary"]').click();
   await page.waitForFunction(reduce => {
     const { signals, flights } = window.__graphicsAudit.islands();
     return signals.length === 2 && (reduce || flights.some(coin => coin.value === 1));

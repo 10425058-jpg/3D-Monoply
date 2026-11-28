@@ -87,7 +87,7 @@ test('non-active birthday debtor trades under its own identity and resumes remai
 test('trade attempts during unresolved actions and terminal phases cannot mutate the economy', t => {
   setup(t);
   own(39, 0);
-  for (const turnPhase of ['SETUP', 'ROLLING', 'MOVING', 'CARD_DRAWN', 'AUCTION', 'GAME_OVER'] as TurnPhase[]) {
+  for (const turnPhase of ['SETUP', 'ROLLING', 'MOVING', 'CARD_PENDING', 'CARD_DRAWN', 'AUCTION', 'GAME_OVER'] as TurnPhase[]) {
     store.setState({turnPhase});
     const before = {players: store.getState().players, properties: store.getState().properties};
     assert.equal(store.getState().proposeTrade(offer()).accepted, false);
@@ -161,7 +161,7 @@ test('landmark action rejects insufficient cash, stale actor, pending decisions 
   setPlayer(0, {money: 1500});
   store.getState().upgradeLandmark(0, 1);
   assert.equal(store.getState().players[0].landmarkLevel, 0);
-  for (const turnPhase of ['SETUP', 'ROLLING', 'MOVING', 'CARD_DRAWN', 'DEBT_RESOLUTION', 'LANDED_ACTION', 'AUCTION', 'GAME_OVER'] as TurnPhase[]) {
+  for (const turnPhase of ['SETUP', 'ROLLING', 'MOVING', 'CARD_PENDING', 'CARD_DRAWN', 'DEBT_RESOLUTION', 'LANDED_ACTION', 'AUCTION', 'GAME_OVER'] as TurnPhase[]) {
     store.setState({turnPhase});
     store.getState().upgradeLandmark(0, 0);
     assert.equal(store.getState().players[0].money, 1500);
@@ -196,8 +196,10 @@ for (const [ownerId, isMortgaged] of [[null, false], [0, false], [1, false], [1,
     for (let step = 0; step < 10; step++) t.mock.timers.tick(200);
     assert.equal(store.getState().players[0].position, 12);
     assert.deepEqual(store.getState().dice, [3, 4]);
-    assert.equal(store.getState().turnPhase, ownerId === null ? 'LANDED_ACTION' : 'END_TURN');
     const rent = ownerId === 1 && !isMortgaged ? 70 : 0;
+    assert.equal(store.getState().turnPhase, rent ? 'DEBT_RESOLUTION' : ownerId === null ? 'LANDED_ACTION' : 'END_TURN');
+    assert.deepEqual(store.getState().players.map(player => player.money), [1500, 1500, 1500]);
+    store.getState().settlePendingDebt();
     assert.deepEqual(store.getState().players.map(player => player.money), [1500 - rent, 1500 + rent, 1500]);
     store.getState().applyActiveCard();
     assert.equal(store.getState().players[0].money, 1500 - rent);

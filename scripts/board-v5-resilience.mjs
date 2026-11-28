@@ -81,7 +81,9 @@ async function verifyOptionalFont(){
   const rentRoll=async()=>{
     await fault.evaluate(()=>window.__soloTest.fixture('rent'));await pause(300);
     await fault.evaluate(()=>{let faces=[1,2],original=Math.random;Math.random=()=>{const value=(faces.shift()-.5)/6;if(!faces.length)Math.random=original;return value;};});
-    await fault.click('[aria-label="Roll dice"]');await fault.waitForFunction(()=>window.__soloTest.state().turnPhase==='END_TURN',{timeout:60000});
+    await fault.click('[aria-label="Roll dice"]');
+    await fault.locator('dialog[open].rent-payment [data-variant="primary"]').click();
+    await fault.waitForFunction(()=>window.__soloTest.state().turnPhase==='END_TURN',{timeout:60000});
   };
   // A brief money event can expire while Troika's first worker/preload starts
   // on software WebGL. Warm that real path, require an OBSERVED blocked fetch,

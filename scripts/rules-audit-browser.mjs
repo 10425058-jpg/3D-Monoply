@@ -144,13 +144,17 @@ try {
 
   for (const ownership of ['unowned', 'self', 'opponent']) {
     await fixture(`utility-${ownership}`);
-    await wait(() => !!document.querySelector('.card-reveal'));
+    await wait(() => !!document.querySelector('.card-reveal .card-parchment'));
     const instructions = await page.$eval('.card-reveal', element => element.textContent);
     assert.match(instructions, /10 times/);
     assert.match(instructions, /same two dice.*land on Chance/);
     assert.match(instructions, /Do not roll again/);
-    await clickText('.card-reveal button', 'Resolve this card');
+    await clickText('.card-reveal button', 'Confirm');
     await wait(() => window.__soloTest.state().players[0].position === 12 && !['CARD_DRAWN', 'MOVING'].includes(window.__soloTest.state().turnPhase));
+    if (ownership === 'opponent') {
+      assert.equal((await state()).players[0].money, 1500);
+      await page.locator('dialog[open].rent-payment [data-variant="primary"]').click();
+    }
     await wait(() => !document.querySelector('.card-reveal'));
     assert.equal((await state()).players[0].money, ownership === 'opponent' ? 1430 : 1500);
     assert.deepEqual((await state()).dice, [3, 4]);
