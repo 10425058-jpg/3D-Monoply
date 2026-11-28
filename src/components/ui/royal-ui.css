@@ -9,8 +9,8 @@
   --ui-green: #65e8ad;
   --ui-ruby: #f597a6;
   --ui-line: #8a637f;
-  --ui-display: 'Cinzel', Georgia, serif;
-  --ui-body: 'DM Sans', system-ui, sans-serif;
+  --ui-display: var(--game-ui-font);
+  --ui-body: var(--game-ui-font);
 }
 .royal-dialog {
   --ribbon-top: #754077;
@@ -49,7 +49,7 @@
 .royal-ribbon { position: relative; border: solid #deb670; border-width: 2px 1px 3px; border-radius: 12px 12px 40% 40% / 18px 18px 8px 8px; background: linear-gradient(100deg,var(--ribbon-bottom),var(--ribbon-top) 24%,var(--ribbon-bottom) 82%,var(--ribbon-top)); box-shadow: inset 0 1px #ffedcc7a, 0 4px 8px #11091b85; }
 .royal-ribbon::before,.royal-ribbon::after { content: ''; position: absolute; z-index: -1; bottom: -6px; height: 65%; width: 27px; right: calc(100% - 3px); background: linear-gradient(var(--ui-gold) 4%,var(--ribbon-top) 10%,var(--ribbon-bottom) 87%,var(--ui-gold) 96%); clip-path: polygon(0 0,100% 6%,100% 100%,0 92%,22% 49%); }
 .royal-ribbon::after { right: auto; left: calc(100% - 3px); transform: scaleX(-1); }
-.royal-dialog .royal-dialog-title { margin: 0; padding: 7px clamp(15px,3vw,36px) 9px; font: 700 clamp(21px,2.2vw,32px)/1.16 var(--ui-display); color: var(--ui-bright); outline: none; overflow-wrap: anywhere; text-shadow: 0 2px 2px #271329; }
+.royal-dialog .royal-dialog-title { margin: 0; padding: 7px clamp(15px,3vw,36px) 9px; font: 700 clamp(21px,2.2vw,32px)/1.3 var(--ui-display); text-transform: none; color: var(--ui-bright); outline: none; overflow-wrap: anywhere; text-shadow: 0 2px 2px #271329; }
 .royal-dialog-body { min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 20px var(--gutter) 22px; display: grid; align-content: start; gap: 14px; scrollbar-width: thin; scrollbar-color: #a67d87 #2d1b37; }
 .royal-dialog-body > * { min-width: 0; }
 .royal-dialog :is(p,h3,dl,dd,ul,ol) { margin: 0; }
