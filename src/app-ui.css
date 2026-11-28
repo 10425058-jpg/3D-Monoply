@@ -20,7 +20,7 @@
   isolation: isolate;
   color: var(--ui-ink);
   background: #090d17;
-  font-family: 'DM Sans', Inter, system-ui, sans-serif;
+  font-family: var(--game-ui-font);
 }
 
 .world-layer {
@@ -211,7 +211,7 @@
 .panel-heading h2 {
   margin: 2px 0 0;
   color: #f4f0e7;
-  font-family: 'Cinzel', Georgia, serif;
+  font-family: var(--game-ui-font);
   font-size: 19px;
   font-weight: 600;
   letter-spacing: .025em;
@@ -326,7 +326,7 @@
 .player-money svg { opacity: .85; }
 .player-money strong {
   color: #f5f1e8;
-  font-family: 'Cinzel', Georgia, serif;
+  font-family: var(--game-ui-font);
   font-size: 15px;
   font-weight: 600;
   letter-spacing: .03em;
@@ -526,7 +526,7 @@
 .dice-total {
   margin-left: 2px;
   color: var(--ui-gold-bright);
-  font-family: 'Cinzel', Georgia, serif;
+  font-family: var(--game-ui-font);
   font-size: 19px;
 }
 .console-actions { display: flex; align-items: center; gap: 7px; }
@@ -609,18 +609,18 @@
 .property-inspector h3 {
   margin: 5px 28px 10px 0;
   color: #f5efdf;
-  font-family: 'Cinzel', Georgia, serif;
+  font-family: var(--game-ui-font);
   font-size: 16px;
   line-height: 1.35;
 }
 .inspector-price {
   color: var(--ui-gold-bright);
-  font-family: 'Cinzel', Georgia, serif;
+  font-family: var(--game-ui-font);
   font-size: 20px;
   font-weight: 600;
 }
-.inspector-price span { margin-left: 4px; color: #858c9b; font-family: 'DM Sans', sans-serif; font-size: 9px; font-weight: 500; }
-.inspector-special { font-family: 'DM Sans', sans-serif; font-size: 12px; }
+.inspector-price span { margin-left: 4px; color: #858c9b; font-family: var(--game-ui-font); font-size: 9px; font-weight: 500; }
+.inspector-special { font-family: var(--game-ui-font); font-size: 12px; }
 .inspector-owner {
   display: flex;
   align-items: center;
@@ -927,7 +927,7 @@
   background:
     radial-gradient(ellipse at 50% 46%, rgba(105, 205, 255, .22), transparent 49%),
     linear-gradient(145deg, #6857c5 0%, #8869cf 42%, #4a91d7 100%);
-  font-family: 'Nunito', 'DM Sans', system-ui, sans-serif;
+  font-family: var(--game-ui-font);
 }
 
 .world-vignette {
@@ -1038,7 +1038,7 @@
   color: #fff;
   background: linear-gradient(180deg, #ffcc58, #f28c34);
   box-shadow: 0 3px 0 #b85c34, inset 0 1px rgba(255,255,255,.55);
-  font-family: 'Fredoka', sans-serif;
+  font-family: var(--game-ui-font);
   font-size: 23px;
   line-height: 1;
 }
@@ -1081,7 +1081,7 @@
 .eyebrow { color: #ffe59a; text-shadow: 0 1px 2px rgba(49, 30, 119, .36); font-size: 8px; letter-spacing: .14em; }
 .panel-heading h2 {
   color: #fff;
-  font-family: 'Fredoka', 'Nunito', sans-serif;
+  font-family: var(--game-ui-font);
   font-size: 19px;
   letter-spacing: .01em;
   text-shadow: 0 2px 3px rgba(42, 24, 109, .25);
@@ -1143,7 +1143,7 @@
 .player-money { color: #b7ffb7; }
 .player-money strong {
   color: #fff;
-  font-family: 'Nunito', sans-serif;
+  font-family: var(--game-ui-font);
   font-size: 16px;
   font-weight: 900;
 }
@@ -1219,8 +1219,8 @@
   background: linear-gradient(145deg, rgba(111,88,194,.97), rgba(64,49,147,.97));
   box-shadow: 0 9px 0 rgba(43,29,112,.5), 0 18px 40px rgba(34,20,95,.34);
 }
-.property-inspector h3 { color: #fff; font-family: 'Fredoka', sans-serif; }
-.inspector-price { color: #fff0a3; font-family: 'Nunito', sans-serif; }
+.property-inspector h3 { color: #fff; font-family: var(--game-ui-font); }
+.inspector-price { color: #fff0a3; font-family: var(--game-ui-font); }
 .inspector-price span, .inspector-owner { color: #e1d7f6; }
 .inspector-stats > span {
   border-color: rgba(255,255,255,.2);
@@ -1322,7 +1322,7 @@
   color: #fff;
   background: radial-gradient(circle at 33% 25%, #ffd969 0%, #ff9f31 56%, #ed6829 100%);
   box-shadow: 0 7px 0 #a94b36, 0 12px 25px rgba(51,27,98,.43), 0 0 25px rgba(255,191,70,.3), inset 0 3px 0 rgba(255,255,255,.75);
-  font-family: 'Fredoka', sans-serif;
+  font-family: var(--game-ui-font);
   font-size: 24px;
   text-shadow: 0 2px 0 #b44f36, 0 4px 4px rgba(82,35,38,.34);
   transform: rotate(-4deg);
@@ -1448,7 +1448,7 @@
   color: #fff;
   background: linear-gradient(150deg, #937bd0, #654da8);
   box-shadow: 0 4px 0 rgba(51, 34, 113, .48), inset 0 1px rgba(255,255,255,.22);
-  font-family: 'Nunito', sans-serif;
+  font-family: var(--game-ui-font);
   font-size: 10px;
   font-weight: 900;
   white-space: nowrap;
@@ -1506,7 +1506,7 @@
   color: #fff;
   background: radial-gradient(circle at 34% 24%, #ffe47a 0%, #ffad39 54%, #eb672d 100%);
   box-shadow: 0 7px 0 #a94c37, 0 13px 28px rgba(45, 24, 96, .45), 0 0 24px rgba(255, 191, 69, .38), inset 0 3px 0 rgba(255,255,255,.78);
-  font-family: 'Fredoka', sans-serif;
+  font-family: var(--game-ui-font);
   font-size: 25px;
   font-weight: 700;
   letter-spacing: .02em;

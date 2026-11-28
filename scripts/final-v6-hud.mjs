@@ -38,6 +38,11 @@ try {
       const rect = element => { const r = element.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height, right: r.right, bottom: r.bottom }; };
       const panel = rect(document.querySelector('.fantasy-players'));
       const tray = rect(document.querySelector('.action-tray'));
+      const fonts = {
+        hud: getComputedStyle(document.querySelector('.fantasy-players')).fontFamily,
+        logo: getComputedStyle(document.querySelector('.kingdom-brand strong')).fontFamily,
+        action: getComputedStyle(document.querySelector('.dock-action')).fontFamily,
+      };
       const buttons = [...document.querySelectorAll('.action-tray button, .fantasy-roll, .fantasy-shortcuts button, .dock-utilities button, .resource-bar button')].map(element => ({
         label: element.getAttribute('aria-label') || element.textContent.trim() || element.title,
         shortcut: !!element.closest('.fantasy-shortcuts'),
@@ -53,7 +58,7 @@ try {
       const sidebar = document.querySelector('.fantasy-players');
       const portraits = [...sidebar.querySelectorAll('.player-portrait')];
       const landmark = sidebar.querySelector('.landmark-upgrade');
-      return { panel, tray, buttons, horizontalOverflow: document.documentElement.scrollWidth > innerWidth,
+      return { panel, tray, buttons, fonts, horizontalOverflow: document.documentElement.scrollWidth > innerWidth,
         compactPlayers: {
           brandWidth: rect(document.querySelector('.kingdom-brand')).width,
           portraitWidths: portraits.map(portrait => rect(portrait).width),
@@ -76,6 +81,9 @@ try {
         },
       };
     });
+    assert.match(layout.fonts.hud, /Poppins/);
+    assert.match(layout.fonts.action, /Poppins/);
+    assert.match(layout.fonts.logo, /Cinzel/);
     assert.equal(layout.horizontalOverflow, false, `${width}×${height}: horizontal overflow`);
     assert.equal(layout.compactTray.count, 6, 'all six actions remain');
     assert.equal(layout.compactPlayers.count, 6, 'all players remain available');
