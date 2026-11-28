@@ -5,10 +5,11 @@ import test from 'node:test';
 import { BufferGeometry, Float32BufferAttribute, Vector3 } from 'three';
 import { blossomMipmaps } from '../src/components/environment/sakuraAtlas';
 import { BOARD_SAKURA, FALLBACK_SAKURA, scenicSakura } from '../src/components/environment/sakuraLayout';
-import { expandBlossomSprays } from '../src/components/environment/sakuraModel';
+import { expandBlossomSprays, widenSakuraTrunk } from '../src/components/environment/sakuraModel';
+
+const folder = new URL('../public/assets/models/sakura/', import.meta.url);
 
 test('Sakura use the original masked GLBs with embedded textures and individual flowers', () => {
-  const folder = new URL('../public/assets/models/sakura/', import.meta.url);
   const manifest = JSON.parse(readFileSync(new URL('manifest.json', folder), 'utf8'));
   assert.deepEqual(manifest.assets.map((asset: { detail: string }) => asset.detail), ['full', 'lite']);
   for (const { file, sha256, triangles } of manifest.assets) {
@@ -38,6 +39,34 @@ test('Sakura use the original masked GLBs with embedded textures and individual 
   }
 });
 
+test('the authored Sakura trunk widens by 60 percent about each ring without shifting the roots or branches', () => {
+  const bytes = readFileSync(new URL('Sakura_Cherry_Blossom_Tree_Lite.glb', folder));
+  const jsonLength = bytes.readUInt32LE(12);
+  const model = JSON.parse(bytes.subarray(20, 20 + jsonLength).toString('utf8'));
+  const bark = model.meshes[0].primitives[0];
+  const positions = model.accessors[bark.attributes.POSITION];
+  const view = model.bufferViews[positions.bufferView];
+  const offset = 28 + jsonLength + (view.byteOffset ?? 0) + (positions.byteOffset ?? 0);
+  const coords = Float32Array.from({ length: positions.count * 3 }, (_, i) => bytes.readFloatLE(offset + i * 4));
+  const geometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute(coords, 3));
+  const widened = widenSakuraTrunk(geometry);
+  const original = geometry.getAttribute('position');
+  const rendered = widened.getAttribute('position');
+  for (let start = 0; start < 168; start += 12) {
+    const ring = Array.from({ length: 12 }, (_, i) => start + i);
+    for (const axis of ['getX', 'getZ'] as const) {
+      const before = ring.map(i => original[axis](i));
+      const after = ring.map(i => rendered[axis](i));
+      assert.ok(Math.abs((Math.max(...after) - Math.min(...after)) / (Math.max(...before) - Math.min(...before)) - 1.6) < 1e-6);
+      assert.ok(Math.abs(after.reduce((sum, x, i) => sum + x - before[i], 0)) < 1e-6);
+    }
+    assert.deepEqual(ring.map(i => rendered.getY(i)), ring.map(i => original.getY(i)));
+  }
+  assert.deepEqual(rendered.array.slice(168 * 3), coords.slice(168 * 3));
+  assert.deepEqual(original.array, coords);
+  assert.equal(widenSakuraTrunk(geometry), widened);
+});
+
 test('blossom fullness trims blank margins while keeping spray centers and triangle indices', () => {
   const source = new BufferGeometry();
   const positions = [
@@ -55,7 +84,7 @@ test('blossom fullness trims blank margins while keeping spray centers and trian
   assert.equal(expanded.index, source.index);
   assert.deepEqual([...source.getAttribute('uv').array], [...uv, ...uv]);
   assert.deepEqual([...source.getAttribute('position').array], Array.from(Float32Array.from(positions)));
-  for (const [start, height, size] of [[0, 1.4, 1.05], [4, 3.7, 1.14]]) {
+  for (const [start, height, size] of [[0, 1.4, 1.24], [4, 3.7, 1.38]]) {
     const center = new Vector3();
     for (let i = start; i < start + 4; i++) center.add(new Vector3().fromBufferAttribute(rendered, i));
     assert.ok(center.multiplyScalar(.25).distanceTo(new Vector3(0, height, 0)) < 1e-6);

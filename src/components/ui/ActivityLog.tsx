@@ -1,4 +1,5 @@
 import React, { memo, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowDownUp, ArrowRight, Banknote, Building2, ChevronDown, Coins, Crown, Dice5, DoorClosed,
@@ -10,7 +11,7 @@ import {
 } from '../../game/matchActivity';
 import { useMotionPreferences } from '../../presentation/useMotionPreferences';
 import type { DeckCard, Player } from '../../types/game';
-import { RoyalArt, useRoyalModalOpen } from './RoyalUI';
+import { RoyalArt, useRoyalModalElement } from './RoyalUI';
 import './match-activity.css';
 
 const icons: Record<ActivityKind, typeof Coins> = {
@@ -266,8 +267,9 @@ function NoticeQueue({ events, layout = 'solo', draw, paused, animating, animate
         continue;
       }
       const centered = presentation !== 'interactive' && isCenterActivityNotice(event);
-      if (visible || centered) added.push({ id: event.id, content: event, centered, priority,
-        waiting: centered && animating && event.id !== animatedCardId });
+      const rent = event.kind === 'rent';
+      if (visible || centered || rent) added.push({ id: event.id, content: event, centered, priority,
+        waiting: animating && (rent || (centered && event.id !== animatedCardId)) });
     }
     if (!added.length && !outcomes.size) return;
     setQueue(current => {
@@ -275,8 +277,9 @@ function NoticeQueue({ events, layout = 'solo', draw, paused, animating, animate
         const outcome = outcomes.get(notice.id);
         return outcome ? { ...notice, content: outcome } : notice;
       });
-      const compact = next.filter(notice => !notice.centered).sort((a, b) => b.priority - a.priority);
-      return [...next.filter(notice => notice.centered), ...compact.slice(0, 6)];
+      const compact = next.filter(notice => !notice.centered && notice.content.kind !== 'rent');
+      compact.sort((a, b) => b.priority - a.priority);
+      return [...next.filter(notice => notice.centered || notice.content.kind === 'rent'), ...compact.slice(0, 6)];
     });
   }, [events, draw, frequency, visible, animating, animatedCardId]);
 
@@ -286,27 +289,31 @@ function NoticeQueue({ events, layout = 'solo', draw, paused, animating, animate
   }, [animating, animatedCardId]);
 
   useEffect(() => {
-    setQueue(current => current.filter(notice => notice.centered || (visible && (frequency === 'standard' || notice.priority > 1))));
+    setQueue(current => current.filter(notice => notice.centered || notice.content.kind === 'rent' ||
+      (visible && (frequency === 'standard' || notice.priority > 1))));
   }, [frequency, visible]);
 
-  const modalOpen = useRoyalModalOpen();
-  const notice = visible && !paused && !modalOpen ? queue.find(entry => !entry.waiting) : undefined;
+  const dialog = useRoyalModalElement();
+  const rent = visible ? queue.find(entry => !entry.waiting && entry.content.kind === 'rent') : undefined;
+  const notice = rent ?? (visible && !paused && !dialog ? queue.find(entry => !entry.waiting) : undefined);
+  const host = rent && dialog;
   const noticeId = notice?.id;
-  const ttl = notice?.centered ? 7500 : notice?.content.kind === 'card' ? 5200 : 3600;
+  const ttl = rent ? 5600 : notice?.centered ? 7500 : notice?.content.kind === 'card' ? 5200 : 3600;
   useEffect(() => {
     if (!noticeId) return;
     const timer = window.setTimeout(() => setQueue(current => current.filter(entry => entry.id !== noticeId)), ttl);
     return () => window.clearTimeout(timer);
   }, [noticeId, ttl]);
 
-  return <div aria-live="polite" aria-atomic="true">
+  const liveNotice = <div aria-live="polite" aria-atomic="true">
     <AnimatePresence mode="wait">
-      {notice && <motion.div key={notice.id} className={`match-notices match-notices--${notice.centered ? 'center' : layout}`}>
+      {notice && <motion.div key={notice.id} className={`match-notices match-notices--${host ? 'dialog' : notice.centered ? 'center' : layout}`}>
         <ActivityNotice notice={notice} reduced={reducedMotion}
           close={() => setQueue(current => current.filter(entry => entry.id !== notice.id))} />
       </motion.div>}
     </AnimatePresence>
   </div>;
+  return host ? createPortal(liveNotice, host) : liveNotice;
 }
 
 export const MatchActivityNotices = memo(function MatchActivityNotices(props: NoticeProps) {

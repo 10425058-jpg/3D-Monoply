@@ -61,6 +61,7 @@ const subscribe = (listener: () => void) => {
   return () => { listeners.delete(listener); };
 };
 export const useRoyalModalOpen = () => useSyncExternalStore(subscribe, () => !!currentDialog, () => false);
+export const useRoyalModalElement = () => useSyncExternalStore(subscribe, () => currentDialog?.element ?? null, () => null);
 
 function focusHeading(dialog: HTMLDialogElement) {
   dialog.querySelector<HTMLElement>('.royal-dialog-title')?.focus({ preventScroll: true });

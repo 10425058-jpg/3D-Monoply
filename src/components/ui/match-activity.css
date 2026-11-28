@@ -145,6 +145,16 @@
   border-color: #ffe5a0;
   box-shadow: inset 0 0 0 2px #e6bd794f, 0 8px 22px #250b3c80;
 }
+.match-notice[data-activity-notice="rent"] {
+  border-color: var(--ui-bright);
+  box-shadow: inset 0 0 0 2px #e6bd794f, 0 8px 20px #250b3c95;
+}
+.match-notices--dialog {
+  position: fixed;
+  top: max(8px, env(safe-area-inset-top));
+  width: min(470px, calc(100vw - 20px));
+}
+.match-notices--dialog .match-notice-detail { display: none; }
 .match-notice-heading { display: flex; gap: 8px; align-items: center; padding: 8px 9px; }
 .match-notice-heading strong { flex: 1; font-size: 13px; overflow-wrap: anywhere; }
 .match-notice-icon { flex-shrink: 0; color: #ffe196; }
