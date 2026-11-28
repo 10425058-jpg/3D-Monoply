@@ -16,7 +16,7 @@ Use violet surfaces, a double brass border, a title ribbon and small corner orna
 | `--ui-green` | `#65e8ad` | Balances, gains and completed rewards |
 | `--ui-ruby` | `#f597a6` | Debt, shortfalls and elimination |
 
-Headings use Cinzel with a Georgia fallback. Descriptions and controls use DM Sans with a system fallback. Use tabular figures for cash values. Pair semantic colors with text, icons or status labels.
+Gameplay HUD, dialog headings, announcements, descriptions and controls use Poppins with DM Sans and system fallbacks. The 3D Monopoly logo retains Cinzel. Long announcements use sentence case, semibold weight and balanced wrapping. Use tabular figures for cash values. Pair semantic colors with text, icons or status labels.
 
 ## Components
 
