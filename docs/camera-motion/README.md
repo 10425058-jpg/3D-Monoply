@@ -34,7 +34,7 @@ In a separate query-enabled pair, GPU median time was 201.4 → 172.9 ms at the 
 
 ## Visual preservation
 
-Chrome captured the same poses with the same game state, animation clock, seed, drawing buffer, and render preset. Five WebGL pairs were pixel-identical. One pixel in the High orbit pair differed by one channel level. In the 1,296,000-pixel full-page images, 286–356 pixels differed per pair. Most differences were along the Roll button border with identical computed styling. Same-build repeats also recorded edge-level raster differences. All three production CSS chunks matched byte for byte. [Pixel counts, hashes, and capture conditions](evidence/visual-comparison.json)
+Chrome captured the same poses with the same game state, animation clock, seed, drawing buffer, and render preset. Five WebGL pairs were pixel-identical. One pixel in the High orbit pair differed by one channel level. In the 1,296,000-pixel full-page images, 286–356 pixels differed per pair. Most differences were along the Roll button border with identical computed styling. A second Balanced capture reproduced all six PNGs byte for byte on the opposite build, including the border variation. All three production CSS chunks matched byte for byte. [Pixel counts, hashes, and capture conditions](evidence/visual-comparison.json)
 
 | View | Balanced | High |
 |---|---|---|

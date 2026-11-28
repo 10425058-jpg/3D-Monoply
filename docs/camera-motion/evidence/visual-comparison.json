@@ -417,5 +417,37 @@
         ]
       }
     }
+  },
+  "repeatedBalancedFullPagePngHashes": {
+    "overview": {
+      "initial": {
+        "before": "09c40a3c0d2123725d8060ecc0051127479b1c4b77afc3f7e7fa1410f6c15508",
+        "after": "e4fbe3a4c79df98406891ee9397335375ea6693f308e77e9cca901722397348e"
+      },
+      "repeated": {
+        "before": "e4fbe3a4c79df98406891ee9397335375ea6693f308e77e9cca901722397348e",
+        "after": "09c40a3c0d2123725d8060ecc0051127479b1c4b77afc3f7e7fa1410f6c15508"
+      }
+    },
+    "orbit": {
+      "initial": {
+        "before": "962fb8544c38783a27423f2d9c67d0a4b2d4bc66dac17f585c43567174ea61e3",
+        "after": "52f68dd307907b47c90617294adef4edf9f421a12fd374a4c4b362d14a4c49e1"
+      },
+      "repeated": {
+        "before": "52f68dd307907b47c90617294adef4edf9f421a12fd374a4c4b362d14a4c49e1",
+        "after": "962fb8544c38783a27423f2d9c67d0a4b2d4bc66dac17f585c43567174ea61e3"
+      }
+    },
+    "zoom-settings": {
+      "initial": {
+        "before": "9b791f996a800bf3c20b46ff19d553bc3af93c96d724cdbc6f080804a5f9c124",
+        "after": "2ac2fdbd0a3b023d23b64e4b538f214611f25a32958cdcd58690a7ad23614b9f"
+      },
+      "repeated": {
+        "before": "2ac2fdbd0a3b023d23b64e4b538f214611f25a32958cdcd58690a7ad23614b9f",
+        "after": "9b791f996a800bf3c20b46ff19d553bc3af93c96d724cdbc6f080804a5f9c124"
+      }
+    }
   }
 }
