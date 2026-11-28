@@ -12,15 +12,15 @@ import { FantasySkyBackground } from './FantasySkyBackground';
 import { CinematicCamera } from './CinematicCamera';
 import { GraphicsAudit, graphicsAuditEnabled } from './GraphicsAudit';
 import { BoardShadowLight } from './BoardShadowLight';
-import { useMotionPreferences } from '../../presentation/useMotionPreferences';
+import { useReducedMotion } from '../../presentation/useMotionPreferences';
+import { boardPointerEvents } from './boardPointerEvents';
 
 type GraphicsQuality = 'low' | 'balanced' | 'high';
 
-// The opening camera settles once; players control rotation and zoom directly.
-const INITIAL_CAMERA_REQUEST = { preset: 'overview' as const, sequence: 0 };
+const CAMERA = { position: [0, 29, 27] as [number, number, number], fov: 40, near: .5, far: 400 };
 
-export const Scene3D = React.memo<{ quality?: GraphicsQuality; propertyPanel?: boolean }>(({ quality = 'balanced', propertyPanel = false }) => {
-  const { reducedMotion } = useMotionPreferences();
+export const Scene3D = React.memo<{ quality?: GraphicsQuality }>(({ quality = 'balanced' }) => {
+  const reducedMotion = useReducedMotion();
   const root = React.useRef<RootState | null>(null);
   const [visible, setVisible] = React.useState(() => !document.hidden);
 
@@ -45,7 +45,7 @@ export const Scene3D = React.memo<{ quality?: GraphicsQuality; propertyPanel?: b
   }, []);
 
   return <div className="relative h-full w-full">
-    <Canvas camera={{ position: [0, 29, 27], fov: 40, near: 0.5, far: 400 }}
+    <Canvas camera={CAMERA} events={boardPointerEvents}
       shadows={quality === 'low' ? false : 'soft'}
       frameloop={visible ? 'always' : 'never'}
       dpr={quality === 'low' ? [0.75, 0.9] : quality === 'high' ? [1, 1.25] : [0.85, 1]}
@@ -68,7 +68,7 @@ export const Scene3D = React.memo<{ quality?: GraphicsQuality; propertyPanel?: b
       {!reducedMotion && quality !== 'low' && <Sparkles count={quality === 'high' ? 48 : 24}
         position={[0, 2.4, -0.5]} scale={[13, 4, 12]} size={2.2} speed={0.16}
         opacity={0.45} color="#ffe0a1" raycast={() => {}} />}
-      <CinematicCamera request={INITIAL_CAMERA_REQUEST} reducedMotion={reducedMotion} propertyPanel={propertyPanel} />
+      <CinematicCamera reducedMotion={reducedMotion} />
       <Board3D />
       <CenterCity3D quality={quality} />
       <TokensAndBuildings quality={quality} />

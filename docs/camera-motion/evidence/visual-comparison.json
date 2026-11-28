@@ -1,0 +1,453 @@
+{
+  "viewport": {
+    "width": 1440,
+    "height": 900,
+    "deviceScaleFactor": 1
+  },
+  "results": {
+    "balanced": {
+      "overview": {
+        "before": "docs\\camera-motion\\evidence\\balanced-overview-before.png",
+        "after": "docs\\camera-motion\\evidence\\balanced-overview-after.png",
+        "metadata": {
+          "camera": {
+            "position": [
+              0,
+              35,
+              37
+            ],
+            "fov": 40,
+            "view": null,
+            "target": [
+              0,
+              0.5,
+              0
+            ]
+          },
+          "viewport": [
+            1440,
+            900
+          ],
+          "dpr": 1,
+          "drawingBuffer": [
+            1440,
+            900
+          ],
+          "renderer": "ANGLE (ATI Technologies Inc., AMD Radeon(TM) 610M, OpenGL 4.5.0)",
+          "three": "164",
+          "timeMs": 4516,
+          "roll": {
+            "left": 1288,
+            "right": 1420,
+            "top": 752,
+            "bottom": 884,
+            "background": "rgba(0, 0, 0, 0) radial-gradient(circle at 40% 30%, rgb(133, 69, 134), rgb(67, 29, 97) 65%, rgb(36, 18, 53)) repeat scroll 0% 0% / auto padding-box border-box",
+            "boxShadow": "rgb(255, 233, 160) 0px 0px 0px 2px inset, rgb(155, 106, 69) 0px 0px 0px 8px inset, rgba(21, 9, 33, 0.533) 0px 5px 18px 0px",
+            "border": "5px solid rgb(228, 181, 87)",
+            "filter": "none",
+            "transform": "none"
+          }
+        },
+        "pixels": {
+          "changed": 355,
+          "aboveThree": 187,
+          "maxChannelDelta": 50,
+          "outsideRoll": 22,
+          "total": 1296000
+        },
+        "repeatPixels": {
+          "changed": 50,
+          "aboveThree": 0,
+          "maxChannelDelta": 1,
+          "outsideRoll": 50,
+          "total": 1296000
+        },
+        "canvasPixels": {
+          "changed": 0,
+          "aboveThree": 0,
+          "maxChannelDelta": 0,
+          "outsideRoll": 0,
+          "total": 1296000
+        },
+        "canvasHashes": [
+          "814a329c8429989be0e67b567974aea2ddd9412c4c12248775a97841e4d3e2c8",
+          "814a329c8429989be0e67b567974aea2ddd9412c4c12248775a97841e4d3e2c8"
+        ]
+      },
+      "orbit": {
+        "before": "docs\\camera-motion\\evidence\\balanced-orbit-before.png",
+        "after": "docs\\camera-motion\\evidence\\balanced-orbit-after.png",
+        "metadata": {
+          "camera": {
+            "position": [
+              26.999999999999996,
+              22,
+              25
+            ],
+            "fov": 40,
+            "view": null,
+            "target": [
+              0,
+              0.7,
+              0
+            ]
+          },
+          "viewport": [
+            1440,
+            900
+          ],
+          "dpr": 1,
+          "drawingBuffer": [
+            1440,
+            900
+          ],
+          "renderer": "ANGLE (ATI Technologies Inc., AMD Radeon(TM) 610M, OpenGL 4.5.0)",
+          "three": "164",
+          "timeMs": 4532,
+          "roll": {
+            "left": 1288,
+            "right": 1420,
+            "top": 752,
+            "bottom": 884,
+            "background": "rgba(0, 0, 0, 0) radial-gradient(circle at 40% 30%, rgb(133, 69, 134), rgb(67, 29, 97) 65%, rgb(36, 18, 53)) repeat scroll 0% 0% / auto padding-box border-box",
+            "boxShadow": "rgb(255, 233, 160) 0px 0px 0px 2px inset, rgb(155, 106, 69) 0px 0px 0px 8px inset, rgba(21, 9, 33, 0.533) 0px 5px 18px 0px",
+            "border": "5px solid rgb(228, 181, 87)",
+            "filter": "none",
+            "transform": "none"
+          }
+        },
+        "pixels": {
+          "changed": 356,
+          "aboveThree": 189,
+          "maxChannelDelta": 52,
+          "outsideRoll": 22,
+          "total": 1296000
+        },
+        "repeatPixels": {
+          "changed": 50,
+          "aboveThree": 2,
+          "maxChannelDelta": 20,
+          "outsideRoll": 50,
+          "total": 1296000
+        },
+        "canvasPixels": {
+          "changed": 0,
+          "aboveThree": 0,
+          "maxChannelDelta": 0,
+          "outsideRoll": 0,
+          "total": 1296000
+        },
+        "canvasHashes": [
+          "cde6222d64ceafc649fe088923572d0aa4f967431c6fba7215b1a5fab930f945",
+          "cde6222d64ceafc649fe088923572d0aa4f967431c6fba7215b1a5fab930f945"
+        ]
+      },
+      "zoom-settings": {
+        "before": "docs\\camera-motion\\evidence\\balanced-zoom-settings-before.png",
+        "after": "docs\\camera-motion\\evidence\\balanced-zoom-settings-after.png",
+        "metadata": {
+          "camera": {
+            "position": [
+              10.999999999999998,
+              12.999999999999998,
+              17.999999999999996
+            ],
+            "fov": 40,
+            "view": null,
+            "target": [
+              0,
+              0.7,
+              0
+            ]
+          },
+          "viewport": [
+            1440,
+            900
+          ],
+          "dpr": 1,
+          "drawingBuffer": [
+            1440,
+            900
+          ],
+          "renderer": "ANGLE (ATI Technologies Inc., AMD Radeon(TM) 610M, OpenGL 4.5.0)",
+          "three": "164",
+          "timeMs": 4548,
+          "roll": {
+            "left": 1288,
+            "right": 1420,
+            "top": 752,
+            "bottom": 884,
+            "background": "rgba(0, 0, 0, 0) radial-gradient(circle at 40% 30%, rgb(133, 69, 134), rgb(67, 29, 97) 65%, rgb(36, 18, 53)) repeat scroll 0% 0% / auto padding-box border-box",
+            "boxShadow": "rgb(255, 233, 160) 0px 0px 0px 2px inset, rgb(155, 106, 69) 0px 0px 0px 8px inset, rgba(21, 9, 33, 0.533) 0px 5px 18px 0px",
+            "border": "5px solid rgb(228, 181, 87)",
+            "filter": "none",
+            "transform": "none"
+          }
+        },
+        "pixels": {
+          "changed": 292,
+          "aboveThree": 120,
+          "maxChannelDelta": 21,
+          "outsideRoll": 15,
+          "total": 1296000
+        },
+        "repeatPixels": {
+          "changed": 5,
+          "aboveThree": 1,
+          "maxChannelDelta": 6,
+          "outsideRoll": 5,
+          "total": 1296000
+        },
+        "canvasPixels": {
+          "changed": 0,
+          "aboveThree": 0,
+          "maxChannelDelta": 0,
+          "outsideRoll": 0,
+          "total": 1296000
+        },
+        "canvasHashes": [
+          "1701c4fdf596a071b3bc14db208fa88ef7e8f1b3bc2319f5896d9b16ae155200",
+          "1701c4fdf596a071b3bc14db208fa88ef7e8f1b3bc2319f5896d9b16ae155200"
+        ]
+      }
+    },
+    "high": {
+      "overview": {
+        "before": "docs\\camera-motion\\evidence\\high-overview-before.png",
+        "after": "docs\\camera-motion\\evidence\\high-overview-after.png",
+        "metadata": {
+          "camera": {
+            "position": [
+              0,
+              35,
+              37
+            ],
+            "fov": 40,
+            "view": null,
+            "target": [
+              0,
+              0.5,
+              0
+            ]
+          },
+          "viewport": [
+            1440,
+            900
+          ],
+          "dpr": 1,
+          "drawingBuffer": [
+            1440,
+            900
+          ],
+          "renderer": "ANGLE (ATI Technologies Inc., AMD Radeon(TM) 610M, OpenGL 4.5.0)",
+          "three": "164",
+          "timeMs": 4516,
+          "roll": {
+            "left": 1288,
+            "right": 1420,
+            "top": 752,
+            "bottom": 884,
+            "background": "rgba(0, 0, 0, 0) radial-gradient(circle at 40% 30%, rgb(133, 69, 134), rgb(67, 29, 97) 65%, rgb(36, 18, 53)) repeat scroll 0% 0% / auto padding-box border-box",
+            "boxShadow": "rgb(255, 233, 160) 0px 0px 0px 2px inset, rgb(155, 106, 69) 0px 0px 0px 8px inset, rgba(21, 9, 33, 0.533) 0px 5px 18px 0px",
+            "border": "5px solid rgb(228, 181, 87)",
+            "filter": "none",
+            "transform": "none"
+          }
+        },
+        "pixels": {
+          "changed": 331,
+          "aboveThree": 165,
+          "maxChannelDelta": 39,
+          "outsideRoll": 1,
+          "total": 1296000
+        },
+        "repeatPixels": {
+          "changed": 0,
+          "aboveThree": 0,
+          "maxChannelDelta": 0,
+          "outsideRoll": 0,
+          "total": 1296000
+        },
+        "canvasPixels": {
+          "changed": 0,
+          "aboveThree": 0,
+          "maxChannelDelta": 0,
+          "outsideRoll": 0,
+          "total": 1296000
+        },
+        "canvasHashes": [
+          "5bb1637fe79a4146e7c87d9222e8b0ba97833b654c8524de6817d245a2e1b442",
+          "5bb1637fe79a4146e7c87d9222e8b0ba97833b654c8524de6817d245a2e1b442"
+        ]
+      },
+      "orbit": {
+        "before": "docs\\camera-motion\\evidence\\high-orbit-before.png",
+        "after": "docs\\camera-motion\\evidence\\high-orbit-after.png",
+        "metadata": {
+          "camera": {
+            "position": [
+              26.999999999999996,
+              22,
+              25
+            ],
+            "fov": 40,
+            "view": null,
+            "target": [
+              0,
+              0.7,
+              0
+            ]
+          },
+          "viewport": [
+            1440,
+            900
+          ],
+          "dpr": 1,
+          "drawingBuffer": [
+            1440,
+            900
+          ],
+          "renderer": "ANGLE (ATI Technologies Inc., AMD Radeon(TM) 610M, OpenGL 4.5.0)",
+          "three": "164",
+          "timeMs": 4532,
+          "roll": {
+            "left": 1288,
+            "right": 1420,
+            "top": 752,
+            "bottom": 884,
+            "background": "rgba(0, 0, 0, 0) radial-gradient(circle at 40% 30%, rgb(133, 69, 134), rgb(67, 29, 97) 65%, rgb(36, 18, 53)) repeat scroll 0% 0% / auto padding-box border-box",
+            "boxShadow": "rgb(255, 233, 160) 0px 0px 0px 2px inset, rgb(155, 106, 69) 0px 0px 0px 8px inset, rgba(21, 9, 33, 0.533) 0px 5px 18px 0px",
+            "border": "5px solid rgb(228, 181, 87)",
+            "filter": "none",
+            "transform": "none"
+          }
+        },
+        "pixels": {
+          "changed": 333,
+          "aboveThree": 170,
+          "maxChannelDelta": 33,
+          "outsideRoll": 2,
+          "total": 1296000
+        },
+        "repeatPixels": {
+          "changed": 1,
+          "aboveThree": 0,
+          "maxChannelDelta": 1,
+          "outsideRoll": 1,
+          "total": 1296000
+        },
+        "canvasPixels": {
+          "changed": 1,
+          "aboveThree": 0,
+          "maxChannelDelta": 1,
+          "outsideRoll": 1,
+          "total": 1296000
+        },
+        "canvasHashes": [
+          "40f72f7ed776091e463f1e5a0ea3f88ae14a787e2a8d8c7cff0a488ea18b406c",
+          "aa8516c1e4bf5d40e99284999101991da63bc4dacb16c36367a19d089a2a8f85"
+        ]
+      },
+      "zoom-settings": {
+        "before": "docs\\camera-motion\\evidence\\high-zoom-settings-before.png",
+        "after": "docs\\camera-motion\\evidence\\high-zoom-settings-after.png",
+        "metadata": {
+          "camera": {
+            "position": [
+              10.999999999999998,
+              12.999999999999998,
+              17.999999999999996
+            ],
+            "fov": 40,
+            "view": null,
+            "target": [
+              0,
+              0.7,
+              0
+            ]
+          },
+          "viewport": [
+            1440,
+            900
+          ],
+          "dpr": 1,
+          "drawingBuffer": [
+            1440,
+            900
+          ],
+          "renderer": "ANGLE (ATI Technologies Inc., AMD Radeon(TM) 610M, OpenGL 4.5.0)",
+          "three": "164",
+          "timeMs": 4548,
+          "roll": {
+            "left": 1288,
+            "right": 1420,
+            "top": 752,
+            "bottom": 884,
+            "background": "rgba(0, 0, 0, 0) radial-gradient(circle at 40% 30%, rgb(133, 69, 134), rgb(67, 29, 97) 65%, rgb(36, 18, 53)) repeat scroll 0% 0% / auto padding-box border-box",
+            "boxShadow": "rgb(255, 233, 160) 0px 0px 0px 2px inset, rgb(155, 106, 69) 0px 0px 0px 8px inset, rgba(21, 9, 33, 0.533) 0px 5px 18px 0px",
+            "border": "5px solid rgb(228, 181, 87)",
+            "filter": "none",
+            "transform": "none"
+          }
+        },
+        "pixels": {
+          "changed": 286,
+          "aboveThree": 74,
+          "maxChannelDelta": 14,
+          "outsideRoll": 0,
+          "total": 1296000
+        },
+        "repeatPixels": {
+          "changed": 0,
+          "aboveThree": 0,
+          "maxChannelDelta": 0,
+          "outsideRoll": 0,
+          "total": 1296000
+        },
+        "canvasPixels": {
+          "changed": 0,
+          "aboveThree": 0,
+          "maxChannelDelta": 0,
+          "outsideRoll": 0,
+          "total": 1296000
+        },
+        "canvasHashes": [
+          "e9b009f6a86f9f0f7a5d67d01efd4735692bdee1f99b71a296cef4052ba9d4df",
+          "e9b009f6a86f9f0f7a5d67d01efd4735692bdee1f99b71a296cef4052ba9d4df"
+        ]
+      }
+    }
+  },
+  "repeatedBalancedFullPagePngHashes": {
+    "overview": {
+      "initial": {
+        "before": "09c40a3c0d2123725d8060ecc0051127479b1c4b77afc3f7e7fa1410f6c15508",
+        "after": "e4fbe3a4c79df98406891ee9397335375ea6693f308e77e9cca901722397348e"
+      },
+      "repeated": {
+        "before": "e4fbe3a4c79df98406891ee9397335375ea6693f308e77e9cca901722397348e",
+        "after": "09c40a3c0d2123725d8060ecc0051127479b1c4b77afc3f7e7fa1410f6c15508"
+      }
+    },
+    "orbit": {
+      "initial": {
+        "before": "962fb8544c38783a27423f2d9c67d0a4b2d4bc66dac17f585c43567174ea61e3",
+        "after": "52f68dd307907b47c90617294adef4edf9f421a12fd374a4c4b362d14a4c49e1"
+      },
+      "repeated": {
+        "before": "52f68dd307907b47c90617294adef4edf9f421a12fd374a4c4b362d14a4c49e1",
+        "after": "962fb8544c38783a27423f2d9c67d0a4b2d4bc66dac17f585c43567174ea61e3"
+      }
+    },
+    "zoom-settings": {
+      "initial": {
+        "before": "9b791f996a800bf3c20b46ff19d553bc3af93c96d724cdbc6f080804a5f9c124",
+        "after": "2ac2fdbd0a3b023d23b64e4b538f214611f25a32958cdcd58690a7ad23614b9f"
+      },
+      "repeated": {
+        "before": "2ac2fdbd0a3b023d23b64e4b538f214611f25a32958cdcd58690a7ad23614b9f",
+        "after": "9b791f996a800bf3c20b46ff19d553bc3af93c96d724cdbc6f080804a5f9c124"
+      }
+    }
+  }
+}
