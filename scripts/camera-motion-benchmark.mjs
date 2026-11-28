@@ -169,12 +169,20 @@ async function run(build, round) {
     const latency = { orbit: [], zoom: [] };
     for (const kind of Object.keys(latency)) {
       for (let i = 0; i < 5; i++) {
+        // Alternate directions so any residual baseline damping can't be
+        // mistaken for the response to a new gesture.
+        const direction = i % 2 ? 1 : -1;
         await reset();
         await page.mouse.move(...origin);
         if (kind === 'orbit') await page.mouse.down();
-        await page.evaluate(kind => {
+        await page.evaluate((kind, direction) => {
           const audit = window.__graphicsAudit;
-          const previous = audit.metadata().camera.position;
+          const camera = audit.metadata().camera;
+          const axis = position => {
+            const [x, y, z] = position.map((value, index) => value - camera.target[index]);
+            return kind === 'orbit' ? Math.atan2(x, z) : Math.hypot(x, y, z);
+          };
+          const previous = axis(camera.position);
           window.motionLatency = new Promise(resolve => {
             const eventName = kind === 'orbit' ? 'pointermove' : 'wheel';
             let stop;
@@ -188,16 +196,18 @@ async function run(build, round) {
               const handledAt = performance.now();
               stop = audit.observeRender(({ at }) => {
                 const { position } = audit.metadata().camera;
-                if (Math.hypot(...position.map((value, axis) => value - previous[axis])) < 0.0001) return;
+                const delta = axis(position) - previous;
+                const change = kind === 'orbit' ? Math.atan2(Math.sin(delta), Math.cos(delta)) : delta;
+                if (change * direction < .00001) return;
                 finish({ eventToSubmitMs: at - event.timeStamp, handlerToSubmitMs: at - handledAt });
               });
             }
             const deadline = setTimeout(() => finish(null), 5000);
             document.addEventListener(eventName, start, { once: true, capture: true });
           });
-        }, kind);
-        if (kind === 'orbit') await page.mouse.move(origin[0] - 18, origin[1] + 3);
-        else await page.mouse.wheel({ deltaY: -120 });
+        }, kind, direction);
+        if (kind === 'orbit') await page.mouse.move(origin[0] - direction * 18, origin[1] + 3);
+        else await page.mouse.wheel({ deltaY: direction * 120 });
         const sample = await page.evaluate(() => window.motionLatency);
         latency[kind].push(sample);
         if (kind === 'orbit') await page.mouse.up();
