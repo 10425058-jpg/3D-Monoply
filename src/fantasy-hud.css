@@ -11,7 +11,7 @@
   --hud-deed: clamp(292px, 22vw, 360px);
 }
 .fantasy-header, .fantasy-players, .fantasy-shortcuts, .fantasy-dock, .fantasy-deed {
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: var(--game-ui-font);
   color: var(--royal-parchment);
   position: fixed;
   box-sizing: border-box;
@@ -39,7 +39,7 @@
 .royal-icon:not(:disabled):hover { background: #603368; }
 .fantasy-players { left: 20px; top: 114px; width: var(--hud-left); z-index: 20; padding: 12px; border-radius: 22px 8px; }
 .panel-heading { display: flex; align-items: center; gap: 8px; padding: 1px 4px 12px; color: #f8dfa6; }
-.panel-heading h2 { flex: 1; font: 600 17px 'Cinzel', Georgia, serif; margin: 0; }
+.panel-heading h2 { flex: 1; font: 600 17px var(--game-ui-font); margin: 0; }
 .panel-heading > span { color: #e4cce9; font-size: 12px; }
 .kingdom-player-list { display: grid; gap: 10px; }
 .kingdom-player { display: flex; align-items: center; gap: 10px; position: relative; min-width: 0; padding: 12px 9px; border: 1px solid color-mix(in srgb, var(--player-color) 48%, #78527d); border-radius: 17px 7px; background: linear-gradient(115deg, #452353, #301a44); box-shadow: inset 0 1px #f3d4e00a; transition: border-color .2s, box-shadow .2s, background .2s; }
@@ -103,7 +103,7 @@
 .roll-dice-icons { display: flex; gap: 3px; margin-top: 3px; }
 .roll-dice-icons svg { width: 33px; height: 33px; fill: #fff2dc; color: #402343; transform: rotate(-12deg); stroke-width: 1.8; }
 .roll-dice-icons svg + svg { transform: rotate(14deg); }
-.fantasy-roll strong { font: 700 25px 'Cinzel', Georgia, serif; text-shadow: 0 2px #241329; margin-top: 3px; }
+.fantasy-roll strong { font: 700 25px var(--game-ui-font); text-shadow: 0 2px #241329; margin-top: 3px; }
 .fantasy-roll.is-rolling .roll-dice-icons { animation: royal-dice .7s ease-in-out infinite alternate; }
 .fantasy-roll.is-rolling strong { font-size: 15px; letter-spacing: .06em; }
 .fantasy-roll.is-rolling { filter: saturate(.8); }
@@ -115,7 +115,7 @@
 .deed-close { position: absolute; right: -12px; top: -14px; border-radius: 50%; z-index: 3; width: 36px; height: 36px; padding: 7px; }
 .deed-header { flex-shrink: 0; border: 1px solid #b8884f; background: linear-gradient(130deg, #502459, #27113c); color: #fff0d0; padding: 12px 18px 11px; text-align: center; border-radius: 18px 7px; }
 .deed-header > span { font-size: 10px; color: #f4ce84; letter-spacing: 3px; }
-.deed-header h2 { font: 700 clamp(17px, 1.4vw, 23px)/1.2 'Cinzel', Georgia, serif; margin: 5px 0 0; overflow-wrap: anywhere; }
+.deed-header h2 { font: 700 clamp(17px, 1.4vw, 23px)/1.2 var(--game-ui-font); margin: 5px 0 0; overflow-wrap: anywhere; }
 .deed-scroll { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #c49861 #f8e8c9; padding: 8px 10px 0; min-height: 0; }
 .deed-group { display: flex; justify-content: center; align-items: center; gap: 7px; font-size: 11px; font-weight: 800; text-transform: capitalize; margin: 0 0 8px; color: #654451; }
 .deed-group i { background: var(--property-color); width: 12px; height: 12px; border: 1px solid #79574d; border-radius: 3px; }
@@ -126,7 +126,7 @@
 .deed-facts dt { color: #6a4b48; }
 .deed-facts dd { margin: 0; text-align: right; font-weight: 800; overflow-wrap: anywhere; }
 .deed-facts .has-owner { color: #285d49; }
-.deed-rents h3 { display: flex; align-items: center; justify-content: center; gap: 8px; font: 700 16px 'Cinzel', Georgia, serif; color: #f6dfa5; background: #4a2355; border: 1px solid #ba8c4d; border-radius: 10px 3px; margin: 10px 0 4px; padding: 5px; }
+.deed-rents h3 { display: flex; align-items: center; justify-content: center; gap: 8px; font: 700 16px var(--game-ui-font); color: #f6dfa5; background: #4a2355; border: 1px solid #ba8c4d; border-radius: 10px 3px; margin: 10px 0 4px; padding: 5px; }
 .deed-rents table { border-collapse: collapse; width: 100%; font-size: 12px; font-variant-numeric: tabular-nums; }
 .deed-rents tr + tr { border-top: 1px solid #b99c7040; }
 .deed-rents tr:last-child { background: #e9cb9455; }
