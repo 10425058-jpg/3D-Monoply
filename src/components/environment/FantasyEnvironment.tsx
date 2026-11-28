@@ -2,6 +2,8 @@ import React, { Suspense } from 'react';
 import { FantasySky } from './FantasySky';
 import { FantasySun } from './FantasySun';
 import { DistantMountains } from './DistantMountains';
+import { DistantIslets } from './DistantIslets';
+import { CloudDeck } from './CloudDeck';
 import { PremiumFantasyWorld } from './PremiumFantasyWorld';
 import { AtmosphericClouds } from './AtmosphericClouds';
 import { useMotionPreferences } from '../../presentation/useMotionPreferences';
@@ -19,6 +21,8 @@ export function FantasyEnvironment({ quality = 'balanced' }: { quality?: Environ
     <FantasySky animate={animate} quality={quality} />
     <FantasySun />
     <DistantMountains quality={quality} />
+    <DistantIslets />
+    <CloudDeck quality={quality} animate={animate} />
     <EnvironmentAssetBoundary key={quality} label="royal islands" fallback={<LandmarkFallback placements={[LEFT_ISLAND, RIGHT_ISLAND]} />}>
       <Suspense fallback={<LandmarkFallback placements={[LEFT_ISLAND, RIGHT_ISLAND]} />}>
         <PremiumFantasyWorld quality={quality} animate={animate} />

@@ -71,7 +71,8 @@ export function FloatingClouds({ quality, animate }: { quality:EnvironmentQualit
             smoothstep(0.,.025,uv.y)*smoothstep(0.,.025,1.-uv.y);
           // Preserve the optical-density fringe and the connected body. Near
           // cradles are fuller; distant banks fade into the same lower sky.
-          float density=mix(cloud.a,smoothstep(.06,.68,cloud.a)*.95,1.-step(.5,abs(vData.z-1.)));
+          float cradle=1.-step(.5,abs(vData.z-1.));
+          float density=mix(cloud.a*(1.35-.35*cloud.a),smoothstep(.04,.67,cloud.a)*.95,cradle);
           float alpha=density*vData.y*edge;
           if(alpha<.002)discard;
           // RGB contains actual offline self-shadowing. Restrained ambient
@@ -80,10 +81,10 @@ export function FloatingClouds({ quality, animate }: { quality:EnvironmentQualit
           // The cloud light is authored offline. Its display response retains
           // the internal relief; the board's exposure remains untouched.
           vec3 color=cloudDisplayLight(cloud.rgb);
-          color*=mix(vec3(.97,.94,1.04),vec3(1.04,1.,.98),top);
+          color=mix(color,color*vec3(.90,.84,1.02)+vec3(.037,.024,.055),(1.-top)*.70);
           color*=mix(vec3(1.),vec3(1.055,1.01,.97),vWarm*.6);
           float aerial=smoothstep(95.,230.,vDistance)*.27;
-          color=mix(color,vec3(.74,.66,.82),aerial);
+          color=mix(color,vec3(.56,.45,.68),aerial);
           alpha*=1.-smoothstep(180.,280.,vDistance)*.25;
           gl_FragColor=vec4(color,alpha);
           #include <colorspace_fragment>

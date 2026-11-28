@@ -118,7 +118,7 @@ export function GraphicsAudit({ quality }: { quality: string }) {
       quality,
       environmentLayer(name: string, visible: boolean) {
         const object = scene.getObjectByName(name);
-        if (!object || !['kingdom-valley', 'mountain-ranges', 'kingdom-cloud-layers',
+        if (!object || !['kingdom-valley', 'mountain-ranges', 'distant-islets', 'low-cloud-deck', 'kingdom-cloud-layers',
           'ancient-stone-bridges', 'distant-fantasy-kingdom', 'kingdom-waterways'].includes(name)) return false;
         object.visible = visible;
         return true;
@@ -403,14 +403,16 @@ export function GraphicsAudit({ quality }: { quality: string }) {
           camera: { position: camera.position.toArray(), fov: (camera as THREE.PerspectiveCamera).fov,
             view: (camera as THREE.PerspectiveCamera).view,
             target: (state.get().controls as any)?.target.toArray() },
-          meshes, materialTextures: [...textures].map(t => ({ name: t.name, width: t.image?.width, height: t.image?.height })),
+          meshes, materialTextures: [...textures].map(t => ({ name: t.name, width: t.image?.width, height: t.image?.height,
+            ...(t instanceof THREE.Data3DTexture ? { depth: t.image.depth } : {}) })),
           // Allocation estimates from actual scene buffers/images. WebGL does
           // not expose driver VRAM; these deliberately aren't labelled VRAM.
           allocationEstimates: {
             geometryAttributeBytes: [...buffers].reduce((sum, buffer) => sum + buffer.array.byteLength, 0),
             instanceAttributeBytes,
-            textureRgbaBytes: [...textures].reduce((sum, texture) => sum +
-              (texture.image?.width ?? 0) * (texture.image?.height ?? 0) * 4 * (texture.generateMipmaps ? 4 / 3 : 1), 0),
+            textureRgbaBytes: [...textures].reduce((sum, texture) => sum + (texture instanceof THREE.Data3DTexture
+              ? (texture.image.data?.byteLength ?? 0)
+              : (texture.image?.width ?? 0) * (texture.image?.height ?? 0) * 4 * (texture.generateMipmaps ? 4 / 3 : 1)), 0),
           },
           memory: { ...gl.info.memory }, programs: gl.info.programs?.length };
       },
