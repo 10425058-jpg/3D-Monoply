@@ -18,27 +18,48 @@ export function FloatingClouds({ quality, animate }: { quality:EnvironmentQualit
   useEffect(()=>()=>atlas.dispose(),[atlas]);
   const clouds=useMemo(()=>atmosphereCloudLayout(quality),[quality]);
   const uniforms=useMemo(()=>({uTime:{value:0},uSun:{value:new THREE.Vector3(...SKY_SUN_DIRECTION)},uCloud:{value:atlas}}),[atlas]);
-  const sorting=useMemo(()=>({dummy:new THREE.Object3D(),previous:new THREE.Matrix4().makeScale(0,0,0),order:clouds.map((_,i)=>i),
-    data:new THREE.InstancedBufferAttribute(new Float32Array(clouds.length*4),4)}),[clouds]);
+  const sorting=useMemo(()=>{
+    const transform=new THREE.Object3D();
+    const matrices=clouds.map(cloud=>{
+      transform.position.fromArray(cloud.position);
+      transform.scale.set(cloud.size[0],cloud.size[1],1);
+      transform.updateMatrix();
+      return transform.matrix.clone();
+    });
+    const depths=new Float64Array(clouds.length);
+    return {matrices,depths,compare:(a:number,b:number)=>depths[a]-depths[b],initialized:false,
+      previous:new THREE.Matrix4(),order:clouds.map((_,i)=>i),
+      data:new THREE.InstancedBufferAttribute(new Float32Array(clouds.length*4),4)};
+  },[clouds]);
   useLayoutEffect(()=>{
     if(!ref.current)return;
     const instance=ref.current;
+    sorting.initialized=false;
     instance.geometry.setAttribute('cloudData',sorting.data);
     return()=>releaseInstanceBuffers(instance);
   },[sorting]);
   useFrame(({camera},delta)=>{
     if(mayAnimateEnvironment(animate))uniforms.uTime.value+=Math.min(delta,.1);
-    const instance=ref.current;if(!instance||sorting.previous.equals(camera.matrixWorldInverse))return;
+    const instance=ref.current;
+    if(!instance||(sorting.initialized&&sorting.previous.equals(camera.matrixWorldInverse)))return;
     sorting.previous.copy(camera.matrixWorldInverse);
     const view=camera.matrixWorldInverse.elements;
-    const depth=(i:number)=>{const p=clouds[i].position;return view[2]*p[0]+view[6]*p[1]+view[10]*p[2]+view[14];};
-    sorting.order.sort((a,b)=>depth(a)-depth(b));
-    sorting.order.forEach((index,slot)=>{
-      const cloud=clouds[index],dummy=sorting.dummy;
-      dummy.position.fromArray(cloud.position);dummy.scale.set(cloud.size[0],cloud.size[1],1);dummy.updateMatrix();
-      instance.setMatrixAt(slot,dummy.matrix);
+    const {order,depths}=sorting;
+    for(let i=0;i<clouds.length;i++){
+      const [x,y,z]=clouds[i].position;
+      depths[i]=view[2]*x+view[6]*y+view[10]*z+view[14];
+    }
+    let changed=!sorting.initialized;
+    for(let i=1;!changed&&i<order.length;i++) changed=depths[order[i-1]]>depths[order[i]];
+    // Dolly and small rotations usually keep the same transparent draw order.
+    if(!changed)return;
+    sorting.initialized=true;
+    order.sort(sorting.compare);
+    for(let slot=0;slot<order.length;slot++){
+      const index=order[slot],cloud=clouds[index];
+      instance.setMatrixAt(slot,sorting.matrices[index]);
       sorting.data.setXYZW(slot,cloud.variant,cloud.opacity,cloud.layer,index*.731);
-    });
+    }
     instance.instanceMatrix.needsUpdate=true;sorting.data.needsUpdate=true;
     instance.computeBoundingSphere();instance.boundingSphere!.radius+=1.5;
   });

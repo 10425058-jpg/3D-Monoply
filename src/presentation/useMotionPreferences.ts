@@ -4,6 +4,7 @@ const listeners = new Set<() => void>();
 let preference: MediaQueryList | undefined;
 let snapshot = { reducedMotion: false, visible: true };
 const media = () => preference ??= window.matchMedia('(prefers-reduced-motion: reduce)');
+const getReducedMotion = () => media().matches;
 const notify = () => listeners.forEach(listener => listener());
 
 function subscribe(listener: () => void) {
@@ -22,7 +23,7 @@ function subscribe(listener: () => void) {
 }
 
 function getSnapshot() {
-  const reducedMotion = media().matches;
+  const reducedMotion = getReducedMotion();
   const visible = !document.hidden;
   if (snapshot.reducedMotion !== reducedMotion || snapshot.visible !== visible) snapshot = { reducedMotion, visible };
   return snapshot;
@@ -30,4 +31,8 @@ function getSnapshot() {
 
 export function useMotionPreferences() {
   return useSyncExternalStore(subscribe, getSnapshot);
+}
+
+export function useReducedMotion() {
+  return useSyncExternalStore(subscribe, getReducedMotion);
 }

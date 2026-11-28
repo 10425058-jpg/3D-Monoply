@@ -5,6 +5,7 @@ import { getSpaceTransform } from '../../data/boardData';
 import { royalTokenAsset } from '../../data/royalTokenAssets';
 import { useSceneStore } from '../../presentation/SceneStore';
 import { OWNER_PENNANT_MATERIAL } from './arcadePropertyLayout';
+import { MAX_ORBIT_POLAR_ANGLE, MIN_ORBIT_DISTANCE, type BoardOrbitControls } from './BoardOrbitControls';
 
 type ArcadeAuditBuilding = {
   spaceId: number; ownerId: number; level: number; color: string | null;
@@ -327,10 +328,10 @@ export function GraphicsAudit({ quality }: { quality: string }) {
       camera(position: number[], target: number[], close = false) {
         const perspective = camera as THREE.PerspectiveCamera;
         perspective.clearViewOffset(); perspective.fov = 40; perspective.updateProjectionMatrix();
-        const controls = state.get().controls as { target: THREE.Vector3; minDistance: number; maxPolarAngle: number; update(): void } | null;
-        if (controls) { controls.minDistance = close ? .5 : 16; controls.maxPolarAngle = close ? 1.56 : Math.PI / 2.65; }
-        camera.position.fromArray(position); controls?.target.fromArray(target);
-        camera.lookAt(new THREE.Vector3().fromArray(target)); controls?.update(); camera.updateMatrixWorld();
+        const controls = state.get().controls as unknown as BoardOrbitControls;
+        controls.minDistance = close ? .5 : MIN_ORBIT_DISTANCE;
+        controls.maxPolarAngle = close ? 1.56 : MAX_ORBIT_POLAR_ANGLE;
+        controls.setPose(new THREE.Vector3().fromArray(position), new THREE.Vector3().fromArray(target));
       },
       tiles() {
         camera.updateMatrixWorld();

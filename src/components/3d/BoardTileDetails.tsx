@@ -11,7 +11,7 @@ import {ownerEdgeLayout,tileOutline} from './boardVisualState';
 import {smoothStep} from '../../presentation/animationMath';
 
 /** Presentation only: original catalog, ownership and gameplay coordinates. */
-export function BoardTileDetails({hoveredId}:{hoveredId:number|null}){
+export function BoardTileDetails(){
   const store=useSceneStore(), properties=useSceneState(s=>s.properties);
   const seatColors=useSceneState(s=>s.players.map(player=>`${player.id}:${player.color}`).join(';'));
   const selected=useSceneState(s=>s.selectedSpaceId),hovered=useSceneState(s=>s.hoveredSpaceId),auctionId=useSceneState(s=>s.auction?.spaceId);
@@ -56,7 +56,7 @@ export function BoardTileDetails({hoveredId}:{hoveredId:number|null}){
     const labelRects=resources.labelGeometry.getAttribute('atlasRect') as THREE.InstancedBufferAttribute;
     const badgeRects=resources.badgeGeometry.getAttribute('atlasRect') as THREE.InstancedBufferAttribute;
     for(const space of BOARD_SPACES){
-      const tf=getSpaceTransform(space.id),id=space.id,isSelected=selected===id,isHovered=[hoveredId,hovered].includes(id);
+      const tf=getSpaceTransform(space.id),id=space.id,isSelected=selected===id,isHovered=hovered===id;
       const y=isHovered ? .38 : isSelected ? .34 : .26,property=properties[id],owner=players.find(p=>p.id===property?.ownerId);
       const place=(mesh:THREE.InstancedMesh|null,index:number,x:number,z:number,width:number,height:number,depth:number,offsetY:number)=>{
         local.set(x,offsetY,z).applyAxisAngle(up,tf.rotationY);
@@ -107,7 +107,7 @@ export function BoardTileDetails({hoveredId}:{hoveredId:number|null}){
     for(const [mesh,count] of [[labels.current,40],[bands.current,bandCount],[dividers.current,bandCount],[badges.current,badgeCount],[ribbons.current,ribbonCount],[frames.current,frameCount],[ownerEdges.current,edgeCount],[ownerHalos.current,haloCount]] as const){
       if(!mesh)continue;mesh.count=count;mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;mesh.computeBoundingSphere();
     }
-  },[resources,store,properties,seatColors,selected,hoveredId,hovered,auctionId,landedId,landedCash]);
+  },[resources,store,properties,seatColors,selected,hovered,auctionId,landedId,landedCash]);
   useFrame(()=>{
     // Gentle breathing glow on owned tiles; steady when reduced motion is on.
     resources.haloMaterial.opacity=reducedMotion?.38:.32+Math.sin(performance.now()/650)*.14;

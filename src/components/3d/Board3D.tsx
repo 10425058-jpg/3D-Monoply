@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import {BoardTileDetails} from './BoardTileDetails';
 import { BOARD_SPACES, getSpaceTransform } from '../../data/boardData';
 import { useSceneState as useGameStore } from '../../presentation/SceneStore';
@@ -78,18 +78,20 @@ function BoardDecorationBatch({ batch }: { batch: DecorationBatch }) {
     castShadow={batch.castShadow ?? false} dispose={null} raycast={() => {}} />;
 }
 
+const tileTransforms = BOARD_SPACES.map(space => getSpaceTransform(space.id));
+
 export const Board3D: React.FC = () => {
   const selectSpace = useGameStore((s) => s.selectSpace);
   const setHoveredSpace = useGameStore((s) => s.setHoveredSpace);
   const selectedSpaceId = useGameStore((s) => s.selectedSpaceId);
   const hoveredSpaceId = useGameStore((s) => s.hoveredSpaceId);
   const properties = useGameStore((s) => s.properties);
-  const [hoveredId, setHoveredId] = useState<number | null>(null);
   const walnutGrain = useMemo(createWalnutGrain, []);
   useEffect(() => () => walnutGrain.dispose(), [walnutGrain]);
 
-  const cornerSpaces = useMemo(() => BOARD_SPACES.filter((space) => getSpaceTransform(space.id).isCorner), []);
-  const edgeSpaces = useMemo(() => BOARD_SPACES.filter((space) => !getSpaceTransform(space.id).isCorner), []);
+  const cornerSpaces = useMemo(() => BOARD_SPACES.filter(space => tileTransforms[space.id].isCorner), []);
+  const edgeSpaces = useMemo(() => BOARD_SPACES.filter(space => !tileTransforms[space.id].isCorner), []);
+  const tileScratch = useMemo(() => ({ dummy: new THREE.Object3D(), color: new THREE.Color() }), []);
 
   const cornerBaseGeometry = useMemo(() => new RoundedBoxGeometry(2.875, 0.14, 2.875, 0.05, 4), []);
   const edgeBaseGeometry = useMemo(() => new RoundedBoxGeometry(1.775, 0.14, 2.875, 0.05, 4), []);
@@ -110,7 +112,7 @@ export const Board3D: React.FC = () => {
   const edgeTop = useRef<THREE.InstancedMesh>(null);
 
   useLayoutEffect(() => {
-    const dummy = new THREE.Object3D();
+    const { dummy, color } = tileScratch;
     const updateBatch = (
       mesh: React.RefObject<THREE.InstancedMesh>,
       spaces: typeof BOARD_SPACES,
@@ -119,8 +121,8 @@ export const Board3D: React.FC = () => {
     ) => {
       if (!mesh.current) return;
       spaces.forEach((space, index) => {
-        const transform = getSpaceTransform(space.id);
-        const isHovered = hoveredId === space.id || hoveredSpaceId === space.id;
+        const transform = tileTransforms[space.id];
+        const isHovered = hoveredSpaceId === space.id;
         const isSelected = selectedSpaceId === space.id;
         const baseY = isHovered ? 0.38 : isSelected ? 0.34 : 0.26;
         dummy.position.set(transform.position[0], baseY + yOffset, transform.position[2]);
@@ -136,7 +138,7 @@ export const Board3D: React.FC = () => {
               : property?.isMortgaged
                 ? '#cbd5e1'
                 : '#ffffff';
-          mesh.current!.setColorAt(index, new THREE.Color(tint));
+          mesh.current!.setColorAt(index, color.set(tint));
         }
       });
       mesh.current.instanceMatrix.needsUpdate = true;
@@ -147,7 +149,7 @@ export const Board3D: React.FC = () => {
     updateBatch(edgeBase, edgeSpaces, -0.05);
     updateBatch(cornerTop, cornerSpaces, 0.015, true);
     updateBatch(edgeTop, edgeSpaces, 0.015, true);
-  }, [cornerSpaces, edgeSpaces, hoveredId, hoveredSpaceId, selectedSpaceId, properties]);
+  }, [cornerSpaces, edgeSpaces, hoveredSpaceId, selectedSpaceId, properties, tileScratch]);
 
   const handleTileClick = (event: any, spaces: typeof BOARD_SPACES) => {
     event.stopPropagation();
@@ -160,13 +162,11 @@ export const Board3D: React.FC = () => {
     const index = event.instanceId;
     const space = typeof index === 'number' ? spaces[index] : undefined;
     if (space) {
-      setHoveredId(space.id);
       setHoveredSpace(space.id);
       document.body.style.cursor = 'pointer';
     }
   };
   const handleTileOut = () => {
-    setHoveredId(null);
     setHoveredSpace(null);
     document.body.style.cursor = 'auto';
   };
@@ -253,7 +253,7 @@ export const Board3D: React.FC = () => {
       {/* ============================================================== */}
       {/* 4. PERIMETER SPACES & ILLUSTRATIONS                            */}
       {/* ============================================================== */}
-      <BoardTileDetails hoveredId={hoveredId} />
+      <BoardTileDetails />
     </group>
   );
 };

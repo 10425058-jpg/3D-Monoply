@@ -236,7 +236,7 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
         onOpenEvolution={openEvolution} evolutionOpen={evolutionOpen} />
       {/* 3D Scene Layer */}
       <div className="world-layer">
-        <Scene3D quality={graphicsQuality} propertyPanel={evolutionOpen} />
+        <Scene3D quality={graphicsQuality} />
       </div>
       <div className="world-vignette" aria-hidden="true" />
 
