@@ -100,7 +100,10 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
   const activePlayer = game.players[game.currentPlayerIndex];
   const cardDraw = activePlayer && game.activeCard && game.turnPhase === 'CARD_DRAWN'
     ? { id: game.cardDrawId, card: game.activeCard, player: activePlayer } : undefined;
-  const decisionCard = cardDraw && !cardDraw.player.isAI ? cardDraw : undefined;
+  const activeTile = BOARD_SPACES[activePlayer?.position]?.type;
+  const cardDeck = cardDraw?.card.deck ??
+    (game.turnPhase === 'CARD_PENDING' && (activeTile === 'chance' || activeTile === 'chest') ? activeTile : undefined);
+  const decisionDeck = activePlayer && !activePlayer.isAI ? cardDeck : undefined;
   const finalCard = game.winner ? game.activity.at(-2)?.card : undefined;
   const bankruptcyMessage = game.logs.find(log => log.message.includes(' declared bankruptcy over '))?.message;
   const humanDefeat = !!game.winner?.isAI && game.players.some(player => !player.isAI && player.isBankrupt);
@@ -227,7 +230,7 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
     <main className="monopoly-app">
       <GameplayFeedback activityNotices />
       <MatchActivityNotices matchId={matchId} events={game.activity} draw={cardDraw}
-        paused={!!(decisionCard || game.pendingTrade || game.pendingDebt || game.auction || game.winner ||
+        paused={!!(decisionDeck || game.pendingTrade || game.pendingDebt || game.auction || game.winner ||
           showStats || showSetup || showRules || showTradeModal || showMetaHub || (game.railroadRaid && !activePlayer?.isAI))} />
       <SoloDecisions onOpenTrade={openTrade} tradeOpen={showTradeModal}
         onOpenEvolution={openEvolution} evolutionOpen={evolutionOpen} />
@@ -591,7 +594,7 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
               <div><span>03</span><p><strong>{arcade ? 'Develop your streets' : 'Build your district'}</strong>{arcade ?
                 'Buy a street, then choose one upgrade per landing. Land becomes a house, then an apartment, then a hotel. Each stage has its own cost and rent.' :
                 'Own every property in a color group to build houses and hotels evenly.'}</p></div>
-              <div><span>04</span><p><strong>Manage your fortune</strong>Pay taxes, resolve cards, and use mortgages carefully to avoid bankruptcy.</p></div>
+              <div><span>04</span><p><strong>Manage your fortune</strong>Draw and confirm cards, confirm rent payments, and use mortgages to raise cash.</p></div>
               <div><span>05</span><p><strong>Watch the dice</strong>Rolling doubles grants another turn. Three consecutive doubles send you to jail.</p></div>
               <div><span>06</span><p><strong>Grow your landmark</strong>Upgrade your city landmark to increase the bonus you collect each time you pass GO.</p></div>
               <div><span>07</span><p><strong>Railroad bonus</strong>Landing on a railroad unlocks a Bank Heist or a chance to shut down a rival landmark.</p></div>
@@ -606,11 +609,10 @@ export const App: React.FC<{ onHome?: () => void }> = ({ onHome }) => {
       )}</RoyalPresence>
 
       {/* Active Card Modal (Chance & Community Chest) */}
-        <RoyalPresence>{decisionCard && (
-          <CardReveal key={`${game.gameId}-${decisionCard.id}`} card={decisionCard.card} onResolve={() => {
-            const current = useGameStore.getState();
-            if (current.gameId === game.gameId) current.applyActiveCard(decisionCard.id);
-          }} />
+        <RoyalPresence key={game.gameId}>{decisionDeck && (
+          <CardReveal key={game.cardDrawId} deck={decisionDeck} card={game.activeCard}
+            onDraw={() => game.drawPendingCard(game.cardDrawId)}
+            onResolve={() => game.applyActiveCard(game.cardDrawId)} />
         )}</RoyalPresence>
 
       {/* Winner / Game Over Modal */}

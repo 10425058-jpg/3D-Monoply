@@ -173,7 +173,8 @@ try {
   });
   await roll(1, 2);
   await wait(() => window.__graphicsAudit.cues().includes('effect-transaction-0'));
-  await wait(() => window.__soloTest.state().activeCard?.deck === 'chest');
+  await page.locator('dialog[open].card-reveal.deck-chest .modal-primary').filter('button => button.textContent.trim() === "Draw Card"').click();
+  await page.waitForSelector('dialog[open].card-reveal.deck-chest .card-parchment');
   assert.deepEqual(await page.evaluate(() => window.v11Steps), [39, 0, 1, 2]);
   await page.evaluate(() => window.v11StopSteps());
   await capture('04-community-chest');
@@ -183,6 +184,7 @@ try {
   await camera([13, 41, 35], [0, .5, 0]);
   await startRecording();
   await roll(1, 2);
+  await page.locator('dialog[open].rent-payment [data-variant="primary"]').click();
   await wait(() => window.__graphicsAudit.islands().flights.length > 0);
   const rent = await state();
   assert.deepEqual(rent.players.slice(0, 2).map(player => player.money), [1496, 1504]);
@@ -231,6 +233,7 @@ try {
   for (let index = 0; index < 5; index++) {
     await fixture('rent', 2);
     await roll(1, 2);
+    await page.locator('dialog[open].rent-payment [data-variant="primary"]').click();
     await wait(() => window.__graphicsAudit.islands().flights.length > 0);
     await fixture('opening');
     await wait(() => !window.__graphicsAudit.islands().transactions.length);

@@ -1,0 +1,12 @@
+{
+  "browser": "Chrome/158.0.8127.38",
+  "checks": [
+    "Face-down Chance, draw audio, card-directed railroad rent, raid and doubles",
+    "Chained Community Chest draw and one outcome per card",
+    "Explicit rent payment, one transfer, both island balances and payment sound",
+    "Mobile and reduced-motion rent with trade access, sale and mortgage",
+    "AI resolves both a card and a rent obligation without human input",
+    "Restart discards the previous draw and restores the opening turn"
+  ],
+  "errors": []
+}

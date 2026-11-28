@@ -28,7 +28,7 @@ export function runSoloAiAuction(gameId: number, expected: NonNullable<ReturnTyp
 }
 
 export const aiDecisionDelay: Partial<Record<TurnPhase, number>> = {
-  PRE_ROLL: 400, LANDED_ACTION: 440, CARD_DRAWN: 690, DEBT_RESOLUTION: 420, END_TURN: 360,
+  PRE_ROLL: 400, LANDED_ACTION: 440, CARD_PENDING: 180, CARD_DRAWN: 690, DEBT_RESOLUTION: 420, END_TURN: 360,
 };
 
 export function runSoloAiRaid(gameId: number, raid: RailroadRaid) {
@@ -56,7 +56,8 @@ export function runSoloAiStep(gameId:number, playerId:number, phase:TurnPhase) {
       else if (player.inJail && player.jailTurns >= 2 && player.money - 50 >= reserve(player.money)) game.payJailBail();
       else game.rollDice();
       break;
-    case 'CARD_DRAWN':game.applyActiveCard();break;
+    case 'CARD_PENDING': game.drawPendingCard(game.cardDrawId); break;
+    case 'CARD_DRAWN': game.applyActiveCard(game.cardDrawId); break;
     case 'LANDED_ACTION':{
       const space=BOARD_SPACES[player.position];
       const value = propertyValue(game, player, space);
@@ -69,7 +70,7 @@ export function runSoloAiStep(gameId:number, playerId:number, phase:TurnPhase) {
     }
     case 'DEBT_RESOLUTION':{
       if(!game.pendingDebt)return;
-      if(player.money>=game.pendingDebt.amount){game.settlePendingDebt();break;}
+      if(player.money>=game.pendingDebt.amount){game.settlePendingDebt(game.pendingDebt);break;}
       const shortfall = game.pendingDebt.amount - player.money;
       const mortgages = BOARD_SPACES.filter(s => !game.properties[s.id]?.isMortgaged && game.canToggleMortgage(player.id, s.id));
       const mortgage = mortgages.filter(s => s.mortgageValue! >= shortfall).sort((a, b) => a.mortgageValue! - b.mortgageValue!)[0] ??
@@ -79,7 +80,7 @@ export function runSoloAiStep(gameId:number, playerId:number, phase:TurnPhase) {
       const sale = BOARD_SPACES.filter(s => game.canSellHouse(player.id, s.id)).sort((a, b) => saleValue(b) - saleValue(a))[0];
       if(mortgage)game.toggleMortgage(mortgage.id);
       else if(sale)game.sellHouse(sale.id);
-      else game.declareBankruptcy();
+      else game.declareBankruptcy(game.pendingDebt);
       break;
     }
     case 'END_TURN': {

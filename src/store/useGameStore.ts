@@ -32,6 +32,18 @@ interface SoloPayment {
   reason: string;
 }
 
+interface PendingDebt {
+  amount: number;
+  creditorId: number | null;
+  reason: string;
+  debtorId?: number;
+  remainingPayments?: SoloPayment[];
+  distribution?: { recipientIds: number[]; amountPerPlayer: number };
+  category?: CashTransfer['category'];
+  spaceId?: number;
+  developmentLevel?: number;
+}
+
 interface ArcadeLanding {
   id: string;
   playerId: number;
@@ -91,16 +103,7 @@ interface GameStore {
   logs: LogEntry[];
   activity: MatchActivityEvent[];
   turnNumber: number;
-  pendingDebt: {
-    amount: number;
-    creditorId: number | null;
-    reason: string;
-    debtorId?: number;
-    remainingPayments?: SoloPayment[];
-    distribution?: { recipientIds: number[]; amountPerPlayer: number };
-    category?: CashTransfer['category'];
-    spaceId?: number;
-  } | null;
+  pendingDebt: PendingDebt | null;
   auction: PropertyAuction | null;
   heldJailCards: Record<number, DeckCard[]>;
   pendingTrade: TradeOffer | null;
@@ -142,6 +145,7 @@ interface GameStore {
   placeAuctionBid: (increment?: number, bidderId?: number, expectedCurrentBid?: number) => void;
   passAuction: (bidderId?: number) => void;
   declineProperty: () => void;
+  drawPendingCard: (expectedDrawId: number) => void;
   applyActiveCard: (expectedDrawId?: number) => void;
   buildHouse: (spaceId: number) => void;
   upgradeProperty: (spaceId: number, expectedLandingId?: string) => void;
@@ -150,8 +154,8 @@ interface GameStore {
   proposeTrade: (offer: TradeOffer) => { accepted: boolean; message: string };
   acceptTrade: (playerId: number) => { accepted: boolean; message: string };
   rejectTrade: () => void;
-  settlePendingDebt: () => void;
-  declareBankruptcy: () => void;
+  settlePendingDebt: (expectedDebt?: PendingDebt) => void;
+  declareBankruptcy: (expectedDebt?: PendingDebt) => void;
   endTurn: () => void;
 
   // Helpers
@@ -283,6 +287,9 @@ const DEFAULT_PLAYERS: PlayerSetupConfig[] = [
   { name: 'Arthur', isAI: true, token: 'racecar', color: '#3b82f6' },
   { name: 'Elena', isAI: true, token: 'yacht', color: '#10b981' },
 ];
+
+const humanCardDecision = (state: GameStore) =>
+  (state.turnPhase === 'CARD_PENDING' || state.turnPhase === 'CARD_DRAWN') && !state.players[state.currentPlayerIndex]?.isAI;
 
 export const useGameStore = create<GameStore>((set, get) => {
   // Invalidate in-flight movement and dice callbacks whenever a new game starts.
@@ -431,12 +438,20 @@ export const useGameStore = create<GameStore>((set, get) => {
     return { metaProgress: { ...progress, stickers: owned, stickerStars }, stickers, duplicateCount };
   };
 
-  const openRailroadRaid = (attackerId: number) => {
+  const createRailroadRaid = (attackerId: number): RailroadRaid => {
     const shuffledRewards = shuffleDeck([150, 300, 550]);
     const vaultRewards: [number, number, number] = [shuffledRewards[0], shuffledRewards[1], shuffledRewards[2]];
-    set({ railroadRaid: { attackerId, mode: 'choose', vaultRewards } });
+    return { attackerId, mode: 'choose', vaultRewards };
+  };
+
+  const announceRailroadRaid = (attackerId: number) => {
     addLog('Railroad bonus unlocked: choose a Bank Heist or shut down a rival landmark.', 'card', undefined,
       { kind: 'railroad', actorId: attackerId, silent: true });
+  };
+
+  const openRailroadRaid = (attackerId: number) => {
+    set({ railroadRaid: createRailroadRaid(attackerId) });
+    announceRailroadRaid(attackerId);
   };
 
   const stepMovePlayer = (playerIndex: number, totalSteps: number, onComplete: () => void) => {
@@ -526,19 +541,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     }
 
     if (space.type === 'chance' || space.type === 'chest') {
-      const isChance = space.type === 'chance';
-      const deck = isChance ? [...state.chanceDeck] : [...state.chestDeck];
-      const drawnCard = deck.shift()!;
-      if (drawnCard.actionType !== 'get_out_of_jail') deck.push(drawnCard);
-
-      set({
-        chanceDeck: isChance ? deck : state.chanceDeck,
-        chestDeck: !isChance ? deck : state.chestDeck,
-        activeCard: drawnCard,
-        cardDrawId: state.cardDrawId + 1,
-        turnPhase: 'CARD_DRAWN',
-      });
-      addLog(`${player.name} drew ${isChance ? 'Chance' : 'Community Chest'}: "${drawnCard.title}"`, 'card');
+      set({ cardDrawId: state.cardDrawId + 1, turnPhase: 'CARD_PENDING' });
       return;
     }
 
@@ -566,30 +569,21 @@ export const useGameStore = create<GameStore>((set, get) => {
       return;
     }
 
-    // Calculate and charge rent
     const diceTotal = state.dice[0] + state.dice[1];
     const rent = rentOverride ?? get().calculateRent(space.id, diceTotal) * rentMultiplier;
     const owner = state.players.find((p) => p.id === propState.ownerId)!;
 
-    if (player.money >= rent) {
-      set((s) => {
-        const players = s.players.map((p) => {
-          if (p.id === player.id) return { ...p, money: p.money - rent };
-          if (p.id === owner.id) return { ...p, money: p.money + rent };
-          return p;
-        });
-        return { players, turnPhase: 'END_TURN' };
-      });
-      addLog(`${player.name} paid $${rent} rent to ${owner.name} for ${space.name}.`, 'money',
-        { fromId: player.id, toId: owner.id, amount: rent, reason: `Rent on ${space.name}`, category: 'rent', spaceId: space.id });
-      if (space.type === 'railroad') openRailroadRaid(player.id);
-    } else {
+    if (player.money < rent) {
       addLog(`${player.name} owes $${rent} rent to ${owner.name} and must raise funds!`, 'alert');
-      set({
-        pendingDebt: { amount: rent, creditorId: owner.id, reason: `Rent on ${space.name}`, category: 'rent', spaceId: space.id },
-        turnPhase: 'DEBT_RESOLUTION',
-      });
     }
+    set({
+      pendingDebt: {
+        amount: rent, debtorId: player.id, creditorId: owner.id,
+        reason: `Rent on ${space.name}`, category: 'rent', spaceId: space.id,
+        developmentLevel: state.ruleset === 'arcade' ? arcadeLevel(propState) : propState.houses,
+      },
+      turnPhase: 'DEBT_RESOLUTION',
+    });
   };
 
   return {
@@ -683,7 +677,6 @@ export const useGameStore = create<GameStore>((set, get) => {
         chanceDeck: shuffleDeck(CHANCE_CARDS),
         chestDeck: shuffleDeck(COMMUNITY_CHEST_CARDS),
         activeCard: null,
-        cardDrawId: 0,
         resolvingCard: null,
         selectedSpaceId: null,
         hoveredSpaceId: null,
@@ -1033,7 +1026,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     },
     claimDailyReward: () => {
       const state = get();
-      if (state.winner || state.turnPhase === 'GAME_OVER') return false;
+      if (state.winner || state.turnPhase === 'GAME_OVER' || humanCardDecision(state)) return false;
       const player = state.players.find((candidate) => !candidate.isAI && !candidate.isBankrupt);
       if (!player) return false;
       const today = getLocalDateKey();
@@ -1064,7 +1057,7 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     spinLuckyWheel: () => {
       const state = get();
-      if (state.winner || state.turnPhase === 'GAME_OVER') return;
+      if (state.winner || state.turnPhase === 'GAME_OVER' || humanCardDecision(state)) return;
       const player = state.players.find((candidate) => !candidate.isAI && !candidate.isBankrupt);
       if (!player) return;
       const today = getLocalDateKey();
@@ -1089,7 +1082,7 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     claimMissionReward: (missionId) => {
       const state = get();
-      if (state.winner || state.turnPhase === 'GAME_OVER') return;
+      if (state.winner || state.turnPhase === 'GAME_OVER' || humanCardDecision(state)) return;
       const mission = DAILY_MISSIONS.find((candidate) => candidate.id === missionId);
       const player = state.players.find((candidate) => !candidate.isAI && !candidate.isBankrupt);
       const today = getLocalDateKey();
@@ -1115,7 +1108,7 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     openStickerPack: () => {
       const state = get();
-      if (state.metaProgress.stickerPacks <= 0) return null;
+      if (state.metaProgress.stickerPacks <= 0 || humanCardDecision(state)) return null;
       const opened = rewardStickerPack({
         ...state.metaProgress,
         stickerPacks: state.metaProgress.stickerPacks - 1,
@@ -1128,7 +1121,7 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     redeemStickerStars: () => {
       const state = get();
-      if (state.metaProgress.stickerStars < 10) return;
+      if (state.metaProgress.stickerStars < 10 || humanCardDecision(state)) return;
       const metaProgress = {
         ...state.metaProgress,
         stickerStars: state.metaProgress.stickerStars - 10,
@@ -1141,7 +1134,7 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     claimStickerAlbumReward: () => {
       const state = get();
-      if (state.winner || state.turnPhase === 'GAME_OVER') return;
+      if (state.winner || state.turnPhase === 'GAME_OVER' || humanCardDecision(state)) return;
       const player = state.players.find((candidate) => !candidate.isAI && !candidate.isBankrupt);
       if (!player || state.metaProgress.albumBonusClaimed) return;
       const complete = STICKER_COLLECTION.every((sticker) => (state.metaProgress.stickers[sticker.id] ?? 0) > 0);
@@ -1393,6 +1386,20 @@ export const useGameStore = create<GameStore>((set, get) => {
       addLog(`${player.name} passed on buying ${space.name}.`, 'info', undefined,
         { kind: 'land', actorId: player.id, spaceId: space.id, silent: true });
       if (space.type === 'railroad') openRailroadRaid(player.id);
+    },
+
+    drawPendingCard: (expectedDrawId) => {
+      const state = get();
+      if (state.turnPhase !== 'CARD_PENDING' || state.cardDrawId !== expectedDrawId || state.winner) return;
+      const player = state.players[state.currentPlayerIndex];
+      const type = BOARD_SPACES[player.position].type;
+      if (type !== 'chance' && type !== 'chest') return;
+
+      const deckKey = type === 'chance' ? 'chanceDeck' : 'chestDeck';
+      const [card, ...deck] = state[deckKey];
+      if (card.actionType !== 'get_out_of_jail') deck.push(card);
+      set({ [deckKey]: deck, activeCard: card, turnPhase: 'CARD_DRAWN' });
+      addLog(`${player.name} drew ${type === 'chance' ? 'Chance' : 'Community Chest'}: "${card.title}"`, 'card');
     },
 
     applyActiveCard: (expectedDrawId) => {
@@ -1839,11 +1846,12 @@ export const useGameStore = create<GameStore>((set, get) => {
         { kind: 'trade', actorId: to.id, counterpartyId: from.id, silent: true });
     },
 
-    settlePendingDebt: () => {
+    settlePendingDebt: (expectedDebt) => {
       const state = get();
       const debt = state.pendingDebt;
       const player = managementPlayer();
-      if (!debt || !player || player.isBankrupt || state.turnPhase !== 'DEBT_RESOLUTION' || state.pendingTrade || player.money < debt.amount) return;
+      if (!debt || (expectedDebt && debt !== expectedDebt) || !player || player.isBankrupt ||
+        state.turnPhase !== 'DEBT_RESOLUTION' || state.pendingTrade || player.money < debt.amount) return;
 
       const jailRelease = debt.reason === 'Jail release after third failed roll';
       const jailMoveTotal = state.dice[0] + state.dice[1];
@@ -1851,6 +1859,12 @@ export const useGameStore = create<GameStore>((set, get) => {
       const spaceId = debt.spaceId ?? player.position;
       const creditor = state.players.find(candidate => candidate.id === debt.creditorId);
       const space = BOARD_SPACES[spaceId];
+      const raidSpace = category === 'rent' ? space : BOARD_SPACES[player.position];
+      const raid = !jailRelease && !debt.remainingPayments && raidSpace.type === 'railroad' ? createRailroadRaid(player.id) : null;
+      const rentMessage = `${player.name} paid $${debt.amount} rent to ${creditor?.name ?? 'the owner'} for ${space.name}.`;
+      const message = category === 'rent' ? rentMessage : debt.distribution
+        ? `${player.name} paid ${debt.distribution.amountPerPlayer} to each active rival (${debt.amount} total).`
+        : `${player.name} settled their ${debt.amount} debt (${debt.reason}).`;
 
       set((s) => {
         const players = s.players.map((p) => {
@@ -1873,23 +1887,17 @@ export const useGameStore = create<GameStore>((set, get) => {
           players,
           pendingDebt: null,
           turnPhase: jailRelease ? 'MOVING' : 'END_TURN',
+          ...(raid && { railroadRaid: raid }),
+          ...logPatch({ ...s, players }, message, 'money', debt.distribution
+            ? debt.distribution.recipientIds.filter(id => players.some(p => p.id === id && !p.isBankrupt))
+              .map(toId => ({ fromId: player.id, toId, amount: debt.distribution!.amountPerPlayer, reason: debt.reason, category: 'debt' as const }))
+            : { fromId: player.id, toId: debt.creditorId, amount: debt.amount, reason: debt.reason, category, spaceId },
+            category === 'tax' ? { kind: 'tax', title: `${player.name} paid $${debt.amount} for ${space.name}.` }
+              : jailRelease ? { kind: 'bail', title: `${player.name} paid $${debt.amount} bail and was released from Jail.` }
+              : undefined),
         };
       });
 
-      addLog(
-        debt.distribution
-          ? `${player.name} paid ${debt.distribution.amountPerPlayer} to each active rival (${debt.amount} total).`
-          : `${player.name} settled their ${debt.amount} debt (${debt.reason}).`,
-        'money', (debt.distribution
-          ? debt.distribution.recipientIds.filter(id => state.players.some(p => p.id === id && !p.isBankrupt))
-            .map(toId => ({ fromId: player.id, toId, amount: debt.distribution!.amountPerPlayer, reason: debt.reason, category: 'debt' as const }))
-          : { fromId: player.id, toId: debt.creditorId, amount: debt.amount, reason: debt.reason,
-            category, spaceId }),
-        category === 'rent' ? { kind: 'rent', title: `${player.name} paid $${debt.amount} rent to ${creditor?.name ?? 'the owner'} for ${space.name}.` }
-          : category === 'tax' ? { kind: 'tax', title: `${player.name} paid $${debt.amount} for ${space.name}.` }
-          : jailRelease ? { kind: 'bail', title: `${player.name} paid $${debt.amount} bail and was released from Jail.` }
-          : undefined,
-      );
       if (jailRelease) {
         addLog(`${player.name} is released from Jail and moves ${jailMoveTotal} spaces.`, 'info');
         stepMovePlayer(state.currentPlayerIndex, jailMoveTotal, evaluateLandedSpace);
@@ -1897,15 +1905,16 @@ export const useGameStore = create<GameStore>((set, get) => {
         resolvePayments(debt.remainingPayments);
       } else {
         finishCard();
-        if (BOARD_SPACES[player.position].type === 'railroad') openRailroadRaid(player.id);
+        if (raid) announceRailroadRaid(player.id);
       }
     },
 
-    declareBankruptcy: () => {
+    declareBankruptcy: (expectedDebt) => {
       const state = get();
       const player = managementPlayer();
       const debt = state.pendingDebt;
-      if (!player || player.isBankrupt || !debt || state.turnPhase !== 'DEBT_RESOLUTION' || state.winner || state.pendingTrade || get().liquidationValue(player.id) >= debt.amount) return;
+      if (!player || player.isBankrupt || !debt || (expectedDebt && debt !== expectedDebt) ||
+        state.turnPhase !== 'DEBT_RESOLUTION' || state.winner || state.pendingTrade || get().liquidationValue(player.id) >= debt.amount) return;
       const creditorId = state.pendingDebt?.creditorId ?? null;
       const held = state.heldJailCards[player.id] ?? [];
       const deeds = Object.values(state.properties).filter(prop => prop.ownerId === player.id);

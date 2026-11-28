@@ -18,17 +18,19 @@ export function useSoloAudit(){
       ruleset:s.ruleset,arcadeLanding:s.arcadeLanding,activity:s.activity};};
     const fixture=(name:string)=>{
       const names=['opening','rent','building','hotel','jail','go-to-jail','chance','ai-chance','chest','card-chain','debt','bankruptcy','victory','ai','six-players','ownership','debt-trade','birthday-trade','auction-small-bid','utility-unowned','utility-self','utility-opponent',
-        'arcade-evolution','arcade-activity','arcade-gallery','arcade-gallery-empty','royal-tokens','royal-tokens-property'];
+        'arcade-evolution','arcade-activity','arcade-gallery','arcade-gallery-empty','royal-tokens','royal-tokens-property',
+        'arcade-rent','arcade-rent-short','ai-rent','railroad-rent'];
       if(!names.includes(name))throw new Error('Unknown Solo QA fixture');
       const arcade = name.startsWith('arcade-');
       const royal = name.startsWith('royal-tokens');
       const aiChance = name === 'ai-chance';
-      const count = arcade || royal ? 4 : name === 'victory' || aiChance ? 2 : name === 'six-players' ? 6 : 3;
+      const aiLanding = aiChance || name === 'ai-rent';
+      const count = arcade || royal ? 4 : name === 'victory' || aiLanding ? 2 : name === 'six-players' ? 6 : 3;
       const tokenIds = royal ? ['rubber_duck','cat','racecar','top_hat'] as const
         : ['rubber_duck','cat','racecar','yacht','top_hat','scottie_dog'] as const;
       useGameStore.getState().startNewGame(Array.from({length:count},(_, i) => ({
         name: arcade ? ['You', 'Victoria', 'Arthur', 'Elena'][i] : i === 0 ? 'You' : `Rival ${i}`,
-        isAI: (royal || name === 'ai' || name === 'arcade-activity' || aiChance) && i > 0,
+        isAI: (royal || name === 'ai' || name === 'arcade-activity' || name.startsWith('arcade-rent') || aiLanding) && i > 0,
         token: tokenIds[i],
         color: ['#f59e0b','#ec4899','#3b82f6','#10b981','#9c74df','#e56d52'][i],
       })), arcade ? 'arcade' : 'classic');
@@ -37,6 +39,16 @@ export function useSoloAudit(){
       const own=(id:number,ownerId:number,houses=0,isMortgaged=false)=>properties[id]={spaceId:id,ownerId,houses,isMortgaged};
       let selectedSpaceId:number|null=null,chanceDeck=[...CHANCE_CARDS],chestDeck=[...COMMUNITY_CHEST_CARDS],heldJailCards=s.heldJailCards;
       if(name==='rent')own(3,1);
+      if(name==='ai-rent')own(3,0);
+      if (name.startsWith('arcade-rent')) {
+        players[0].position = 3;
+        properties[6] = { ...properties[6], ownerId: 1, developmentLevel: 2 };
+        if (name === 'arcade-rent-short') {
+          players[0].money = 60;
+          properties[3] = { ...properties[3], ownerId: 0, developmentLevel: 1 };
+          own(39, 0);
+        }
+      }
       if(name==='go-to-jail')players[0].position=27;
       if(name==='building'||name==='hotel'){own(1,0,name==='hotel'?4:0);own(3,0,name==='hotel'?4:0);selectedSpaceId=1;}
       if(name==='jail'){
@@ -47,6 +59,12 @@ export function useSoloAudit(){
       if(name==='chest'){players[0].position=39;const card=chestDeck.find(c=>c.id==='cc_2')!;chestDeck=[card,...chestDeck.filter(c=>c!==card)];}
       if(name==='card-chain'){
         players[0].position=33;const card=chanceDeck.find(c=>c.id==='ch_8')!;chanceDeck=[card,...chanceDeck.filter(c=>c!==card)];
+      }
+      if (name === 'railroad-rent') {
+        players[0].position = 3;
+        own(15, 1);
+        const card = chanceDeck.find(candidate => candidate.id === 'ch_5')!;
+        chanceDeck = [card, ...chanceDeck.filter(candidate => candidate !== card)];
       }
       if(['debt','bankruptcy','victory'].includes(name)){players[0].position=1;players[0].money=name==='debt'?120:10;if(name==='debt')own(5,0);}
       if(name==='ownership'){own(1,0);own(3,1,0,true);own(6,2,2);own(8,2,2);own(9,2,2);}
@@ -69,8 +87,8 @@ export function useSoloAudit(){
         chestDeck = [chest, ...chestDeck.filter(card => card !== chest)];
       }
       useGameStore.setState({players,properties,selectedSpaceId,gameSpeed:2,chanceDeck,chestDeck,heldJailCards,
-        ...(aiChance && {currentPlayerIndex:1})});
-      if(aiChance){
+        ...(aiLanding && {currentPlayerIndex:1})});
+      if(aiLanding){
         const original = Math.random, rolls = [.03, .20];
         try {
           Math.random = () => rolls.shift() ?? original();

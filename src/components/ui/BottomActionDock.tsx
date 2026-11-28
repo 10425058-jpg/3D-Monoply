@@ -44,12 +44,13 @@ export const BottomActionDock: React.FC<{
   const canMortgage = human && selectedId !== null && canToggleMortgage(active.id, selectedId);
   const canEnd = human && phase === 'END_TURN' && !raid && !pendingTrade;
   const extraRoll = phase === 'END_TURN' && doublesCount > 0 && !active?.inJail;
+  const cardDecision = phase === 'CARD_PENDING' || phase === 'CARD_DRAWN';
   const nextAction = phase === 'ROLLING' ? 'Rolling dice' : phase === 'MOVING' ? 'Moving across the board' :
-    phase === 'CARD_DRAWN' ? 'Revealing a card' : raid ? 'Railroad bonus' :
+    cardDecision ? 'Revealing a card' : raid ? 'Railroad bonus' :
     phase === 'LANDED_ACTION' ? 'Reviewing the property' :
     phase === 'END_TURN' ? canUpgrade ? 'Development available' : extraRoll ? 'Doubles · End turn to roll again' : 'End your turn' : 'Ready to roll';
   const showCue = !!active && !canUpgrade && !pendingTrade && !['AUCTION','DEBT_RESOLUTION','GAME_OVER','SETUP'].includes(phase) &&
-    (active.isAI || (phase !== 'LANDED_ACTION' && phase !== 'CARD_DRAWN' && !(phase === 'PRE_ROLL' && active.inJail)));
+    (active.isAI || (phase !== 'LANDED_ACTION' && !cardDecision && !(phase === 'PRE_ROLL' && active.inJail)));
   const actions = [
     { name: 'Buy', Icon: Home, enabled: canBuy, primary: canBuy,
       hint: canBuy ? `Buy ${landed?.name} for $${landed?.price}` : 'Land on an unowned property with enough cash to buy',

@@ -234,6 +234,7 @@ test('Arcade repair cards assess House, Apartment and Hotel by configured repair
   own(8, 0, 3);
   store.setState({ chanceDeck: [CHANCE_CARDS.find(card => card.id === 'ch_10')!] });
   roll(t, 0, 4, 1, 2);
+  store.getState().drawPendingCard(store.getState().cardDrawId);
   store.getState().applyActiveCard();
   assert.equal(store.getState().players[0].money, 1300);
   assert.equal(events('card')[0].transfers?.[0].amount, 200);
@@ -247,6 +248,7 @@ test('four-player activity records AI and human committed card effects and exact
   roll(t, 0, 39, 1, 2);
   assert.equal(events('go')[0].amount, 200);
   assert.equal(events('card').length, 0);
+  store.getState().drawPendingCard(store.getState().cardDrawId);
   store.getState().applyActiveCard();
   const birthday = events('card')[0];
   assert.equal(birthday.card?.id, bonus.id);
@@ -256,6 +258,7 @@ test('four-player activity records AI and human committed card effects and exact
   ]);
   roll(t, 1, 4, 1, 2);
   const drawId = store.getState().cardDrawId;
+  runSoloAiStep(store.getState().gameId, 1, 'CARD_PENDING');
   runSoloAiStep(store.getState().gameId, 1, 'CARD_DRAWN');
   const aiCard = events('card')[1];
   assert.equal(aiCard.actor?.name, 'Victoria');
@@ -264,6 +267,8 @@ test('four-player activity records AI and human committed card effects and exact
   assert.equal(aiCard.transfers?.[0].amount, 50);
   own(6, 1, 2);
   roll(t, 0, 3, 1, 2);
+  assert.equal(events('rent').length, 0);
+  store.getState().settlePendingDebt();
   const rent = events('rent');
   assert.equal(rent.length, 1);
   assert.equal(rent[0].spaceId, 6);
@@ -292,6 +297,28 @@ test('deferred rent produces one payment record after liquidation and actual set
   assert.equal(rents[0].transfers?.[0].toBalance, 1500 + due);
 });
 
+test('rent keeps the original creditor and development tier through a trade for liquidity', t => {
+  setup(t);
+  own(6, 1, 2);
+  own(39, 0, 0);
+  own(37, 0, 0);
+  player(0, { money: 0 });
+  roll(t, 0, 3, 1, 2);
+  const landing = store.getState();
+  const debt = landing.pendingDebt!;
+  const due = BOARD_SPACES[6].rent![3];
+  assert.equal(debt.amount, due);
+  assert.equal(debt.developmentLevel, 2);
+  assert.equal(landing.proposeTrade({ fromPlayerId: 0, toPlayerId: 1, offerCash: 0, requestCash: due,
+    offerProperties: [37, 39], requestProperties: [6] }).accepted, true);
+  assert.equal(store.getState().properties[6].ownerId, 0);
+  assert.equal(events('rent').length, 0);
+  landing.settlePendingDebt(debt);
+  assert.equal(store.getState().players[0].money, 0);
+  assert.equal(store.getState().players[1].money, 1500);
+  assert.deepEqual(events('rent').map(event => [event.counterparty?.name, event.amount]), [['Victoria', due]]);
+});
+
 test('a card with a deferred payer publishes exactly the committed participant transfers', t => {
   setup(t);
   own(3, 2, 0);
@@ -299,6 +326,7 @@ test('a card with a deferred payer publishes exactly the committed participant t
   store.setState({ chestDeck: [COMMUNITY_CHEST_CARDS.find(card => card.id === 'cc_9')!] });
   roll(t, 0, 0, 1, 1);
   const game = store.getState();
+  game.drawPendingCard(game.cardDrawId);
   game.applyActiveCard();
   assert.equal(store.getState().pendingDebt?.debtorId, 2);
   assert.equal(events('card').length, 0);
@@ -316,6 +344,7 @@ test('card-directed movement records its destination and the actual landmark GO 
   player(0, { landmarkLevel: 1 });
   store.setState({ chanceDeck: [CHANCE_CARDS.find(card => card.id === 'ch_1')!] });
   roll(t, 0, 33, 1, 2);
+  store.getState().drawPendingCard(store.getState().cardDrawId);
   store.getState().applyActiveCard();
   assert.equal(events('card').length, 0);
   flush(t);

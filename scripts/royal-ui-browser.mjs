@@ -251,7 +251,8 @@ try {
   await checkModal('chance', { desktopCapture: true });
   await page.keyboard.press('Escape');
   assert.equal((await state()).turnPhase, 'CARD_DRAWN');
-  await clickText('.card-reveal button', 'Resolve this card');
+  await page.waitForSelector('dialog[open].card-reveal .card-parchment');
+  await clickText('.card-reveal button', 'Confirm');
   await wait(() => !document.querySelector('dialog[open].card-reveal'));
   await fixture('opening', 'chest');
   await checkModal('community-chest', { desktopCapture: true });
