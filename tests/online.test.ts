@@ -103,7 +103,7 @@ test('Online Chance records committed movement, rent and card rewards in the cor
   assert.match(entries[2].details?.join(' ') ?? '', /moved to Electric Company.*paid \$40 to Bob/);
   assert.equal(entries[2].turn, 1);
   assert.equal(entries[2].silent, false, 'A live card remains eligible if a newer commit arrived first');
-  assert.equal(entries[4].silent, true, 'Ordinary receipts from earlier versions stay quiet');
+  assert.equal(entries[4].silent, false, 'A committed rent receipt stays live after the next turn');
   assert.equal(entries[6].turn, 2);
   assert.equal(entries[6].silent, false);
   assert.deepEqual(entries[6].transfers?.map(item => [item.from, item.to?.name, item.amount, item.toBalance]), [[null, 'Bob', 50, 1090]]);
@@ -178,6 +178,39 @@ test('a connected Online viewer can receive a live card while their tab is hidde
   await controller.reconcile();
   assert.equal(controller.state.getState().activity.length, 1);
 });
+
+test('the payer, owner and observer each receive one rent notice after a newer committed turn', async t => {
+  let match = snapshot();
+  match.players.push({ ...match.players[0], playerId: 'uuid-c', userId: 'user-c', username: 'Cara', seatOrder: 2 });
+  let rows: PublicActivityEvent[] = [];
+  const controllers = match.players.map(viewer => {
+    const manager = new SessionManager('', (async input => String(input).includes('/matches/')
+      ? json({ ...match, allowedActions: match.currentPlayerId === viewer.playerId ? ['roll-dice'] : [], activityEvents: rows })
+      : json({ roomId: match.roomId, roomRevision: 0, members: [] })) as typeof fetch);
+    const controller = new OnlineController(manager, '', { matchId: match.matchId }, () => {});
+    t.after(() => controller.stop());
+    controller.state.setState({ connection: 'connected' });
+    controller.setSpaceNames(new Map([[3, 'Baltic Avenue']]));
+    return controller;
+  });
+  const reconcile = () => Promise.all(controllers.map(controller => controller.reconcile()));
+  await reconcile();
+  match = { ...match, stateVersion: 2, turnNumber: 2, currentPlayerId: 'uuid-b' };
+  rows = [...publicEvents(1, [
+    ['game:money_changed', { playerId: 'uuid-a', amount: -4, balance: 1496, reason: 'RENT' }],
+    ['game:money_changed', { playerId: 'uuid-b', amount: 4, balance: 1004, reason: 'RENT' }],
+    ['game:rent_paid', { payerPlayerId: 'uuid-a', ownerPlayerId: 'uuid-b', spaceId: 3, amount: 4 }],
+  ]), ...publicEvents(2, [['game:turn_changed', { currentPlayerId: 'uuid-b', turnPhase: 'PRE_ROLL' }]], 4)];
+  await reconcile();
+  await reconcile();
+  for (const controller of controllers) {
+    const rents = controller.state.getState().activity.filter(event => event.kind === 'rent');
+    assert.deepEqual(rents.map(event => [event.id, event.title, event.silent]),
+      [['event-3', 'Alice paid $4 rent to Bob for Baltic Avenue.', false]]);
+  }
+  assert.equal(committedActivity(match, rows, activityLabels, true).find(event => event.kind === 'rent')?.silent, true);
+});
+
 function snapshot(): Match {
   return { matchId: 'match-a', roomId: 'room-a', stateVersion: 0, status: 'IN_PROGRESS', mapId: 'central-castle', rulesetId: 'mini-v1', contentVersion: 'central-castle@1',
     players: [

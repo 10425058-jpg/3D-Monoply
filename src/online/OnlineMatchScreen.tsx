@@ -54,7 +54,7 @@ export function OnlineMatch({ controller, quality, settings, onLobby }: { contro
       match.turnPhase === 'LANDED_ACTION' ? 'Choose whether to buy' : 'End your turn' : `${active?.username ?? 'The active player'} is playing`;
   return <main className="city-match"><div className="world-layer"><Scene3D quality={quality} /></div><div className="city-match-vignette" />
     <GameplayFeedback online activityNotices localSeat={viewer?.seatOrder} />
-    <MatchActivityNotices key={state.connection} events={state.activity} matchId={match.matchId} layout="online"
+    <MatchActivityNotices events={state.activity} matchId={match.matchId} layout="online"
       animating={state.animating} animatedCardId={animatedCardId} paused={!!confirm || state.syncing || state.connection !== 'connected' || (terminal && !state.animating)} />
     <header className="city-match-header"><Brand /><div className="city-match-turn"><span className="city-eyebrow">ONLINE · MINI-V1 · TURN {match.turnNumber}</span>
       <strong>{terminal && !state.animating ? 'Match complete' : match.status === 'PAUSED' ? 'Game paused' : `${active?.username ?? 'Player'}’s turn`}</strong>

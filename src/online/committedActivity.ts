@@ -182,7 +182,7 @@ export function committedActivity(match: Match, rows: readonly PublicActivityEve
     const row = events[index];
     return { ...entry, id: row.eventId, matchId: match.matchId, sequence: row.sequence, timestamp: row.occurredAt,
       turn: turns.get(row.eventId), silent: silent || !!entry.silent || row.type === 'game:property_declined' ||
-        (row.stateVersion < match.stateVersion && !isCenterActivityNotice(entry)) };
+        (row.stateVersion < match.stateVersion && entry.kind !== 'rent' && !isCenterActivityNotice(entry)) };
   }));
 }
 

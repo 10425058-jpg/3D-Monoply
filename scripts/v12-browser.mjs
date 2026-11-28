@@ -24,6 +24,7 @@ await page.evaluateOnNewDocument(() => {
   localStorage.setItem('monopoly-graphics-quality', 'balanced');
   localStorage.setItem('monopoly-audio-muted', 'false');
   localStorage.setItem('monopoly-audio-volume', '0.25');
+  localStorage.setItem('monopoly-activity-notices', 'important');
   const start = OscillatorNode.prototype.start;
   const setValue = AudioParam.prototype.setValueAtTime;
   const frequencies = new WeakMap();
@@ -109,6 +110,9 @@ try {
   assert.equal((await state()).railroadRaid, null);
   await click(rent, 'Pay $25');
   await page.waitForSelector('dialog[open].raid-modal', { visible: true });
+  await page.waitForSelector('dialog[open].raid-modal .receipt-rent', { visible: true });
+  assert.match(await textOf('dialog[open].raid-modal .receipt-rent'), /You paid \$25 rent to Rival 1 for Pennsylvania Railroad/);
+  assert.equal(await page.$$('.receipt-rent').then(receipts => receipts.length), 1);
   assert.equal(recorded(await state(), 'rent').length, 1);
   assert.equal(recorded(await state(), 'card')[0].spaceId, 15);
   await page.locator('dialog[open] .raid-skip').click();
@@ -116,7 +120,7 @@ try {
   await click('.action-tray', 'End Turn');
   assert.equal((await state()).currentPlayerIndex, 0);
   assert.equal((await state()).turnPhase, 'PRE_ROLL');
-  checks.push('Face-down Chance, draw audio, card-directed railroad rent, raid and doubles');
+  checks.push('Face-down Chance, draw audio, card-directed railroad rent notice over the raid dialog, and doubles');
 
   await fixture('card-chain');
   await roll();

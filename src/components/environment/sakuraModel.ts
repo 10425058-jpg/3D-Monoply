@@ -4,12 +4,48 @@ import { blossomMipmaps } from './sakuraAtlas';
 type SakuraPart = 'bark' | 'sprays' | 'flowers';
 type SprayCrop = { left: number; top: number; right: number; bottom: number };
 const ATLAS_GRID = 4;
+const TRUNK_RINGS = 14;
+const VERTICES_PER_TRUNK_RING = 12;
 
 const models = new WeakMap<THREE.Group, ReturnType<typeof readModel>>();
 const scenicGeometry = new WeakMap<THREE.BufferGeometry, THREE.BufferGeometry>();
 const sprayGeometry = new WeakMap<THREE.BufferGeometry, THREE.BufferGeometry>();
+const trunkGeometry = new WeakMap<THREE.BufferGeometry, THREE.BufferGeometry>();
 const atlases = new WeakMap<THREE.Texture, ReturnType<typeof prepareAtlas>>();
 const materials = new WeakMap<THREE.MeshStandardMaterial, Partial<Record<SakuraPart, THREE.MeshStandardMaterial>>>();
+
+export function widenSakuraTrunk(source: THREE.BufferGeometry) {
+  const cached = trunkGeometry.get(source);
+  if (cached) return cached;
+  const positions = source.getAttribute('position').clone();
+  // In both supplied GLBs the first 168 vertices are the trunk's cross sections.
+  // Widen each ring about its own center to preserve the authored curve and roots.
+  for (let ring = 0; ring < TRUNK_RINGS; ring++) {
+    const start = ring * VERTICES_PER_TRUNK_RING;
+    const end = start + VERTICES_PER_TRUNK_RING;
+    let x = 0, z = 0;
+    for (let vertex = start; vertex < end; vertex++) {
+      x += positions.getX(vertex);
+      z += positions.getZ(vertex);
+    }
+    x /= VERTICES_PER_TRUNK_RING;
+    z /= VERTICES_PER_TRUNK_RING;
+    for (let vertex = start; vertex < end; vertex++) {
+      positions.setX(vertex, x + (positions.getX(vertex) - x) * 1.6);
+      positions.setZ(vertex, z + (positions.getZ(vertex) - z) * 1.6);
+    }
+  }
+  const geometry = new THREE.BufferGeometry().setIndex(source.index);
+  for (const [name, attribute] of Object.entries(source.attributes)) geometry.setAttribute(name, attribute);
+  geometry.setAttribute('position', positions);
+  if (source.hasAttribute('normal')) {
+    geometry.deleteAttribute('normal');
+    geometry.computeVertexNormals();
+  }
+  geometry.computeBoundingBox();
+  trunkGeometry.set(source, geometry);
+  return geometry;
+}
 
 export function expandBlossomSprays(source: THREE.BufferGeometry, crops: readonly SprayCrop[]) {
   const positions = source.getAttribute('position');
@@ -25,7 +61,7 @@ export function expandBlossomSprays(source: THREE.BufferGeometry, crops: readonl
     across.fromBufferAttribute(positions, first + 1).sub(origin);
     up.fromBufferAttribute(positions, first + 3).sub(origin);
     center.copy(origin).addScaledVector(across, .5).addScaledVector(up, .5);
-    const size = THREE.MathUtils.lerp(1.05, 1.14, THREE.MathUtils.smoothstep(center.y, 1.7, 3.4));
+    const size = THREE.MathUtils.lerp(1.24, 1.38, THREE.MathUtils.smoothstep(center.y, 1.7, 3.4));
     const u0 = uv.getX(first), u1 = uv.getX(first + 1), v0 = uv.getY(first), v1 = uv.getY(first + 3);
     const column = Math.floor((u0 + u1) * ATLAS_GRID * .5);
     const row = Math.floor((v0 + v1) * ATLAS_GRID * .5);
@@ -222,9 +258,12 @@ export function sakuraParts(liteScene: THREE.Group, scene: THREE.Group, distant:
     expanded = expandBlossomSprays(originalSprays, crops);
     sprayGeometry.set(originalSprays, expanded);
   }
-  const bounds = chosen.bounds.clone().union(expanded.boundingBox!.clone().applyMatrix4(chosen.sprays.matrix));
+  const bark = widenSakuraTrunk(lite.bark.geometry);
+  const bounds = chosen.bounds.clone()
+    .union(expanded.boundingBox!.clone().applyMatrix4(chosen.sprays.matrix))
+    .union(bark.boundingBox!.clone().applyMatrix4(lite.bark.matrix));
   const parts = [
-    { ...lite.bark, name: 'bark', source: lite.bark.geometry, minExtent: 1.4 },
+    { ...lite.bark, name: 'bark', geometry: bark, source: lite.bark.geometry, minExtent: 1.4 },
     { ...chosen.sprays, name: 'sprays', geometry: expanded, source: originalSprays, material: lite.sprays.material, minExtent: 0.54 },
     { ...chosen.flowers, name: 'flowers', source: chosen.flowers.geometry, material: lite.flowers.material, minExtent: 0.11 },
   ] as const;
