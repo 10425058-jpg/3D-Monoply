@@ -5,7 +5,7 @@
   z-index: 23;
   width: clamp(268px, 22vw, 345px);
   color: #fff1d6;
-  font: 500 13px/1.35 'DM Sans', system-ui, sans-serif;
+  font: 500 13px/1.35 var(--game-ui-font);
   background: linear-gradient(154deg, #46245af7, #23122ef7 72%);
   border: 1px solid #e8b967;
   border-radius: 19px 7px;
@@ -19,7 +19,7 @@
   gap: 10px;
   padding: 13px 15px;
   color: #ffe0a0;
-  font: 700 clamp(14px, 1.18vw, 19px)/1.2 'Cinzel', Georgia, serif;
+  font: 700 clamp(14px, 1.18vw, 19px)/1.2 var(--game-ui-font);
   text-align: left;
   border-radius: 18px 7px;
 }
@@ -132,7 +132,7 @@
   width: min(415px, max(270px, calc(100vw - 870px)));
   pointer-events: none;
   color: #fff1d6;
-  font: 500 13px/1.35 'DM Sans', system-ui, sans-serif;
+  font: 500 13px/1.35 var(--game-ui-font);
 }
 .match-notices--online { top: 118px; width: min(415px, calc(100vw - 32px)); }
 .match-notice {
@@ -277,7 +277,10 @@
 .match-notice--center .match-announcement-heading h2 {
   margin: 0;
   color: #fff2d6;
-  font: 700 clamp(21px, 4vw, 30px)/1.2 'Cinzel', Georgia, serif;
+  font: 600 clamp(19px, 3.4vw, 26px)/1.4 var(--game-ui-font);
+  text-transform: none;
+  letter-spacing: normal;
+  text-wrap: balance;
   overflow-wrap: anywhere;
 }
 .match-announcement-heading h2 b { color: var(--announcement-accent); }
