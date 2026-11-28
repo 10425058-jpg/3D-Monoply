@@ -514,7 +514,7 @@ export const useGameStore = create<GameStore>((set, get) => {
         return { players, doublesCount: 0, turnPhase: 'END_TURN' };
       });
       addLog(`${player.name} went directly to Jail!`, 'alert', undefined,
-        { kind: 'jail', actorId: player.id, spaceId: 10 });
+        { kind: 'jail', actorId: player.id, spaceId: 10, emphasis: 'important' });
       return;
     }
 
@@ -912,7 +912,7 @@ export const useGameStore = create<GameStore>((set, get) => {
             return { players, doublesCount: 0, turnPhase: 'END_TURN' };
           });
           addLog(`${activePlayer.name} rolled 3 consecutive doubles and goes directly to Jail!`, 'alert', undefined,
-            { kind: 'jail', actorId: activePlayer.id, spaceId: 10 });
+            { kind: 'jail', actorId: activePlayer.id, spaceId: 10, emphasis: 'important' });
           return;
         }
 
@@ -1481,7 +1481,7 @@ export const useGameStore = create<GameStore>((set, get) => {
             return { players, doublesCount: 0, turnPhase: 'END_TURN' };
           });
           addLog(`${player.name} was sent to Jail!`, 'alert', undefined,
-            { kind: 'jail', actorId: player.id, spaceId: 10, silent: true });
+            { kind: 'jail', actorId: player.id, spaceId: 10, emphasis: 'important' });
           finishCard(`${player.name} was sent directly to Jail.`);
           break;
         }

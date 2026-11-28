@@ -185,7 +185,7 @@ export const ActivityLog = memo(function ActivityLog(props: ActivityProps) {
 });
 
 const announcementLabels: Partial<Record<ActivityKind, string>> = {
-  jail: 'Jail', bankruptcy: 'Bankruptcy', railroad: 'Railroad bonus', upgrade: 'Property milestone', victory: 'Match complete',
+  rent: 'Rent Paid', jail: 'Jail', bankruptcy: 'Bankruptcy', railroad: 'Railroad bonus', upgrade: 'Property milestone', victory: 'Match complete',
 };
 
 function ActivityNotice({ notice, close, reduced }: { notice: QueuedNotice; close: () => void; reduced: boolean }) {
@@ -294,11 +294,12 @@ function NoticeQueue({ events, layout = 'solo', draw, paused, animating, animate
   }, [frequency, visible]);
 
   const dialog = useRoyalModalElement();
-  const rent = visible ? queue.find(entry => !entry.waiting && entry.content.kind === 'rent') : undefined;
-  const notice = rent ?? (visible && !paused && !dialog ? queue.find(entry => !entry.waiting) : undefined);
-  const host = rent && dialog;
+  const priority = visible ? queue.find(entry => !entry.waiting && (entry.content.kind === 'rent' ||
+    (entry.content.kind === 'jail' && entry.content.emphasis === 'important'))) : undefined;
+  const notice = priority ?? (visible && !paused && !dialog ? queue.find(entry => !entry.waiting) : undefined);
+  const host = priority && dialog;
   const noticeId = notice?.id;
-  const ttl = rent ? 5600 : notice?.centered ? 7500 : notice?.content.kind === 'card' ? 5200 : 3600;
+  const ttl = notice?.centered ? 7500 : notice?.content.kind === 'card' ? 5200 : 3600;
   useEffect(() => {
     if (!noticeId) return;
     const timer = window.setTimeout(() => setQueue(current => current.filter(entry => entry.id !== noticeId)), ttl);
@@ -307,7 +308,7 @@ function NoticeQueue({ events, layout = 'solo', draw, paused, animating, animate
 
   const liveNotice = <div aria-live="polite" aria-atomic="true">
     <AnimatePresence mode="wait">
-      {notice && <motion.div key={notice.id} className={`match-notices match-notices--${host ? 'dialog' : notice.centered ? 'center' : layout}`}>
+      {notice && <motion.div key={notice.id} className={`match-notices match-notices--${notice.centered ? 'center' : layout}${host ? ' match-notices--dialog' : ''}`}>
         <ActivityNotice notice={notice} reduced={reducedMotion}
           close={() => setQueue(current => current.filter(entry => entry.id !== notice.id))} />
       </motion.div>}
